@@ -23,7 +23,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CloseShieldInputStream;
 
 /**
- *
+ * Class to read BSP-embedded zip files (pakiles).
+ * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class PakFile {
