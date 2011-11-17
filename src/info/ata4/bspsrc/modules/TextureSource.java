@@ -312,16 +312,19 @@ public class TextureSource extends BspSourceModule {
      */
     public void fixToolTexture(int ibrush, int ibrushside, Texture texture) {
         String oldTex = texture.getMaterial();
-
-        fixToolTexture1(ibrush, ibrushside, texture);
+        String newTex = getToolTexture(ibrush, ibrushside);
         
-        if (L.isLoggable(Level.FINEST) && !texture.getMaterial().equals(oldTex)) {
-            L.log(Level.FINEST, "Fix: {0}", oldTex);
-            L.log(Level.FINEST, " To: {0}", texture.getMaterial());
+        if (newTex != null && !newTex.equals(oldTex)) {
+            texture.setMaterial(newTex);
+            
+            if (L.isLoggable(Level.FINEST)) {
+                L.log(Level.FINEST, "Fix: {0}", oldTex);
+                L.log(Level.FINEST, " To: {0}", texture.getMaterial());
+            }
         }
     }
 
-    private void fixToolTexture1(int ibrush, int ibrushside, Texture texture) {
+    private String getToolTexture(int ibrush, int ibrushside) {
         DBrush brush = bsp.brushes.get(ibrush);
         DBrushSide brushSide = bsp.brushSides.get(ibrushside);
         
@@ -334,52 +337,48 @@ public class TextureSource extends BspSourceModule {
         if (brush.isDetail()) {
             // Clip
             if (brush.isPlayerClip() && brush.isNpcClip()) {
-                texture.setMaterial(ToolTexture.CLIP);
-                return;
+                return ToolTexture.CLIP;
             }
             
             // Player clip
             if (brush.isPlayerClip()) {
-                texture.setMaterial(ToolTexture.PLAYERCLIP);
-                return;
+                return ToolTexture.PLAYERCLIP;
             }
 
             // NPC clip
             if (brush.isNpcClip()) {
-                texture.setMaterial(ToolTexture.NPCCLIP);
-                return;
+                return ToolTexture.NPCCLIP;
             }
 
             // block light
             if (brush.isOpaque()) {
-                texture.setMaterial(ToolTexture.BLOCKLIGHT);
-                return;
+                return ToolTexture.BLOCKLIGHT;
             }
 
             // block line of sight
             if (brush.isBlockLos()) {
-                texture.setMaterial(ToolTexture.BLOCKLOS);
-                return;
+                return ToolTexture.BLOCKLOS;
             }
             
-            return;
-        } else if (!brush.isPlayerClip() && !brush.isNpcClip() && surfFlags.equals(SURFFLAGS_NODRAW)) {
-            // nodraw
-            texture.setMaterial(ToolTexture.NODRAW);
-            return;
+            return null;
+        }
+        
+        // nodraw
+        if (!brush.isPlayerClip() && !brush.isNpcClip() && surfFlags.equals(SURFFLAGS_NODRAW)) {
+            return ToolTexture.NODRAW;
         }
 
         // areaportal
         if (brush.isAreaportal()) {
-            texture.setMaterial(ToolTexture.AREAPORTAL);
-            return;
+            return ToolTexture.AREAPORTAL;
         }
 
         // invisible
         if (brush.isGrate() && brush.isTranslucent()) {
-            texture.setMaterial(ToolTexture.INVIS);
-            return;
+            return ToolTexture.INVIS;
         }
+        
+        return null;
     }
     
     private void setCubemapForTexname(int itexname, int cx, int cy, int cz) {
