@@ -35,8 +35,6 @@ import org.apache.commons.io.IOUtils;
  * - encrypted entities by BSPProtect
  * - obfuscated entities by IID
  * - texinfo hack by IID_BSP
- *
- * Also supports decryption of entities encrypted with BSPProtect.
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */

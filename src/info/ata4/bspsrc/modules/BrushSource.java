@@ -25,7 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Decompiling module to rebuild brushes from the LUMP_BRUSHES and LUMP_BRUSHSIDES lump.
+ * Decompiling module to rebuild brushes from the LUMP_BRUSHES and LUMP_BRUSHSIDES lumps.
  *
  * Based on Vmex.vmfbrushes() and Vmex.writebrush()
  * 

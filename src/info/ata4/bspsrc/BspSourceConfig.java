@@ -35,7 +35,7 @@ public final class BspSourceConfig {
     }
     
     private void updateDebugState(boolean debug) {
-        Logger rootLogger = Logger.getLogger("com.nuclearvelocity.barracuda");
+        Logger rootLogger = Logger.getLogger("info.ata4");
 
         // max out logger verbosity in debug mode
         rootLogger.setLevel(debug ? Level.ALL : Level.INFO);

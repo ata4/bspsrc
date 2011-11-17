@@ -43,10 +43,6 @@ import java.util.regex.Pattern;
  */
 public class TextureSource extends BspSourceModule {
     
-//    class Cubemap {
-//        Set<Integer> brushSides = new HashSet<Integer>();
-//    }
-    
     // logger
     private static final Logger L = Logger.getLogger(TextureSource.class.getName());
 
