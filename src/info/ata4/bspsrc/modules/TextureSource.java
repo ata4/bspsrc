@@ -331,16 +331,6 @@ public class TextureSource extends BspSourceModule {
             surfFlags = bsp.texinfos.get(brushSide.texinfo).flags;
         }
         
-        if (brush.isSolid()) {
-            // nodraw
-            if (surfFlags.equals(SURFFLAGS_NODRAW)) {
-                texture.setMaterial(ToolTexture.NODRAW);
-                return;
-            }
-            
-            return;
-        }
-
         if (brush.isDetail()) {
             // Clip
             if (brush.isPlayerClip() && brush.isNpcClip()) {
@@ -373,8 +363,12 @@ public class TextureSource extends BspSourceModule {
             }
             
             return;
+        } else if (!brush.isPlayerClip() && !brush.isNpcClip() && surfFlags.equals(SURFFLAGS_NODRAW)) {
+            // nodraw
+            texture.setMaterial(ToolTexture.NODRAW);
+            return;
         }
-        
+
         // areaportal
         if (brush.isAreaportal()) {
             texture.setMaterial(ToolTexture.AREAPORTAL);
