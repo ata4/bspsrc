@@ -18,7 +18,7 @@ Improvements and changes compared to VMEX 0.98g
 	* [info_lighting](http://developer.valvesoftware.com/wiki/info_lighting)
 * Support for the tools/blocklight texture.
 * Support for compressed and big-endian encoded maps (XBox 360, PS3)
-* Decompiles VMEX maps flagged for protection and at least detects other anti-decompiling methods.
+* Decompiles VMEX maps flagged with protection and at least detects other anti-decompiling methods.
 * Improved support for [prop_static](http://developer.valvesoftware.com/wiki/prop_static) and [info_overlay](http://developer.valvesoftware.com/wiki/info_overlay)</a>.
 * Improved console output.
 * New graphical user interface with output window.
@@ -33,7 +33,7 @@ Limitations and known bugs
 * Some internal entities that are entirely consumed by vbsp can't be restored. This includes following entities:
 	* [func_instance](http://developer.valvesoftware.com/wiki/func_instance)
 	* [func_instance_parms](http://developer.valvesoftware.com/wiki/func_instance_parms)
-	* [func_instance_origin)(http://developer.valvesoftware.com/wiki/func_instance_origin)
+	* [func_instance_origin](http://developer.valvesoftware.com/wiki/func_instance_origin)
 	* [func_viscluster](http://developer.valvesoftware.com/wiki/func_viscluster)
 	* [info_no_dynamic_shadow](http://developer.valvesoftware.com/wiki/info_no_dynamic_shadow)
 * Areaportal and occluder entities are somewhat difficult to decompile and sometimes have missing brushes or wrong textures.
