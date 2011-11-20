@@ -672,7 +672,9 @@ public class BspFileReader {
             return packets;
         } catch (IOException ex) {
             lumpError(lump, ex);
-        } catch (ReflectiveOperationException ex) {
+        } catch (IllegalAccessException ex) {
+            L.log(Level.SEVERE, "Lump struct class error", ex);
+        } catch (InstantiationException ex) {
             L.log(Level.SEVERE, "Lump struct class error", ex);
         } catch (RuntimeException ex) {
             L.log(Level.SEVERE, "Lump struct error", ex);
