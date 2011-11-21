@@ -53,11 +53,11 @@ public class TextAreaHandler extends Handler {
             doHeaders();
             if (record.getLevel().intValue() >= Level.WARNING.intValue()) {
                 err.append(msg);
-            } else {
-                out.append(msg);
-                // make sure the last line is always visible
-                out.setCaretPosition(out.getDocument().getLength());
             }
+            
+            out.append(msg);
+            // make sure the last line is always visible
+            out.setCaretPosition(out.getDocument().getLength());
         } catch (Exception ex) {
             reportError(null, ex, ErrorManager.WRITE_FAILURE);
         }
