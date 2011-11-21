@@ -56,7 +56,20 @@ public class PakFile {
                 }
                 
                 while ((ze = zis.getNextZipEntry()) != null) {
-                    File entryFile = new File(dest, ze.getName());
+                    String zipName = ze.getName();
+                    
+                    // some maps have embedded files with absolute paths, for
+                    // whatever reason...
+                    zipName = zipName.replace(':', '_');
+                    
+                    File entryFile = new File(dest, zipName);
+
+                    // don't overwrite any files
+                    if (entryFile.exists()) {
+                        L.log(Level.INFO, "Skipped {0}", ze.getName());
+                        continue;
+                    }
+                    
                     L.log(Level.INFO, "Extracting {0}", ze.getName());
 
                     try {
