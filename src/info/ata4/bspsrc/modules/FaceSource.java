@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class FaceSource extends BspSourceVmfModule {
+public class FaceSource extends ModuleDecompile {
 
     // logger
     private static final Logger L = Logger.getLogger(FaceSource.class.getName());

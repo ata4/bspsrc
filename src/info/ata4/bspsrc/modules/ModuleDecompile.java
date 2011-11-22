@@ -15,21 +15,23 @@ import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.VmfWriter;
 
 /**
- * An extension of BspSourceModule for modules that also output VMF data
- * via the VmfFileWriter.
+ * An extension of ReadingModule for modules that also output VMF data
+ * via the VmfWriter.
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public abstract class BspSourceVmfModule extends BspSourceModule {
+public abstract class ModuleDecompile extends ModuleRead {
 
     protected final VmfWriter writer;
+    protected final BspSourceConfig config;
 
-    public BspSourceVmfModule(BspSourceConfig config, BspFileReader reader, VmfWriter writer) {
-        super(config, reader);
+    public ModuleDecompile(BspFileReader reader, VmfWriter writer, BspSourceConfig config) {
+        super(reader);
         this.writer = writer;
+        this.config = config;
     }
     
-    public BspSourceVmfModule(BspSourceVmfModule parent) {
-        this(parent.config, parent.reader, parent.writer);
+    public ModuleDecompile(ModuleDecompile parent) {
+        this(parent.reader, parent.writer, parent.config);
     }
 }

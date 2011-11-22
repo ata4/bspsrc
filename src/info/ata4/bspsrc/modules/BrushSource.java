@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class BrushSource extends BspSourceVmfModule {
+public class BrushSource extends ModuleDecompile {
 
     // logger
     private static final Logger L = Logger.getLogger(BrushSource.class.getName());
@@ -57,7 +57,7 @@ public class BrushSource extends BspSourceVmfModule {
         
         this.parent = parent;
         this.texsrc = parent.getTextureSource();
-        
+
         assignBrushes();
     }
 

@@ -13,29 +13,26 @@ package info.ata4.bspsrc.modules;
 import info.ata4.bsplib.struct.BspData;
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.BspFileReader;
-import info.ata4.bspsrc.BspSourceConfig;
 
 /**
- * Basic abstract class for all BspSource modules that are reading with the
+ * Basic abstract class for all modules that are reading BSP files with the
  * BspFileReader.
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public abstract class BspSourceModule {
+public abstract class ModuleRead {
 
-    protected final BspSourceConfig config;
     protected final BspFileReader reader;
     protected final BspData bsp;
     protected final BspFile bspFile;
-
-    public BspSourceModule(BspSourceConfig config, BspFileReader reader) {
-        this.config = config;
+    
+    public ModuleRead(BspFileReader reader) {
         this.reader = reader;
         this.bsp = reader.getData();
         this.bspFile = reader.getBspFile();
     }
     
-    public BspSourceModule(BspSourceModule parent) {
-        this(parent.config, parent.reader);
+    public ModuleRead(ModuleRead parent) {
+        this(parent.reader);
     }
 }

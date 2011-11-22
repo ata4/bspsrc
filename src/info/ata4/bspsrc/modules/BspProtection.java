@@ -10,6 +10,7 @@
 
 package info.ata4.bspsrc.modules;
 
+import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.struct.DBrush;
 import info.ata4.bsplib.struct.DBrushSide;
 import info.ata4.bsplib.entity.Entity;
@@ -38,7 +39,7 @@ import org.apache.commons.io.IOUtils;
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class BspProtection extends BspSourceModule {
+public class BspProtection extends ModuleRead {
 
     // constants
     public static final String BSPPROTECT_FILE = "entities.dat";
@@ -67,8 +68,13 @@ public class BspProtection extends BspSourceModule {
     private boolean encryptedEnt;
     private boolean obfuscatedEnt;
     private boolean modifedTexinfo;
+    
+    public BspProtection(BspFileReader reader, TextureSource texsrc) {
+        super(reader);
+        this.texsrc = texsrc;
+    }
 
-    public BspProtection(BspSourceModule parent, TextureSource texsrc) {
+    public BspProtection(ModuleRead parent, TextureSource texsrc) {
         super(parent);
         this.texsrc = texsrc;
     }

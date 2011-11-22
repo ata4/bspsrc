@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class BspDecompiler extends BspSourceVmfModule {
+public class BspDecompiler extends ModuleDecompile {
 
     // logger
     private static final Logger L = Logger.getLogger(BspDecompiler.class.getName());
@@ -51,14 +51,14 @@ public class BspDecompiler extends BspSourceVmfModule {
     private String comment;
 
     public BspDecompiler(BspSourceConfig config, BspFileReader reader, VmfWriter writer) {
-        super(config, reader, writer);
+        super(reader, writer, config);
 
         texsrc = new TextureSource(this);
         brushsrc = new BrushSource(this);
         facesrc = new FaceSource(this);
         entsrc = new EntitySource(this);
         bspprot = new BspProtection(this);
-        
+
         worldspawn = bsp.entities.get(0);
     }
 
@@ -298,5 +298,9 @@ public class BspDecompiler extends BspSourceVmfModule {
      */
     public void writeFooter() {
         writer.end("world");
+    }
+
+    public BspSourceConfig getConfig() {
+        return config;
     }
 }

@@ -49,7 +49,7 @@ import java.util.regex.Pattern;
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class EntitySource extends BspSourceVmfModule {
+public class EntitySource extends ModuleDecompile {
 
     // logger
     private static final Logger L = Logger.getLogger(EntitySource.class.getName());

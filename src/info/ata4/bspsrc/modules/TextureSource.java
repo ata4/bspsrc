@@ -17,7 +17,6 @@ import info.ata4.bsplib.struct.DTexData;
 import info.ata4.bsplib.struct.DTexInfo;
 import info.ata4.bsplib.struct.SurfaceFlag;
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.TextureAxis;
 import info.ata4.bspsrc.Texture;
 import info.ata4.bspsrc.ToolTexture;
@@ -41,7 +40,7 @@ import java.util.regex.Pattern;
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class TextureSource extends BspSourceModule {
+public class TextureSource extends ModuleRead {
     
     // logger
     private static final Logger L = Logger.getLogger(TextureSource.class.getName());
@@ -57,12 +56,12 @@ public class TextureSource extends BspSourceModule {
     private Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<Integer, Set<Integer>>();
     private int[] texnameToCubemap;
     
-    public TextureSource(BspSourceConfig config, BspFileReader reader) {
-        super(config, reader);
+    public TextureSource(BspFileReader reader) {
+        super(reader);
         init();
     }
 
-    public TextureSource(BspSourceModule parent) {
+    public TextureSource(ModuleRead parent) {
         super(parent);
         init();
     }
