@@ -1,6 +1,5 @@
 package info.ata4.bsplib.compression.lzma;
 
-import info.ata4.bsplib.compression.ICodeProgress;
 import info.ata4.bsplib.compression.lz.BinTree;
 import info.ata4.bsplib.compression.rangecoder.BitTreeEncoder;
 import info.ata4.bsplib.compression.rangecoder.RangeEncoder;
@@ -1149,8 +1148,7 @@ public class LzmaEncoder {
     private long[] processedOutSize = new long[1];
     private boolean[] finished = new boolean[1];
 
-    public void code(InputStream inStream, OutputStream outStream,
-            ICodeProgress progress) throws IOException {
+    public void code(InputStream inStream, OutputStream outStream) throws IOException {
         _needReleaseMFStream = false;
         try {
             setStreams(inStream, outStream);
@@ -1159,17 +1157,10 @@ public class LzmaEncoder {
                 if (finished[0]) {
                     return;
                 }
-                if (progress != null) {
-                    progress.setProgress(processedInSize[0], processedOutSize[0]);
-                }
             }
         } finally {
             releaseStreams();
         }
-    }
-    
-    public void code(InputStream inStream, OutputStream outStream) throws IOException {
-        code(inStream, outStream, null);
     }
     
     public static final int kPropSize = 5;
