@@ -148,15 +148,19 @@ public class BspDecompiler extends BspSourceVmfModule {
             case BRUSHPLANES:
                 brushsrc.writeBrushes();
                 break;
+                
             case ORIGFACE:
                 facesrc.writeOrigFaces();
                 break;
+                
             case ORIGFACE_PLUS:
                 facesrc.writeOrigFacesPlus();
                 break;
+                
             case SPLITFACE:
                 facesrc.writeFaces();
                 break;
+                
             default:
                 break;
         }
@@ -209,6 +213,12 @@ public class BspDecompiler extends BspSourceVmfModule {
         }
 
         writer.end("visgroups");
+    }
+    
+    public void writeVisgroup(String visgroupName) { 
+        writer.start("editor");
+        writer.put("visgroupid", getVisgroupID(visgroupName));
+        writer.end("editor");
     }
     
     public int getVisgroupID(String visgroupName) {        

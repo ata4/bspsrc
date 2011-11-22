@@ -41,12 +41,14 @@ import org.apache.commons.io.IOUtils;
 public class BspProtection extends BspSourceModule {
 
     // constants
+    public static final String BSPPROTECT_FILE = "entities.dat";
+    public static final String VMEX_LOCKED_TEX = "tools/locked";
+    public static final String VMEX_LOCKED_ENT = "no_decomp";
+    
     private static final float EPS_SIZE = 0.01f;
     private static final float ALIGNED_ALPHA = 0.99f;
     private static final float NODRAW_RATIO_LIMIT = 0.9f;
-    private static final String BSPPROTECT_FILE = "entities.dat";
-    private static final String VMEX_LOCKED_TEX = "tools/locked";
-    private static final String VMEX_LOCKED_ENT = "no_decomp";
+    
     private static final Vector3f PB1 = new Vector3f(1.0f, 4.0f, 9.0f);
     private static final Vector3f PB2 = new Vector3f(4.0f, 9.0f, 1.0f);
     private static final Vector3f PB3 = new Vector3f(9.0f, 1.0f, 4.0f);
@@ -348,7 +350,7 @@ public class BspProtection extends BspSourceModule {
             }
         }
 
-        return true;
+        return false;
     }
 
     /**

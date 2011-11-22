@@ -81,7 +81,7 @@ public class BrushSource extends BspSourceVmfModule {
 
         L.fine("Walked worldspawn tree");
 
-        worldbrushes = tl.getMaxBrushLeaf();
+        worldbrushes = tl.getMaxBrushLeaf() + 1;
 
         for (DModel model : bsp.models) {
             tl.reset();

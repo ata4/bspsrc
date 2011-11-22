@@ -242,7 +242,7 @@ public class EntitySource extends BspSourceVmfModule {
                 if ((isAreaportal || isOccluder) && (key.equals("angles") || key.equals("origin"))) {
                     continue;
                 }
-
+                
                 writer.put(key, value);
             }
             
@@ -300,15 +300,13 @@ public class EntitySource extends BspSourceVmfModule {
                     facesrc.writeOccluder(occluderNum);
                 }
             }
-
+            
             // find instance prefix and add it to a visgroup
             if (instances && ent.getTargetName() != null) {
                 Matcher m = INSTANCE_PREFIX.matcher(ent.getTargetName());
 
                 if (m.find()) {
-                    writer.start("editor");
-                    writer.put("visgroupid", parent.getVisgroupID(m.group(1)));
-                    writer.end("editor");
+                    parent.writeVisgroup(m.group(1));
                 }
             }
 
