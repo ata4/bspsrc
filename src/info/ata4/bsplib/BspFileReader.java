@@ -315,8 +315,10 @@ public class BspFileReader {
         
         if (bspFile.getVersion() == 17 && bspFile.getAppID() == AppID.HALF_LIFE_2_BETA) {
             struct = DDispInfoBSP17.class;
-        } else if (bspFile.getVersion() >= 22) {
+        } else if (bspFile.getVersion() == 22) {
             struct = DDispInfoBSP22.class;
+        } else if (bspFile.getVersion() >= 23) {
+            struct = DDispInfoBSP23.class;
         }
         
         bsp.dispinfos = loadLump(LumpType.LUMP_DISPINFO, struct);

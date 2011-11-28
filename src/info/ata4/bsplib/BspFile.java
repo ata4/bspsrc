@@ -53,7 +53,7 @@ public class BspFile {
 
     // version limits
     public static final int VERSION_MIN = 17;
-    public static final int VERSION_MAX = 22;
+    public static final int VERSION_MAX = 23;
 
     // lump limits
     public static final int HEADER_LUMPS = 64;

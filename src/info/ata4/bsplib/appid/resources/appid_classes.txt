@@ -1,4 +1,26 @@
-#DOTA_2 22
+#DOTA_2 22 23
+dota_item_rune_spawner
+ent_dota_fountain
+ent_dota_game_events
+ent_dota_lightinfo
+ent_dota_shop
+ent_dota_tree
+info_courier_spawn_dire
+info_courier_spawn_radiant
+info_player_start_badguys
+info_player_start_goodguys
+npc_dota_barracks
+npc_dota_building
+npc_dota_fort
+npc_dota_neutral_spawner
+npc_dota_roshan_spawner
+npc_dota_spawner_bad_bot
+npc_dota_spawner_bad_mid
+npc_dota_spawner_bad_top
+npc_dota_spawner_good_bot
+npc_dota_spawner_good_mid
+npc_dota_spawner_good_top
+npc_dota_tower
 
 #PORTAL_2 21
 env_lightrail_endpoint

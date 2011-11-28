@@ -257,7 +257,7 @@ public final class Vector3f {
      */
     public Vector3f rotate(Vector3f angles) {
         if (angles.x == 0 && angles.y == 0 && angles.z == 0) {
-            // nothing to do
+            // nothing to do here
             return this;
         }
 
