@@ -11,6 +11,7 @@
 package info.ata4.bspsrc.modules;
 
 import info.ata4.bsplib.BspFileReader;
+import info.ata4.bsplib.appid.AppID;
 import info.ata4.bsplib.struct.DBrush;
 import info.ata4.bsplib.struct.DBrushSide;
 import info.ata4.bsplib.struct.DTexData;
@@ -292,8 +293,7 @@ public class TextureSource extends ModuleRead {
             if (!textname.equals(bsp.texnames.get(i))) {
                 if (L.isLoggable(Level.FINEST)) {
                     // display differences
-                    L.log(Level.FINEST, "Fix: {0}", bsp.texnames.get(i));
-                    L.log(Level.FINEST, " To: {0}", textname);
+                    L.log(Level.FINEST, "{0} -> {1}", new Object[] {bsp.texnames.get(i), textname});
                 }
 
                 bsp.texnames.set(i, textname);
@@ -317,8 +317,8 @@ public class TextureSource extends ModuleRead {
             texture.setMaterial(newTex);
             
             if (L.isLoggable(Level.FINEST)) {
-                L.log(Level.FINEST, "Fix: {0}", oldTex);
-                L.log(Level.FINEST, " To: {0}", texture.getMaterial());
+                // display differences
+                L.log(Level.FINEST, "{0} -> {1}", new Object[] {oldTex, texture.getMaterial()});
             }
         }
     }
@@ -359,6 +359,11 @@ public class TextureSource extends ModuleRead {
                 return ToolTexture.BLOCKLOS;
             }
             
+            return null;
+        }
+        
+        if (bspFile.getAppID() == AppID.VAMPIRE_BLOODLINES) {
+            // too many crucial game-specific tool textures, stop here
             return null;
         }
         

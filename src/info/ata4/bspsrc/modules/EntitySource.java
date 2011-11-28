@@ -10,6 +10,7 @@
 
 package info.ata4.bspsrc.modules;
 
+import info.ata4.bsplib.appid.AppID;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.struct.Color32;
@@ -222,7 +223,7 @@ public class EntitySource extends ModuleDecompile {
             for (Map.Entry<String, String> kv : ent.getEntrySet()) {
                 String key = kv.getKey();
                 String value = kv.getValue();
-
+                
                 // skip angles for models and world brushes when fixing rotation
                 if (key.equals("angles") && modelNum >= 0 && fixRot) {
                     continue;
@@ -738,6 +739,18 @@ public class EntitySource extends ModuleDecompile {
                 // rebuild mapversion
                 if (!ent.hasKey("mapversion")) {
                     ent.setValue("mapversion", bspFile.getMapRev());
+                }
+            }
+            
+            // replace escaped quotes for VTMB so they can be loaded with the
+            // inofficial SDK Hammer
+            if (bspFile.getAppID() == AppID.VAMPIRE_BLOODLINES) {
+                for (Map.Entry<String, String> kv : ent.getEntrySet()) {
+                    kv.setValue(kv.getValue().replace("\\\"", "'"));
+                }
+                
+                for (KeyValue kv : ent.getIO()) {
+                    kv.setValue(kv.getValue().replace("\\\"", "'"));
                 }
             }
             
