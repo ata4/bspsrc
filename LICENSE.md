@@ -1,3 +1,6 @@
+License
+=======
+
 This is free and unencumbered software released into the public domain.
 
 Anyone is free to copy, modify, publish, use, compile, sell, or
@@ -22,3 +25,12 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
 For more information, please refer to <http://unlicense.org/>
+
+Apache License
+==============
+
+BSPSource uses
+* (Apache Commons CLI)[http://commons.apache.org/cli/]
+* (Apache Commons Compress)[http://commons.apache.org/compress/]
+* (Apache Commons IO)[http://commons.apache.org/io/]
+which are licensed under the [Apache License version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
