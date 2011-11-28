@@ -53,6 +53,7 @@ public class EntityInputStream extends CountingInputStream {
 
                         // ignore '"' if the previous character was '\'
                         if (esc) {
+                            esc = false;
                             break;
                         }
                         
@@ -78,7 +79,7 @@ public class EntityInputStream extends CountingInputStream {
                             sb.delete(0, sb.length());
                         }
 
-                        string = !string;
+                        string = !string;      
                         continue;
 
                     case '{':
@@ -105,7 +106,6 @@ public class EntityInputStream extends CountingInputStream {
                         if (allowEsc) {
                             // skip this character and add the next '"' to the string
                             esc = true;
-                            continue;
                         }
                         break;
                 }
@@ -114,8 +114,6 @@ public class EntityInputStream extends CountingInputStream {
                 if (section && string) {
                     sb.append((char) b);
                 }
-
-                esc = false;
             }
         } catch (ParseException ex) {
             L.log(Level.WARNING, "{0} at {1}", new Object[]{ex.getMessage(), ex.getErrorOffset()});

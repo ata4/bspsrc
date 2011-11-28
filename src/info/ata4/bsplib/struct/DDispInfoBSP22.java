@@ -14,7 +14,7 @@ import info.ata4.bsplib.lump.LumpDataOutput;
 import java.io.IOException;
 
 /**
- * DDispInfo structure variant for BSP v22+ maps.
+ * DDispInfo structure variant for BSP v22 maps.
  * TODO: could be Dota 2 only?
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
