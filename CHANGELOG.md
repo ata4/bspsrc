@@ -1,5 +1,11 @@
 ## Changelog
 
+### 1.3.2 - 02.12.2011
+* Added basic support for BSP version 23 (Dota 2)
+* Decompiled Vampire: Bloodlines maps with script I/O can now be loaded in the inofficial SDK Hammer without modifications
+* Game-specific tool textures in Vampire: Bloodlines maps are no longer changed to tools/toolsnodraw
+* Error messages are now logged in both text areas of the GUI so the affected map can be figured out when decompiling multiple maps with errors
+
 ### 1.3.1 - 21.11.2011
 * Fixed "NoClassDefFoundError" when running on Java 6
 
