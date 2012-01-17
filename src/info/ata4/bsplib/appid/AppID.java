@@ -21,7 +21,7 @@ public enum AppID {
     UNKNOWN(-1, "Unknown"),
     VINDICTUS(-100, "Vindictus"),
     HALF_LIFE_2_BETA(-220, "Half-Life 2 (Beta)"),
-    // real Steam AppIDs
+    // Valve's Source engine games
     HALF_LIFE_2(220, "Half-Life 2"),
     COUNTER_STRIKE_SOURCE(240, "Counter-Strike: Source"),
     DAY_OF_DEFEAT_SOURCE(300, "Day of Defeat: Source"),
@@ -35,6 +35,8 @@ public enum AppID {
     DOTA_2(570, "Dota 2"),
     PORTAL_2(620, "Portal 2"),
     ALIEN_SWARM(630, "Alien Swarm"),
+    COUNTER_STRIKE_GO(1800, "Counter-Strike: Global Offensive"),
+    // other Source engine games
     SIN_EPISODES_EMERGENCE(1300, "SiN Episodes: Emergence"),
     DARK_MESSIAH_SP(2110, "Dark Messiah of M&M (SP)"),
     DARK_MESSIAH_MP(2130, "Dark Messiah of M&M (MP/Demo)"),

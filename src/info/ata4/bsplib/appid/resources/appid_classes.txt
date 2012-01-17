@@ -22,6 +22,14 @@ npc_dota_spawner_good_mid
 npc_dota_spawner_good_top
 npc_dota_tower
 
+#COUNTER_STRIKE_GO 21
+func_bomb_target
+func_buyzone
+func_hostage_rescue
+hostage_entity
+info_player_counterterrorist
+info_player_terrorist
+
 #PORTAL_2 21
 env_lightrail_endpoint
 env_player_viewfinder
