@@ -13,6 +13,8 @@ package info.ata4.bspsrc;
 import info.ata4.bsplib.appid.AppID;
 import info.ata4.log.ConsoleFormatter;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -39,7 +41,7 @@ public final class BspSourceConfig implements Serializable {
     public boolean loadLumpFiles = true;
     public boolean nullOutput = false;
     public boolean skipProt = false;
-    public boolean unpackEmbedded = true;
+    public boolean unpackEmbedded = false;
     public boolean writeAreaportals = true;
     public boolean writeBrushEntities = true;
     public boolean writeCameras = true;
@@ -76,6 +78,27 @@ public final class BspSourceConfig implements Serializable {
         
         if (debug) {
             L.fine("Debug mode on, verbosity set to maximum");
+        }
+    }
+    
+    public void dumpToLog() {
+        dumpToLog(L);
+    }
+    
+    public void dumpToLog(Logger logger) {
+        Field[] fields = getClass().getDeclaredFields();
+        
+        for (Field field : fields) {
+            // ignore static fields
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+            
+            try {
+                logger.log(Level.CONFIG, "{0} = {1}", new Object[]{field.getName(), field.get(this)});
+            } catch (Exception ex) {
+                continue;
+            }
         }
     }
     

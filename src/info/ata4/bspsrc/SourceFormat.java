@@ -12,13 +12,14 @@ package info.ata4.bspsrc;
 import info.ata4.bsplib.util.EnumConverter;
 
 /**
- *
+ * Map source format enumeration.
+ * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public enum SourceFormat {
     
     AUTO("Automatic"),
-    OLD("Source 2004-2009"),
+    OLD("Source 2004 to 2009"),
     NEW("Source 2010 and later");
     
     private final String name;

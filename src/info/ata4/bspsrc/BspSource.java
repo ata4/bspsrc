@@ -49,6 +49,11 @@ public class BspSource implements Runnable {
     public void run() {
         // some benchmarking
         long startTime = System.currentTimeMillis();
+        
+        // log all config fields in debug mode
+        if (config.isDebug()) {
+            config.dumpToLog();
+        }
 
         // acquire list of files
         Set<BspFileEntry> entries = config.getFileSet();

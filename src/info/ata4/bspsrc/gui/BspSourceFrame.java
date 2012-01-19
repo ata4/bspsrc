@@ -819,14 +819,14 @@ public class BspSourceFrame extends javax.swing.JFrame {
         });
 
         comboBoxMapFormat.setModel(getAppIDModel());
-        comboBoxMapFormat.setToolTipText("<html>\n<p>Overrides the internal game detection.</p>\n<p>Select <i>\"Unknown\"</i> for automatic detection.</p>\n<br>\n<b>Warning:</b> Change only if the game isn't detected<br>\ncorrectly, wrong values can cause program errors!\n</html>");
+        comboBoxMapFormat.setToolTipText("<html>\n<p>Overrides the internal game detection for maps.</p>\n<p>Select <i>\"Unknown\"</i> for automatic detection.</p>\n<br>\n<b>Warning:</b> Change only if the game isn't detected<br>\ncorrectly, wrong values can cause program errors!\n</html>");
         comboBoxMapFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboBoxMapFormatActionPerformed(evt);
             }
         });
 
-        labelMapFormat.setText("Map format");
+        labelMapFormat.setText("BSP format");
 
         checkBoxVisgroups.setText("Create Hammer visgroups");
         checkBoxVisgroups.setToolTipText("<html>Automatically group instanced entities to visgroups.\n<p><b>Note:</b> World brushes created from instances can't<br>\nbe grouped because of missing information.</p>\n</html>");
@@ -852,9 +852,10 @@ public class BspSourceFrame extends javax.swing.JFrame {
             }
         });
 
-        labelSourceFormat.setText("Map source format");
+        labelSourceFormat.setText("VMF format");
 
         comboBoxSourceFormat.setModel(getSourceFormatModel());
+        comboBoxSourceFormat.setToolTipText("<html>\n<p>Sets the VMF source format.</p>\n<p>On default, newer maps are decompiled to a format<br/>\nthat is incompatible with older Hammer versions. <br/>\nSelect <i>\"Source 2003-2009\"</i> if you want to make sure that<br/>\nthe decompiled map is loadable in old Hammer versions.\n</html>");
         comboBoxSourceFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboBoxSourceFormatActionPerformed(evt);
@@ -885,7 +886,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                         .addGroup(panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(comboBoxMapFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(comboBoxSourceFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(44, Short.MAX_VALUE))
         );
         panelOtherLayout.setVerticalGroup(
             panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

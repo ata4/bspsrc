@@ -648,7 +648,7 @@
                               </Group>
                           </Group>
                       </Group>
-                      <EmptySpace pref="22" max="32767" attributes="0"/>
+                      <EmptySpace pref="44" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -709,7 +709,7 @@
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="getAppIDModel()" type="code"/>
                 </Property>
-                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;&lt;p&gt;Overrides the internal game detection.&lt;/p&gt;&#xa;&lt;p&gt;Select &lt;i&gt;&quot;Unknown&quot;&lt;/i&gt; for automatic detection.&lt;/p&gt;&#xa;&lt;br&gt;&#xa;&lt;b&gt;Warning:&lt;/b&gt; Change only if the game isn&apos;t detected&lt;br&gt;&#xa;correctly, wrong values can cause program errors!&#xa;&lt;/html&gt;"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;&lt;p&gt;Overrides the internal game detection for maps.&lt;/p&gt;&#xa;&lt;p&gt;Select &lt;i&gt;&quot;Unknown&quot;&lt;/i&gt; for automatic detection.&lt;/p&gt;&#xa;&lt;br&gt;&#xa;&lt;b&gt;Warning:&lt;/b&gt; Change only if the game isn&apos;t detected&lt;br&gt;&#xa;correctly, wrong values can cause program errors!&#xa;&lt;/html&gt;"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboBoxMapFormatActionPerformed"/>
@@ -717,7 +717,7 @@
             </Component>
             <Component class="javax.swing.JLabel" name="labelMapFormat">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Map format"/>
+                <Property name="text" type="java.lang.String" value="BSP format"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JCheckBox" name="checkBoxVisgroups">
@@ -749,7 +749,7 @@
             </Component>
             <Component class="javax.swing.JLabel" name="labelSourceFormat">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Map source format"/>
+                <Property name="text" type="java.lang.String" value="VMF format"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JComboBox" name="comboBoxSourceFormat">
@@ -757,6 +757,7 @@
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="getSourceFormatModel()" type="code"/>
                 </Property>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;&lt;p&gt;Sets the VMF source format.&lt;/p&gt;&#xa;&lt;p&gt;On default, newer maps are decompiled to a format&lt;br/&gt;&#xa;that is incompatible with older Hammer versions. &lt;br/&gt;&#xa;Select &lt;i&gt;&quot;Source 2003-2009&quot;&lt;/i&gt; if you want to make sure that&lt;br/&gt;&#xa;the decompiled map is loadable in old Hammer versions.&#xa;&lt;/html&gt;"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboBoxSourceFormatActionPerformed"/>

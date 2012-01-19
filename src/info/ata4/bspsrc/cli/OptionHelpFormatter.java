@@ -17,7 +17,7 @@ import org.apache.commons.cli.Options;
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class CustomHelpFormatter extends HelpFormatter {
+public class OptionHelpFormatter extends HelpFormatter {
 
     public void printHelp(PrintWriter pw, int width,
             String header, Options options, int leftPad,

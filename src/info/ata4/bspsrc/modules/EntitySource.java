@@ -730,8 +730,10 @@ public class EntitySource extends ModuleDecompile {
 
     private void processEntities() {
         for (Entity ent : bsp.entities) {
+            String className = ent.getClassName();
+            
             // fix worldspawn
-            if (ent.getClassName().equals("worldspawn")) {
+            if (className.equals("worldspawn")) {
                 // remove values that are unknown to Hammer
                 ent.removeValue("world_mins");
                 ent.removeValue("world_maxs");
@@ -759,18 +761,18 @@ public class EntitySource extends ModuleDecompile {
             // inofficial SDK Hammer
             if (bspFile.getAppID() == AppID.VAMPIRE_BLOODLINES) {
                 for (Map.Entry<String, String> kv : ent.getEntrySet()) {
-                    kv.setValue(kv.getValue().replace("\\\"", "'"));
+                    kv.setValue(kv.getValue().replace("\\\"", ""));
                 }
                 
                 for (KeyValue kv : ent.getIO()) {
-                    kv.setValue(kv.getValue().replace("\\\"", "'"));
+                    kv.setValue(kv.getValue().replace("\\\"", ""));
                 }
             }
             
             // func_simpleladder entities are used by the engine only and won't
             // work when re-compiling, so replace them with empty func_ladder's
             // instead.
-            if (ent.getClassName().equals("func_simpleladder")) {
+            if (className.equals("func_simpleladder")) {
                 int modelNum = ent.getModelNum();
 
                 ent.clear();
@@ -779,13 +781,13 @@ public class EntitySource extends ModuleDecompile {
             }
 
             // fix light entities (except for dynamic lights)
-            if (ent.getClassName().startsWith("light")
-                    && !ent.getClassName().equals("light_dynamic")) {
+            if (className.startsWith("light")
+                    && !className.equals("light_dynamic")) {
                 fixLightEntity(ent);
             }
             
             // add cameras based on info_player_* positions
-            if (ent.getClassName().startsWith("info_player_")) {
+            if (className.startsWith("info_player_")) {
                 createCamera(ent);
             }
             

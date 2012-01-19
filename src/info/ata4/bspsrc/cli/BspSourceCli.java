@@ -15,6 +15,7 @@ import info.ata4.bspsrc.BrushMode;
 import info.ata4.bspsrc.BspFileEntry;
 import info.ata4.bspsrc.BspSource;
 import info.ata4.bspsrc.BspSourceConfig;
+import info.ata4.bspsrc.SourceFormat;
 import java.io.File;
 import java.util.Collection;
 import java.util.Set;
@@ -51,12 +52,13 @@ public class BspSourceCli {
         System.out.println("usage: bspsrc [options] <path> [path...]");
         System.out.println();
         
-        CustomHelpFormatter clHelp = new CustomHelpFormatter();
+        OptionHelpFormatter clHelp = new OptionHelpFormatter();
         clHelp.printHelp("Main options:", optsMain);
         clHelp.printHelp("Entity options:", optsEntity);
         clHelp.printHelp("World brush options:", optsWorld);
         clHelp.printHelp("Texture options:", optsTexture);
         clHelp.printHelp("Other options:", optsOther);
+        
         System.exit(0);
     }
 
@@ -124,11 +126,11 @@ public class BspSourceCli {
         optsWorld.addOption(bmodeOpt = OptionBuilder
             .hasArg()
             .withArgName("enum")
-            .withDescription("Brush decompiling mode: \n" +
-            BrushMode.BRUSHPLANES.name() + "   - brushes and planes\n" +
-            BrushMode.ORIGFACE.name() + "      - original faces only\n" +
-            BrushMode.ORIGFACE_PLUS.name() + " - original + split faces\n" +
-            BrushMode.SPLITFACE.name() + "     - split faces only\n" +
+            .withDescription("Brush decompiling mode:\n" +
+                BrushMode.BRUSHPLANES.name() + "   - brushes and planes\n" +
+                BrushMode.ORIGFACE.name() + "      - original faces only\n" +
+                BrushMode.ORIGFACE_PLUS.name() + " - original + split faces\n" +
+                BrushMode.SPLITFACE.name() + "     - split faces only\n" +
             "default: " + config.brushMode.name())
             .create("brushmode"));
         optsWorld.addOption(thicknOpt = OptionBuilder
@@ -153,7 +155,7 @@ public class BspSourceCli {
             .create("bfacetex"));
 
         // other options
-        Option nvmfOpt, nlumpfilesOpt, nprotOpt, listappidsOpt, appidOpt, nvisgrpOpt, ncamsOpt;
+        Option nvmfOpt, nlumpfilesOpt, nprotOpt, listappidsOpt, appidOpt, nvisgrpOpt, ncamsOpt, formatOpt;
         optsOther.addOption(nvmfOpt = new Option("no_vmf", "Don't write any VMF files, read BSP only."));
         optsOther.addOption(nlumpfilesOpt = new Option("no_lumpfiles", "Don't load lump files (.lmp) associated with the BSP file."));
         optsOther.addOption(nprotOpt = new Option("no_prot", "Skip decompiling protection checking. Can increase speed when mass-decompiling unprotected maps."));
@@ -163,10 +165,19 @@ public class BspSourceCli {
         optsOther.addOption(appidOpt = OptionBuilder
             .hasArg()
             .withArgName("string/int")
-            .withDescription("Overrides game detection by using "
-            + "this Steam Application ID instead.\n"
-            + "Use -appids to list all known app-IDs.")
+            .withDescription("Overrides game detection by using " +
+            "this Steam Application ID instead.\n" +
+            "Use -appids to list all known app-IDs.")
             .create("appid"));
+        optsOther.addOption(formatOpt = OptionBuilder
+            .hasArg()
+            .withArgName("enum")
+            .withDescription("Sets the VMF format used for the decompiled maps:\n" +
+                SourceFormat.AUTO.name() + " - " + SourceFormat.AUTO + "\n" +
+                SourceFormat.OLD.name() + "  - " + SourceFormat.OLD + "\n" +
+                SourceFormat.NEW.name() + "  - " + SourceFormat.NEW + "\n" +
+                "default: " + config.sourceFormat.name())
+            .create("format"));
 
         // all options
         optsAll.addOptions(optsMain);
@@ -239,6 +250,22 @@ public class BspSourceCli {
                         config.brushMode = BrushMode.fromOrdinal(mode);
                     } catch (IllegalArgumentException ex2) {
                         throw new RuntimeException("Invalid brush mode");
+                    }
+                }
+            }
+            
+            if (cl.hasOption(formatOpt.getOpt())) {
+                String formatStr = cl.getOptionValue(formatOpt.getOpt());
+                
+                try {
+                    config.sourceFormat = SourceFormat.valueOf(formatStr);
+                } catch (IllegalArgumentException ex) {
+                    // try again as ordinal enum value
+                    try {
+                        int format = Integer.valueOf(formatStr.toUpperCase());
+                        config.sourceFormat = SourceFormat.fromOrdinal(format);
+                    } catch (IllegalArgumentException ex2) {
+                        throw new RuntimeException("Invalid source format");
                     }
                 }
             }
