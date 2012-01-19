@@ -37,22 +37,11 @@ public class BspSourceCli {
 
     private static final Logger L = Logger.getLogger(BspSourceCli.class.getName());
 
-    public static void create(String[] args) {
-        try {
-            BspSourceCli cli = new BspSourceCli();
-            BspSource bspsrc = new BspSource(cli.getConfig(args));
-            bspsrc.run();
-        } catch (Throwable t) {
-            // "Really bad!"
-            L.log(Level.SEVERE, "Fatal BSPSource error", t);
-        }
-    }
-    
-    private Options optsMain = new MultiOptions();
-    private Options optsEntity = new MultiOptions();
-    private Options optsWorld = new MultiOptions();
-    private Options optsTexture = new MultiOptions();
-    private Options optsOther = new MultiOptions();
+    private Options optsMain = new Options();
+    private Options optsEntity = new Options();
+    private Options optsWorld = new Options();
+    private Options optsTexture = new Options();
+    private Options optsOther = new Options();
     private MultiOptions optsAll = new MultiOptions();
 
     /**
@@ -101,16 +90,16 @@ public class BspSourceCli {
      * @param args arguments string
      */
     @SuppressWarnings("static-access")
-    private BspSourceConfig getConfig(String[] args) {
+    public BspSourceConfig getConfig(String[] args) {
         BspSourceConfig config = new BspSourceConfig();
         
         // basic options
-        Option opt_help, opt_version, opt_debug, opt_output, opt_recursive;
-        optsMain.addOption(opt_help = new Option("h", "Print this help."));
-        optsMain.addOption(opt_version = new Option("v", "Print version info."));
-        optsMain.addOption(opt_debug = new Option("d", "Enable debug mode. Increases verbosity and adds additional data to the VMF file."));
-        optsMain.addOption(opt_recursive = new Option("r", "Decompile all files found in the given directory."));
-        optsMain.addOption(opt_output = OptionBuilder
+        Option helpOpt, versionOpt, debugOpt, outputOpt, recursiveOpt;
+        optsMain.addOption(helpOpt = new Option("h", "Print this help."));
+        optsMain.addOption(versionOpt = new Option("v", "Print version info."));
+        optsMain.addOption(debugOpt = new Option("d", "Enable debug mode. Increases verbosity and adds additional data to the VMF file."));
+        optsMain.addOption(recursiveOpt = new Option("r", "Decompile all files found in the given directory."));
+        optsMain.addOption(outputOpt = OptionBuilder
             .hasArg()
             .withArgName("file")
             .withDescription("Override output path for VMF file(s). Treated as directory if multiple BSP files are provided. \ndefault: <mappath>/<mapname>_d.vmf")
@@ -118,32 +107,32 @@ public class BspSourceCli {
             .create('o'));
 
         // entity options
-        Option opt_nbents, opt_npents, opt_nprops, opt_noverl, opt_ncubem, opt_ndetails, opt_nareap, opt_noccl, opt_nrotfix;
-        optsEntity.addOption(opt_npents = new Option("no_point_ents", "Don't write any point entities."));
-        optsEntity.addOption(opt_nbents = new Option("no_brush_ents", "Don't write any brush entities."));
-        optsEntity.addOption(opt_nprops = new Option("no_sprp", "Don't write prop_static entities."));
-        optsEntity.addOption(opt_noverl = new Option("no_overlays", "Don't write info_overlay entities."));
-        optsEntity.addOption(opt_ncubem = new Option("no_cubemaps", "Don't write env_cubemap entities."));
-        optsEntity.addOption(opt_ndetails = new Option("no_details", "Don't write func_detail entities."));
-        optsEntity.addOption(opt_nareap = new Option("no_areaportals", "Don't write func_areaportal(_window) entities."));
-        optsEntity.addOption(opt_noccl = new Option("no_occluders", "Don't write func_occluder entities."));
-        optsEntity.addOption(opt_nrotfix = new Option("no_rotfix", "Don't fix instance entity brush rotations for Hammer."));
+        Option nbentsOpt, npentsOpt, npropsOpt, noverlOpt, ncubemOpt, ndetailsOpt, nareapOpt, nocclOpt, nrotfixOpt;
+        optsEntity.addOption(npentsOpt = new Option("no_point_ents", "Don't write any point entities."));
+        optsEntity.addOption(nbentsOpt = new Option("no_brush_ents", "Don't write any brush entities."));
+        optsEntity.addOption(npropsOpt = new Option("no_sprp", "Don't write prop_static entities."));
+        optsEntity.addOption(noverlOpt = new Option("no_overlays", "Don't write info_overlay entities."));
+        optsEntity.addOption(ncubemOpt = new Option("no_cubemaps", "Don't write env_cubemap entities."));
+        optsEntity.addOption(ndetailsOpt = new Option("no_details", "Don't write func_detail entities."));
+        optsEntity.addOption(nareapOpt = new Option("no_areaportals", "Don't write func_areaportal(_window) entities."));
+        optsEntity.addOption(nocclOpt = new Option("no_occluders", "Don't write func_occluder entities."));
+        optsEntity.addOption(nrotfixOpt = new Option("no_rotfix", "Don't fix instance entity brush rotations for Hammer."));
         
         // world brush options
-        Option opt_nbrush, opt_ndisp, opt_bmode, opt_thickn;
-        optsWorld.addOption(opt_nbrush = new Option("no_brushes", "Don't write any world brushes."));
-        optsWorld.addOption(opt_ndisp = new Option("no_disps", "Don't write displacement surfaces."));
-        optsWorld.addOption(opt_bmode = OptionBuilder
+        Option nbrushOpt, ndispOpt, bmodeOpt, thicknOpt;
+        optsWorld.addOption(nbrushOpt = new Option("no_brushes", "Don't write any world brushes."));
+        optsWorld.addOption(ndispOpt = new Option("no_disps", "Don't write displacement surfaces."));
+        optsWorld.addOption(bmodeOpt = OptionBuilder
             .hasArg()
-            .withArgName("int")
+            .withArgName("enum")
             .withDescription("Brush decompiling mode: \n" +
-            "0 - brushes and planes\n" +
-            "1 - original faces only\n" +
-            "2 - original + split faces\n" +
-            "3 - split faces only\n" +
-            "default: " + config.getBrushMode().ordinal())
+            BrushMode.BRUSHPLANES.name() + "   - brushes and planes\n" +
+            BrushMode.ORIGFACE.name() + "      - original faces only\n" +
+            BrushMode.ORIGFACE_PLUS.name() + " - original + split faces\n" +
+            BrushMode.SPLITFACE.name() + "     - split faces only\n" +
+            "default: " + config.getBrushMode().name())
             .create("brushmode"));
-        optsWorld.addOption(opt_thickn = OptionBuilder
+        optsWorld.addOption(thicknOpt = OptionBuilder
             .hasArg()
             .withArgName("float")
             .withDescription("Thickness of brushes created from flat faces in units.\n" +
@@ -151,28 +140,28 @@ public class BspSourceCli {
             .create("thickness"));
         
         // texture options
-        Option opt_ntexfix, opt_ftex, opt_bftex;
-        optsTexture.addOption(opt_ntexfix = new Option("no_texfix", "Don't fix texture names."));
-        optsTexture.addOption(opt_ftex = OptionBuilder
+        Option ntexfixOpt, ftexOpt, bftexOpt;
+        optsTexture.addOption(ntexfixOpt = new Option("no_texfix", "Don't fix texture names."));
+        optsTexture.addOption(ftexOpt = OptionBuilder
             .hasArg()
             .withArgName("string")
             .withDescription("Replace all face textures with this one.")
             .create("facetex"));
-        optsTexture.addOption(opt_bftex = OptionBuilder
+        optsTexture.addOption(bftexOpt = OptionBuilder
             .hasArg()
             .withArgName("string")
             .withDescription("Replace all back-face textures with this one. Used in face-based decompiling modes only.")
             .create("bfacetex"));
 
         // other options
-        Option opt_nvmf, opt_nlumpfiles, opt_nprot, opt_listappids, opt_appid, opt_nvisgrp, opt_ncams;
-        optsOther.addOption(opt_nvmf = new Option("no_vmf", "Don't write any VMF files, read BSP only."));
-        optsOther.addOption(opt_nlumpfiles = new Option("no_lumpfiles", "Don't load lump files (.lmp) associated with the BSP file."));
-        optsOther.addOption(opt_nprot = new Option("no_prot", "Skip decompiling protection checking. Can increase speed when mass-decompiling unprotected maps."));
-        optsOther.addOption(opt_listappids = new Option("appids", "List all available application IDs"));
-        optsOther.addOption(opt_nvisgrp = new Option("no_visgroups", "Don't group entities from instances into visgroups."));
-        optsOther.addOption(opt_ncams = new Option("no_cams", "Don't create Hammer cameras above each player spawn."));
-        optsOther.addOption(opt_appid = OptionBuilder
+        Option nvmfOpt, nlumpfilesOpt, nprotOpt, listappidsOpt, appidOpt, nvisgrpOpt, ncamsOpt;
+        optsOther.addOption(nvmfOpt = new Option("no_vmf", "Don't write any VMF files, read BSP only."));
+        optsOther.addOption(nlumpfilesOpt = new Option("no_lumpfiles", "Don't load lump files (.lmp) associated with the BSP file."));
+        optsOther.addOption(nprotOpt = new Option("no_prot", "Skip decompiling protection checking. Can increase speed when mass-decompiling unprotected maps."));
+        optsOther.addOption(listappidsOpt = new Option("appids", "List all available application IDs"));
+        optsOther.addOption(nvisgrpOpt = new Option("no_visgroups", "Don't group entities from instances into visgroups."));
+        optsOther.addOption(ncamsOpt = new Option("no_cams", "Don't create Hammer cameras above each player spawn."));
+        optsOther.addOption(appidOpt = OptionBuilder
             .hasArg()
             .withArgName("string/int")
             .withDescription("Overrides game detection by using "
@@ -202,79 +191,85 @@ public class BspSourceCli {
             cl = clParser.parse(optsAll, args);
 
             // help
-            if(cl.hasOption(opt_help.getOpt())) {
+            if(cl.hasOption(helpOpt.getOpt())) {
                 printHelp();
             }
             
             // version
-            if (cl.hasOption(opt_version.getOpt())) {
+            if (cl.hasOption(versionOpt.getOpt())) {
                 printVersion();
             }
 
             // list app-ids
-            if (cl.hasOption(opt_listappids.getOpt())) {
+            if (cl.hasOption(listappidsOpt.getOpt())) {
                 printAppIDs();
             }
             
             // main options
-            config.setDebug(cl.hasOption(opt_debug.getOpt()));
+            config.setDebug(cl.hasOption(debugOpt.getOpt()));
             
-            if (cl.hasOption(opt_output.getOpt())) {
-                outputFile = new File(cl.getOptionValue(opt_output.getOpt()));
+            if (cl.hasOption(outputOpt.getOpt())) {
+                outputFile = new File(cl.getOptionValue(outputOpt.getOpt()));
             }
             
-            recursive = cl.hasOption(opt_recursive.getOpt());
+            recursive = cl.hasOption(recursiveOpt.getOpt());
             
             // entity options
-            config.setWritePointEntities(!cl.hasOption(opt_npents.getOpt()));
-            config.setWriteBrushEntities(!cl.hasOption(opt_nbents.getOpt()));
-            config.setWriteStaticProps(!cl.hasOption(opt_nprops.getOpt()));
-            config.setWriteOverlays(!cl.hasOption(opt_noverl.getOpt()));
-            config.setWriteDisplacements(!cl.hasOption(opt_ndisp.getOpt()));
-            config.setWriteAreaportals(!cl.hasOption(opt_nareap.getOpt()));
-            config.setWriteOccluders(!cl.hasOption(opt_noccl.getOpt()));
-            config.setWriteCubemaps(!cl.hasOption(opt_ncubem.getOpt()));
-            config.setWriteDetails(!cl.hasOption(opt_ndetails.getOpt()));
+            config.setWritePointEntities(!cl.hasOption(npentsOpt.getOpt()));
+            config.setWriteBrushEntities(!cl.hasOption(nbentsOpt.getOpt()));
+            config.setWriteStaticProps(!cl.hasOption(npropsOpt.getOpt()));
+            config.setWriteOverlays(!cl.hasOption(noverlOpt.getOpt()));
+            config.setWriteDisplacements(!cl.hasOption(ndispOpt.getOpt()));
+            config.setWriteAreaportals(!cl.hasOption(nareapOpt.getOpt()));
+            config.setWriteOccluders(!cl.hasOption(nocclOpt.getOpt()));
+            config.setWriteCubemaps(!cl.hasOption(ncubemOpt.getOpt()));
+            config.setWriteDetails(!cl.hasOption(ndetailsOpt.getOpt()));
             
             // world options
-            config.setWriteWorldBrushes(!cl.hasOption(opt_nbrush.getOpt()));
+            config.setWriteWorldBrushes(!cl.hasOption(nbrushOpt.getOpt()));
             
-            if (cl.hasOption(opt_bmode.getOpt())) {
-                int mode = Integer.valueOf(cl.getOptionValue(opt_bmode.getOpt()));
+            if (cl.hasOption(bmodeOpt.getOpt())) {
+                String modeStr = cl.getOptionValue(bmodeOpt.getOpt());
+   
                 try {
-                    config.setBrushMode(BrushMode.valueOf(mode));
-                } catch(IllegalArgumentException ex) {
-                    L.log(Level.SEVERE, "Invalid brush mode: {0}", mode);
-                    System.exit(1);
+                    config.setBrushMode(BrushMode.valueOf(modeStr));
+                } catch (IllegalArgumentException ex) {
+                    // try again as ordinal enum value
+                    try {
+                        int mode = Integer.valueOf(modeStr.toUpperCase());
+                        config.setBrushMode(BrushMode.valueOf(mode));
+                    } catch (IllegalArgumentException ex2) {
+                        throw new RuntimeException("Invalid brush mode");
+                    }
                 }
             }
             
-            if (cl.hasOption(opt_thickn.getOpt())) {
-                float thickness = Float.valueOf(cl.getOptionValue(opt_thickn.getOpt()));
+            if (cl.hasOption(thicknOpt.getOpt())) {
+                float thickness = Float.valueOf(cl.getOptionValue(thicknOpt.getOpt()));
                 config.setBackfaceDepth(thickness);
             }
             
             // texture options
-            config.setFixCubemapTexture(!cl.hasOption(opt_ntexfix.getOpt()));
+            config.setFixCubemapTexture(!cl.hasOption(ntexfixOpt.getOpt()));
 
-            if (cl.hasOption(opt_ftex.getOpt())) {
-                config.setFaceTexture(cl.getOptionValue(opt_ftex.getOpt()));
+            if (cl.hasOption(ftexOpt.getOpt())) {
+                config.setFaceTexture(cl.getOptionValue(ftexOpt.getOpt()));
             }
             
-            if (cl.hasOption(opt_bftex.getOpt())) {
-                config.setBackfaceTexture(cl.getOptionValue(opt_bftex.getOpt()));
+            if (cl.hasOption(bftexOpt.getOpt())) {
+                config.setBackfaceTexture(cl.getOptionValue(bftexOpt.getOpt()));
             }
             
             // other options
-            config.setLoadLumpFiles(!cl.hasOption(opt_nlumpfiles.getOpt()));
-            config.setSkipProtection(cl.hasOption(opt_nprot.getOpt()));
-            config.setFixEntityRotation(!cl.hasOption(opt_nrotfix.getOpt()));
-            config.setNullOutput(cl.hasOption(opt_nvmf.getOpt()));
-            config.setWriteVisgroups(!cl.hasOption(opt_nvisgrp.getOpt()));
-            config.setWriteCameras(!cl.hasOption(opt_ncams.getOpt()));
+            config.setLoadLumpFiles(!cl.hasOption(nlumpfilesOpt.getOpt()));
+            config.setSkipProtection(cl.hasOption(nprotOpt.getOpt()));
+            config.setFixEntityRotation(!cl.hasOption(nrotfixOpt.getOpt()));
+            config.setNullOutput(cl.hasOption(nvmfOpt.getOpt()));
+            config.setWriteVisgroups(!cl.hasOption(nvisgrpOpt.getOpt()));
+            config.setWriteCameras(!cl.hasOption(ncamsOpt.getOpt()));
             
-            if (cl.hasOption(opt_appid.getOpt())) {
-                config.setDefaultAppID(cl.getOptionValue(opt_appid.getOpt()));
+            if (cl.hasOption(appidOpt.getOpt())) {
+                config.setDefaultAppID(cl.getOptionValue(appidOpt.getOpt()));
             }
         } catch (Exception ex) {
             L.severe(ex.getMessage());

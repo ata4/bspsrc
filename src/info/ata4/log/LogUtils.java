@@ -14,31 +14,33 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Logging utility class.
+ * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class LogUtils {
-    public static void configureLogger(Level level) {
-        // get root logger
-        Logger log = Logger.getLogger("");
-
+    
+    private LogUtils() {
+    }
+    
+    public static void configure(Logger logger, Level level) {
         // remove default handler
-        for (Handler handler : log.getHandlers()) {
-            log.removeHandler(handler);
+        for (Handler handler : logger.getHandlers()) {
+            logger.removeHandler(handler);
         }
 
         // create new console handler
         ConsoleHandler conHandler = new ConsoleHandler();
         conHandler.setFormatter(new ConsoleFormatter());
-        log.addHandler(conHandler);
+        logger.addHandler(conHandler);
         
         // set level
         if (level != null) {
-            log.setLevel(level);
+            logger.setLevel(level);
         }
     }
     
-    public static void configureLogger() {
-        configureLogger(null);
-    } 
+    public static void configure(Logger logger) {
+        configure(logger, Level.INFO);
+    }
 }

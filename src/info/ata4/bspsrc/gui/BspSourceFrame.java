@@ -18,16 +18,13 @@ import info.ata4.bspsrc.BrushMode;
 import info.ata4.bspsrc.BspFileEntry;
 import info.ata4.bspsrc.BspSource;
 import info.ata4.bspsrc.BspSourceConfig;
-import info.ata4.bspsrc.ToolTexture;
+import info.ata4.bspsrc.SourceFormat;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.File;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,6 +35,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.ListModel;
 import javax.swing.filechooser.FileFilter;
 
 /**
@@ -48,18 +46,6 @@ import javax.swing.filechooser.FileFilter;
 public class BspSourceFrame extends javax.swing.JFrame {
     
     private static final Logger L = Logger.getLogger(BspSourceFrame.class.getName());
-    private static final Map<String, String> FACE_TEX_MODES;
-    
-    static {
-        Map<String, String> faceTex = new LinkedHashMap<String, String>();
-        faceTex.put("Default", "");
-        faceTex.put("White", ToolTexture.WHITE);
-        faceTex.put("Black", ToolTexture.BLACK);
-        faceTex.put("Nodraw", ToolTexture.NODRAW);
-        faceTex.put("Orange", ToolTexture.ORANGE);
-        faceTex.put("Skip", ToolTexture.SKIP);
-        FACE_TEX_MODES = Collections.unmodifiableMap(faceTex);
-    }
     
     private BspSourceConfig config;
     private BspSourceLogFrame logFrame;
@@ -108,19 +94,23 @@ public class BspSourceFrame extends javax.swing.JFrame {
         });
     }
 
-    public ComboBoxModel<String> getFaceTextureModel() {
-        return new DefaultComboBoxModel<String>(FACE_TEX_MODES.keySet().toArray(new String[]{}));
+    public ComboBoxModel getFaceTextureModel() {
+        return new DefaultComboBoxModel<EnumToolTexture>(EnumToolTexture.values());
     }
     
-    public ComboBoxModel<AppID> getAppIDModel() {
+    public ComboBoxModel getAppIDModel() {
         return new DefaultComboBoxModel<AppID>(AppID.values());
     }
     
-    public ComboBoxModel<BrushMode> getBrushModeModel() {
+    public ComboBoxModel getBrushModeModel() {
         return new DefaultComboBoxModel<BrushMode>(BrushMode.values());
     }
     
-    public javax.swing.ListModel getFilesModel() {
+    public ComboBoxModel getSourceFormatModel() {
+        return new DefaultComboBoxModel<SourceFormat>(SourceFormat.values());
+    }
+    
+    public ListModel getFilesModel() {
         return listFilesModel;
     }
     
@@ -422,6 +412,8 @@ public class BspSourceFrame extends javax.swing.JFrame {
         checkBoxVisgroups = new javax.swing.JCheckBox();
         checkBoxCameras = new javax.swing.JCheckBox();
         checkBoxExtractEmbedded = new javax.swing.JCheckBox();
+        labelSourceFormat = new javax.swing.JLabel();
+        comboBoxSourceFormat = new javax.swing.JComboBox();
         buttonDecompile = new javax.swing.JButton();
         buttonDefaults = new javax.swing.JButton();
 
@@ -860,6 +852,15 @@ public class BspSourceFrame extends javax.swing.JFrame {
             }
         });
 
+        labelSourceFormat.setText("Map source format");
+
+        comboBoxSourceFormat.setModel(getSourceFormatModel());
+        comboBoxSourceFormat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboBoxSourceFormatActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelOtherLayout = new javax.swing.GroupLayout(panelOther);
         panelOther.setLayout(panelOtherLayout);
         panelOtherLayout.setHorizontalGroup(
@@ -877,10 +878,14 @@ public class BspSourceFrame extends javax.swing.JFrame {
                             .addComponent(checkBoxCameras)
                             .addComponent(checkBoxVisgroups)))
                     .addGroup(panelOtherLayout.createSequentialGroup()
-                        .addComponent(labelMapFormat)
+                        .addGroup(panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(labelSourceFormat)
+                            .addComponent(labelMapFormat))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(comboBoxMapFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(44, Short.MAX_VALUE))
+                        .addGroup(panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(comboBoxMapFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(comboBoxSourceFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
         panelOtherLayout.setVerticalGroup(
             panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -901,7 +906,11 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addGroup(panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelMapFormat)
                     .addComponent(comboBoxMapFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(83, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labelSourceFormat)
+                    .addComponent(comboBoxSourceFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(57, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("Other", panelOther);
@@ -1032,11 +1041,13 @@ private void checkBoxDispActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 }//GEN-LAST:event_checkBoxDispActionPerformed
 
 private void comboBoxFaceTexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxFaceTexActionPerformed
-    config.setFaceTexture(FACE_TEX_MODES.get((String)comboBoxFaceTex.getSelectedItem()));
+    EnumToolTexture tex = ((EnumToolTexture)comboBoxFaceTex.getSelectedItem());
+    config.setFaceTexture(tex.texPath);
 }//GEN-LAST:event_comboBoxFaceTexActionPerformed
 
 private void comboBoxBackfaceTexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxBackfaceTexActionPerformed
-    config.setBackfaceTexture(FACE_TEX_MODES.get((String)comboBoxBackfaceTex.getSelectedItem()));
+    EnumToolTexture tex = ((EnumToolTexture)comboBoxBackfaceTex.getSelectedItem());
+    config.setBackfaceTexture(tex.texPath);
 }//GEN-LAST:event_comboBoxBackfaceTexActionPerformed
 
 private void checkBoxFixCubemapTexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxFixCubemapTexActionPerformed
@@ -1129,6 +1140,11 @@ private void buttonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         config.setExtractEmbedded(checkBoxExtractEmbedded.isSelected());
     }//GEN-LAST:event_checkBoxExtractEmbeddedActionPerformed
 
+    private void comboBoxSourceFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxSourceFormatActionPerformed
+        SourceFormat format = ((SourceFormat)comboBoxSourceFormat.getSelectedItem());
+        config.setSourceFormat(format);
+    }//GEN-LAST:event_comboBoxSourceFormatActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonAdd;
     private javax.swing.JButton buttonDecompile;
@@ -1156,10 +1172,12 @@ private void buttonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     private javax.swing.JComboBox comboBoxBackfaceTex;
     private javax.swing.JComboBox comboBoxFaceTex;
     private javax.swing.JComboBox comboBoxMapFormat;
+    private javax.swing.JComboBox comboBoxSourceFormat;
     private javax.swing.JLabel labelBackfaceTex;
     private javax.swing.JLabel labelDnDTip;
     private javax.swing.JLabel labelFaceTex;
     private javax.swing.JLabel labelMapFormat;
+    private javax.swing.JLabel labelSourceFormat;
     private javax.swing.JList listFiles;
     private javax.swing.JPanel panelBrushEnts;
     private javax.swing.JPanel panelBrushMode;

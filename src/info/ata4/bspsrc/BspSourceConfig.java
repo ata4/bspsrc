@@ -285,4 +285,12 @@ public final class BspSourceConfig {
     public void setExtractEmbedded(boolean unpackEmbedded) {
         props.setPropertyBoolean("extractEmbeddedFiles", unpackEmbedded);
     }
+    
+    public void setSourceFormat(SourceFormat sourceFormat) {
+        props.setProperty("sourceFormat", sourceFormat.name());
+    }
+
+    public SourceFormat getSourceFormat() {
+        return SourceFormat.valueOf(props.getProperty("sourceFormat", SourceFormat.AUTO.name()));
+    }
 }

@@ -31,6 +31,7 @@ import info.ata4.bsplib.struct.DStaticPropV8;
 import info.ata4.bsplib.struct.DStaticPropV9;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.Camera;
+import info.ata4.bspsrc.SourceFormat;
 import info.ata4.bspsrc.util.Winding;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -115,8 +116,6 @@ public class EntitySource extends ModuleDecompile {
         // this option is unnecessary for BSP files without instances, it will
         // only cause errors
         boolean fixRot = config.isFixEntityRotation() && instances;
-        
-        boolean brushMode = config.isBrushMode();
 
         for (Entity ent : bsp.entities) {
             final String className = ent.getClassName();
@@ -271,7 +270,7 @@ public class EntitySource extends ModuleDecompile {
 
             // write model brushes
             if (modelNum > 0) {
-                if (brushMode) {
+                if (config.isBrushMode()) {
                     brushsrc.writeModel(modelNum, origin, angles);
                 } else {
                     facesrc.writeModel(modelNum, origin, angles);
@@ -282,7 +281,7 @@ public class EntitySource extends ModuleDecompile {
                     int portalBrushNum = -1;
 
                     // find brushes in brush mode only
-                    if (brushMode) {
+                    if (config.isBrushMode()) {
                         portalBrushNum = findAreaportalBrush(portalNum);
                     }
 
@@ -342,7 +341,7 @@ public class EntitySource extends ModuleDecompile {
      */
     public void writeOverlays() {
         L.info("Writing info_overlays");
-
+        
         for (int i = 0; i < bsp.overlays.size(); i++) {
             DOverlay o = bsp.overlays.get(i);
             
@@ -729,6 +728,9 @@ public class EntitySource extends ModuleDecompile {
     }
 
     private void processEntities() {
+        SourceFormat format = config.getSourceFormat();
+        boolean debug = config.isDebug();
+        
         for (Entity ent : bsp.entities) {
             // fix worldspawn
             if (ent.getClassName().equals("worldspawn")) {
@@ -739,6 +741,19 @@ public class EntitySource extends ModuleDecompile {
                 // rebuild mapversion
                 if (!ent.hasKey("mapversion")) {
                     ent.setValue("mapversion", bspFile.getMapRev());
+                }
+            }
+            
+            if (format != SourceFormat.AUTO) {
+                char ioSepOld = ',';
+                char ioSepNew = (char) 0x1b;
+                
+                for (KeyValue kv : ent.getIO()) {
+                    if (format == SourceFormat.NEW) {
+                        kv.setValue(kv.getValue().replace(ioSepOld, ioSepNew));
+                    } else {
+                        kv.setValue(kv.getValue().replace(ioSepNew, ioSepOld));
+                    }
                 }
             }
             
@@ -777,7 +792,7 @@ public class EntitySource extends ModuleDecompile {
             }
             
             // remove hammerid, unless debug is enabled
-            if (!config.isDebug()) {
+            if (!debug) {
                 ent.removeValue("hammerid");
             }
         }

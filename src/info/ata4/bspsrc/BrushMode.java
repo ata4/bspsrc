@@ -18,13 +18,14 @@ import info.ata4.bsplib.util.EnumConverter;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public enum BrushMode {
+
     BRUSHPLANES("Brushes and planes"),
     ORIGFACE("Original faces"),
     ORIGFACE_PLUS("Original plus split faces"),
     SPLITFACE("Split faces");
     
     private final String name;
-    
+
     BrushMode(String name) {
         this.name = name;
     }
@@ -32,7 +33,7 @@ public enum BrushMode {
     public static BrushMode valueOf(int index) {
         return EnumConverter.fromOrdinal(BrushMode.class, index);
     }
-    
+
     @Override
     public String toString() {
         return name;

@@ -14,21 +14,23 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 /**
- *
+ * Quick hack to group multiple Options.
+ * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class MultiOptions extends Options {
+
     public MultiOptions addOptions(Options options) {
         if (options == null) {
             return this;
         }
-        
+
         Collection<Option> opts = options.getOptions();
-        
+
         for (Option opt : opts) {
             addOption(opt);
         }
-        
+
         return this;
     }
 }
