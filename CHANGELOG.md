@@ -1,5 +1,9 @@
 ## Changelog
 
+### 1.3.3 - 19.01.2012
+* Added detection of CS:GO maps
+* Added VMF format selection for old Hammer versions
+
 ### 1.3.2 - 02.12.2011
 * Added basic support for BSP version 23 (Dota 2)
 * Decompiled Vampire: Bloodlines maps with script I/O can now be loaded in the inofficial SDK Hammer without modifications
