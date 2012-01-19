@@ -30,6 +30,7 @@ import info.ata4.bsplib.struct.DStaticPropV7;
 import info.ata4.bsplib.struct.DStaticPropV8;
 import info.ata4.bsplib.struct.DStaticPropV9;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.bspsrc.BrushMode;
 import info.ata4.bspsrc.Camera;
 import info.ata4.bspsrc.SourceFormat;
 import info.ata4.bspsrc.util.Winding;
@@ -115,7 +116,7 @@ public class EntitySource extends ModuleDecompile {
         // fix rotated instance brushes?
         // this option is unnecessary for BSP files without instances, it will
         // only cause errors
-        boolean fixRot = config.isFixEntityRotation() && instances;
+        boolean fixRot = config.fixEntityRot && instances;
 
         for (Entity ent : bsp.entities) {
             final String className = ent.getClassName();
@@ -134,22 +135,22 @@ public class EntitySource extends ModuleDecompile {
             final boolean hasBrush = ent.getModelNum() > 0 || isAreaportal || isOccluder;
             
             // skip point entities?
-            if (!config.isWritePointEntities() && !hasBrush) {
+            if (!config.writePointEntities && !hasBrush) {
                 continue;
             }
             
             // skip brush entities?
-            if (!config.isWriteBrushEntities() && hasBrush) {
+            if (!config.writeBrushEntities && hasBrush) {
                 continue;
             }
 
             // skip areaportals?
-            if (!config.isWriteAreaportals() && isAreaportal) {
+            if (!config.writeAreaportals && isAreaportal) {
                 continue;
             }
 
             // skip occluders?
-            if (!config.isWriteOccluders() && isOccluder) {
+            if (!config.writeOccluders && isOccluder) {
                 continue;
             }
 
@@ -270,7 +271,7 @@ public class EntitySource extends ModuleDecompile {
 
             // write model brushes
             if (modelNum > 0) {
-                if (config.isBrushMode()) {
+                if (config.brushMode == BrushMode.BRUSHPLANES) {
                     brushsrc.writeModel(modelNum, origin, angles);
                 } else {
                     facesrc.writeModel(modelNum, origin, angles);
@@ -281,7 +282,7 @@ public class EntitySource extends ModuleDecompile {
                     int portalBrushNum = -1;
 
                     // find brushes in brush mode only
-                    if (config.isBrushMode()) {
+                    if (config.brushMode == BrushMode.BRUSHPLANES) {
                         portalBrushNum = findAreaportalBrush(portalNum);
                     }
 
@@ -400,7 +401,7 @@ public class EntitySource extends ModuleDecompile {
             Set<Integer> sides = new HashSet<Integer>();
             int faceCount = o.getFaceCount();
             
-            if (config.isBrushMode()) {
+            if (config.brushMode == BrushMode.BRUSHPLANES) {
                 Set<Integer> origFaces = new HashSet<Integer>();
                  
                 // collect original faces for this overlay
@@ -728,9 +729,6 @@ public class EntitySource extends ModuleDecompile {
     }
 
     private void processEntities() {
-        SourceFormat format = config.getSourceFormat();
-        boolean debug = config.isDebug();
-        
         for (Entity ent : bsp.entities) {
             // fix worldspawn
             if (ent.getClassName().equals("worldspawn")) {
@@ -744,12 +742,12 @@ public class EntitySource extends ModuleDecompile {
                 }
             }
             
-            if (format != SourceFormat.AUTO) {
+            if (config.sourceFormat != SourceFormat.AUTO) {
                 char ioSepOld = ',';
                 char ioSepNew = (char) 0x1b;
                 
                 for (KeyValue kv : ent.getIO()) {
-                    if (format == SourceFormat.NEW) {
+                    if (config.sourceFormat == SourceFormat.NEW) {
                         kv.setValue(kv.getValue().replace(ioSepOld, ioSepNew));
                     } else {
                         kv.setValue(kv.getValue().replace(ioSepNew, ioSepOld));
@@ -792,7 +790,7 @@ public class EntitySource extends ModuleDecompile {
             }
             
             // remove hammerid, unless debug is enabled
-            if (!debug) {
+            if (!config.isDebug()) {
                 ent.removeValue("hammerid");
             }
         }

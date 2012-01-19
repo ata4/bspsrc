@@ -47,38 +47,31 @@ public class BspSource implements Runnable {
      * Starts BSPSource
      */
     public void run() {
-        // don't allow configuration changes
-        config.lock();
-        
-        try {
-            // some benchmarking
-            long startTime = System.currentTimeMillis();
+        // some benchmarking
+        long startTime = System.currentTimeMillis();
 
-            // acquire list of files
-            Set<BspFileEntry> entries = config.getFiles();
+        // acquire list of files
+        Set<BspFileEntry> entries = config.getFileSet();
 
-            if (entries.isEmpty()) {
-                L.severe("No BSP files found");
-                return;
-            } else {
-                for (BspFileEntry entry : entries) {
-                    try {
-                        decompile(entry);
-                        System.gc(); // try to free some resources
-                    } catch (Exception ex) {
-                        // likely to be a critical error, but maybe it will work
-                        // with other files
-                        L.log(Level.SEVERE, "Decompiling error", ex);
-                    }
+        if (entries.isEmpty()) {
+            L.severe("No BSP files found");
+            return;
+        } else {
+            for (BspFileEntry entry : entries) {
+                try {
+                    decompile(entry);
+                    System.gc(); // try to free some resources
+                } catch (Exception ex) {
+                    // likely to be a critical error, but maybe it will work
+                    // with other files
+                    L.log(Level.SEVERE, "Decompiling error", ex);
                 }
-
-                // get total execution time
-                double duration = (System.currentTimeMillis() - startTime) / 1000.0;
-                L.log(Level.INFO, "Processed {0} file(s) in {1} seconds",
-                        new Object[]{entries.size(), String.format("%.4f", duration)});
             }
-        } finally {
-            config.unlock();
+
+            // get total execution time
+            double duration = (System.currentTimeMillis() - startTime) / 1000.0;
+            L.log(Level.INFO, "Processed {0} file(s) in {1} seconds",
+                    new Object[]{entries.size(), String.format("%.4f", duration)});
         }
     }
 
@@ -94,15 +87,15 @@ public class BspSource implements Runnable {
 
         try {
             BspFile bsp = new BspFile();
-            bsp.setAppID(config.getDefaultAppID());
+            bsp.setAppID(config.defaultAppID);
             bsp.load(bspFile);
             
-            if (config.isLoadLumpFiles()) {
+            if (config.loadLumpFiles) {
                 bsp.loadLumpFiles();
             }
             
             // extract embedded files
-            if (config.isExtractEmbedded()) {
+            if (config.unpackEmbedded) {
                 try {
                     bsp.getPakFile().extract(entry.getPakDir());
                 } catch (IOException ex) {
@@ -128,7 +121,7 @@ public class BspSource implements Runnable {
         
         try {
             // write to file or omit output?
-            if (config.isNullOutput()) {
+            if (config.nullOutput) {
                 writer = new VmfWriter(new NullOutputStream());
             } else {
                 writer = new VmfWriter(vmfFile);

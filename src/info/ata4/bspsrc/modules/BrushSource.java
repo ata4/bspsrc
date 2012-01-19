@@ -107,12 +107,12 @@ public class BrushSource extends ModuleDecompile {
             DBrush brush = bsp.brushes.get(i);
 
             // skip details
-            if (config.isWriteDetails() && brush.isSolid() && brush.isDetail()) {
+            if (config.writeDetails && brush.isSolid() && brush.isDetail()) {
                 continue;
             }
 
             // skip areaportals
-            if (config.isWriteAreaportals() && brush.isAreaportal()) {
+            if (config.writeAreaportals && brush.isAreaportal()) {
                 continue;
             }
             
@@ -230,11 +230,11 @@ public class BrushSource extends ModuleDecompile {
         Texture texture = texsrc.getTexture(brushSide.texinfo, origin, angles, normal);
         
         // set face texture string
-        if (!config.getFaceTexture().equals("")) {
-            texture.setMaterial(config.getFaceTexture());
+        if (!config.faceTexture.equals("")) {
+            texture.setMaterial(config.faceTexture);
         } else {
             // fix tool textures
-            if (config.isFixToolTextures()) {
+            if (config.fixToolTextures) {
                 texsrc.fixToolTexture(ibrush, ibrushside, texture);
             }
         }

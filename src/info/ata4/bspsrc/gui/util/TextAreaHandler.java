@@ -7,7 +7,7 @@
  **    May you find forgiveness for yourself and forgive others.
  **    May you share freely, never taking more than you give.
  */
-package info.ata4.log;
+package info.ata4.bspsrc.gui.util;
 
 import java.util.logging.ErrorManager;
 import java.util.logging.Handler;
@@ -16,7 +16,8 @@ import java.util.logging.LogRecord;
 import javax.swing.JTextArea;
 
 /**
- *
+ * Logging handler for two JTextAreas, one for normal messages and one for errors.
+ * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class TextAreaHandler extends Handler {

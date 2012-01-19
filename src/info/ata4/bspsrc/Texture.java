@@ -26,7 +26,7 @@ public class Texture {
     private static final float EPS_PERP = 0.02f;
 
     private DTexData data;
-    private String material = ToolTexture.SKIP; // use skip texture by default
+    private String material = ToolTexture.SKIP;
     private TextureAxis u = new TextureAxis(1, 0, 0);
     private TextureAxis v = new TextureAxis(0, 1, 0);
     private int lmscale = 16;

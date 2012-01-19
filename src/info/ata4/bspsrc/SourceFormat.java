@@ -27,7 +27,7 @@ public enum SourceFormat {
         this.name = name;
     }
 
-    public static SourceFormat valueOf(int index) {
+    public static SourceFormat fromOrdinal(int index) {
         return EnumConverter.fromOrdinal(SourceFormat.class, index);
     }
 

@@ -12,6 +12,7 @@ package info.ata4.bspsrc.modules;
 
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.entity.Entity;
+import info.ata4.bspsrc.BrushMode;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.Camera;
 import info.ata4.bspsrc.VmfWriter;
@@ -87,7 +88,7 @@ public class BspDecompiler extends ModuleDecompile {
      */
     public void start() {
         // fix texture names
-        if (config.isFixCubemapTextures()) {
+        if (config.fixCubemapTextures) {
             texsrc.fixCubemapTextures();
         }
 
@@ -97,7 +98,7 @@ public class BspDecompiler extends ModuleDecompile {
         }
 
         // check for protection and warn if the map has been protected
-        if (!config.isSkipProtection()) {
+        if (!config.skipProt) {
             checkProtection();
         }
 
@@ -105,7 +106,7 @@ public class BspDecompiler extends ModuleDecompile {
         writeHeader();
 
         // write brushes and displacements
-        if (config.isWriteWorldBrushes()) {
+        if (config.writeWorldBrushes) {
             writeBrushes();
         }
 
@@ -118,12 +119,12 @@ public class BspDecompiler extends ModuleDecompile {
         }
         
         // write visgroups
-        if (config.isWriteVisgroups()) {
+        if (config.writeVisgroups) {
             writeVisgroups();
         }
         
         // write cameras
-        if (config.isWriteCameras()) {
+        if (config.writeCameras) {
             writeCameras();
         }
     }
@@ -144,7 +145,7 @@ public class BspDecompiler extends ModuleDecompile {
     }
 
     private void writeBrushes() {
-        switch (config.getBrushMode()) {
+        switch (config.brushMode) {
             case BRUSHPLANES:
                 brushsrc.writeBrushes();
                 break;
@@ -167,30 +168,31 @@ public class BspDecompiler extends ModuleDecompile {
         
         // add faces with displacements
         // face modes don't need to do this separately
-        if (config.isBrushMode()) {
+        if (config.brushMode == BrushMode.BRUSHPLANES) {
             facesrc.writeDispFaces();
         }
     }
 
     private void writeEntities() {
-        if (config.isWriteBrushEntities() || config.isWritePointEntities()) {
+        if (config.isWriteEntities()) {
             entsrc.writeEntities();
         }
 
-        if (config.isWriteBrushEntities() && config.isWriteDetails() && config.isBrushMode()) {
+        if (config.writeBrushEntities && config.writeDetails
+                && config.brushMode == BrushMode.BRUSHPLANES) {
             entsrc.writeDetails();
         }
 
-        if (config.isWritePointEntities()) {
-            if (config.isWriteOverlays()) {
+        if (config.writePointEntities) {
+            if (config.writeOverlays) {
                 entsrc.writeOverlays();
             }
 
-            if (config.isWriteStaticProps()) {
+            if (config.writeStaticProps) {
                 entsrc.writeStaticProps();
             }
 
-            if (config.isWriteCubemaps()) {
+            if (config.writeCubemaps) {
                 entsrc.writeCubemaps();
             }
         }

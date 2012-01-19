@@ -18,7 +18,6 @@ import info.ata4.bspsrc.BspSourceConfig;
 import java.io.File;
 import java.util.Collection;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -130,13 +129,13 @@ public class BspSourceCli {
             BrushMode.ORIGFACE.name() + "      - original faces only\n" +
             BrushMode.ORIGFACE_PLUS.name() + " - original + split faces\n" +
             BrushMode.SPLITFACE.name() + "     - split faces only\n" +
-            "default: " + config.getBrushMode().name())
+            "default: " + config.brushMode.name())
             .create("brushmode"));
         optsWorld.addOption(thicknOpt = OptionBuilder
             .hasArg()
             .withArgName("float")
             .withDescription("Thickness of brushes created from flat faces in units.\n" +
-            "default: " + config.getBackfaceDepth())
+            "default: " + config.backfaceDepth)
             .create("thickness"));
         
         // texture options
@@ -215,29 +214,29 @@ public class BspSourceCli {
             recursive = cl.hasOption(recursiveOpt.getOpt());
             
             // entity options
-            config.setWritePointEntities(!cl.hasOption(npentsOpt.getOpt()));
-            config.setWriteBrushEntities(!cl.hasOption(nbentsOpt.getOpt()));
-            config.setWriteStaticProps(!cl.hasOption(npropsOpt.getOpt()));
-            config.setWriteOverlays(!cl.hasOption(noverlOpt.getOpt()));
-            config.setWriteDisplacements(!cl.hasOption(ndispOpt.getOpt()));
-            config.setWriteAreaportals(!cl.hasOption(nareapOpt.getOpt()));
-            config.setWriteOccluders(!cl.hasOption(nocclOpt.getOpt()));
-            config.setWriteCubemaps(!cl.hasOption(ncubemOpt.getOpt()));
-            config.setWriteDetails(!cl.hasOption(ndetailsOpt.getOpt()));
+            config.writePointEntities = !cl.hasOption(npentsOpt.getOpt());
+            config.writeBrushEntities = !cl.hasOption(nbentsOpt.getOpt());
+            config.writeStaticProps = !cl.hasOption(npropsOpt.getOpt());
+            config.writeOverlays = !cl.hasOption(noverlOpt.getOpt());
+            config.writeDisp = !cl.hasOption(ndispOpt.getOpt());
+            config.writeAreaportals = !cl.hasOption(nareapOpt.getOpt());
+            config.writeOccluders = !cl.hasOption(nocclOpt.getOpt());
+            config.writeCubemaps = !cl.hasOption(ncubemOpt.getOpt());
+            config.writeDetails = !cl.hasOption(ndetailsOpt.getOpt());
             
             // world options
-            config.setWriteWorldBrushes(!cl.hasOption(nbrushOpt.getOpt()));
+            config.writeWorldBrushes = !cl.hasOption(nbrushOpt.getOpt());
             
             if (cl.hasOption(bmodeOpt.getOpt())) {
                 String modeStr = cl.getOptionValue(bmodeOpt.getOpt());
    
                 try {
-                    config.setBrushMode(BrushMode.valueOf(modeStr));
+                    config.brushMode = BrushMode.valueOf(modeStr);
                 } catch (IllegalArgumentException ex) {
                     // try again as ordinal enum value
                     try {
                         int mode = Integer.valueOf(modeStr.toUpperCase());
-                        config.setBrushMode(BrushMode.valueOf(mode));
+                        config.brushMode = BrushMode.fromOrdinal(mode);
                     } catch (IllegalArgumentException ex2) {
                         throw new RuntimeException("Invalid brush mode");
                     }
@@ -246,30 +245,42 @@ public class BspSourceCli {
             
             if (cl.hasOption(thicknOpt.getOpt())) {
                 float thickness = Float.valueOf(cl.getOptionValue(thicknOpt.getOpt()));
-                config.setBackfaceDepth(thickness);
+                config.backfaceDepth = thickness;
             }
             
             // texture options
-            config.setFixCubemapTexture(!cl.hasOption(ntexfixOpt.getOpt()));
+            config.fixCubemapTextures = !cl.hasOption(ntexfixOpt.getOpt());
 
             if (cl.hasOption(ftexOpt.getOpt())) {
-                config.setFaceTexture(cl.getOptionValue(ftexOpt.getOpt()));
+                config.faceTexture = cl.getOptionValue(ftexOpt.getOpt());
             }
             
             if (cl.hasOption(bftexOpt.getOpt())) {
-                config.setBackfaceTexture(cl.getOptionValue(bftexOpt.getOpt()));
+                config.backfaceTexture = cl.getOptionValue(bftexOpt.getOpt());
             }
             
             // other options
-            config.setLoadLumpFiles(!cl.hasOption(nlumpfilesOpt.getOpt()));
-            config.setSkipProtection(cl.hasOption(nprotOpt.getOpt()));
-            config.setFixEntityRotation(!cl.hasOption(nrotfixOpt.getOpt()));
-            config.setNullOutput(cl.hasOption(nvmfOpt.getOpt()));
-            config.setWriteVisgroups(!cl.hasOption(nvisgrpOpt.getOpt()));
-            config.setWriteCameras(!cl.hasOption(ncamsOpt.getOpt()));
+            config.loadLumpFiles = !cl.hasOption(nlumpfilesOpt.getOpt());
+            config.skipProt = cl.hasOption(nprotOpt.getOpt());
+            config.fixEntityRot = !cl.hasOption(nrotfixOpt.getOpt());
+            config.nullOutput = cl.hasOption(nvmfOpt.getOpt());
+            config.writeVisgroups = !cl.hasOption(nvisgrpOpt.getOpt());
+            config.writeCameras = !cl.hasOption(ncamsOpt.getOpt());
             
             if (cl.hasOption(appidOpt.getOpt())) {
-                config.setDefaultAppID(cl.getOptionValue(appidOpt.getOpt()));
+                String appidStr = cl.getOptionValue(appidOpt.getOpt());
+   
+                try {
+                    config.defaultAppID = AppID.valueOf(appidStr);
+                } catch (IllegalArgumentException ex) {
+                    // try again as integer ID
+                    try {
+                        int appid = Integer.valueOf(appidStr.toUpperCase());
+                        config.defaultAppID = AppID.fromID(appid);
+                    } catch (IllegalArgumentException ex2) {
+                        throw new RuntimeException("Invalid default AppID");
+                    }
+                }
             }
         } catch (Exception ex) {
             L.severe(ex.getMessage());
@@ -278,7 +289,7 @@ public class BspSourceCli {
         
         // get non-recognized arguments, these are the BSP input files
         String[] argsLeft = cl.getArgs();
-        Set<BspFileEntry> files = config.getFiles();
+        Set<BspFileEntry> files = config.getFileSet();
         
         if (argsLeft.length == 0) {
             L.severe("No BSP file(s) specified");

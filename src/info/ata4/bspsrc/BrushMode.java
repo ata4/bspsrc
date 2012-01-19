@@ -30,7 +30,7 @@ public enum BrushMode {
         this.name = name;
     }
 
-    public static BrushMode valueOf(int index) {
+    public static BrushMode fromOrdinal(int index) {
         return EnumConverter.fromOrdinal(BrushMode.class, index);
     }
 

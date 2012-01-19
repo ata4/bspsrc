@@ -311,8 +311,8 @@ public class FaceSource extends ModuleDecompile {
         Texture texture = texsrc.getTexture(face.texinfo, origin, angles, normal);
 
         // set face texture string
-        if (!config.getFaceTexture().equals("")) {
-            texture.setMaterial(config.getFaceTexture());
+        if (!config.faceTexture.equals("")) {
+            texture.setMaterial(config.faceTexture);
         }
 
         // add side id to cubemap side list
@@ -329,7 +329,7 @@ public class FaceSource extends ModuleDecompile {
         boolean disp = face.dispInfo != -1;
 
         // write displacement?
-        if (disp && config.isWriteDisplacements()) {
+        if (disp && config.writeDisp) {
             // map face index to brush side ID
             dispinfoToID.put(face.dispInfo, sideID);
             // write dispinfo section
@@ -339,8 +339,8 @@ public class FaceSource extends ModuleDecompile {
         writer.end("side");
 
         // set back face texture string
-        if (!config.getBackfaceTexture().equals("")) {
-            texture.setMaterial(config.getBackfaceTexture());
+        if (!config.backfaceTexture.equals("")) {
+            texture.setMaterial(config.backfaceTexture);
         }
 
         // write prismatic back faces for displacements, pyramidal otherwise
@@ -401,7 +401,7 @@ public class FaceSource extends ModuleDecompile {
     }
     
     private void writePrismBack(Winding wind, Texture texture) {
-        writePrismBack(wind, texture, config.getBackfaceDepth());
+        writePrismBack(wind, texture, config.backfaceDepth);
     }
     
     /**
@@ -438,7 +438,7 @@ public class FaceSource extends ModuleDecompile {
     }
     
     private void writePyramBack(Winding wind, Texture texture) {
-        writePyramBack(wind, texture, config.getBackfaceDepth());
+        writePyramBack(wind, texture, config.backfaceDepth);
     }
     
     public void writeAreaportal(int portalKey) {
@@ -536,7 +536,7 @@ public class FaceSource extends ModuleDecompile {
     }
     
     public void writePolygon(Winding wind, String frontMaterial, String backMaterial, boolean prism) {
-        writePolygon(wind, frontMaterial, backMaterial, prism, config.getBackfaceDepth());
+        writePolygon(wind, frontMaterial, backMaterial, prism, config.backfaceDepth);
     }
     
     public void writePolygon(Winding wind, String material, boolean prism, float depth) {

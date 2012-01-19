@@ -121,26 +121,26 @@ public class BspSourceFrame extends javax.swing.JFrame {
         config = new BspSourceConfig();
         
         // check boxes
-        checkBoxAreaportal.setSelected(config.isWriteAreaportals());
-        checkBoxCubemap.setSelected(config.isWriteCubemaps());
+        checkBoxAreaportal.setSelected(config.writeAreaportals);
+        checkBoxCubemap.setSelected(config.writeCubemaps);
         checkBoxDebugMode.setSelected(config.isDebug());
-        checkBoxDetail.setSelected(config.isWriteDetails());
-        checkBoxDisp.setSelected(config.isWriteDisplacements());
-        checkBoxFixToolTex.setSelected(config.isFixToolTextures());
-        checkBoxFixCubemapTex.setSelected(config.isFixCubemapTextures());
-        checkBoxFixRotation.setSelected(config.isFixEntityRotation());
-        checkBoxLoadLumpFile.setSelected(config.isLoadLumpFiles());
-        checkBoxOccluder.setSelected(config.isWriteOccluders());
-        checkBoxOverlay.setSelected(config.isWriteOverlays());
-        checkBoxPropStatic.setSelected(config.isWriteStaticProps());
-        checkBoxVisgroups.setSelected(config.isWriteVisgroups());
-        checkBoxCameras.setSelected(config.isWriteCameras());
-        checkBoxExtractEmbedded.setSelected(config.isExtractEmbedded());
+        checkBoxDetail.setSelected(config.writeDetails);
+        checkBoxDisp.setSelected(config.writeDisp);
+        checkBoxFixToolTex.setSelected(config.fixToolTextures);
+        checkBoxFixCubemapTex.setSelected(config.fixCubemapTextures);
+        checkBoxFixRotation.setSelected(config.fixEntityRot);
+        checkBoxLoadLumpFile.setSelected(config.loadLumpFiles);
+        checkBoxOccluder.setSelected(config.writeOccluders);
+        checkBoxOverlay.setSelected(config.writeOverlays);
+        checkBoxPropStatic.setSelected(config.writeStaticProps);
+        checkBoxVisgroups.setSelected(config.writeVisgroups);
+        checkBoxCameras.setSelected(config.writeCameras);
+        checkBoxExtractEmbedded.setSelected(config.unpackEmbedded);
 
         // linked check boxes
         checkBoxEnableEntities.setSelected(config.isWriteEntities());
         setPanelEnabled(panelEntities, checkBoxEnableEntities);
-        checkBoxEnableWorldBrushes.setSelected(config.isWriteWorldBrushes());
+        checkBoxEnableWorldBrushes.setSelected(config.writeWorldBrushes);
         setPanelEnabled(panelWorldBrushes, checkBoxEnableWorldBrushes);
 
         // combo boxes
@@ -150,7 +150,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         // misc
         listFilesModel.removeAllElements();
         
-        switch(config.getBrushMode()) {
+        switch(config.brushMode) {
             case BRUSHPLANES:
                 radioButtonBrushesPlanes.setSelected(true);
                 break;
@@ -317,7 +317,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
             @Override
             public void run() {
                 // clear files in config, then add everything from the list
-                Set<BspFileEntry> files = config.getFiles();
+                Set<BspFileEntry> files = config.getFileSet();
                 files.clear();
                 
                 Enumeration<BspFileEntry> bspListFiles = listFilesModel.elements();
@@ -966,31 +966,31 @@ private void checkBoxEnableEntitiesActionPerformed(java.awt.event.ActionEvent ev
 }//GEN-LAST:event_checkBoxEnableEntitiesActionPerformed
 
 private void checkBoxPropStaticActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxPropStaticActionPerformed
-    config.setWriteStaticProps(checkBoxPropStatic.isSelected());
+    config.writeStaticProps = checkBoxPropStatic.isSelected();
 }//GEN-LAST:event_checkBoxPropStaticActionPerformed
 
 private void checkBoxAreaportalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxAreaportalActionPerformed
-    config.setWriteAreaportals(checkBoxAreaportal.isSelected());
+    config.writeAreaportals = checkBoxAreaportal.isSelected();
 }//GEN-LAST:event_checkBoxAreaportalActionPerformed
 
 private void checkBoxOccluderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxOccluderActionPerformed
-    config.setWriteOccluders(checkBoxOccluder.isSelected());
+    config.writeOccluders = checkBoxOccluder.isSelected();
 }//GEN-LAST:event_checkBoxOccluderActionPerformed
 
 private void checkBoxDetailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxDetailActionPerformed
-    config.setWriteDetails(checkBoxDetail.isSelected());
+    config.writeDetails = checkBoxDetail.isSelected();
 }//GEN-LAST:event_checkBoxDetailActionPerformed
 
 private void checkBoxOverlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxOverlayActionPerformed
-    config.setWriteOverlays(checkBoxOverlay.isSelected());
+    config.writeOverlays = checkBoxOverlay.isSelected();
 }//GEN-LAST:event_checkBoxOverlayActionPerformed
 
 private void checkBoxCubemapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxCubemapActionPerformed
-    config.setWriteCubemaps(checkBoxCubemap.isSelected());
+    config.writeCubemaps = checkBoxCubemap.isSelected();
 }//GEN-LAST:event_checkBoxCubemapActionPerformed
 
 private void checkBoxFixRotationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxFixRotationActionPerformed
-    config.setFixEntityRotation(checkBoxFixRotation.isSelected());
+    config.fixEntityRot = checkBoxFixRotation.isSelected();
 }//GEN-LAST:event_checkBoxFixRotationActionPerformed
 
 private void buttonDecompileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDecompileActionPerformed
@@ -1037,21 +1037,21 @@ private void buttonDefaultsActionPerformed(java.awt.event.ActionEvent evt) {//GE
 }//GEN-LAST:event_buttonDefaultsActionPerformed
 
 private void checkBoxDispActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxDispActionPerformed
-    config.setWriteDisplacements(checkBoxDisp.isSelected());
+    config.writeDisp = checkBoxDisp.isSelected();
 }//GEN-LAST:event_checkBoxDispActionPerformed
 
 private void comboBoxFaceTexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxFaceTexActionPerformed
-    EnumToolTexture tex = ((EnumToolTexture)comboBoxFaceTex.getSelectedItem());
-    config.setFaceTexture(tex.texPath);
+    EnumToolTexture tex = (EnumToolTexture)comboBoxFaceTex.getSelectedItem();
+    config.faceTexture = tex.texPath;
 }//GEN-LAST:event_comboBoxFaceTexActionPerformed
 
 private void comboBoxBackfaceTexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxBackfaceTexActionPerformed
-    EnumToolTexture tex = ((EnumToolTexture)comboBoxBackfaceTex.getSelectedItem());
-    config.setBackfaceTexture(tex.texPath);
+    EnumToolTexture tex = (EnumToolTexture)comboBoxBackfaceTex.getSelectedItem();
+    config.backfaceTexture = tex.texPath;
 }//GEN-LAST:event_comboBoxBackfaceTexActionPerformed
 
 private void checkBoxFixCubemapTexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxFixCubemapTexActionPerformed
-    config.setFixCubemapTexture(checkBoxFixCubemapTex.isSelected());
+    config.fixCubemapTextures = checkBoxFixCubemapTex.isSelected();
 }//GEN-LAST:event_checkBoxFixCubemapTexActionPerformed
 
 private void checkBoxDebugModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxDebugModeActionPerformed
@@ -1059,7 +1059,7 @@ private void checkBoxDebugModeActionPerformed(java.awt.event.ActionEvent evt) {/
 }//GEN-LAST:event_checkBoxDebugModeActionPerformed
 
 private void checkBoxLoadLumpFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxLoadLumpFileActionPerformed
-    config.setLoadLumpFiles(checkBoxLoadLumpFile.isSelected());
+    config.loadLumpFiles = checkBoxLoadLumpFile.isSelected();
 }//GEN-LAST:event_checkBoxLoadLumpFileActionPerformed
 
 private void buttonRemoveAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRemoveAllActionPerformed
@@ -1100,49 +1100,48 @@ private void buttonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 }//GEN-LAST:event_buttonAddActionPerformed
 
     private void comboBoxMapFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxMapFormatActionPerformed
-        config.setDefaultAppID((AppID) comboBoxMapFormat.getSelectedItem());
+        config.defaultAppID = (AppID) comboBoxMapFormat.getSelectedItem();
     }//GEN-LAST:event_comboBoxMapFormatActionPerformed
 
     private void checkBoxEnableWorldBrushesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxEnableWorldBrushesActionPerformed
-        config.setWriteWorldBrushes(checkBoxEnableWorldBrushes.isSelected());
+        config.writeWorldBrushes = checkBoxEnableWorldBrushes.isSelected();
         setPanelEnabled(panelWorldBrushes, checkBoxEnableWorldBrushes);
     }//GEN-LAST:event_checkBoxEnableWorldBrushesActionPerformed
 
     private void checkBoxVisgroupsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxVisgroupsActionPerformed
-        config.setWriteVisgroups(checkBoxVisgroups.isSelected());
+        config.writeVisgroups = checkBoxVisgroups.isSelected();
     }//GEN-LAST:event_checkBoxVisgroupsActionPerformed
 
     private void checkBoxCamerasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxCamerasActionPerformed
-        config.setWriteCameras(checkBoxCameras.isSelected());
+        config.writeCameras = checkBoxCameras.isSelected();
     }//GEN-LAST:event_checkBoxCamerasActionPerformed
 
     private void radioButtonBrushesPlanesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioButtonBrushesPlanesActionPerformed
-        config.setBrushMode(BrushMode.BRUSHPLANES);
+        config.brushMode = BrushMode.BRUSHPLANES;
     }//GEN-LAST:event_radioButtonBrushesPlanesActionPerformed
 
     private void radioButtonOrigFacesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioButtonOrigFacesActionPerformed
-        config.setBrushMode(BrushMode.ORIGFACE);
+        config.brushMode = BrushMode.ORIGFACE;
     }//GEN-LAST:event_radioButtonOrigFacesActionPerformed
 
     private void radioButtonOrigSplitFacesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioButtonOrigSplitFacesActionPerformed
-        config.setBrushMode(BrushMode.ORIGFACE_PLUS);
+        config.brushMode = BrushMode.ORIGFACE_PLUS;
     }//GEN-LAST:event_radioButtonOrigSplitFacesActionPerformed
 
     private void radioButtonSplitFacesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioButtonSplitFacesActionPerformed
-        config.setBrushMode(BrushMode.SPLITFACE);
+        config.brushMode = BrushMode.SPLITFACE;
     }//GEN-LAST:event_radioButtonSplitFacesActionPerformed
 
     private void checkBoxFixToolTexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxFixToolTexActionPerformed
-        config.setFixToolTextures(checkBoxFixToolTex.isSelected());
+        config.fixToolTextures = checkBoxFixToolTex.isSelected();
     }//GEN-LAST:event_checkBoxFixToolTexActionPerformed
 
     private void checkBoxExtractEmbeddedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxExtractEmbeddedActionPerformed
-        config.setExtractEmbedded(checkBoxExtractEmbedded.isSelected());
+        config.unpackEmbedded = checkBoxExtractEmbedded.isSelected();
     }//GEN-LAST:event_checkBoxExtractEmbeddedActionPerformed
 
     private void comboBoxSourceFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxSourceFormatActionPerformed
-        SourceFormat format = ((SourceFormat)comboBoxSourceFormat.getSelectedItem());
-        config.setSourceFormat(format);
+        config.sourceFormat = (SourceFormat)comboBoxSourceFormat.getSelectedItem();
     }//GEN-LAST:event_comboBoxSourceFormatActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
