@@ -10,25 +10,13 @@
 
 package info.ata4.bspsrc.modules;
 
-import info.ata4.bsplib.struct.DAreaportal;
-import info.ata4.bsplib.struct.DDispInfo;
-import info.ata4.bsplib.struct.DDispVert;
-import info.ata4.bsplib.struct.DFace;
-import info.ata4.bsplib.struct.DModel;
-import info.ata4.bsplib.struct.DOccluderData;
-import info.ata4.bsplib.struct.DOccluderPolyData;
+import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.bspsrc.TextureAxis;
 import info.ata4.bspsrc.Texture;
+import info.ata4.bspsrc.TextureAxis;
 import info.ata4.bspsrc.ToolTexture;
 import info.ata4.bspsrc.util.Winding;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

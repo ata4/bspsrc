@@ -10,15 +10,11 @@
 
 package info.ata4.bspsrc.gui;
 
-import info.ata4.bspsrc.gui.util.FileDrop;
-import info.ata4.bspsrc.gui.util.FileExtensionFilter;
 import info.ata4.bsplib.BspFileFilter;
 import info.ata4.bsplib.appid.AppID;
-import info.ata4.bspsrc.BrushMode;
-import info.ata4.bspsrc.BspFileEntry;
-import info.ata4.bspsrc.BspSource;
-import info.ata4.bspsrc.BspSourceConfig;
-import info.ata4.bspsrc.SourceFormat;
+import info.ata4.bspsrc.*;
+import info.ata4.bspsrc.gui.util.FileDrop;
+import info.ata4.bspsrc.gui.util.FileExtensionFilter;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -28,14 +24,7 @@ import java.util.Enumeration;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.ListModel;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 
 /**

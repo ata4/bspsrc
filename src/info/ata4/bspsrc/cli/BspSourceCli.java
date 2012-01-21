@@ -11,21 +11,12 @@
 package info.ata4.bspsrc.cli;
 
 import info.ata4.bsplib.appid.AppID;
-import info.ata4.bspsrc.BrushMode;
-import info.ata4.bspsrc.BspFileEntry;
-import info.ata4.bspsrc.BspSource;
-import info.ata4.bspsrc.BspSourceConfig;
-import info.ata4.bspsrc.SourceFormat;
+import info.ata4.bspsrc.*;
 import java.io.File;
 import java.util.Collection;
 import java.util.Set;
 import java.util.logging.Logger;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
+import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 
 /**

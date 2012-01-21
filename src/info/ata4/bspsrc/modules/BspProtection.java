@@ -11,9 +11,9 @@
 package info.ata4.bspsrc.modules;
 
 import info.ata4.bsplib.BspFileReader;
+import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.struct.DBrush;
 import info.ata4.bsplib.struct.DBrushSide;
-import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.struct.DPlane;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.ToolTexture;

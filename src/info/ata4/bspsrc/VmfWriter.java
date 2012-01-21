@@ -10,15 +10,10 @@
 
 package info.ata4.bspsrc;
 
-import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.entity.Entity;
+import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.vector.Vector3f;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.Collections;
 import java.util.EmptyStackException;
 import java.util.Map;

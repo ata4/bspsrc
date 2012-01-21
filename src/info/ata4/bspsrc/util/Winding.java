@@ -10,18 +10,9 @@
 
 package info.ata4.bspsrc.util;
 
-import info.ata4.bsplib.struct.BspData;
-import info.ata4.bsplib.struct.DAreaportal;
-import info.ata4.bsplib.struct.DBrush;
-import info.ata4.bsplib.struct.DFace;
-import info.ata4.bsplib.struct.DOccluderPolyData;
-import info.ata4.bsplib.struct.DPlane;
+import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 /**
  * Winding utility class.

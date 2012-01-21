@@ -10,9 +10,9 @@
 
 package info.ata4.bspsrc.modules;
 
-import info.ata4.bsplib.struct.BspData;
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.BspFileReader;
+import info.ata4.bsplib.struct.BspData;
 
 /**
  * Basic abstract class for all modules that are reading BSP files with the
