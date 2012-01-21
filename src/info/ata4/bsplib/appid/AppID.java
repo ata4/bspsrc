@@ -58,7 +58,7 @@ public enum AppID {
         this.appID = appID;
     }
 
-    public static AppID valueOf(int appID) {
+    public static AppID fromID(int appID) {
         for (AppID app : values()) {
             if (app.appID == appID) {
                 return app;

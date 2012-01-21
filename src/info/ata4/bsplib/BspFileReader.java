@@ -10,15 +10,11 @@
 
 package info.ata4.bsplib;
 
-import info.ata4.bsplib.lump.Lump;
-import info.ata4.bsplib.lump.GameLump;
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpType;
-import info.ata4.bsplib.lump.AbstractLump;
-import info.ata4.bsplib.io.EntityInputStream;
 import info.ata4.bsplib.appid.AppID;
 import info.ata4.bsplib.appid.AppIDFinder;
 import info.ata4.bsplib.entity.Entity;
+import info.ata4.bsplib.io.EntityInputStream;
+import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.util.EnumConverter;
 import java.io.IOException;

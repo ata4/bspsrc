@@ -10,8 +10,8 @@
 
 package info.ata4.bsplib.lump;
 
-import info.ata4.bsplib.struct.Color32;
 import info.ata4.bsplib.io.ByteBufferDataInput;
+import info.ata4.bsplib.struct.Color32;
 import info.ata4.bsplib.vector.Vector3f;
 import java.io.IOException;
 

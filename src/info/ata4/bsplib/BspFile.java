@@ -10,15 +10,9 @@
 
 package info.ata4.bsplib;
 
-import info.ata4.bsplib.lump.LumpFile;
-import info.ata4.bsplib.lump.Lump;
-import info.ata4.bsplib.lump.GameLump;
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpType;
-import info.ata4.bsplib.lump.LumpDataOutput;
-import info.ata4.bsplib.lump.LumpFileFilter;
 import info.ata4.bsplib.appid.AppID;
 import info.ata4.bsplib.compression.LzmaBuffer;
+import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.util.MappedFileUtils;
 import info.ata4.bsplib.util.StringUtils;
 import java.io.File;

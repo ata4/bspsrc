@@ -12,13 +12,8 @@ package info.ata4.bsplib.entity;
 
 import info.ata4.bsplib.util.StringUtils;
 import info.ata4.bsplib.vector.Vector3f;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
