@@ -95,7 +95,7 @@ public class VmfWriter implements Closeable {
     }
     
     public void put(String key, boolean value) {
-        put(key, String.valueOf(value));
+        put(key, value ? "1" : "0");
     }
     
     public void put(String key, char value) {
