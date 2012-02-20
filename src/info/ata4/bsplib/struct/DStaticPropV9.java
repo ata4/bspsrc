@@ -29,7 +29,8 @@ public class DStaticPropV9 extends DStaticPropV8 {
     @Override
     public void read(LumpDataInput li) throws IOException {
         super.read(li);
-        disableX360 = li.readInt() == 1;
+        disableX360 = li.readBoolean();
+        li.skipBytes(3); // non-zero garbage?
     }
     
     @Override
