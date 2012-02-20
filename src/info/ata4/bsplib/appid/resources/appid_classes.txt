@@ -30,6 +30,10 @@ hostage_entity
 info_player_counterterrorist
 info_player_terrorist
 
+#DEAR_ESTHER 21
+de_env_wind
+de_func_smokevolume
+
 #PORTAL_2 21
 env_lightrail_endpoint
 env_player_viewfinder

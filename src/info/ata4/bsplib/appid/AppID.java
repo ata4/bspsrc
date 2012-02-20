@@ -48,16 +48,9 @@ public enum AppID {
     ETERNAL_SILENCE(17550, "Eternal Silence"),
     PVKII(17570, "Pirates, Vikings, and Knights II"),
     DYSTOPIA(17580, "Dystopia"),
-    ZENO_CLASH(22200, "Zeno Clash");
+    ZENO_CLASH(22200, "Zeno Clash"),
+    DEAR_ESTHER(203810, "Dear Esther");
     
-    private final int appID;
-    private final String name;
-
-    private AppID(int appID, String name) {
-        this.name = name;
-        this.appID = appID;
-    }
-
     public static AppID fromID(int appID) {
         for (AppID app : values()) {
             if (app.appID == appID) {
@@ -65,6 +58,14 @@ public enum AppID {
             }
         }
         return UNKNOWN;
+    }
+    
+    private final int appID;
+    private final String name;
+
+    private AppID(int appID, String name) {
+        this.name = name;
+        this.appID = appID;
     }
 
     public int getID() {
