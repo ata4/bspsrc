@@ -286,14 +286,14 @@ public class BspSourceCli {
             config.writeCameras = !cl.hasOption(ncamsOpt.getOpt());
             
             if (cl.hasOption(appidOpt.getOpt())) {
-                String appidStr = cl.getOptionValue(appidOpt.getOpt());
+                String appidStr = cl.getOptionValue(appidOpt.getOpt()).toUpperCase();
    
                 try {
                     config.defaultAppID = AppID.valueOf(appidStr);
                 } catch (IllegalArgumentException ex) {
                     // try again as integer ID
                     try {
-                        int appid = Integer.valueOf(appidStr.toUpperCase());
+                        int appid = Integer.valueOf(appidStr);
                         config.defaultAppID = AppID.fromID(appid);
                     } catch (IllegalArgumentException ex2) {
                         throw new RuntimeException("Invalid default AppID");
