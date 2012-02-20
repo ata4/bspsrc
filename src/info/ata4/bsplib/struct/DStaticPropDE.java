@@ -21,7 +21,7 @@ import java.io.IOException;
  */
 public class DStaticPropDE extends DStaticPropV8 {
     
-    private int unknown1;
+    private byte[] unknown1 = new byte[4];
     private byte unknown2;
     private byte[] unknown3 = new byte[3];
     
@@ -39,7 +39,7 @@ public class DStaticPropDE extends DStaticPropV8 {
         leafCount = li.readUnsignedShort();
         solid = li.readUnsignedByte();
         flags = EnumConverter.fromInteger(StaticPropFlag.class, li.readUnsignedByte());
-        unknown1 = li.readInt();
+        li.readFully(unknown1);
         skin = li.readInt();
         fademin = li.readFloat();
         fademax = li.readFloat();
