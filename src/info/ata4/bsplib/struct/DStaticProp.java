@@ -36,7 +36,7 @@ public class DStaticProp implements DStruct {
     public Vector3f lightingOrigin;
 
     public int getSize() {
-        return 68;
+        return 56;
     }
 
     public void read(LumpDataInput li) throws IOException {

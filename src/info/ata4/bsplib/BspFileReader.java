@@ -239,7 +239,7 @@ public class BspFileReader {
 
             // StaticPropLeafLump_t
             int propleaves = lr.readInt();
-            lr.skipBytes(propleaves * 2);
+            lr.skipBytes(propleaves * 2); // TODO: save as structure
 
             // StaticPropLump_t
             final int propstatics = lr.readInt();
@@ -255,6 +255,8 @@ public class BspFileReader {
                 struct = DStaticProp.class;
             }
             
+            // special cases where the lump version doesn't specify the correct
+            // data structure
             switch (bspFile.getAppID()) {
                 case THE_SHIP:
                     struct = DStaticPropShip.class;
@@ -272,14 +274,25 @@ public class BspFileReader {
                 case DARK_MESSIAH_MP:
                     struct = DStaticPropDM.class;
                     break;
+                    
+                case DEAR_ESTHER:
+                    struct = DStaticPropDE.class;
+                    break;
             }
             
             bsp.staticProps = new ArrayList<DStaticProp>(propstatics);
             
             for (int i = 0; i < propstatics; i++) {
+                int pos = lr.position();
+                
                 DStaticProp sp = struct.newInstance();
                 sp.read(lr);
                 bsp.staticProps.add(sp);
+                
+                pos = lr.position() - pos;
+                if (pos != sp.getSize()) {
+                    throw new RuntimeException("Bytes read: " + pos + "; expected: " + sp.getSize());
+                }
             }
 
             L.log(Level.FINE, "Static props: {0}", propstatics);
@@ -291,6 +304,8 @@ public class BspFileReader {
             L.log(Level.SEVERE, "Lump struct class error", ex);
         } catch (IllegalAccessException ex) {
             L.log(Level.SEVERE, "Lump struct class error", ex);
+        } catch (RuntimeException ex) {
+            L.log(Level.SEVERE, "Lump struct error", ex);
         }
     }
 
