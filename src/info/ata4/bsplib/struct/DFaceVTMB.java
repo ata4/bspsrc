@@ -19,6 +19,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DFaceVTMB extends DFace {
+    
     public static final int MAXLIGHTMAPS = 8;
     
     public int[] avgLightColor = new int[MAXLIGHTMAPS];

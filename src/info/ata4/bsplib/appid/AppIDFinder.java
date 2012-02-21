@@ -30,6 +30,7 @@ import org.apache.commons.io.LineIterator;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class AppIDFinder {
+    
     private static final Logger L = Logger.getLogger(AppIDFinder.class.getName());
     private static AppIDFinder instance;
 

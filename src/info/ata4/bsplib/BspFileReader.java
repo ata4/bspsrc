@@ -110,9 +110,9 @@ public class BspFileReader {
         
         Class struct = DBrushSide.class;
 
-        // newer BSP files have a slightly different struct
-        if (bspFile.getVersion() >= 21
-                    && bspFile.getAppID() != AppID.LEFT_4_DEAD_2) {
+        // newer BSP files have a slightly different struct that is still reported
+        // as version 0
+        if (bspFile.getVersion() >= 21 && bspFile.getAppID() != AppID.LEFT_4_DEAD_2) {
             struct = DBrushSideV2.class;
         }
 
@@ -245,54 +245,57 @@ public class BspFileReader {
             final int propstatics = lr.readInt();
             
             int sprpver = sprpLump.getVersion();
-            Class<? extends DStaticProp> struct;
-
-            // get structure class for the static prop lump version
-            try {
-                String className = DStaticProp.class.getName();
-                struct = (Class<? extends DStaticProp>) Class.forName(className + "V" + sprpver);
-            } catch (ClassNotFoundException ex) {
-                struct = DStaticProp.class;
-            }
+            Class<? extends DStaticProp> structClass = null;
             
             // special cases where the lump version doesn't specify the correct
             // data structure
             switch (bspFile.getAppID()) {
                 case THE_SHIP:
-                    struct = DStaticPropShip.class;
+                    structClass = DStaticPropShip.class;
                     break;
                     
                 case BLOODY_GOOD_TIME:
-                    struct = DStaticPropBGT.class;
+                    structClass = DStaticPropBGT.class;
                     break;
                     
                 case ZENO_CLASH:
-                    struct = DStaticPropZC.class;
+                    structClass = DStaticPropZC.class;
                     break;
                     
                 case DARK_MESSIAH_SP:
                 case DARK_MESSIAH_MP:
-                    struct = DStaticPropDM.class;
+                    structClass = DStaticPropDM.class;
                     break;
                     
                 case DEAR_ESTHER:
-                    struct = DStaticPropDE.class;
+                    structClass = DStaticPropDE.class;
                     break;
+            }
+
+            // get structure class for the static prop lump version if it's not
+            // a special case
+            if (structClass == null) {
+                try {
+                    String className = DStaticProp.class.getName();
+                    structClass = (Class<? extends DStaticProp>) Class.forName(className + "V" + sprpver);
+                } catch (ClassNotFoundException ex) {
+                    structClass = DStaticPropV4.class;
+                    L.log(Level.WARNING, "Couldn''t find static prop struct for lump version {0}, using v4 instead", sprpver);
+                }
             }
             
             bsp.staticProps = new ArrayList<DStaticProp>(propstatics);
             
             for (int i = 0; i < propstatics; i++) {
+                DStaticProp sp = structClass.newInstance();
+                
                 int pos = lr.position();
-                
-                DStaticProp sp = struct.newInstance();
                 sp.read(lr);
-                bsp.staticProps.add(sp);
-                
-                pos = lr.position() - pos;
-                if (pos != sp.getSize()) {
-                    throw new RuntimeException("Bytes read: " + pos + "; expected: " + sp.getSize());
+                if (lr.position() - pos != sp.getSize()) {
+                    throw new IOException("Bytes read: " + pos + "; expected: " + sp.getSize());
                 }
+                
+                bsp.staticProps.add(sp);
             }
 
             L.log(Level.FINE, "Static props: {0}", propstatics);
@@ -304,8 +307,6 @@ public class BspFileReader {
             L.log(Level.SEVERE, "Lump struct class error", ex);
         } catch (IllegalAccessException ex) {
             L.log(Level.SEVERE, "Lump struct class error", ex);
-        } catch (RuntimeException ex) {
-            L.log(Level.SEVERE, "Lump struct error", ex);
         }
     }
 
@@ -666,16 +667,15 @@ public class BspFileReader {
             List<E> packets = new ArrayList<E>(packetCount);
 
             for (int i = 0; i < packetCount; i++) {
-                int pos = li.position();
-                
                 E packet = struct.newInstance();
-                packet.read(li);
-                packets.add(packet);
                 
-                pos = li.position() - pos;
-                if (pos != packet.getSize()) {
-                    throw new RuntimeException("Bytes read: " + pos + "; expected: " + packet.getSize());
+                int pos = li.position();
+                packet.read(li);
+                if (li.position() - pos != packet.getSize()) {
+                    throw new IOException("Bytes read: " + pos + "; expected: " + packet.getSize());
                 }
+                
+                packets.add(packet);
             }
             
             li.checkRemaining();
@@ -689,8 +689,6 @@ public class BspFileReader {
             L.log(Level.SEVERE, "Lump struct class error", ex);
         } catch (InstantiationException ex) {
             L.log(Level.SEVERE, "Lump struct class error", ex);
-        } catch (RuntimeException ex) {
-            L.log(Level.SEVERE, "Lump struct error", ex);
         }
         
         return null;

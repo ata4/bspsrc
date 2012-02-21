@@ -25,6 +25,7 @@ import java.util.Set;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class BspData {
+    
     public List<DAreaportal> areaportals;
     public List<DBrush> brushes;
     public List<DBrushSide> brushSides;

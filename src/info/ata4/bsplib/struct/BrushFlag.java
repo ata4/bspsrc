@@ -16,6 +16,7 @@ package info.ata4.bsplib.struct;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public enum BrushFlag {
+    
     CONTENTS_SOLID,
     CONTENTS_WINDOW,
     CONTENTS_AUX,

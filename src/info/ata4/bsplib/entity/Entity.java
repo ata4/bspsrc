@@ -12,6 +12,7 @@ package info.ata4.bsplib.entity;
 
 import info.ata4.bsplib.util.StringUtils;
 import info.ata4.bsplib.vector.Vector3f;
+import java.io.PrintStream;
 import java.util.Map.Entry;
 import java.util.*;
 import java.util.logging.Level;
@@ -25,6 +26,7 @@ import java.util.logging.Logger;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class Entity {
+    
     private static final Logger L = Logger.getLogger(Entity.class.getName());
 
     private Map<String, String> keyValue = new LinkedHashMap<String, String>();
@@ -227,24 +229,33 @@ public class Entity {
     }
 
     /**
-     * Prints all key-values to standard output
+     * Prints all key-values to a PrintStream.
+     * 
+     * @param ps PrintStream to write to
      */
-    public void dump() {
-        System.out.println(getClassName() + ":");
+    public void dump(PrintStream ps) {
+        ps.println(getClassName() + ":");
 
         for (String key : keyValue.keySet()) {
             String value = keyValue.get(key);
             if (key.equals("classname")) {
                 continue;
             }
-            System.out.println("  " + key + " = " + value);
+            ps.println("  " + key + " = " + value);
         }
 
         for (KeyValue kv : keyValueIO) {
-            System.out.println("  " + kv.getKey() + ": " + kv.getValue());
+            ps.println("  " + kv.getKey() + ": " + kv.getValue());
         }
 
-        System.out.println();
+        ps.println();
+    }
+    
+    /**
+     * Prints all key-values to standard output
+     */
+    public void dump() {
+        dump(System.out);
     }
 
     @Override

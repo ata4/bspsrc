@@ -17,7 +17,7 @@ import java.io.IOException;
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class DStaticPropV5 extends DStaticProp {
+public class DStaticPropV5 extends DStaticPropV4 {
     
     public float forcedFadeScale;
     

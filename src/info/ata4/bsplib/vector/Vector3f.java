@@ -265,21 +265,21 @@ public final class Vector3f {
         double ry = y;
         double rz = z;
 
-        // rotate x (roll)
+        // rotate x (pitch)
         if (angles.x != 0) {
             Point2d p = new Point2d(ry, rz).rotate(angles.x);
             ry = p.x;
             rz = p.y;
         }
 
-        // rotate y (pitch)
+        // rotate y (yaw)
         if (angles.y != 0) {
             Point2d p = new Point2d(rx, rz).rotate(angles.y);
             rx = p.x;
             rz = p.y;
         }
 
-        // rotate z (yaw)
+        // rotate z (roll)
         if (angles.z != 0) {
             Point2d p = new Point2d(rx, ry).rotate(angles.z);
             rx = p.x;

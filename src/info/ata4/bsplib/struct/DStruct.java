@@ -19,6 +19,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public interface DStruct {
+    
     public int getSize();
     public void read(LumpDataInput li) throws IOException;
     public void write(LumpDataOutput lo) throws IOException;
