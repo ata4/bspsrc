@@ -625,10 +625,8 @@ public class Winding implements List<Vector3f> {
     }
 
     /**
-     * Rotates all vertices in this winding by the given angles relative to the
-     * given origin.
+     * Rotates all vertices in this winding by the given euler angles.
      * 
-     * @param origin rotation origin point
      * @param angles rotation angles
      */
     public void rotate(Vector3f angles) {

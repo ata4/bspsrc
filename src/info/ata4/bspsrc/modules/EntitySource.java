@@ -440,33 +440,34 @@ public class EntitySource extends ModuleDecompile {
         Map<Vector3f, String> lightingOrigins = new LinkedHashMap<Vector3f, String>();
         
         for (DStaticProp pst : bsp.staticProps) {
+            DStaticPropV4 pst4 = (DStaticPropV4) pst;
  
             writer.start("entity");
             writer.put("id", parent.nextBrushID());
             writer.put("classname", "prop_static");
-            writer.put("origin", pst.origin);
-            writer.put("angles", pst.angles);
-            writer.put("skin", pst.skin);
-            writer.put("fademindist", pst.fademin == 0 ? -1 : pst.fademin);
-            writer.put("fademaxdist", pst.fademax);
-            writer.put("solid", pst.solid);
-            writer.put("model", bsp.staticPropName.get(pst.propType));
+            writer.put("origin", pst4.origin);
+            writer.put("angles", pst4.angles);
+            writer.put("skin", pst4.skin);
+            writer.put("fademindist", pst4.fademin == 0 ? -1 : pst4.fademin);
+            writer.put("fademaxdist", pst4.fademax);
+            writer.put("solid", pst4.solid);
+            writer.put("model", bsp.staticPropName.get(pst4.propType));
             
             // store coordinates and targetname of the lighing origin for later
-            if (pst.usesLightingOrigin()) {
+            if (pst4.usesLightingOrigin()) {
                 String infoLightingName;
 
-                if (lightingOrigins.containsKey(pst.lightingOrigin)) {
-                    infoLightingName = lightingOrigins.get(pst.lightingOrigin);
+                if (lightingOrigins.containsKey(pst4.lightingOrigin)) {
+                    infoLightingName = lightingOrigins.get(pst4.lightingOrigin);
                 } else {
                     infoLightingName = "sprp_lighting_" + lightingOrigins.size();
-                    lightingOrigins.put(pst.lightingOrigin, infoLightingName);
+                    lightingOrigins.put(pst4.lightingOrigin, infoLightingName);
                 }
 
                 writer.put("lightingorigin", infoLightingName);
             }
             
-            writer.put("disableshadows", pst.hasNoShadowing());
+            writer.put("disableshadows", pst4.hasNoShadowing());
             
             if (pst instanceof DStaticPropV5) {
                 DStaticPropV5 pst5 = (DStaticPropV5) pst;

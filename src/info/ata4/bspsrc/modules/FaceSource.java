@@ -208,7 +208,7 @@ public class FaceSource extends ModuleDecompile {
     }
     
     public void writeModel(int imodel, Vector3f origin, Vector3f angles) {
-        DModel model = null;
+        DModel model;
         
         try {
             model = bsp.models.get(imodel);

@@ -271,7 +271,7 @@ public class BrushSource extends ModuleDecompile {
     }
 
     public void writeModel(int imodel, Vector3f origin, Vector3f angles) {
-        DBrushModel bmodel = null;
+        DBrushModel bmodel;
         
         try {
             bmodel = models.get(imodel);
