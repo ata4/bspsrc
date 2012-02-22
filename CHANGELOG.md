@@ -1,5 +1,11 @@
 ## Changelog
 
+### 1.3.4 - 22.02.2012
+* Added support for Dear Esther maps
+* Fixed some static prop reading errors
+* Fixed incorrect detection of App-IDs in lower-case string form (CLI only)
+* Fixed writing boolean values as true/false where Hammer expects 1/0
+
 ### 1.3.3 - 19.01.2012
 * Added detection of CS:GO maps
 * Added VMF format selection for old Hammer versions
