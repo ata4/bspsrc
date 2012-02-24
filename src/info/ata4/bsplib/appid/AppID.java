@@ -43,6 +43,8 @@ public enum AppID {
     THE_SHIP(2400, "The Ship"),
     BLOODY_GOOD_TIME(2450, "Bloody Good Time"),
     VAMPIRE_BLOODLINES(2600, "Vampire: The Masquerade - Bloodlines"),
+    GARRYS_MOD(4000, "Garry's Mod"),
+    POSTAL_3(10220, "Postal III"),
     ZOMBIE_PANIC(17500, "Zombie Panic! Source"),
     SYNERGY(17520, "Synergy"),
     ETERNAL_SILENCE(17550, "Eternal Silence"),
