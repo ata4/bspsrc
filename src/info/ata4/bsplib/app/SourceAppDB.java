@@ -18,7 +18,8 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.io.IOUtils;
 
 /**
- *
+ * Source engine application database handler.
+ * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class SourceAppDB {
@@ -74,7 +75,14 @@ public class SourceAppDB {
         }
     }
     
-    public SourceApp fromID(int appID) {
+    /**
+     * Returns the source app for a Steam AppID.
+     * 
+     * @param appID Steam AppID
+     * @return the app identifier for the ID or SourceApp.UNKNOWN if it couldn't
+     * be found.
+     */
+    public SourceApp fromID(int appID) {       
         if (appMap == null || !appMap.containsKey(appID)) {
             return SourceApp.UNKNOWN;
         } else {
@@ -139,24 +147,12 @@ public class SourceAppDB {
         return score;
     }
     
+    /**
+     * Returns the list of all Source apps from the database.
+     * 
+     * @return list of Source apps
+     */
     public List<SourceApp> getAppList() {
         return new ArrayList<SourceApp>(appList);
     }
-    
-//    public static void main(String[] args) throws Exception {
-//        LogUtils.configure(Logger.getLogger(""), Level.OFF);
-//        
-//        for (String arg : args) {
-//            File file = new File(arg);
-//            BspFile bspFile = new BspFile();
-//            bspFile.load(file);
-//
-//            BspFileReader bspReader = new BspFileReader(bspFile);
-//            bspReader.loadEntities();
-//
-//            SourceAppDB appfinder = SourceAppDB.getInstance();
-//            SourceApp app = appfinder.find(file.getName(), bspFile.getVersion(), bspReader.getEntityClassSet());
-//            System.out.println(file.getName() + ": " + appfinder.getScore() + "\n" + app.getName());
-//        }
-//    }
 }

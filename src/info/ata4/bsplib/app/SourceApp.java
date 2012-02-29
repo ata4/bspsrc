@@ -17,7 +17,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- *
+ * Source engine application identifier.
+ * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class SourceApp {

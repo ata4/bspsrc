@@ -10,7 +10,8 @@
 package info.ata4.bsplib.app;
 
 /**
- *
+ * List of some application IDs that need special attention.
+ * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class SourceAppID {
