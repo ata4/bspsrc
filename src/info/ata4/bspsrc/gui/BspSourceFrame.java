@@ -11,7 +11,8 @@
 package info.ata4.bspsrc.gui;
 
 import info.ata4.bsplib.BspFileFilter;
-import info.ata4.bsplib.appid.AppID;
+import info.ata4.bsplib.app.SourceApp;
+import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bspsrc.*;
 import info.ata4.bspsrc.gui.util.FileDrop;
 import info.ata4.bspsrc.gui.util.FileExtensionFilter;
@@ -21,6 +22,7 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -88,7 +90,16 @@ public class BspSourceFrame extends javax.swing.JFrame {
     }
     
     public ComboBoxModel getAppIDModel() {
-        return new DefaultComboBoxModel<AppID>(AppID.values());
+        DefaultComboBoxModel cbmodel = new DefaultComboBoxModel<SourceApp>();
+        cbmodel.addElement(new SourceApp("Automatic", 0));
+        
+        List<SourceApp> apps = SourceAppDB.getInstance().getAppList();
+        
+        for (SourceApp app : apps) {
+            cbmodel.addElement(app);
+        }
+        
+        return cbmodel;
     }
     
     public ComboBoxModel getBrushModeModel() {
@@ -1090,7 +1101,7 @@ private void buttonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 }//GEN-LAST:event_buttonAddActionPerformed
 
     private void comboBoxMapFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxMapFormatActionPerformed
-        config.defaultAppID = (AppID) comboBoxMapFormat.getSelectedItem();
+        config.defaultApp = (SourceApp) comboBoxMapFormat.getSelectedItem();
     }//GEN-LAST:event_comboBoxMapFormatActionPerformed
 
     private void checkBoxEnableWorldBrushesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxEnableWorldBrushesActionPerformed

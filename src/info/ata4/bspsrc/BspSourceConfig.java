@@ -10,7 +10,7 @@
 
 package info.ata4.bspsrc;
 
-import info.ata4.bsplib.appid.AppID;
+import info.ata4.bsplib.app.SourceApp;
 import info.ata4.log.ConsoleFormatter;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -30,7 +30,7 @@ public final class BspSourceConfig implements Serializable {
     // logger
     private static final Logger L = Logger.getLogger(BspSourceConfig.class.getName());
     
-    public AppID defaultAppID = AppID.UNKNOWN;
+    public SourceApp defaultApp = SourceApp.UNKNOWN;
     public BrushMode brushMode = BrushMode.BRUSHPLANES;
     public SourceFormat sourceFormat = SourceFormat.AUTO;
     public String backfaceTexture = "";

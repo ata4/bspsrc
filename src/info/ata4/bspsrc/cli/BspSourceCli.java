@@ -10,10 +10,12 @@
 
 package info.ata4.bspsrc.cli;
 
-import info.ata4.bsplib.appid.AppID;
+import info.ata4.bsplib.app.SourceApp;
+import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bspsrc.*;
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.apache.commons.cli.*;
@@ -65,12 +67,12 @@ public class BspSourceCli {
     }
     
     private void printAppIDs() {
-        System.out.printf("%6s  %-25s %s\n", "ID", "String ID", "Name");
+        System.out.printf("%6s  %s\n", "ID", "Name");
         
-        AppID[] ids = AppID.values();
+        List<SourceApp> apps = SourceAppDB.getInstance().getAppList();
         
-        for (AppID id : ids) {
-            System.out.printf("%6d  %-25s %s\n", id.getID(), id.name(), id);
+        for (SourceApp app : apps) {
+            System.out.printf("%6d  %s\n", app.getAppID(), app.getName());
         }
         
         System.exit(0);
@@ -287,17 +289,12 @@ public class BspSourceCli {
             
             if (cl.hasOption(appidOpt.getOpt())) {
                 String appidStr = cl.getOptionValue(appidOpt.getOpt()).toUpperCase();
-   
+                
                 try {
-                    config.defaultAppID = AppID.valueOf(appidStr);
-                } catch (IllegalArgumentException ex) {
-                    // try again as integer ID
-                    try {
-                        int appid = Integer.valueOf(appidStr);
-                        config.defaultAppID = AppID.fromID(appid);
-                    } catch (IllegalArgumentException ex2) {
-                        throw new RuntimeException("Invalid default AppID");
-                    }
+                    int appid = Integer.valueOf(appidStr);
+                    config.defaultApp = SourceAppDB.getInstance().fromID(appid);
+                } catch (IllegalArgumentException ex2) {
+                    throw new RuntimeException("Invalid default App-ID");
                 }
             }
         } catch (Exception ex) {

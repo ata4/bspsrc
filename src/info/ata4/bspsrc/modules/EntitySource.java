@@ -10,7 +10,7 @@
 
 package info.ata4.bspsrc.modules;
 
-import info.ata4.bsplib.appid.AppID;
+import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.struct.*;
@@ -740,7 +740,7 @@ public class EntitySource extends ModuleDecompile {
             
             // replace escaped quotes for VTMB so they can be loaded with the
             // inofficial SDK Hammer
-            if (bspFile.getAppID() == AppID.VAMPIRE_BLOODLINES) {
+            if (bspFile.getSourceApp().getAppID() == SourceAppID.VAMPIRE_BLOODLINES) {
                 for (Map.Entry<String, String> kv : ent.getEntrySet()) {
                     kv.setValue(kv.getValue().replace("\\\"", ""));
                 }

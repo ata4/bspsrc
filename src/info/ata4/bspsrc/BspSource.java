@@ -92,7 +92,7 @@ public class BspSource implements Runnable {
 
         try {
             BspFile bsp = new BspFile();
-            bsp.setAppID(config.defaultAppID);
+            bsp.setSourceApp(config.defaultApp);
             bsp.load(bspFile);
             
             if (config.loadLumpFiles) {
@@ -119,6 +119,7 @@ public class BspSource implements Runnable {
 
         if (!config.isDebug()) {
             L.log(Level.INFO, "BSP version: {0}", reader.getBspFile().getVersion());
+            L.log(Level.INFO, "Game: {0}", reader.getBspFile().getSourceApp());
         }
         
         // create VMF

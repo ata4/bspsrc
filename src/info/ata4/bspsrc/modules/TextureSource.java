@@ -11,7 +11,7 @@
 package info.ata4.bspsrc.modules;
 
 import info.ata4.bsplib.BspFileReader;
-import info.ata4.bsplib.appid.AppID;
+import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.Texture;
@@ -353,7 +353,7 @@ public class TextureSource extends ModuleRead {
             return null;
         }
         
-        if (bspFile.getAppID() == AppID.VAMPIRE_BLOODLINES) {
+        if (bspFile.getSourceApp().getAppID() == SourceAppID.VAMPIRE_BLOODLINES) {
             // too many crucial game-specific tool textures, stop here
             return null;
         }
