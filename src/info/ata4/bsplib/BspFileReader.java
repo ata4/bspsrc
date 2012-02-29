@@ -10,8 +10,9 @@
 
 package info.ata4.bsplib;
 
-import info.ata4.bsplib.appid.AppID;
-import info.ata4.bsplib.appid.AppIDFinder;
+import info.ata4.bsplib.app.SourceApp;
+import info.ata4.bsplib.app.SourceAppDB;
+import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.io.EntityInputStream;
 import info.ata4.bsplib.lump.*;
@@ -37,12 +38,14 @@ public class BspFileReader {
     // BSP headers and data
     private BspFile bspFile;
     private BspData bsp = new BspData();
+    private int appID;
 
     // statistical stuff
     private Set<String> entityClasses = new TreeSet<String>();
 
     public BspFileReader(BspFile bspFile) throws IOException {
         this.bspFile = bspFile;
+        this.appID = bspFile.getSourceApp().getAppID();
         
         if (bspFile.getFile() == null) {
             // "Gah! Hear me, man? Gah!"
@@ -112,7 +115,7 @@ public class BspFileReader {
 
         // newer BSP files have a slightly different struct that is still reported
         // as version 0
-        if (bspFile.getVersion() >= 21 && bspFile.getAppID() != AppID.LEFT_4_DEAD_2) {
+        if (bspFile.getVersion() >= 21 && appID != SourceAppID.LEFT_4_DEAD_2) {
             struct = DBrushSideV2.class;
         }
 
@@ -148,7 +151,7 @@ public class BspFileReader {
         
         Class struct = DFace.class;
         
-        if (bspFile.getAppID() == AppID.VAMPIRE_BLOODLINES) {
+        if (appID == SourceAppID.VAMPIRE_BLOODLINES) {
             struct = DFaceVTMB.class;
         } else {
             switch (bspFile.getVersion()) {
@@ -189,7 +192,7 @@ public class BspFileReader {
         
         Class struct = DModel.class;
 
-        if (bspFile.getAppID() == AppID.DARK_MESSIAH_SP) {
+        if (appID == SourceAppID.DARK_MESSIAH) {
             struct = DModelDM.class;
         }
 
@@ -232,7 +235,7 @@ public class BspFileReader {
             L.log(Level.FINE, "Static prop names: {0}", psnames);
 
             // model path strings in Zeno Clash
-            if (bspFile.getAppID() == AppID.ZENO_CLASH) {
+            if (appID == SourceAppID.ZENO_CLASH) {
                 int psextra = lr.readInt();
                 lr.skipBytes(psextra * padsize);
             }
@@ -249,25 +252,24 @@ public class BspFileReader {
             
             // special cases where the lump version doesn't specify the correct
             // data structure
-            switch (bspFile.getAppID()) {
-                case THE_SHIP:
+            switch (appID) {
+                case SourceAppID.THE_SHIP:
                     structClass = DStaticPropShip.class;
                     break;
                     
-                case BLOODY_GOOD_TIME:
+                case SourceAppID.BLOODY_GOOD_TIME:
                     structClass = DStaticPropBGT.class;
                     break;
                     
-                case ZENO_CLASH:
+                case SourceAppID.ZENO_CLASH:
                     structClass = DStaticPropZC.class;
                     break;
                     
-                case DARK_MESSIAH_SP:
-                case DARK_MESSIAH_MP:
+                case SourceAppID.DARK_MESSIAH:
                     structClass = DStaticPropDM.class;
                     break;
                     
-                case DEAR_ESTHER:
+                case SourceAppID.DEAR_ESTHER:
                     structClass = DStaticPropDE.class;
                     break;
             }
@@ -325,7 +327,7 @@ public class BspFileReader {
         
         Class struct = DDispInfo.class;
         
-        if (bspFile.getVersion() == 17 && bspFile.getAppID() == AppID.HALF_LIFE_2_BETA) {
+        if (bspFile.getVersion() == 17 && appID == SourceAppID.HALF_LIFE_2) {
             struct = DDispInfoBSP17.class;
         } else if (bspFile.getVersion() == 22) {
             struct = DDispInfoBSP22.class;
@@ -359,7 +361,7 @@ public class BspFileReader {
         
         Class struct = DTexInfo.class;
 
-        if (bspFile.getAppID() == AppID.DARK_MESSIAH_SP) {
+        if (appID == SourceAppID.DARK_MESSIAH) {
             struct = DTexInfoDM.class;
         }
 
@@ -456,13 +458,13 @@ public class BspFileReader {
         }
         
         // heuristic game detection to handle special BSP formats
-        if (entReader != null && bspFile.getAppID() == AppID.UNKNOWN) {
-            try {
-                bspFile.setAppID(AppIDFinder.getInstance().find(entityClasses, bspFile.getVersion()));
-            } catch (IOException ex) {
-                L.log(Level.WARNING, "Couldn''t detect application ID", ex);
-            }
+        if (entReader != null && bspFile.getSourceApp().getAppID() == SourceAppID.UNKNOWN) {
+            SourceAppDB appDB = SourceAppDB.getInstance();
+            SourceApp app = appDB.find(bspFile.getName(), bspFile.getVersion(), entityClasses);
+            bspFile.setSourceApp(app);
         }
+        
+        appID = bspFile.getSourceApp().getAppID();
         
         L.log(Level.FINE, "Entities: {0}", bsp.entities.size());
     }
@@ -498,7 +500,7 @@ public class BspFileReader {
             return;
         }
         
-         bsp.leafFaces = loadIntegerLump(LumpType.LUMP_LEAFFACES, true);
+        bsp.leafFaces = loadIntegerLump(LumpType.LUMP_LEAFFACES, true);
     }
 
     public void loadLeafBrushes() {

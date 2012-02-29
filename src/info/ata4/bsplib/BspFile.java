@@ -10,7 +10,9 @@
 
 package info.ata4.bsplib;
 
-import info.ata4.bsplib.appid.AppID;
+import info.ata4.bsplib.app.SourceApp;
+import info.ata4.bsplib.app.SourceAppDB;
+import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.compression.LzmaBuffer;
 import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.util.MappedFileUtils;
@@ -66,7 +68,7 @@ public class BspFile {
     private int version;
     private int mapRev;
     
-    private AppID appID = AppID.UNKNOWN;
+    private SourceApp app = SourceApp.UNKNOWN;
 
     /**
      * Opens the BSP file and loads its headers
@@ -122,7 +124,7 @@ public class BspFile {
         // The actual BSP version is probably stored in the first two bytes...
         if (version == 0x40014) {
             L.finer("Found Dark Messiah header");
-            appID = AppID.DARK_MESSIAH_SP;
+            app = SourceAppDB.getInstance().fromID(SourceAppID.DARK_MESSIAH);
             version &= 0xff;
         } else if (version > VERSION_MAX || version < VERSION_MIN) {
             throw new BspException("Unsupported version: " + version);
@@ -131,7 +133,7 @@ public class BspFile {
         // hack for L4D2 BSPs
         if (version == 21 && bb.getInt(8) == 0) {
             L.finer("Found Left 4 Dead 2 header");
-            appID = AppID.LEFT_4_DEAD_2;
+            app = SourceAppDB.getInstance().fromID(SourceAppID.LEFT_4_DEAD_2);
         }
 
         loadLumps(bb);
@@ -165,7 +167,7 @@ public class BspFile {
         for (int i = 0; i < HEADER_LUMPS; i++) {
             int vers, ofs, len, fourCC;
 
-            if (appID == AppID.LEFT_4_DEAD_2) {
+            if (app.getAppID() == SourceAppID.LEFT_4_DEAD_2) {
                 vers = bb.getInt();
                 ofs = bb.getInt();
                 len = bb.getInt();
@@ -227,7 +229,7 @@ public class BspFile {
         
         for (Lump l : lumps) {
             // write header
-            if (appID == AppID.LEFT_4_DEAD_2) {
+            if (app.getAppID() == SourceAppID.LEFT_4_DEAD_2) {
                 bb.putInt(l.getVersion());
                 bb.putInt(l.getOffset());
                 bb.putInt(l.getLength());
@@ -290,29 +292,17 @@ public class BspFile {
             LumpDataInput lr = l.getDataInput();
             
             int glumps = lr.readInt();
-            
-            // hack for dark messiah
-            if (appID == AppID.DARK_MESSIAH_SP) {
-                // check if the map is using the MP format
-                if (lr.readInt() != 1) {
-                    // yes, it is
-                    appID = AppID.DARK_MESSIAH_MP;
-                }
-                
-                // move four bytes back
-                lr.move(-4);
-            }
 
             for (int i = 0; i < glumps; i++) {
                 int ofs, len, flags, vers, fourCC;
 
-                if (appID == AppID.DARK_MESSIAH_SP) {
+                if (app.getAppID() == SourceAppID.DARK_MESSIAH) {
                     lr.readInt(); // unknown
                 }
 
                 fourCC = lr.readInt();
 
-                if (appID == AppID.VINDICTUS) {
+                if (app.getAppID() == SourceAppID.VINDICTUS) {
                     flags = lr.readInt();
                     vers = lr.readInt();
                 } else {
@@ -515,16 +505,16 @@ public class BspFile {
      * Returns the lump for the given lump type.
      *
      * @param type
-     * @return
+     * @return lump
      */
     public Lump getLump(LumpType type) {
         return lumps.get(type.getIndex());
     }
     
     /**
-     * Returns the game lump array
+     * Returns the game lump list
      *
-     * @return game lump array
+     * @return game lump list
      */
     public List<GameLump> getGameLumps() {
         return new ArrayList<GameLump>(gameLumps);
@@ -724,11 +714,11 @@ public class BspFile {
         return bo;
     }
 
-    public AppID getAppID() {
-        return appID;
+    public SourceApp getSourceApp() {
+        return app;
     }
 
-    public void setAppID(AppID appID) {
-        this.appID = appID;
+    public void setSourceApp(SourceApp appID) {
+        this.app = appID;
     }
 }

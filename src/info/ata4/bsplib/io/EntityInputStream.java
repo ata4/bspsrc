@@ -66,7 +66,7 @@ public class EntityInputStream extends CountingInputStream {
 
                                 // ignore empty keys
                                 if (key.isEmpty()) {
-                                    L.log(Level.FINE, "Skipped value '{0}' with empty key at {1}",
+                                    L.log(Level.FINE, "Skipped value \"{0}\" with empty key at {1}",
                                             new Object[] {value, getCount()});
                                 } else {
                                     keyValues.add(new KeyValue(key, value));
