@@ -20,11 +20,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DStaticPropDE extends DStaticPropV8 {
-    
-    private byte[] unknown1 = new byte[4];
-    private byte unknown2;
-    private byte[] unknown3 = new byte[3];
-    
+
     @Override
     public int getSize() {
         return super.getSize() + 8;
@@ -39,19 +35,26 @@ public class DStaticPropDE extends DStaticPropV8 {
         leafCount = li.readUnsignedShort();
         solid = li.readUnsignedByte();
         flags = EnumConverter.fromInteger(StaticPropFlag.class, li.readUnsignedByte());
-        li.readFully(unknown1);
+        li.skipBytes(4);
         skin = li.readInt();
         fademin = li.readFloat();
         fademax = li.readFloat();
-        lightingOrigin = li.readVector3f();
+//        lightingOrigin = li.readVector3f();
+        li.skipBytes(12); // invalid lighting origin vector?
         forcedFadeScale = li.readFloat();
         minCPULevel = li.readByte();
         maxCPULevel = li.readByte();
         minGPULevel = li.readByte();
         maxGPULevel = li.readByte();
-        unknown2 = li.readByte();
+        li.skipBytes(1);
         diffuseModulation = li.readColor32();
-        li.readFully(unknown3);
+        li.skipBytes(3);
+    }
+    
+    @Override
+    public boolean usesLightingOrigin() {
+        // workaround for the invalid lighting origin vector
+        return false;
     }
 
     @Override
