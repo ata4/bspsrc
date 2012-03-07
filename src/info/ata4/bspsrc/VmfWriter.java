@@ -159,6 +159,7 @@ public class VmfWriter implements Closeable {
         }
 
         if (!v.isValid()) {
+            L.log(Level.WARNING, "Invalid vector: {0}", v);
             sb.append("0 0 0");
         } else {
             sb.append(v.x).append(' ');
