@@ -21,8 +21,10 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DDispInfo implements DStruct {
-    
+
     public static final int ALLOWEDVERTS_SIZE = 10;
+    public static final int DISP_INFO_FLAG_HAS_MULTIBLEND = 0x40000000;
+    public static final int DISP_INFO_FLAG_MAGIC = 0x80000000;
 
     public Vector3f startPos;
     public int dispVertStart;
@@ -65,7 +67,7 @@ public class DDispInfo implements DStruct {
         lightmapAlphaStart = li.readInt();
         lightmapSamplePositionStart = li.readInt();
         li.readFully(neighbors);
-        
+
         for (int i = 0; i < ALLOWEDVERTS_SIZE; i++) {
             allowedVerts[i] = li.readInt();
         }
@@ -83,9 +85,13 @@ public class DDispInfo implements DStruct {
         lo.writeInt(lightmapAlphaStart);
         lo.writeInt(lightmapSamplePositionStart);
         lo.write(neighbors);
-        
+
         for (int i = 0; i < ALLOWEDVERTS_SIZE; i++) {
             lo.writeInt(allowedVerts[i]);
         }
+    }
+
+    public boolean hasMultiBlend() {
+        return ((minTess + DDispInfo.DISP_INFO_FLAG_MAGIC) & DDispInfo.DISP_INFO_FLAG_HAS_MULTIBLEND) != 0;
     }
 }

@@ -13,6 +13,7 @@ package info.ata4.bsplib.lump;
 import info.ata4.bsplib.io.ByteBufferDataInput;
 import info.ata4.bsplib.struct.Color32;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.bsplib.vector.Vector4f;
 import java.io.IOException;
 
 /**
@@ -46,7 +47,17 @@ public class LumpDataInput extends ByteBufferDataInput {
     public Vector3f readVector3f() throws IOException {
         return new Vector3f(readFloat(), readFloat(), readFloat());
     }
-
+    
+    /**
+     * Reads a 16 byte 4-float vector
+     *
+     * @return vector
+     * @throws IOException on reading errors
+     */
+    public Vector4f readVector4f() throws IOException {
+        return new Vector4f(readFloat(), readFloat(), readFloat(), readFloat());
+    }
+    
     /**
      * Reads a fixed size NUL-padded string
      *

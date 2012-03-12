@@ -12,6 +12,7 @@ package info.ata4.bsplib.lump;
 import info.ata4.bsplib.io.ByteBufferDataOutput;
 import info.ata4.bsplib.struct.Color32;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.bsplib.vector.Vector4f;
 import java.io.IOException;
 
 /**
@@ -45,5 +46,18 @@ public class LumpDataOutput extends ByteBufferDataOutput {
         writeFloat(v.x);
         writeFloat(v.y);
         writeFloat(v.z);
+    }
+    
+    /**
+     * Writes a 16 byte 4-float vector
+     *
+     * @return vector
+     * @throws IOException on reading errors
+     */
+    public void writeVector4f(Vector4f v) throws IOException {
+        writeFloat(v.x);
+        writeFloat(v.y);
+        writeFloat(v.z);
+        writeFloat(v.w);
     }
 }

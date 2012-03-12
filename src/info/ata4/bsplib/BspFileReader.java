@@ -82,6 +82,7 @@ public class BspFileReader {
         loadDispInfos();
         loadDispVertices();
         loadDispTriangleTags();
+        loadDispMultiBlend();
         loadNodes();
         loadLeaves();
         loadLeafFaces();
@@ -352,6 +353,14 @@ public class BspFileReader {
         }
         
         bsp.disptris = loadLump(LumpType.LUMP_DISP_TRIS, DDispTri.class);
+    }
+    
+    public void loadDispMultiBlend() {
+        if (bsp.dispmultiblend != null) {
+            return;
+        }
+    	
+        bsp.dispmultiblend = loadLump(LumpType.LUMP_DISP_MULTIBLEND, DDispMultiBlend.class);
     }
 
     public void loadTexInfo() {

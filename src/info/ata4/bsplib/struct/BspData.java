@@ -33,6 +33,7 @@ public class BspData {
     public List<DDispInfo> dispinfos;
     public List<DDispTri> disptris;
     public List<DDispVert> dispverts;
+    public List<DDispMultiBlend> dispmultiblend;
     public List<DEdge> edges;
     public List<DFace> faces;
     public List<DFace> origFaces;
