@@ -54,12 +54,16 @@ public class FaceSource extends ModuleDecompile {
     
     // mapped original faces
     List<Set<Integer>> origFaceToSplitFace;
+    
+    // Current offset MultiBlend lump
+    private int multiblendOffset;
 
     public FaceSource(BspDecompiler parent) {
         super(parent);
         
         this.parent = parent;
         this.texsrc = parent.getTextureSource();
+        this.multiblendOffset = 0;
         
         if (bsp.origFaces.isEmpty()) {
             // fix invalid origFace indices when no original faces are available
@@ -554,24 +558,49 @@ public class FaceSource extends ModuleDecompile {
      */
     public void writeDisplacement(int idispinfo) {
         DDispInfo di = bsp.dispinfos.get(idispinfo);
-
+        
         Map<String, String> normalMap = new LinkedHashMap<String, String>();
         Map<String, String> distanceMap = new LinkedHashMap<String, String>();
         Map<String, String> alphaMap = new LinkedHashMap<String, String>();
         Map<String, String> triangleTagMap = new LinkedHashMap<String, String>();
+        
+        Map<String, String> multiBlendMap = new LinkedHashMap<String, String>();
+        Map<String, String> alphaBlendMap = new LinkedHashMap<String, String>();
+
+        Map<String, String>[] multiBlendColorMap = new LinkedHashMap[DDispMultiBlend.MAX_MULTIBLEND_CHANNELS];
+        for (int i = 0; i < DDispMultiBlend.MAX_MULTIBLEND_CHANNELS; i++) {
+            multiBlendColorMap[i] = new LinkedHashMap<String, String>(); //initialize each individually
+        }
 
         StringBuilder normalSb = new StringBuilder();
         StringBuilder distanceSb = new StringBuilder();
         StringBuilder alphaSb = new StringBuilder();
+        StringBuilder multiblendSb = new StringBuilder();
+        StringBuilder alphablendSb = new StringBuilder();
+        StringBuilder[] multiblendColorSb = new StringBuilder[DDispMultiBlend.MAX_MULTIBLEND_CHANNELS];
+        for (int i = 0; i < DDispMultiBlend.MAX_MULTIBLEND_CHANNELS; i++) {
+            multiblendColorSb[i] = new StringBuilder();
+        }
         StringBuilder triangleTagSb = new StringBuilder();
         StringBuilder allowedVertSb = new StringBuilder();
 
         final int vertcount = di.getVertexCount();
         final int psize = di.getPowerSize();
+        
+        final boolean hasMultiBlend = !bsp.dispmultiblend.isEmpty() && di.hasMultiBlend();
+        
+        if (hasMultiBlend && idispinfo > 0) {
+            DDispInfo diprev = bsp.dispinfos.get(idispinfo - 1);
+            multiblendOffset += di.dispVertStart - diprev.dispVertStart;
+        }
 
         // build vertex related strings
         for (int i = 0; i < vertcount; i++) {
             DDispVert dv = bsp.dispverts.get(di.dispVertStart + i);
+            DDispMultiBlend dmb = null;
+            if (hasMultiBlend) {
+                dmb = bsp.dispmultiblend.get(multiblendOffset + i);
+            }
 
             // normals
             normalSb.append(dv.vector.x);
@@ -586,19 +615,70 @@ public class FaceSource extends ModuleDecompile {
             // alpha
             alphaSb.append(dv.alpha);
             
+            if (hasMultiBlend) {
+                // Multiblend
+                multiblendSb.append(dmb.multiblend.x);
+                multiblendSb.append(" ");
+                multiblendSb.append(dmb.multiblend.y);
+                multiblendSb.append(" ");
+                multiblendSb.append(dmb.multiblend.z);
+                multiblendSb.append(" ");
+                multiblendSb.append(dmb.multiblend.w);
+
+                alphablendSb.append(dmb.alphablend.x);
+                alphablendSb.append(" ");
+                alphablendSb.append(dmb.alphablend.y);
+                alphablendSb.append(" ");
+                alphablendSb.append(dmb.alphablend.z);
+                alphablendSb.append(" ");
+                alphablendSb.append(dmb.alphablend.w);
+
+                for (int j = 0; j < dmb.multiblendcolors.length; j++) {
+                    multiblendColorSb[j].append(dmb.multiblendcolors[j].x);
+                    multiblendColorSb[j].append(" ");
+                    multiblendColorSb[j].append(dmb.multiblendcolors[j].y);
+                    multiblendColorSb[j].append(" ");
+                    multiblendColorSb[j].append(dmb.multiblendcolors[j].z);
+                }
+            }
+
             // check for new row
             if (i % (psize + 1) == psize) {
                 normalMap.put("row" + normalMap.size(), normalSb.toString());
                 distanceMap.put("row" + distanceMap.size(), distanceSb.toString());
                 alphaMap.put("row" + alphaMap.size(), alphaSb.toString());
-                
+
                 normalSb.setLength(0);
                 distanceSb.setLength(0);
                 alphaSb.setLength(0);
+
+                // Multiblend
+                if (hasMultiBlend) {
+                    multiBlendMap.put("row" + multiBlendMap.size(), multiblendSb.toString());
+                    alphaBlendMap.put("row" + alphaBlendMap.size(), alphablendSb.toString());
+                    for (int j = 0; j < dmb.multiblendcolors.length; j++) {
+                        multiBlendColorMap[j].put("row" + multiBlendColorMap[j].size(), multiblendColorSb[j].toString());
+                    }
+
+                    multiblendSb.setLength(0);
+                    alphablendSb.setLength(0);
+                    for (int j = 0; j < dmb.multiblendcolors.length; j++) {
+                        multiblendColorSb[j].setLength(0);
+                    }
+                }
             } else {
                 normalSb.append(" ");
                 distanceSb.append(" ");
                 alphaSb.append(" ");
+
+                if (hasMultiBlend) {
+                    multiblendSb.append(" ");
+                    alphablendSb.append(" ");
+
+                    for (int j = 0; j < dmb.multiblendcolors.length; j++) {
+                        multiblendColorSb[j].append(" ");
+                    }
+                }
             }
         }
 
@@ -664,7 +744,24 @@ public class FaceSource extends ModuleDecompile {
         writer.start("allowed_verts");
         writer.put("10", allowedVertSb.toString());
         writer.end("allowed_verts");
+        
+        // Multiblend
+        if (hasMultiBlend) {
+            writer.start("multiblend");
+            writer.put(multiBlendMap);
+            writer.end("multiblend");
 
+            writer.start("alphablend");
+            writer.put(alphaBlendMap);
+            writer.end("alphablend");
+
+            for (int j = 0; j < DDispMultiBlend.MAX_MULTIBLEND_CHANNELS; j++) {
+                writer.start("multiblend_color_" + j);
+                writer.put(multiBlendColorMap[j]);
+                writer.end("multiblend_color_" + j);
+            }
+        }
+        
         writer.end("dispinfo");
     }
 
