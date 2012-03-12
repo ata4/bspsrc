@@ -1,5 +1,9 @@
 ## Changelog
 
+### 1.3.5 -
+* New game detection system with a XML database
+* Fixed Hammer crash bug caused by invalid info_lighting coordinates for Dear Esther maps
+
 ### 1.3.4 - 22.02.2012
 * Added support for Dear Esther maps
 * Fixed some static prop reading errors
