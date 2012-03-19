@@ -58,7 +58,8 @@ public class FaceSource extends ModuleDecompile {
     // Current offset MultiBlend lump
     private int multiblendOffset = 0;
 
-    public FaceSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config, BspDecompiler parent, TextureSource texsrc) {
+    public FaceSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
+            BspDecompiler parent, TextureSource texsrc) {
         super(reader, writer);
         this.parent = parent;
         this.config = config;

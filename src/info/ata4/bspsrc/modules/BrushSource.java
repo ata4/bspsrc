@@ -57,7 +57,8 @@ public class BrushSource extends ModuleDecompile {
     Map<Integer, Integer> brushSideToID = new HashMap<Integer, Integer>();
     Map<Integer, Integer> brushIndexToID = new HashMap<Integer, Integer>();
 
-    public BrushSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config, BspDecompiler parent, TextureSource texsrc, BspProtection bspprot) {
+    public BrushSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
+            BspDecompiler parent, TextureSource texsrc, BspProtection bspprot) {
         super(reader, writer);
         this.config = config;
         this.parent = parent;

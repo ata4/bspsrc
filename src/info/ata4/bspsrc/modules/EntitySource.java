@@ -61,7 +61,9 @@ public class EntitySource extends ModuleDecompile {
     private int maxCubemapSides = 8;
     private int maxOverlaySides = 64;
 
-    public EntitySource(BspFileReader reader, VmfWriter writer, BspSourceConfig config, BspDecompiler parent, BrushSource brushsrc, FaceSource facesrc, TextureSource texsrc, BspProtection bspprot) {
+    public EntitySource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
+            BspDecompiler parent, BrushSource brushsrc, FaceSource facesrc,
+            TextureSource texsrc, BspProtection bspprot) {
         super(reader, writer);
         this.parent = parent;
         this.config = config;
