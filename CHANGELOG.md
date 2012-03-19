@@ -1,7 +1,9 @@
 ## Changelog
 
-### 1.3.5 -
-* New game detection system with a XML database
+### 1.3.5 - 19.03.2012
+* Added support for displacement multiblend data (thanks to Sander van Noort!)
+* VMEX decompile protection entities and brushes are now visgrouped
+* New XML-based game detection system
 * Fixed Hammer crash bug caused by invalid info_lighting coordinates for Dear Esther maps
 
 ### 1.3.4 - 22.02.2012
