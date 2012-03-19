@@ -11,7 +11,6 @@
 package info.ata4.bspsrc.modules;
 
 import info.ata4.bsplib.BspFileReader;
-import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.VmfWriter;
 
 /**
@@ -23,15 +22,9 @@ import info.ata4.bspsrc.VmfWriter;
 public abstract class ModuleDecompile extends ModuleRead {
 
     protected final VmfWriter writer;
-    protected final BspSourceConfig config;
 
-    public ModuleDecompile(BspFileReader reader, VmfWriter writer, BspSourceConfig config) {
+    public ModuleDecompile(BspFileReader reader, VmfWriter writer) {
         super(reader);
         this.writer = writer;
-        this.config = config;
-    }
-    
-    public ModuleDecompile(ModuleDecompile parent) {
-        this(parent.reader, parent.writer, parent.config);
     }
 }

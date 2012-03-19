@@ -10,11 +10,14 @@
 
 package info.ata4.bspsrc.modules;
 
+import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.struct.DBrush;
 import info.ata4.bsplib.struct.DBrushSide;
 import info.ata4.bsplib.struct.DModel;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.Texture;
+import info.ata4.bspsrc.VmfWriter;
 import info.ata4.bspsrc.util.TreeLimit;
 import info.ata4.bspsrc.util.Winding;
 import java.util.ArrayList;
@@ -40,6 +43,7 @@ public class BrushSource extends ModuleDecompile {
     private final BspDecompiler parent;
     
     // sub-modules
+    private final BspSourceConfig config;
     private final TextureSource texsrc;
     private final BspProtection bspprot;
     
@@ -53,12 +57,12 @@ public class BrushSource extends ModuleDecompile {
     Map<Integer, Integer> brushSideToID = new HashMap<Integer, Integer>();
     Map<Integer, Integer> brushIndexToID = new HashMap<Integer, Integer>();
 
-    public BrushSource(BspDecompiler parent) {
-        super(parent);
-        
+    public BrushSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config, BspDecompiler parent, TextureSource texsrc, BspProtection bspprot) {
+        super(reader, writer);
+        this.config = config;
         this.parent = parent;
-        this.texsrc = parent.getTextureSource();
-        this.bspprot = parent.getBspProtection();
+        this.texsrc = texsrc;
+        this.bspprot = bspprot;
 
         assignBrushes();
     }

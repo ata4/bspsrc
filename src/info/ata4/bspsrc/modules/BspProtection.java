@@ -77,16 +77,6 @@ public class BspProtection extends ModuleRead {
         this.texsrc = texsrc;
     }
 
-    public BspProtection(ModuleRead parent, TextureSource texsrc) {
-        super(parent);
-        this.texsrc = texsrc;
-    }
-    
-    public BspProtection(BspDecompiler parent) {
-        super(parent);
-        this.texsrc = parent.getTextureSource();
-    }
-
     public boolean check() {
         flaggedEnt = false;
         flaggedTex = false;

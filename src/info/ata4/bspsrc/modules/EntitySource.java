@@ -10,6 +10,7 @@
 
 package info.ata4.bspsrc.modules;
 
+import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.entity.KeyValue;
@@ -41,6 +42,7 @@ public class EntitySource extends ModuleDecompile {
     private final BspDecompiler parent;
     
     // sub-modules
+    private final BspSourceConfig config;
     private final BrushSource brushsrc;
     private final FaceSource facesrc;
     private final TextureSource texsrc;
@@ -59,15 +61,15 @@ public class EntitySource extends ModuleDecompile {
     private int maxCubemapSides = 8;
     private int maxOverlaySides = 64;
 
-    public EntitySource(BspDecompiler parent) {
-        super(parent);
-
+    public EntitySource(BspFileReader reader, VmfWriter writer, BspSourceConfig config, BspDecompiler parent, BrushSource brushsrc, FaceSource facesrc, TextureSource texsrc, BspProtection bspprot) {
+        super(reader, writer);
         this.parent = parent;
-        this.brushsrc = parent.getBrushSource();
-        this.facesrc = parent.getFaceSource();
-        this.texsrc = parent.getTextureSource();
-        this.bspprot = parent.getBspProtection();
-        
+        this.config = config;
+        this.brushsrc = brushsrc;
+        this.facesrc = facesrc;
+        this.texsrc = texsrc;
+        this.bspprot = bspprot;
+
         bsw = new Winding[bsp.brushSides.size()];
         
         processEntities();

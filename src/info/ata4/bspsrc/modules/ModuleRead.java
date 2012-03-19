@@ -31,8 +31,4 @@ public abstract class ModuleRead {
         this.bsp = reader.getData();
         this.bspFile = reader.getBspFile();
     }
-    
-    public ModuleRead(ModuleRead parent) {
-        this(parent.reader);
-    }
 }

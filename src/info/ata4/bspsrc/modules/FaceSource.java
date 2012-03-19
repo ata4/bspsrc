@@ -10,11 +10,10 @@
 
 package info.ata4.bspsrc.modules;
 
+import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.bspsrc.Texture;
-import info.ata4.bspsrc.TextureAxis;
-import info.ata4.bspsrc.ToolTexture;
+import info.ata4.bspsrc.*;
 import info.ata4.bspsrc.util.Winding;
 import java.util.*;
 import java.util.logging.Level;
@@ -42,6 +41,7 @@ public class FaceSource extends ModuleDecompile {
     private final BspDecompiler parent;
 
     // sub-modules
+    private final BspSourceConfig config;
     private final TextureSource texsrc;
     
     // set of face indices that are undersized
@@ -56,14 +56,13 @@ public class FaceSource extends ModuleDecompile {
     List<Set<Integer>> origFaceToSplitFace;
     
     // Current offset MultiBlend lump
-    private int multiblendOffset;
+    private int multiblendOffset = 0;
 
-    public FaceSource(BspDecompiler parent) {
-        super(parent);
-        
+    public FaceSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config, BspDecompiler parent, TextureSource texsrc) {
+        super(reader, writer);
         this.parent = parent;
-        this.texsrc = parent.getTextureSource();
-        this.multiblendOffset = 0;
+        this.config = config;
+        this.texsrc = texsrc;
         
         if (bsp.origFaces.isEmpty()) {
             // fix invalid origFace indices when no original faces are available

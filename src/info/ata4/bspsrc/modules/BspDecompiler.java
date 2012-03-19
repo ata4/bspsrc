@@ -32,6 +32,7 @@ public class BspDecompiler extends ModuleDecompile {
     private static final Logger L = Logger.getLogger(BspDecompiler.class.getName());
 
     // sub-modules
+    private final BspSourceConfig config;
     private final TextureSource texsrc;
     private final BrushSource brushsrc;
     private final FaceSource facesrc;
@@ -51,38 +52,20 @@ public class BspDecompiler extends ModuleDecompile {
     private Entity worldspawn;
     private String comment;
 
-    public BspDecompiler(BspSourceConfig config, BspFileReader reader, VmfWriter writer) {
-        super(reader, writer, config);
+    public BspDecompiler(BspFileReader reader, VmfWriter writer, BspSourceConfig config) {
+        super(reader, writer);
 
-        texsrc = new TextureSource(this);
-        brushsrc = new BrushSource(this);
-        facesrc = new FaceSource(this);
-        entsrc = new EntitySource(this);
-        bspprot = new BspProtection(this);
+        this.config = config;
+        
+        texsrc = new TextureSource(reader);
+        bspprot = new BspProtection(reader, texsrc);
+        brushsrc = new BrushSource(reader, writer, config, this, texsrc, bspprot);
+        facesrc = new FaceSource(reader, writer, config, this, texsrc);
+        entsrc = new EntitySource(reader, writer, config, this, brushsrc, facesrc, texsrc, bspprot);
 
         worldspawn = bsp.entities.get(0);
     }
-
-    public TextureSource getTextureSource() {
-        return texsrc;
-    }
-
-    public BrushSource getBrushSource() {
-        return brushsrc;
-    }
-
-    public FaceSource getFaceSource() {
-        return facesrc;
-    }
-
-    public EntitySource getEntitySource() {
-        return entsrc;
-    }
-
-    public BspProtection getBspProtection() {
-        return bspprot;
-    }
-
+    
     /**
      * Starts the decompiling process
      */
@@ -300,9 +283,5 @@ public class BspDecompiler extends ModuleDecompile {
      */
     public void writeFooter() {
         writer.end("world");
-    }
-
-    public BspSourceConfig getConfig() {
-        return config;
     }
 }
