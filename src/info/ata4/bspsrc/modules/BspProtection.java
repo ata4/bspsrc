@@ -50,9 +50,9 @@ public class BspProtection extends ModuleRead {
     private static final float ALIGNED_ALPHA = 0.99f;
     private static final float NODRAW_RATIO_LIMIT = 0.9f;
     
-    private static final Vector3f PB1 = new Vector3f(1.0f, 4.0f, 9.0f);
-    private static final Vector3f PB2 = new Vector3f(4.0f, 9.0f, 1.0f);
-    private static final Vector3f PB3 = new Vector3f(9.0f, 1.0f, 4.0f);
+    private static final Vector3f PB1 = new Vector3f(1, 4, 9);
+    private static final Vector3f PB2 = new Vector3f(4, 9, 1);
+    private static final Vector3f PB3 = new Vector3f(9, 1, 4);
 
     // logger
     private static final Logger L = Logger.getLogger(BspProtection.class.getName());
@@ -61,13 +61,16 @@ public class BspProtection extends ModuleRead {
     private final TextureSource texsrc;
 
     // flags
-    private boolean protectedFlag;
     private boolean flaggedEnt;
     private boolean flaggedTex;
     private boolean flaggedBrush;
     private boolean encryptedEnt;
     private boolean obfuscatedEnt;
     private boolean modifedTexinfo;
+    
+    // lists of protecting elements
+    private List<DBrush> protBrushes = new ArrayList<DBrush>();
+    private List<Entity> protEntities = new ArrayList<Entity>();
     
     public BspProtection(BspFileReader reader, TextureSource texsrc) {
         super(reader);
@@ -85,7 +88,6 @@ public class BspProtection extends ModuleRead {
     }
 
     public boolean check() {
-        protectedFlag = false;
         flaggedEnt = false;
         flaggedTex = false;
         flaggedBrush = false;
@@ -98,16 +100,18 @@ public class BspProtection extends ModuleRead {
         checkEntities();
         checkTextures();
         checkPakfile();
+        
+        boolean prot = isProtected();
 
-        if (!protectedFlag) {
+        if (!prot) {
             L.fine("Nothing found");
         }
 
-        return protectedFlag;
+        return prot;
     }
 
     public boolean isProtected() {
-        return protectedFlag;
+        return flaggedEnt || flaggedTex || flaggedBrush || encryptedEnt || obfuscatedEnt || modifedTexinfo;
     }
 
     public boolean hasEntityFlag() {
@@ -134,6 +138,11 @@ public class BspProtection extends ModuleRead {
         return modifedTexinfo;
     }
     
+    /**
+     * Returns all found protection methods in string form.
+     * 
+     * @return list of method strings
+     */
     public List<String> getProtectionMethods() {
         List<String> methods = new ArrayList<String>();
         
@@ -163,13 +172,55 @@ public class BspProtection extends ModuleRead {
         
         return methods;
     }
+    
+    /**
+     * Returns all found protector brushes.
+     * 
+     * @return list of protector brushes
+     */
+    public List<DBrush> getProtectedBrushes() {
+        List list = new ArrayList<DBrush>();
+        list.addAll(protBrushes);
+        return list;
+    }
+    
+    /**
+     * Checks if the given brush is a protector brush.
+     * 
+     * @param brush
+     * @return true if the brush is part of the protection prefab.
+     */
+    public boolean isProtectedBrush(DBrush brush) {
+        return protBrushes.contains(brush);
+    }
+    
+    /**
+     * Returns all found protector entities.
+     * 
+     * @return list of protector entities
+     */
+    public List<DBrush> getProtectedEntities() {
+        List list = new ArrayList<Entity>();
+        list.addAll(protEntities);
+        return list;
+    }
+    
+    /**
+     * Checks if an entitiy contains protection keyvalues.
+     * 
+     * @param entity
+     * @return true if the entity contains protection keyvalues
+     */
+    public boolean isProtectedEntity(Entity entity) {
+        return protEntities.contains(entity);
+    }
 
     private void checkBrushes() {
         L.fine("Checking for protector prefab");
 
-        boolean m1 = false;
-        boolean m2 = false;
-        boolean m3 = false;
+        DBrush b1 = null;
+        DBrush b2 = null;
+        DBrush b3 = null;
 
         // check every brush
         for (DBrush b : bsp.brushes) {
@@ -183,21 +234,27 @@ public class BspProtection extends ModuleRead {
             
             // check brush dimensions with prefab constants
             if (PB1.sub(bsize).length() < EPS_SIZE) {
-                m1 = true;
+                b1 = b;
             }
             if (PB2.sub(bsize).length() < EPS_SIZE) {
-                m2 = true;
+                b2 = b;
             }
             if (PB3.sub(bsize).length() < EPS_SIZE) {
-                m3 = true;
+                b3 = b;
             }
 
             // check if all three brushes exists
-            if (m1 && m2 && m3) {
+            if (b1 != null && b2 != null && b3 != null) {
                 L.fine("Found protector prefab!");
                 flaggedBrush = true;
-                protectedFlag = true;
-                break;
+                
+                protBrushes.add(b1);
+                protBrushes.add(b2);
+                protBrushes.add(b3);
+                
+                b1 = null;
+                b2 = null;
+                b3 = null;
             }
         }
     }
@@ -219,7 +276,6 @@ public class BspProtection extends ModuleRead {
         modifedTexinfo = nodrawRatio > NODRAW_RATIO_LIMIT;
         if (modifedTexinfo) {
             L.fine("Found nodraw hack!");
-            protectedFlag = true;
         }
     }
 
@@ -245,8 +301,8 @@ public class BspProtection extends ModuleRead {
             for (String key : ent.getKeys()) {
                 if (key.equals(VMEX_LOCKED_ENT)) {
                     L.fine("Found lock key!");
+                    protEntities.add(ent);
                     flaggedEnt = true;
-                    protectedFlag = true;
                 }
             }
         }
@@ -255,7 +311,6 @@ public class BspProtection extends ModuleRead {
         obfuscatedEnt = targetnames > 0 && targetnames == targetnamesObfs;
         if (obfuscatedEnt) {
             L.fine("Found obfuscation!");
-            protectedFlag = true;
         }
     }
 
@@ -270,7 +325,6 @@ public class BspProtection extends ModuleRead {
             if (texname.equalsIgnoreCase(VMEX_LOCKED_TEX)) {
                 L.fine("Found lock texture!");
                 flaggedTex = true;
-                protectedFlag = true;
                 return;
             }
         }
@@ -300,7 +354,6 @@ public class BspProtection extends ModuleRead {
                 if (ze.getName().equals(BSPPROTECT_FILE)) {
                     L.fine("Found encrypted entities!");
                     encryptedEnt = true;
-                    protectedFlag = true;
                     break;
                 }
             }

@@ -122,10 +122,6 @@ public class BrushSource extends ModuleDecompile {
         }
     }
     
-    public void writeBrush(int ibrush) {
-        writeBrush(ibrush, null, null);
-    }
-    
     public void writeBrush(int ibrush, Vector3f origin, Vector3f angles) {
         DBrush brush = bsp.brushes.get(ibrush);
         
@@ -197,8 +193,16 @@ public class BrushSource extends ModuleDecompile {
         if (nullsides == brush.numside) {
             L.log(Level.WARNING, "Brush {0} is null", brush);
         }
+        
+        if (parent.getBspProtection().isProtectedBrush(brush)) {
+            parent.writeVisgroup("VMEX flagged brushes");
+        }
 
         writer.end("solid");
+    }
+    
+    public void writeBrush(int ibrush) {
+        writeBrush(ibrush, null, null);
     }
 
     private void writeSide(int ibrushside, int ibrush, Winding wind, Vector3f origin, Vector3f angles) {

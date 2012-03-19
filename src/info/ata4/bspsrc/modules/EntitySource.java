@@ -289,6 +289,8 @@ public class EntitySource extends ModuleDecompile {
                 if (m.find()) {
                     parent.writeVisgroup(m.group(1));
                 }
+            } else if (parent.getBspProtection().isProtectedEntity(ent)) {
+                parent.writeVisgroup("VMEX flagged entities");
             }
 
             writer.end("entity");
