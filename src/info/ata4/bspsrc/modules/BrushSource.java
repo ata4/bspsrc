@@ -41,6 +41,7 @@ public class BrushSource extends ModuleDecompile {
     
     // sub-modules
     private final TextureSource texsrc;
+    private final BspProtection bspprot;
     
     // additional model data
     private List<DBrushModel> models = new ArrayList<DBrushModel>();
@@ -57,6 +58,7 @@ public class BrushSource extends ModuleDecompile {
         
         this.parent = parent;
         this.texsrc = parent.getTextureSource();
+        this.bspprot = parent.getBspProtection();
 
         assignBrushes();
     }
@@ -194,7 +196,7 @@ public class BrushSource extends ModuleDecompile {
             L.log(Level.WARNING, "Brush {0} is null", brush);
         }
         
-        if (parent.getBspProtection().isProtectedBrush(brush)) {
+        if (bspprot.isProtectedBrush(brush)) {
             parent.writeVisgroup("VMEX flagged brushes");
         }
 

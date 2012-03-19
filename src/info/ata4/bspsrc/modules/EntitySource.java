@@ -15,9 +15,7 @@ import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.bspsrc.BrushMode;
-import info.ata4.bspsrc.Camera;
-import info.ata4.bspsrc.SourceFormat;
+import info.ata4.bspsrc.*;
 import info.ata4.bspsrc.util.Winding;
 import java.util.*;
 import java.util.logging.Level;
@@ -46,6 +44,7 @@ public class EntitySource extends ModuleDecompile {
     private final BrushSource brushsrc;
     private final FaceSource facesrc;
     private final TextureSource texsrc;
+    private final BspProtection bspprot;
 
     // list of areaportal brush ids
     private Set<Integer> apBrushes = new HashSet<Integer>();
@@ -67,6 +66,7 @@ public class EntitySource extends ModuleDecompile {
         this.brushsrc = parent.getBrushSource();
         this.facesrc = parent.getFaceSource();
         this.texsrc = parent.getTextureSource();
+        this.bspprot = parent.getBspProtection();
         
         bsw = new Winding[bsp.brushSides.size()];
         
@@ -167,7 +167,7 @@ public class EntitySource extends ModuleDecompile {
                 if (portalNumString != null) {
                     try {
                         portalNum = Integer.valueOf(portalNumString);
-                    } catch(NumberFormatException ex) {
+                    } catch (NumberFormatException ex) {
                         portalNum = -1;
                     }
 
@@ -289,7 +289,7 @@ public class EntitySource extends ModuleDecompile {
                 if (m.find()) {
                     parent.writeVisgroup(m.group(1));
                 }
-            } else if (parent.getBspProtection().isProtectedEntity(ent)) {
+            } else if (bspprot.isProtectedEntity(ent)) {
                 parent.writeVisgroup("VMEX flagged entities");
             }
 
