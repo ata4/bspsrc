@@ -23,7 +23,9 @@ public class LogUtils {
     private LogUtils() {
     }
     
-    public static void configure(Logger logger, Level level) {
+    public static void configure(Level level) {
+        Logger logger = Logger.getLogger("");
+        
         // remove default handler
         for (Handler handler : logger.getHandlers()) {
             logger.removeHandler(handler);
@@ -40,11 +42,7 @@ public class LogUtils {
         }
     }
     
-    public static void configure(Logger logger) {
-        configure(logger, Level.INFO);
-    }
-    
     public static void configure() {
-        configure(Logger.getLogger(""), Level.INFO);
+        configure(Level.INFO);
     }
 }

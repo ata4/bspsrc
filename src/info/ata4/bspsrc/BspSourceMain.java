@@ -28,7 +28,7 @@ public class BspSourceMain {
     private static final Logger L = Logger.getLogger(BspSourceCli.class.getName());
     
     public static void main(String[] args) {
-        LogUtils.configure(Logger.getLogger(""));
+        LogUtils.configure();
         
         // start GUI if no arguments were passed
         if (args.length == 0) {
