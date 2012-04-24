@@ -186,7 +186,7 @@ public class Winding implements List<Vector3f> {
 
         // remove the component of this vector along the normal
         float vdot = vup.dot(pl.normal);
-        vup = vup.addMult(-vdot, pl.normal);
+        vup = vup.add(pl.normal.scalar(-vdot));
         
         // make it a unit (perpendicular)
         vup = vup.normalize();

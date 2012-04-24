@@ -11,7 +11,7 @@
 package info.ata4.bsplib.vector;
 
 /**
- * An immutable three-dimensional vector class for float values.
+ * An immutable fluent interface three-dimensional vector class for float values.
  * 
  * Original class name: unmap.Vec
  * Original author: Bob (Mellish?)
@@ -23,7 +23,6 @@ public final class Vector3f {
 
     // frequently used pre-defined vectors
     public static final Vector3f NULL = new Vector3f(0, 0, 0);
-    public static final Vector3f INVALID = new Vector3f(Float.NaN, Float.NaN, Float.NaN);
     public static final Vector3f MAX_VALUE = new Vector3f(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
     public static final Vector3f MIN_VALUE = MAX_VALUE.scalar(-1); // don't use Float.MIN_VALUE here
     
@@ -34,15 +33,6 @@ public final class Vector3f {
     public final float x;
     public final float y;
     public final float z;
-
-    /**
-     * Default constructor, equivalent to Vector3f(0, 0, 0).
-     * 
-     * @deprecated Use Vector3f.NULL instead
-     */
-    public Vector3f() {
-        this(0, 0, 0);
-    }
 
     /**
      * Replicating contructor
@@ -229,22 +219,6 @@ public final class Vector3f {
         float rx = this.x * that.x;
         float ry = this.y * that.y;
         float rz = this.z * that.z;
-
-        return new Vector3f(rx, ry, rz);
-    }
-
-    /**
-     * Vector multiplication-addition: this + scale*that
-     * 
-     * @param scale
-     * @param that
-     * @return 
-     */
-    public Vector3f addMult(float scale, Vector3f that) {
-        // same as this.add(that.scalar(scale)) with just one new instance?
-        float rx = this.x + scale * that.x;
-        float ry = this.y + scale * that.y;
-        float rz = this.z + scale * that.z;
 
         return new Vector3f(rx, ry, rz);
     }

@@ -11,7 +11,7 @@
 package info.ata4.bsplib.vector;
 
 /**
- * An immutable four-dimensional vector class for float values.
+ * An immutable fluent interface four-dimensional vector class for float values.
  *
  * @author Sandern
  */
@@ -19,7 +19,6 @@ public final class Vector4f {
 
     // frequently used pre-defined vectors
     public static final Vector4f NULL = new Vector4f(0, 0, 0, 0);
-    public static final Vector4f INVALID = new Vector4f(Float.NaN, Float.NaN, Float.NaN, Float.NaN);
     public static final Vector4f MAX_VALUE = new Vector4f(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
     public static final Vector4f MIN_VALUE = MAX_VALUE.scalar(-1); // don't use Float.MIN_VALUE here
     
@@ -31,15 +30,6 @@ public final class Vector4f {
     public final float y;
     public final float z;
     public final float w;
-
-    /**
-     * Default constructor, equivalent to Vector4f(0, 0, 0).
-     * 
-     * @deprecated Use Vector4f.NULL instead
-     */
-    public Vector4f() {
-        this(0, 0, 0, 0);
-    }
 
     /**
      * Replicating contructor
@@ -225,23 +215,6 @@ public final class Vector4f {
         float rz = this.z * that.z;
         float rw = this.w * that.w;
 
-        return new Vector4f(rx, ry, rz, rw);
-    }
-
-    /**
-     * Vector multiplication-addition: this + scale*that
-     * 
-     * @param scale
-     * @param that
-     * @return 
-     */
-    public Vector4f addMult(float scale, Vector4f that) {
-        // same as this.add(that.scalar(scale)) with just one new instance?
-        float rx = this.x + scale * that.x;
-        float ry = this.y + scale * that.y;
-        float rz = this.z + scale * that.z;
-        float rw = this.w + scale * that.w;
-        
         return new Vector4f(rx, ry, rz, rw);
     }
     
