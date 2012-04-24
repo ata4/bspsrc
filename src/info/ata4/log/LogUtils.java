@@ -43,4 +43,8 @@ public class LogUtils {
     public static void configure(Logger logger) {
         configure(logger, Level.INFO);
     }
+    
+    public static void configure() {
+        configure(Logger.getLogger(""), Level.INFO);
+    }
 }

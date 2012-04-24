@@ -294,8 +294,9 @@ public class BspFileReader {
                 
                 int pos = lr.position();
                 sp.read(lr);
-                if (lr.position() - pos != sp.getSize()) {
-                    throw new IOException("Bytes read: " + pos + "; expected: " + sp.getSize());
+                int size = sp.getSize();
+                if (lr.position() - pos != size) {
+                    throw new IOException("Bytes read: " + pos + "; expected: " + size);
                 }
                 
                 bsp.staticProps.add(sp);

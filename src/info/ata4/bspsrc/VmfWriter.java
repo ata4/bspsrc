@@ -181,6 +181,7 @@ public class VmfWriter implements Closeable {
         sb.append('[');
         
         if (!tx.axis.isValid()) {
+            L.log(Level.WARNING, "Invalid vector: {0}", tx.axis);
             sb.append("0 0 0 ");
         } else {
             sb.append(tx.axis.x).append(' ');
