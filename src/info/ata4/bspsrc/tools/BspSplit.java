@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -35,9 +37,12 @@ public class BspSplit {
     public static void main(String[] args) {
         LogUtils.configure();
         
+        Options opts = new Options();
+        
         if (args.length == 0) {
             System.out.println("BSP file splitter v1.0");
-            System.out.println("usage: bspsplit [options] <file> [file...]");
+            new HelpFormatter().printHelp("bspsplit <file> [file...]", opts);
+            return;
         }
         
         for (String arg : args) {
@@ -53,7 +58,7 @@ public class BspSplit {
             
             String bspName = bspFile.getName();
             File baseDir = bspFile.getFile().getParentFile();
-            File lumpsDir = new File(baseDir, bspName);
+            File lumpsDir = new File(baseDir, bspName + "_lumps");
             lumpsDir.mkdir();
 
             List<Lump> lumps = bspFile.getLumps();
