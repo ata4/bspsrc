@@ -44,4 +44,3 @@ Dependencies
 * [apache-commons-io-2.0.1](http://commons.apache.org/io/)
 * [apache-commons-compress-1.1](http://commons.apache.org/compress/)
 * [apache-commons-cli-1.2](http://commons.apache.org/cli/)
-* [BSPLib](https://github.com/BarracudaATA/BSPLib)
