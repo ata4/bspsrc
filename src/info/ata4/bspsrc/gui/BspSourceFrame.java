@@ -90,7 +90,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
     }
     
     public ComboBoxModel getAppIDModel() {
-        DefaultComboBoxModel cbmodel = new DefaultComboBoxModel<SourceApp>();
+        DefaultComboBoxModel<SourceApp> cbmodel = new DefaultComboBoxModel<SourceApp>();
         cbmodel.addElement(new SourceApp("Automatic", 0));
         
         List<SourceApp> apps = SourceAppDB.getInstance().getAppList();

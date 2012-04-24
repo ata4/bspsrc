@@ -25,10 +25,10 @@ public class MultiOptions extends Options {
             return this;
         }
 
-        Collection<Option> opts = options.getOptions();
+        Collection opts = options.getOptions();
 
-        for (Option opt : opts) {
-            addOption(opt);
+        for (Object opt : opts) {
+            addOption((Option) opt);
         }
 
         return this;

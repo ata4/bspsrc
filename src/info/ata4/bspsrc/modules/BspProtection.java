@@ -169,7 +169,7 @@ public class BspProtection extends ModuleRead {
      * @return list of protector brushes
      */
     public List<DBrush> getProtectedBrushes() {
-        List list = new ArrayList<DBrush>();
+        List<DBrush> list = new ArrayList<DBrush>();
         list.addAll(protBrushes);
         return list;
     }
@@ -189,8 +189,8 @@ public class BspProtection extends ModuleRead {
      * 
      * @return list of protector entities
      */
-    public List<DBrush> getProtectedEntities() {
-        List list = new ArrayList<Entity>();
+    public List<Entity> getProtectedEntities() {
+        List<Entity> list = new ArrayList<Entity>();
         list.addAll(protEntities);
         return list;
     }
