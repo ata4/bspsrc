@@ -26,13 +26,13 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 
 /**
- * BSP file splitting tool.
+ * BSP lump splitting tool.
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class BspSplit {
+public class BspLumpSplit {
     
-    private static final Logger L = Logger.getLogger(BspSplit.class.getName());
+    private static final Logger L = Logger.getLogger(BspLumpSplit.class.getName());
     
     public static void main(String[] args) {
         LogUtils.configure();
@@ -40,8 +40,8 @@ public class BspSplit {
         Options opts = new Options();
         
         if (args.length == 0) {
-            System.out.println("BSP file splitter v1.0");
-            new HelpFormatter().printHelp("bspsplit <file> [file...]", opts);
+            System.out.println("BSP lump splitter v1.0");
+            new HelpFormatter().printHelp("bsplumpsplit <file> [file...]", opts);
             return;
         }
         
