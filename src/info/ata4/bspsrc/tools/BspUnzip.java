@@ -39,10 +39,12 @@ public class BspUnzip {
         LogUtils.configure();
         
         Options opts = new Options();
-        opts.addOption(new Option("f", "Extract all embedded files directly."));
+        opts.addOption(new Option("f", "Extract embedded files directly."));
         
         if (args.length == 0) {
             System.out.println("BSP embedded files extractor v1.0");
+            System.out.println("A simple tool to extract the embedded zip file of a BSP file.");
+            System.out.println();
             new HelpFormatter().printHelp("bspunzip [options] <file> [file...]", opts);
             return;
         }

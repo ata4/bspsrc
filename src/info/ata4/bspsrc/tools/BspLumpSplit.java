@@ -41,6 +41,10 @@ public class BspLumpSplit {
         
         if (args.length == 0) {
             System.out.println("BSP lump splitter v1.0");
+            System.out.println("Splits up a BSP file into their elementary parts called \"lumps\".");
+            System.out.println("Each lump will be saved into a separate file, which is helpful");
+            System.out.println("for examining and comparing the data structure of a map.");
+            System.out.println();
             new HelpFormatter().printHelp("bsplumpsplit <file> [file...]", opts);
             return;
         }

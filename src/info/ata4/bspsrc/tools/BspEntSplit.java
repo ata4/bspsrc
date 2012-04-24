@@ -43,7 +43,13 @@ public class BspEntSplit {
 
         if (args.length == 0) {
             System.out.println("BSP entity splitter v1.0");
-            new HelpFormatter().printHelp("bspunzip [options] <file> [file...]", opts);
+            System.out.println("Splits a BSP file into an entity-free BSP file and an entity lump file.");
+            System.out.println("Both the .bsp and .lmp file are required for servers to play the map,");
+            System.out.println("but clients require only the entity-free .bsp file to connect to it.");
+            System.out.println("Useful to hide sensitive entity data from clients, e.g. combination locks");
+            System.out.println("or entities for proprietary server mods.");
+            System.out.println();
+            new HelpFormatter().printHelp("bspentsplit [options] <file> [file...]", opts);
             return;
         }
 
