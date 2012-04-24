@@ -1,6 +1,9 @@
 ## Changelog
 
-### 1.3.5 - 19.03.2012
+### 1.3.6 - 24.04.2012
+* Added support for static props in newer CS:GO maps
+
+### 1.3.5 - 23.03.2012
 * Added support for displacement multiblend data (thanks to Sander van Noort!)
 * VMEX decompile protection entities and brushes are now visgrouped
 * New XML-based game detection system
