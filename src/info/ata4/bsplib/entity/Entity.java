@@ -62,7 +62,10 @@ public class Entity {
             
              // special KV, don't add it
             if (key.equals("classname")) {
-                className = value;
+                if (className == null)
+                    className = value;
+                else 
+                    L.log(Level.WARNING, "Found duplicate classname key, ignoring {0}", kv);
                 continue;
             }
             
@@ -77,17 +80,10 @@ public class Entity {
             // 6 seps for VTMB and Messiah, 4 otherwise
             boolean io = sep == 4 || sep == 6;
             
-            if (io) {
+            if (io)
                 keyValueIO.add(kv);
-            } else {                
-                // ignore values with duplicate keys
-                if (keyValue.containsKey(key)) {
-                    L.log(Level.WARNING, "Found duplicate entity key, ignoring {0}", kv);
-                    continue;
-                }
-
+            else                
                 keyValue.put(key, value);
-            }
         }
         
         // check and add missing class name
