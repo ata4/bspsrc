@@ -555,6 +555,7 @@ public class BspFile {
             }
             
             if (!l.isCompressed()) {
+                L.log(Level.FINE, "Compressing {0}", l.getName());
                 l.compress();
             }
         }
@@ -566,6 +567,7 @@ public class BspFile {
             }
             
             if (!gl.isCompressed()) {
+                L.log(Level.FINE, "Compressing {0}", gl.getName());
                 gl.compress();
             }
         }

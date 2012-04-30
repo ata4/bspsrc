@@ -30,7 +30,7 @@ public abstract class AbstractLump {
     
     private static final Logger L = Logger.getLogger(AbstractLump.class.getName());
     
-    private ByteBuffer buffer;
+    private ByteBuffer buffer = ByteBuffer.allocate(0);
     private int offset;
     private int version = 0;
     private int fourCC = 0;
