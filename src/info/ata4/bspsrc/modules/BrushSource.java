@@ -202,7 +202,7 @@ public class BrushSource extends ModuleDecompile {
         }
         
         if (bspprot.isProtectedBrush(brush)) {
-            parent.writeVisgroup("VMEX flagged brushes");
+            parent.writeMetaVisgroup("VMEX flagged brushes");
         }
 
         writer.end("solid");

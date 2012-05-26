@@ -200,13 +200,21 @@ public class BspDecompiler extends ModuleDecompile {
         writer.end("visgroups");
     }
     
-    public void writeVisgroup(String visgroupName) { 
+    public void writeMetaVisgroup(String visgroupName) {
         writer.start("editor");
         writer.put("visgroupid", getVisgroupID(visgroupName));
         writer.end("editor");
     }
     
-    public int getVisgroupID(String visgroupName) {        
+    public void writeMetaVisgroups(List<String> visgroupNames) { 
+        writer.start("editor");
+        for (String visgroupName : visgroupNames) {
+            writer.put("visgroupid", getVisgroupID(visgroupName));
+        }
+        writer.end("editor");
+    }
+    
+    public int getVisgroupID(String visgroupName) {
         if (!visgroups.contains(visgroupName)) {
             visgroups.add(visgroupName);
         }
@@ -220,7 +228,6 @@ public class BspDecompiler extends ModuleDecompile {
         if (cameras.isEmpty()) {
             writer.put("activecamera", -1);
         } else {
-
             writer.put("activecamera", 0);
 
             for (Camera camera : cameras) {

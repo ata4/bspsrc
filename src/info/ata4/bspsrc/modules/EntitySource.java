@@ -101,8 +101,12 @@ public class EntitySource extends ModuleDecompile {
         // this option is unnecessary for BSP files without instances, it will
         // only cause errors
         boolean fixRot = config.fixEntityRot && instances;
+        
+        List<String> visgroups = new ArrayList<String>();
 
         for (Entity ent : bsp.entities) {
+            visgroups.clear();
+            
             final String className = ent.getClassName();
             
             // don't write the worldspawn here
@@ -273,16 +277,19 @@ public class EntitySource extends ModuleDecompile {
                     if (portalBrushNum == -1) {
                         // no brush found, write areaportal polygon directly
                         facesrc.writeAreaportal(portalNum);
+                        visgroups.add("Rebuild areaportals");
                     } else {
                         // don't rotate or move areaportal brushes, they're always
                         // positioned correctly
                         brushsrc.writeBrush(portalBrushNum);
+                        visgroups.add("Reallocated areaportals");
                     }
                 }
 
                 // always write occluder polygons directly
                 if (isOccluder && occluderNum != -1) {
                     facesrc.writeOccluder(occluderNum);
+                    visgroups.add("Rebuild occluders");
                 }
             }
             
@@ -291,10 +298,18 @@ public class EntitySource extends ModuleDecompile {
                 Matcher m = INSTANCE_PREFIX.matcher(ent.getTargetName());
 
                 if (m.find()) {
-                    parent.writeVisgroup(m.group(1));
+                    visgroups.add(m.group(1));
                 }
-            } else if (bspprot.isProtectedEntity(ent)) {
-                parent.writeVisgroup("VMEX flagged entities");
+            }
+            
+            // add protection flags to visgroup
+            if (bspprot.isProtectedEntity(ent)) {
+                visgroups.add("VMEX flagged entities");
+            }
+            
+            // write visgroup metadata if filled
+            if (!visgroups.isEmpty()) {
+                parent.writeMetaVisgroups(visgroups);
             }
 
             writer.end("entity");
