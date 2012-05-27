@@ -23,11 +23,11 @@ import info.ata4.bsplib.struct.DLeaf;
 public class TreeLimit {
 
     private BspData bsp;
-    private int bmin;
-    private int bmax;
-    private int fmin;
-    private int fmax;
-    private int nmax;
+    private int bmin;   //min brush
+    private int bmax;   //max brush
+    private int fmin;   //min face
+    private int fmax;   //max face
+    private int nmax;   //max node
 
     public TreeLimit(BspData bsp) {
         this.bsp = bsp;

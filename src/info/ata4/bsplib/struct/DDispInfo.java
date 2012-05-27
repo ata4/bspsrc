@@ -26,18 +26,18 @@ public class DDispInfo implements DStruct {
     public static final int DISP_INFO_FLAG_HAS_MULTIBLEND = 0x40000000;
     public static final int DISP_INFO_FLAG_MAGIC = 0x80000000;
 
-    public Vector3f startPos;
-    public int dispVertStart;
-    public int dispTriStart;
-    public int power;
-    public int minTess;
-    public float smoothingAngle;
-    public int contents;
-    public int mapFace;
+    public Vector3f startPos;           // start position
+    public int dispVertStart;           // index into disp verts
+    public int dispTriStart;            // index into disp tris
+    public int power;                   // power (size)
+    public int minTess;                 // min tesselation
+    public float smoothingAngle;        // smoothing angle
+    public int contents;                // surf contents
+    public int mapFace;                 // map face
     public int lightmapAlphaStart;
     public int lightmapSamplePositionStart;
     protected byte[] neighbors = new byte[90]; // TODO: use structures
-    public int[] allowedVerts = new int[ALLOWEDVERTS_SIZE];
+    public int[] allowedVerts = new int[ALLOWEDVERTS_SIZE]; // allowed verts
 
     public int getPowerSize() {
         return 1 << power;
