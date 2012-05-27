@@ -1,11 +1,11 @@
-package info.ata4.bsplib.compression.lzma;
+package lzma;
 
-import info.ata4.bsplib.compression.lz.OutWindow;
-import info.ata4.bsplib.compression.rangecoder.BitTreeDecoder;
-import info.ata4.bsplib.compression.rangecoder.RangeDecoder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import lzma.lz.OutWindow;
+import lzma.rangecoder.BitTreeDecoder;
+import lzma.rangecoder.RangeDecoder;
 
 public class LzmaDecoder {
 

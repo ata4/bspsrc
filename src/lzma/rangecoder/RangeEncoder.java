@@ -1,4 +1,4 @@
-package info.ata4.bsplib.compression.rangecoder;
+package lzma.rangecoder;
 
 import java.io.IOException;
 import java.io.OutputStream;

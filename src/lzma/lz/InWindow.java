@@ -1,5 +1,5 @@
 // LZ.InWindow
-package info.ata4.bsplib.compression.lz;
+package lzma.lz;
 
 import java.io.IOException;
 import java.io.InputStream;

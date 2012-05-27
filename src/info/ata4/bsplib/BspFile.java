@@ -13,7 +13,7 @@ package info.ata4.bsplib;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bsplib.app.SourceAppID;
-import info.ata4.bsplib.compression.LzmaBuffer;
+import info.ata4.bsplib.io.LzmaBuffer;
 import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.util.MappedFileUtils;
 import info.ata4.bsplib.util.StringUtils;

@@ -10,7 +10,7 @@
 
 package info.ata4.bsplib.lump;
 
-import info.ata4.bsplib.compression.LzmaBuffer;
+import info.ata4.bsplib.io.LzmaBuffer;
 import info.ata4.bsplib.io.ByteBufferInputStream;
 import info.ata4.bsplib.io.ByteBufferOutputStream;
 import java.io.IOException;

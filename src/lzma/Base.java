@@ -1,5 +1,5 @@
 // Base.java
-package info.ata4.bsplib.compression.lzma;
+package lzma;
 
 public class Base {
 

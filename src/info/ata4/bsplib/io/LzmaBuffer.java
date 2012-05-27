@@ -8,10 +8,10 @@
 **    May you share freely, never taking more than you give.
 */
 
-package info.ata4.bsplib.compression;
+package info.ata4.bsplib.io;
 
-import info.ata4.bsplib.compression.lzma.LzmaDecoder;
-import info.ata4.bsplib.compression.lzma.LzmaEncoder;
+import lzma.LzmaDecoder;
+import lzma.LzmaEncoder;
 import info.ata4.bsplib.io.ByteBufferInputStream;
 import info.ata4.bsplib.io.ByteBufferOutputStream;
 import info.ata4.bsplib.util.StringUtils;
