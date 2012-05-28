@@ -12,7 +12,7 @@ package info.ata4.bsplib.struct;
 
 import info.ata4.bsplib.lump.LumpDataInput;
 import info.ata4.bsplib.lump.LumpDataOutput;
-import info.ata4.bsplib.util.EnumConverter;
+import info.ata4.util.io.EnumConverter;
 import java.io.IOException;
 import java.util.Set;
 

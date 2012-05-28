@@ -15,7 +15,7 @@ import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.io.LzmaBuffer;
 import info.ata4.bsplib.lump.*;
-import info.ata4.bsplib.util.MappedFileUtils;
+import info.ata4.util.io.MappedFileUtils;
 import info.ata4.bsplib.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +69,7 @@ public class BspFile {
     private int mapRev;
     
     private SourceApp app = SourceApp.UNKNOWN;
-
+    
     /**
      * Opens the BSP file and loads its headers
      *
@@ -702,7 +702,7 @@ public class BspFile {
      *
      * @return map revision
      */
-    public int getMapRev() {
+    public int getRevision() {
         return mapRev;
     }
 

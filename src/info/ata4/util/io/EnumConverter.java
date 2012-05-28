@@ -8,7 +8,7 @@
 **    May you share freely, never taking more than you give.
 */
 
-package info.ata4.bsplib.util;
+package info.ata4.util.io;
 
 import java.util.EnumSet;
 import java.util.Set;

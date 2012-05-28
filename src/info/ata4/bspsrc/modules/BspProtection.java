@@ -74,6 +74,12 @@ public class BspProtection extends ModuleRead {
     
     public BspProtection(BspFileReader reader, TextureSource texsrc) {
         super(reader);
+        
+        reader.loadEntities();
+        reader.loadPlanes();
+        reader.loadBrushes();
+        reader.loadBrushSides();
+        
         this.texsrc = texsrc;
     }
 

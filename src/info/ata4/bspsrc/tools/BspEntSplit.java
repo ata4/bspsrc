@@ -16,7 +16,7 @@ import info.ata4.bsplib.io.EntityOutputStream;
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpFile;
 import info.ata4.bsplib.lump.LumpType;
-import info.ata4.log.LogUtils;
+import info.ata4.util.log.LogUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;

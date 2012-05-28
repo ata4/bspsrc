@@ -13,7 +13,7 @@ package info.ata4.bspsrc.tools;
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpType;
-import info.ata4.log.LogUtils;
+import info.ata4.util.log.LogUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

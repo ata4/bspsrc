@@ -11,7 +11,7 @@
 package info.ata4.bsplib.lump;
 
 import info.ata4.bsplib.BspFile;
-import info.ata4.bsplib.util.MappedFileUtils;
+import info.ata4.util.io.MappedFileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -43,7 +43,7 @@ public class LumpFile {
     
     public LumpFile(BspFile bsp) {
         this(bsp.getVersion());
-        mapRev = bsp.getMapRev();
+        mapRev = bsp.getRevision();
     }
 
     public LumpFile(int bspVersion) {

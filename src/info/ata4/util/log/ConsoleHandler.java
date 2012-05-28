@@ -8,7 +8,7 @@
 **    May you share freely, never taking more than you give.
 */
 
-package info.ata4.log;
+package info.ata4.util.log;
 
 import java.util.logging.ErrorManager;
 import java.util.logging.Handler;

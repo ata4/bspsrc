@@ -9,7 +9,7 @@
  */
 package info.ata4.bsplib.lump;
 
-import info.ata4.bsplib.io.ByteBufferDataOutput;
+import info.ata4.util.io.ByteBufferDataOutput;
 import info.ata4.bsplib.struct.Color32;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bsplib.vector.Vector4f;

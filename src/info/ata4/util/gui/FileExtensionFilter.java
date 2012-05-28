@@ -7,7 +7,7 @@
  **    May you find forgiveness for yourself and forgive others.
  **    May you share freely, never taking more than you give.
  */
-package info.ata4.bspsrc.gui.util;
+package info.ata4.util.gui;
 
 import java.io.File;
 import javax.swing.filechooser.FileFilter;
@@ -18,6 +18,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class FileExtensionFilter extends FileFilter {
+    
     private final FileNameExtensionFilter parent;
     
     public FileExtensionFilter(String description, String... extensions) {

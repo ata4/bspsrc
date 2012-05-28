@@ -12,8 +12,8 @@ package info.ata4.bsplib.io;
 
 import lzma.LzmaDecoder;
 import lzma.LzmaEncoder;
-import info.ata4.bsplib.io.ByteBufferInputStream;
-import info.ata4.bsplib.io.ByteBufferOutputStream;
+import info.ata4.util.io.ByteBufferInputStream;
+import info.ata4.util.io.ByteBufferOutputStream;
 import info.ata4.bsplib.util.StringUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

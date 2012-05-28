@@ -13,10 +13,12 @@ package info.ata4.bspsrc.cli;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bspsrc.*;
+import info.ata4.util.log.LogUtils;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
@@ -36,6 +38,24 @@ public class BspSourceCli {
     private Options optsTexture = new Options();
     private Options optsOther = new Options();
     private MultiOptions optsAll = new MultiOptions();
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        LogUtils.configure();
+        
+        try {
+            BspSourceCli cli = new BspSourceCli();
+            BspSourceConfig cfg = cli.getConfig(args);
+            
+            BspSource bspsrc = new BspSource(cfg);
+            bspsrc.run();
+        } catch (Throwable t) {
+            // "Really bad!"
+            L.log(Level.SEVERE, "Fatal BSPSource error", t);
+        }
+    }
 
     /**
      * Prints application usage, then exits the app.
@@ -63,6 +83,7 @@ public class BspSourceCli {
         System.out.println();
         System.out.println("Based on VMEX v0.98g by Rof <rof@mellish.org.uk>");
         System.out.println("Extended and modified by Nico Bergemann <barracuda415@yahoo.de>");
+        
         System.exit(0);
     }
     

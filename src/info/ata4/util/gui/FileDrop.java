@@ -1,4 +1,4 @@
-package info.ata4.bspsrc.gui.util;
+package info.ata4.util.gui;
 
 import java.awt.Color;
 import java.awt.Component;

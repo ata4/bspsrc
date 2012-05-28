@@ -10,7 +10,7 @@
 
 package info.ata4.bspsrc;
 
-import info.ata4.bsplib.util.EnumConverter;
+import info.ata4.util.io.EnumConverter;
 
 /**
  * Enumeration for brush modes.

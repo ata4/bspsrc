@@ -50,6 +50,10 @@ public class TextureSource extends ModuleRead {
     
     public TextureSource(BspFileReader reader) {
         super(reader);
+        
+        reader.loadTexInfo();
+        reader.loadTexData();
+        
         texnameToCubemap = new int[bsp.texnames.size()];
         Arrays.fill(texnameToCubemap, -1);
     }

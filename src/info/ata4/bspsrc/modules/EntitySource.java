@@ -742,7 +742,7 @@ public class EntitySource extends ModuleDecompile {
 
                 // rebuild mapversion
                 if (!ent.hasKey("mapversion")) {
-                    ent.setValue("mapversion", bspFile.getMapRev());
+                    ent.setValue("mapversion", bspFile.getRevision());
                 }
             }
             

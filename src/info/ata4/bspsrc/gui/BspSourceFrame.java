@@ -14,8 +14,9 @@ import info.ata4.bsplib.BspFileFilter;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bspsrc.*;
-import info.ata4.bspsrc.gui.util.FileDrop;
-import info.ata4.bspsrc.gui.util.FileExtensionFilter;
+import info.ata4.util.gui.FileDrop;
+import info.ata4.util.gui.FileExtensionFilter;
+import info.ata4.util.log.LogUtils;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -41,13 +42,36 @@ public class BspSourceFrame extends javax.swing.JFrame {
     private BspSourceConfig config;
     private BspSourceLogFrame logFrame;
     private FileDrop fdrop;
-    
     private DefaultListModel<BspFileEntry> listFilesModel = new DefaultListModel<BspFileEntry>();
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        LogUtils.configure();
+        
+        // set the system look and feel
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ex) {
+            L.warning("Failed to set SystemLookAndFeel");
+        }
+
+        // create and display the form
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new BspSourceFrame().setVisible(true);
+            }
+        });
+    }
 
     /** Creates new form BspSourceFrame */
     public BspSourceFrame() {
         initComponents();
         reset();
+
+        // add version to title
+        setTitle(getTitle() + " " + BspSource.VERSION);
 
         // logging frame
         logFrame = new BspSourceLogFrame();
@@ -418,6 +442,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         buttonDefaults = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("BSPSource");
         setLocationByPlatform(true);
         setResizable(false);
 
@@ -916,7 +941,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
 
         tabbedPaneOptions.addTab("Other", panelOther);
 
-        buttonDecompile.setFont(new java.awt.Font("Tahoma", 1, 11));
+        buttonDecompile.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         buttonDecompile.setText("Decompile");
         buttonDecompile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -939,10 +964,10 @@ public class BspSourceFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tabbedPaneOptions, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE)
+                    .addComponent(tabbedPaneOptions, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(buttonDefaults)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 157, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(buttonDecompile)))
                 .addContainerGap())
         );
@@ -950,7 +975,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(tabbedPaneOptions, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
+                .addComponent(tabbedPaneOptions)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonDefaults)
