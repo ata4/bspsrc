@@ -11,18 +11,23 @@ package info.ata4.bspinfo.gui;
 
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.lump.Lump;
+import info.ata4.util.gui.ListTableModel;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import javax.swing.table.AbstractTableModel;
 
 /**
  * Table data model for lumps.
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class LumpTableModel extends AbstractTableModel {
+public class LumpTableModel extends ListTableModel {
     
-    private String[] columnNames = new String[]{"ID", "Name", "Size (bytes)", "Usage", "Version"};
-    private Object[][] data = new Object[getRowCount()][getColumnCount()];
+    public LumpTableModel() {
+        super(5);
+        columnNames = Arrays.asList(new String[]{"ID", "Name", "Size (bytes)", "Size (%)", "Version"});
+        columnClasses = new Class[] {Integer.class, String.class, Integer.class, Integer.class, Integer.class};
+    }
     
     public void update(BspFile bspFile) {
         List<Lump> lumps = bspFile.getLumps();
@@ -32,50 +37,15 @@ public class LumpTableModel extends AbstractTableModel {
         for (Lump l : lumps) {
             lumpSize += l.getLength();
         }
-        
-        int row = 0;
-        
+  
         for (Lump l : lumps) {
-            int col = 0;
-
-            data[row][col++] = l.getIndex();
-            data[row][col++] = l.getName();
-            data[row][col++] = l.getLength();
-            data[row][col++] = Math.round(l.getLength() / lumpSize * 100f);
-            data[row][col++] = l.getVersion();
-
-            row++;
+            List<Object> row = new ArrayList<Object>();
+            row.add(l.getIndex());
+            row.add(l.getName());
+            row.add(l.getLength());
+            row.add(Math.round(l.getLength() / lumpSize * 100f));
+            row.add(l.getVersion());
+            addRow(row);
         }
-        
-        fireTableDataChanged();
-    }
-
-    @Override
-    public Class getColumnClass(int c) {
-        Object v = getValueAt(0, c);
-        return v == null ? Object.class : v.getClass();
-    }
-
-    public int getRowCount() {
-        return BspFile.HEADER_LUMPS;
-    }
-
-    public int getColumnCount() {
-        return columnNames.length;
-    }
-    
-    @Override
-    public String getColumnName(int columnIndex) {
-        return columnNames[columnIndex];
-    }
-
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        return data[rowIndex][columnIndex];
-    }
-    
-    @Override
-    public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        data[rowIndex][columnIndex] = value;
-        fireTableCellUpdated(rowIndex, columnIndex);
     }
 }

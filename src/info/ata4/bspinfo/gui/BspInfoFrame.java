@@ -13,12 +13,13 @@ import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.BspFileFilter;
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.app.SourceApp;
+import info.ata4.bsplib.entity.Entity;
 import info.ata4.bspsrc.modules.BspChecksum;
 import info.ata4.bspsrc.modules.BspProtection;
 import info.ata4.bspsrc.modules.TextureSource;
-import info.ata4.util.gui.components.DecimalFormatCellRenderer;
 import info.ata4.util.gui.FileDrop;
 import info.ata4.util.gui.FileExtensionFilter;
+import info.ata4.util.gui.components.DecimalFormatCellRenderer;
 import info.ata4.util.gui.components.ProgressCellRenderer;
 import info.ata4.util.log.ConsoleFormatter;
 import info.ata4.util.log.LogUtils;
@@ -30,6 +31,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.ByteOrder;
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -76,31 +78,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
      */
     public BspInfoFrame() {
         initComponents();
-        
-        // add version to title
-        setTitle(getTitle() + " " + VERSION);
-        
-        // instant awesome, just add icons!
-        try {
-            URL iconUrl = getClass().getResource("resources/icon.png");
-            Image icon = Toolkit.getDefaultToolkit().createImage(iconUrl);
-            setIconImage(icon);
-        } catch (Exception ex) {
-            // meh, don't care
-        }
-        
-        // set table column widths and special renderers
-        TableColumnModel tcm = tableLumps.getColumnModel();
-        tcm.getColumn(0).setPreferredWidth(30);
-        tcm.getColumn(1).setPreferredWidth(150);
-        tcm.getColumn(4).setPreferredWidth(40);
-        tcm.getColumn(2).setCellRenderer(new DecimalFormatCellRenderer(
-                new DecimalFormat("#,##0")));
-        tcm.getColumn(3).setCellRenderer(new ProgressCellRenderer());
-        
-        // don't rebuild columns when replacing the model from now on to keep
-        // the preferred width set above
-        tableLumps.setAutoCreateColumnsFromModel(false);
+        initComponentsCustom();
         
         // init file dropper
         fdrop = new FileDrop(this, new FileDrop.Listener() {
@@ -117,6 +95,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     }
     
     public final void reset() {
+        // general
         textFieldName.setText(null);
         textFieldVersion.setText(null);
         textFieldRevision.setText(null);
@@ -137,7 +116,15 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
         checkBoxBSPProtect.setSelected(false);
         
+        // lumps
         tableLumps.setModel(new LumpTableModel());
+        
+        // entities
+        textFieldTotalEnts.setText(null);
+        textFieldBrushEnts.setText(null);
+        textFieldPointEnts.setText(null);
+        
+        tableEntities.setModel(new EntityTableModel());
     }
     
     public void loadFile(File file) {
@@ -197,10 +184,38 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     textFieldFileCRC.setText(String.format("%x", checksum.getFileCRC()));
                     textFieldMapCRC.setText(String.format("%x", checksum.getMapCRC()));
                     
+                    // init lump data table
                     LumpTableModel ltm = new LumpTableModel();
                     ltm.update(bspFile);
                     
                     tableLumps.setModel(ltm);
+                    
+                    // init entity stats                    
+                    int brushEnts = 0;
+                    int pointEnts = 0;
+                    
+                    List<Entity> entities = bspReader.getData().entities;
+                    
+                    for (Entity ent : entities) {
+                        if (ent.getModelNum() > 0) {
+                            brushEnts++;
+                        } else {
+                            pointEnts++;
+                        }
+                    }
+                    
+                    int totalEnts = pointEnts + brushEnts;
+                    
+                    DecimalFormat df = new DecimalFormat("#,##0");
+                    
+                    textFieldTotalEnts.setText(df.format(totalEnts));
+                    textFieldBrushEnts.setText(df.format(brushEnts));
+                    textFieldPointEnts.setText(df.format(pointEnts));
+                    
+                    EntityTableModel etm = new EntityTableModel();
+                    etm.update(bspReader);
+                    
+                    tableEntities.setModel(etm);
                 } catch (Exception ex) {
                     L.log(Level.SEVERE, null, ex);
                 } finally {
@@ -252,6 +267,14 @@ public class BspInfoFrame extends javax.swing.JFrame {
         scrollPaneLumps = new javax.swing.JScrollPane();
         tableLumps = new javax.swing.JTable();
         panelEntities = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        textFieldPointEnts = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        textFieldBrushEnts = new javax.swing.JTextField();
+        textFieldTotalEnts = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tableEntities = new javax.swing.JTable();
         panelProt = new javax.swing.JPanel();
         panelVmex = new javax.swing.JPanel();
         checkBoxVmexEntity = new info.ata4.util.gui.components.ReadOnlyCheckBox();
@@ -309,8 +332,8 @@ public class BspInfoFrame extends javax.swing.JFrame {
         );
         panelGameLayout.setVerticalGroup(
             panelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelGameLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(panelGameLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(panelGameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelGame)
                     .addComponent(textFieldGame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -319,7 +342,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addComponent(labelAppID)
                     .addComponent(textFieldAppID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(linkLabelAppURL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         panelHeaders.setBorder(javax.swing.BorderFactory.createTitledBorder("Headers"));
@@ -353,8 +376,8 @@ public class BspInfoFrame extends javax.swing.JFrame {
         panelHeaders.setLayout(panelHeadersLayout);
         panelHeadersLayout.setHorizontalGroup(
             panelHeadersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelHeadersLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(panelHeadersLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(panelHeadersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(panelHeadersLayout.createSequentialGroup()
                         .addGap(25, 25, 25)
@@ -378,12 +401,12 @@ public class BspInfoFrame extends javax.swing.JFrame {
                         .addComponent(labelEndian, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(textFieldEndian, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelHeadersLayout.setVerticalGroup(
             panelHeadersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelHeadersLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(panelHeadersLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(panelHeadersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelName)
                     .addComponent(textFieldName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -399,7 +422,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addComponent(textFieldCompressed, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(labelEndian)
                     .addComponent(textFieldEndian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         panelChecksums.setBorder(javax.swing.BorderFactory.createTitledBorder("Checksums"));
@@ -431,8 +454,8 @@ public class BspInfoFrame extends javax.swing.JFrame {
         );
         panelChecksumsLayout.setVerticalGroup(
             panelChecksumsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelChecksumsLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(panelChecksumsLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(panelChecksumsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelFileCRC)
                     .addComponent(textFieldFileCRC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -440,7 +463,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 .addGroup(panelChecksumsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelMapCRC)
                     .addComponent(textFieldMapCRC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout panelGeneralLayout = new javax.swing.GroupLayout(panelGeneral);
@@ -453,7 +476,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addComponent(panelHeaders, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(panelChecksums, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(panelGame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(148, Short.MAX_VALUE))
+                .addContainerGap(173, Short.MAX_VALUE))
         );
         panelGeneralLayout.setVerticalGroup(
             panelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -464,14 +487,13 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 .addComponent(panelGame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelChecksums, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(165, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("General", panelGeneral);
 
         tableLumps.setAutoCreateRowSorter(true);
         tableLumps.setModel(new LumpTableModel());
-        tableLumps.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_NEXT_COLUMN);
         tableLumps.getTableHeader().setReorderingAllowed(false);
         scrollPaneLumps.setViewportView(tableLumps);
 
@@ -481,28 +503,72 @@ public class BspInfoFrame extends javax.swing.JFrame {
             panelLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelLumpsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
+                .addComponent(scrollPaneLumps)
                 .addContainerGap())
         );
         panelLumpsLayout.setVerticalGroup(
             panelLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelLumpsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 331, Short.MAX_VALUE)
+                .addComponent(scrollPaneLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         tabbedPane.addTab("Lumps", panelLumps);
 
+        jLabel3.setText("Point");
+
+        textFieldPointEnts.setEditable(false);
+
+        jLabel2.setText("Brush");
+
+        textFieldBrushEnts.setEditable(false);
+
+        textFieldTotalEnts.setEditable(false);
+
+        jLabel1.setText("Total");
+
+        tableEntities.setAutoCreateRowSorter(true);
+        tableEntities.setModel(new EntityTableModel());
+        jScrollPane1.setViewportView(tableEntities);
+
         javax.swing.GroupLayout panelEntitiesLayout = new javax.swing.GroupLayout(panelEntities);
         panelEntities.setLayout(panelEntitiesLayout);
         panelEntitiesLayout.setHorizontalGroup(
             panelEntitiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 447, Short.MAX_VALUE)
+            .addGroup(panelEntitiesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelEntitiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelEntitiesLayout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(textFieldPointEnts, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(textFieldBrushEnts, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(textFieldTotalEnts, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1))
+                .addContainerGap())
         );
         panelEntitiesLayout.setVerticalGroup(
             panelEntitiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 353, Short.MAX_VALUE)
+            .addGroup(panelEntitiesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelEntitiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(textFieldPointEnts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(textFieldBrushEnts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(textFieldTotalEnts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 434, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         tabbedPane.addTab("Entities", panelEntities);
@@ -603,7 +669,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addGroup(panelProtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(panelVmex, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(panelIID, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(226, Short.MAX_VALUE))
+                .addContainerGap(251, Short.MAX_VALUE))
         );
         panelProtLayout.setVerticalGroup(
             panelProtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -614,7 +680,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 .addComponent(panelIID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelOther, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(123, Short.MAX_VALUE))
+                .addContainerGap(257, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("Protection", panelProt);
@@ -664,6 +730,39 @@ public class BspInfoFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void initComponentsCustom() {
+        // add version to title
+        setTitle(getTitle() + " " + VERSION);
+        
+        // instant awesome, just add icons!
+        try {
+            URL iconUrl = getClass().getResource("resources/icon.png");
+            Image icon = Toolkit.getDefaultToolkit().createImage(iconUrl);
+            setIconImage(icon);
+        } catch (Exception ex) {
+            // meh, don't care
+        }
+        
+        DecimalFormat largeFormat = new DecimalFormat("#,##0");
+        
+        // set table column widths and special renderers
+        TableColumnModel tcm = tableLumps.getColumnModel();
+        tcm.getColumn(0).setPreferredWidth(30);
+        tcm.getColumn(1).setPreferredWidth(150);
+        tcm.getColumn(4).setPreferredWidth(40);
+        tcm.getColumn(2).setCellRenderer(new DecimalFormatCellRenderer(largeFormat));
+        tcm.getColumn(3).setCellRenderer(new ProgressCellRenderer());
+        
+        tcm = tableEntities.getColumnModel();
+        tcm.getColumn(1).setPreferredWidth(50);
+        tcm.getColumn(1).setCellRenderer(new DecimalFormatCellRenderer(largeFormat));
+        
+        // don't rebuild columns when replacing the model from now on to keep
+        // the preferred width set above
+        tableLumps.setAutoCreateColumnsFromModel(false);
+        tableEntities.setAutoCreateColumnsFromModel(false);
+    }
+    
     private void openFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileMenuItemActionPerformed
         int result = fileChooser.showOpenDialog(this);
         if (result != JFileChooser.APPROVE_OPTION) {
@@ -681,8 +780,12 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxVmexEntity;
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxVmexTexture;
     private javax.swing.JFileChooser fileChooser;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel labelAppID;
     private javax.swing.JLabel labelCompressed;
     private javax.swing.JLabel labelEndian;
@@ -709,15 +812,19 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelVmex;
     private javax.swing.JScrollPane scrollPaneLumps;
     private javax.swing.JTabbedPane tabbedPane;
+    private javax.swing.JTable tableEntities;
     private javax.swing.JTable tableLumps;
     private javax.swing.JTextField textFieldAppID;
+    private javax.swing.JTextField textFieldBrushEnts;
     private javax.swing.JTextField textFieldCompressed;
     private javax.swing.JTextField textFieldEndian;
     private javax.swing.JTextField textFieldFileCRC;
     private javax.swing.JTextField textFieldGame;
     private javax.swing.JTextField textFieldMapCRC;
     private javax.swing.JTextField textFieldName;
+    private javax.swing.JTextField textFieldPointEnts;
     private javax.swing.JTextField textFieldRevision;
+    private javax.swing.JTextField textFieldTotalEnts;
     private javax.swing.JTextField textFieldVersion;
     // End of variables declaration//GEN-END:variables
 }

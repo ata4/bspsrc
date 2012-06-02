@@ -68,23 +68,8 @@ public class BspSourceFrame extends javax.swing.JFrame {
     /** Creates new form BspSourceFrame */
     public BspSourceFrame() {
         initComponents();
+        initComponentsCustom();
         reset();
-
-        // add version to title
-        setTitle(getTitle() + " " + BspSource.VERSION);
-
-        // logging frame
-        logFrame = new BspSourceLogFrame();
-
-        // instant awesome, just add icons!
-        try {
-            URL iconUrl = getClass().getResource("resources/icon.png");
-            Image icon = Toolkit.getDefaultToolkit().createImage(iconUrl);
-            setIconImage(icon);
-            logFrame.setIconImage(icon);
-        } catch (Exception ex) {
-            // meh, don't care
-        }
 
         // init file dropper
         fdrop = new FileDrop(listFiles, new FileDrop.Listener() {
@@ -986,6 +971,24 @@ public class BspSourceFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void initComponentsCustom() {
+        // add version to title
+        setTitle(getTitle() + " " + BspSource.VERSION);
+
+        // logging frame
+        logFrame = new BspSourceLogFrame();
+
+        // instant awesome, just add icons!
+        try {
+            URL iconUrl = getClass().getResource("resources/icon.png");
+            Image icon = Toolkit.getDefaultToolkit().createImage(iconUrl);
+            setIconImage(icon);
+            logFrame.setIconImage(icon);
+        } catch (Exception ex) {
+            // meh, don't care
+        }
+    }
+    
 private void checkBoxEnableEntitiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxEnableEntitiesActionPerformed
     config.setWriteEntities(checkBoxEnableEntities.isSelected());
     setPanelEnabled(panelEntities, checkBoxEnableEntities);
