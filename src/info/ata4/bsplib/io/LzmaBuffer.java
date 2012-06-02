@@ -14,7 +14,7 @@ import lzma.LzmaDecoder;
 import lzma.LzmaEncoder;
 import info.ata4.util.io.ByteBufferInputStream;
 import info.ata4.util.io.ByteBufferOutputStream;
-import info.ata4.bsplib.util.StringUtils;
+import info.ata4.bsplib.util.StringMacroUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -32,7 +32,7 @@ public class LzmaBuffer {
     
     private static final Logger L = Logger.getLogger(LzmaBuffer.class.getName());
     
-    public final static int LZMA_ID = StringUtils.makeID("LZMA");
+    public final static int LZMA_ID = StringMacroUtils.makeID("LZMA");
     public final static int HEADER_SIZE = 17;
 
     public static ByteBuffer uncompress(ByteBuffer buffer) throws IOException {

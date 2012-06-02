@@ -15,7 +15,7 @@ import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.io.LzmaBuffer;
 import info.ata4.bsplib.lump.*;
-import info.ata4.bsplib.util.StringUtils;
+import info.ata4.bsplib.util.StringMacroUtils;
 import info.ata4.util.io.MappedFileUtils;
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +42,7 @@ public class BspFile {
     private static final Logger L = Logger.getLogger(BspFile.class.getName());
 
     // big-endian "VBSP"
-    public static final int BSP_ID = StringUtils.makeID("VBSP");
+    public static final int BSP_ID = StringMacroUtils.makeID("VBSP");
     
     // endianness
     private ByteOrder bo;
@@ -105,11 +105,11 @@ public class BspFile {
                 // No GoldSrc! Please!
                 throw new BspException("The GoldSrc format is not supported");
             } else {
-                throw new BspException("Unknown file ident: " + StringUtils.unmakeID(ident));
+                throw new BspException("Unknown file ident: " + StringMacroUtils.unmakeID(ident));
             }
         }
 
-        L.log(Level.FINER, "Ident: {0} ({1})", new Object[]{ident, StringUtils.unmakeID(ident)});
+        L.log(Level.FINER, "Ident: {0} ({1})", new Object[]{ident, StringMacroUtils.unmakeID(ident)});
         L.log(Level.FINER, "Endianness: {0}", bo);
 
         // set byte order
@@ -331,7 +331,7 @@ public class BspFile {
                     ofs -= l.getOffset();
                 }
 
-                String glName = StringUtils.unmakeID(fourCC);
+                String glName = StringMacroUtils.unmakeID(fourCC);
 
                 // give dummy entries more useful names
                 if (glName.trim().isEmpty()) {

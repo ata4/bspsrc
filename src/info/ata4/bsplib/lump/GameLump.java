@@ -10,7 +10,7 @@
 
 package info.ata4.bsplib.lump;
 
-import info.ata4.bsplib.util.StringUtils;
+import info.ata4.bsplib.util.StringMacroUtils;
 import org.apache.commons.io.EndianUtils;
 
 /**
@@ -32,7 +32,7 @@ public class GameLump extends AbstractLump {
 
     @Override
     public String getName() {
-        return StringUtils.unmakeID(EndianUtils.swapInteger(getFourCC()));
+        return StringMacroUtils.unmakeID(EndianUtils.swapInteger(getFourCC()));
     }
     
     @Override

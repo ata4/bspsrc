@@ -16,6 +16,7 @@ import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bspsrc.modules.BspChecksum;
 import info.ata4.bspsrc.modules.BspProtection;
+import info.ata4.bspsrc.modules.CompileParameters;
 import info.ata4.bspsrc.modules.TextureSource;
 import info.ata4.util.gui.FileDrop;
 import info.ata4.util.gui.FileExtensionFilter;
@@ -37,6 +38,7 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.table.TableColumnModel;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -178,6 +180,22 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     
                     checkBoxBSPProtect.setSelected(prot.hasEncryptedEntities());
                     
+                    CompileParameters cparams = new CompileParameters(bspReader);
+                    
+                    textFieldVbspParams.setText(StringUtils.join(cparams.getVbspParams(), ' '));
+                    
+                    if (cparams.isVvisRun()) {
+                        textFieldVvisParams.setText(StringUtils.join(cparams.getVvisParams(), ' '));
+                    } else {
+                        textFieldVvisParams.setText("(not run)");
+                    }
+                    
+                    if (cparams.isVradRun()) {
+                        textFieldVradParams.setText(StringUtils.join(cparams.getVradParams(), ' '));
+                    } else {
+                        textFieldVradParams.setText("(not run)");
+                    }
+                    
                     // init checksum fields
                     BspChecksum checksum = new BspChecksum(bspReader);
                     
@@ -263,6 +281,13 @@ public class BspInfoFrame extends javax.swing.JFrame {
         textFieldFileCRC = new javax.swing.JTextField();
         labelMapCRC = new javax.swing.JLabel();
         textFieldMapCRC = new javax.swing.JTextField();
+        panelCompileParams = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        textFieldVbspParams = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        textFieldVvisParams = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        textFieldVradParams = new javax.swing.JTextField();
         panelLumps = new javax.swing.JPanel();
         scrollPaneLumps = new javax.swing.JScrollPane();
         tableLumps = new javax.swing.JTable();
@@ -326,7 +351,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addGroup(panelGameLayout.createSequentialGroup()
                         .addComponent(textFieldAppID, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(linkLabelAppURL, javax.swing.GroupLayout.DEFAULT_SIZE, 99, Short.MAX_VALUE))
+                        .addComponent(linkLabelAppURL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(textFieldGame))
                 .addContainerGap())
         );
@@ -447,10 +472,10 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addComponent(labelMapCRC)
                     .addComponent(labelFileCRC))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(panelChecksumsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(textFieldFileCRC, javax.swing.GroupLayout.DEFAULT_SIZE, 57, Short.MAX_VALUE)
+                .addGroup(panelChecksumsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(textFieldFileCRC, javax.swing.GroupLayout.DEFAULT_SIZE, 66, Short.MAX_VALUE)
                     .addComponent(textFieldMapCRC))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelChecksumsLayout.setVerticalGroup(
             panelChecksumsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -466,16 +491,66 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        panelCompileParams.setBorder(javax.swing.BorderFactory.createTitledBorder("Compile parameters"));
+
+        jLabel4.setText("vbsp");
+
+        textFieldVbspParams.setEditable(false);
+
+        jLabel5.setText("vvis");
+
+        textFieldVvisParams.setEditable(false);
+
+        jLabel6.setText("vrad");
+
+        textFieldVradParams.setEditable(false);
+
+        javax.swing.GroupLayout panelCompileParamsLayout = new javax.swing.GroupLayout(panelCompileParams);
+        panelCompileParams.setLayout(panelCompileParamsLayout);
+        panelCompileParamsLayout.setHorizontalGroup(
+            panelCompileParamsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCompileParamsLayout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(panelCompileParamsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelCompileParamsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(textFieldVradParams)
+                    .addComponent(textFieldVvisParams)
+                    .addComponent(textFieldVbspParams))
+                .addContainerGap())
+        );
+        panelCompileParamsLayout.setVerticalGroup(
+            panelCompileParamsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCompileParamsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelCompileParamsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(textFieldVbspParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelCompileParamsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(textFieldVvisParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelCompileParamsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(textFieldVradParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout panelGeneralLayout = new javax.swing.GroupLayout(panelGeneral);
         panelGeneral.setLayout(panelGeneralLayout);
         panelGeneralLayout.setHorizontalGroup(
             panelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelGeneralLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(panelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelHeaders, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(panelChecksums, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(panelGame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(panelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(panelHeaders, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelGame, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelChecksums, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelCompileParams, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(173, Short.MAX_VALUE))
         );
         panelGeneralLayout.setVerticalGroup(
@@ -487,7 +562,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 .addComponent(panelGame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelChecksums, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(165, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelCompileParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(42, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("General", panelGeneral);
@@ -783,6 +860,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JScrollPane jScrollPane1;
@@ -801,6 +881,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JMenu menuTools;
     private javax.swing.JMenuItem openFileMenuItem;
     private javax.swing.JPanel panelChecksums;
+    private javax.swing.JPanel panelCompileParams;
     private javax.swing.JPanel panelEntities;
     private javax.swing.JPanel panelGame;
     private javax.swing.JPanel panelGeneral;
@@ -825,6 +906,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JTextField textFieldPointEnts;
     private javax.swing.JTextField textFieldRevision;
     private javax.swing.JTextField textFieldTotalEnts;
+    private javax.swing.JTextField textFieldVbspParams;
     private javax.swing.JTextField textFieldVersion;
+    private javax.swing.JTextField textFieldVradParams;
+    private javax.swing.JTextField textFieldVvisParams;
     // End of variables declaration//GEN-END:variables
 }

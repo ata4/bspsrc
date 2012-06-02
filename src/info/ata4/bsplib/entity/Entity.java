@@ -10,13 +10,13 @@
 
 package info.ata4.bsplib.entity;
 
-import info.ata4.bsplib.util.StringUtils;
 import info.ata4.bsplib.vector.Vector3f;
 import java.io.PrintStream;
 import java.util.Map.Entry;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Abstract entity representation that works roughly like in Hammer. Has two
@@ -56,6 +56,8 @@ public class Entity {
      * @param kvList raw key-value list
      */
     public Entity(List<KeyValue> kvList) {
+        String sepChr = String.valueOf((char) 0x1b);
+        
         for (KeyValue kv : kvList) {
             String key = kv.getKey();
             String value = kv.getValue();
@@ -71,11 +73,11 @@ public class Entity {
             }
 
             // search for escape separator chars
-            int sep = StringUtils.countChar(value, (char) 0x1b);
+            int sep = StringUtils.countMatches(value, sepChr);
 
             if (sep == 0) {
                 // try comma, too
-                sep = StringUtils.countChar(value, ',');
+                sep = StringUtils.countMatches(value, ",");
             }
 
             // 6 seps for VTMB and Messiah, 4 otherwise
@@ -153,15 +155,22 @@ public class Entity {
     }
 
     public Vector3f getVector3f(String key) {
-        String vecString = getValue(key);
+        String str = getValue(key);
 
-        if (vecString == null) {
+        if (str == null) {
             return null;
         }
 
         // parse origin values
         try {
-            return StringUtils.parseVector(vecString);
+            // split string by whitespaces
+            String[] costr = StringUtils.split(str, ' ');
+
+            float x = costr.length > 0 ? Float.parseFloat(costr[0]) : 0;
+            float y = costr.length > 1 ? Float.parseFloat(costr[1]) : 0;
+            float z = costr.length > 2 ? Float.parseFloat(costr[2]) : 0;
+
+            return new Vector3f(x, y, z);
         } catch (NumberFormatException ex) {
             return null;
         }
