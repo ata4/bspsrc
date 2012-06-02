@@ -15,8 +15,8 @@ import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.io.LzmaBuffer;
 import info.ata4.bsplib.lump.*;
-import info.ata4.util.io.MappedFileUtils;
 import info.ata4.bsplib.util.StringUtils;
+import info.ata4.util.io.MappedFileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -210,7 +210,7 @@ public class BspFile {
                         new Object[]{lenOld, ltype, len});
             }
 
-            Lump l = new Lump(ltype);
+            Lump l = new Lump(i, ltype);
             l.setBuffer(bb, ofs, len);
             l.setParentFile(file);
             l.setFourCC(fourCC);

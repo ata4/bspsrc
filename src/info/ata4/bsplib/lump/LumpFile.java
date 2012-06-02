@@ -89,7 +89,7 @@ public class LumpFile {
         }
 
         // lump data
-        lump = new Lump(LumpType.get(lumpIndex, bspVersion));
+        lump = new Lump(lumpIndex, LumpType.get(lumpIndex, bspVersion));
         lump.setBuffer(bb, lumpOffset, lumpSize);
         lump.setParentFile(file);
     }

@@ -24,9 +24,11 @@ import java.io.File;
 public class Lump extends AbstractLump {
 
     private final LumpType type;
+    private final int index;
     private File parentFile;
 
-    public Lump(LumpType type) {
+    public Lump(int index, LumpType type) {
+        this.index = index;
         this.type = type;
     }
 
@@ -44,7 +46,7 @@ public class Lump extends AbstractLump {
     }
 
     public int getIndex() {
-        return type.getIndex();
+        return index;
     }
 
     public LumpType getType() {

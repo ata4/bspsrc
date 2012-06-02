@@ -1,4 +1,4 @@
-package info.ata4.util.gui;
+package info.ata4.util.gui.components;
 
 import java.awt.Cursor;
 import java.awt.Desktop;
