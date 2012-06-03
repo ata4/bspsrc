@@ -14,6 +14,7 @@ import info.ata4.bsplib.BspFileFilter;
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.entity.Entity;
+import info.ata4.bsplib.lump.GameLump;
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bspsrc.modules.BspChecksum;
@@ -275,11 +276,18 @@ public class BspInfoFrame extends javax.swing.JFrame {
     }
     
     private void extractEmbedded(File destination) {
+       try {
+            FileUtils.forceMkdir(destination);
+        } catch (IOException ex) {
+            L.log(Level.WARNING, "Couldn't create directory", ex);
+        }
+       
+        // set waiting cursor
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        
         ZipArchiveInputStream zis = null;
 
         try {
-            FileUtils.forceMkdir(destination);
-            
             Lump pakLump = bspFile.getLump(LumpType.LUMP_PAKFILE);
             zis = new ZipArchiveInputStream(pakLump.getInputStream());
             int files = 0;
@@ -296,11 +304,75 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 }
             }
             
-            JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " files.");
+            JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " embedded files.");
         } catch (IOException ex) {
             L.log(Level.WARNING, "Couldn't read pakfile", ex);
         } finally {
             IOUtils.closeQuietly(zis);
+            
+            // reset cursor
+            setCursor(Cursor.getDefaultCursor());
+        }
+    }
+    
+    private void extractLumps(File destination) {
+        try {
+            FileUtils.forceMkdir(destination);
+        } catch (IOException ex) {
+            L.log(Level.WARNING, "Couldn't create directory", ex);
+        }
+        
+        // set waiting cursor
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        try {
+            List<Lump> lumps = bspFile.getLumps();
+            int files = 0;
+
+            for (Lump lump : lumps) {
+                try {
+                    if (lump.getType() == LumpType.LUMP_UNKNOWN) {
+                        continue;
+                    }
+
+                    String fileName = String.format("%02d_%s.bin", lump.getIndex(),
+                            lump.getName());
+                    File lumpFile = new File(destination, fileName);
+
+                    L.log(Level.INFO, "Extracting {0}", lump);
+
+                    InputStream is = lump.getInputStream();
+                    FileUtils.copyInputStreamToFile(is, lumpFile);
+                    files++;
+                } catch (IOException ex) {
+                    L.log(Level.SEVERE, "Can't extract lump", ex);
+                }
+            }
+
+            File gameLumpsDir = new File(destination, "game");
+            gameLumpsDir.mkdir();
+
+            List<GameLump> gameLumps = bspFile.getGameLumps();
+
+            for (GameLump lump : gameLumps) {
+                try {
+                    String fileName = String.format("%s_v%d.bin", lump.getName(), lump.getVersion());
+                    File lumpFile = new File(gameLumpsDir, fileName);
+
+                    L.log(Level.INFO, "Extracting {0}", lump);
+
+                    InputStream is = lump.getInputStream();
+                    FileUtils.copyInputStreamToFile(is, lumpFile);
+                    files++;
+                } catch (IOException ex) {
+                    L.log(Level.SEVERE, "Can't extract lump", ex);
+                }
+            }
+
+            JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " lump files.");
+        } finally {
+            // reset cursor
+            setCursor(Cursor.getDefaultCursor());
         }
     }
     
@@ -922,6 +994,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_openFileMenuItemActionPerformed
 
     private void menuItemExtractFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemExtractFilesActionPerformed
+        saveFileChooser.setCurrentDirectory(currentFile);
         int result = saveFileChooser.showSaveDialog(this);
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
@@ -931,7 +1004,13 @@ public class BspInfoFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuItemExtractFilesActionPerformed
 
     private void menuItemExtractLumpsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemExtractLumpsActionPerformed
-        L.severe("test");
+        saveFileChooser.setCurrentDirectory(currentFile);
+        int result = saveFileChooser.showSaveDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        
+        extractLumps(saveFileChooser.getSelectedFile());
     }//GEN-LAST:event_menuItemExtractLumpsActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
