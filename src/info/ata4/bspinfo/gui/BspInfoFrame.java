@@ -17,10 +17,7 @@ import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.lump.GameLump;
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpType;
-import info.ata4.bspsrc.modules.BspChecksum;
-import info.ata4.bspsrc.modules.BspProtection;
-import info.ata4.bspsrc.modules.CompileParameters;
-import info.ata4.bspsrc.modules.TextureSource;
+import info.ata4.bspsrc.modules.*;
 import info.ata4.util.gui.FileDrop;
 import info.ata4.util.gui.FileExtensionFilter;
 import info.ata4.util.gui.components.DecimalFormatCellRenderer;
@@ -38,11 +35,13 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.ByteOrder;
 import java.text.DecimalFormat;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.table.TableColumnModel;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -149,6 +148,14 @@ public class BspInfoFrame extends javax.swing.JFrame {
         textFieldPointEnts.setText(null);
         
         tableEntities.setModel(new EntityTableModel());
+        
+        // dependencies
+        textAreaMaterials.setText(null);
+        textAreaSounds.setText(null);
+        textAreaSoundScripts.setText(null);
+        textAreaSoundscapes.setText(null);
+        textAreaModels.setText(null);
+        textAreaParticles.setText(null);
     }
     
     public void loadFile(File file) {
@@ -259,6 +266,16 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     ltm.update(bspFile);
                     
                     tableLumps.setModel(ltm);
+                    
+                    // init dependencies
+                    BspDependencies bspres = new BspDependencies(bspReader);
+  
+                    fillTextArea(textAreaMaterials, bspres.getMaterials());
+                    fillTextArea(textAreaSounds, bspres.getSoundFiles());
+                    fillTextArea(textAreaSoundScripts, bspres.getSoundScripts());
+                    fillTextArea(textAreaSoundscapes, bspres.getSoundscapes());
+                    fillTextArea(textAreaModels, bspres.getModels());
+                    fillTextArea(textAreaParticles, bspres.getParticles());
                 } catch (Exception ex) {
                     L.log(Level.SEVERE, "Couldn't read BSP file", ex);
                     
@@ -273,6 +290,13 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 }
             }
         }).start();
+    }
+    
+    private void fillTextArea(JTextArea textArea, Collection<String> strings) {
+        for (String string : strings) {
+            textArea.append(string);
+            textArea.append("\n");
+        }
     }
     
     private void extractEmbedded(File destination) {
@@ -440,6 +464,19 @@ public class BspInfoFrame extends javax.swing.JFrame {
         checkBoxIIDTexHack = new info.ata4.util.gui.components.ReadOnlyCheckBox();
         panelOther = new javax.swing.JPanel();
         checkBoxBSPProtect = new info.ata4.util.gui.components.ReadOnlyCheckBox();
+        tabbedPaneDependencies = new javax.swing.JTabbedPane();
+        scrollPaneMaterials = new javax.swing.JScrollPane();
+        textAreaMaterials = new javax.swing.JTextArea();
+        scrollPaneSounds = new javax.swing.JScrollPane();
+        textAreaSounds = new javax.swing.JTextArea();
+        scrollPaneSoundScripts = new javax.swing.JScrollPane();
+        textAreaSoundScripts = new javax.swing.JTextArea();
+        scrollPaneSoundscapes = new javax.swing.JScrollPane();
+        textAreaSoundscapes = new javax.swing.JTextArea();
+        scrollPaneModels = new javax.swing.JScrollPane();
+        textAreaModels = new javax.swing.JTextArea();
+        scrollPaneParticles = new javax.swing.JScrollPane();
+        textAreaParticles = new javax.swing.JTextArea();
         menuBar = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         openFileMenuItem = new javax.swing.JMenuItem();
@@ -895,6 +932,51 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
         tabbedPane.addTab("Protection", panelProt);
 
+        textAreaMaterials.setColumns(20);
+        textAreaMaterials.setEditable(false);
+        textAreaMaterials.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        textAreaMaterials.setRows(5);
+        scrollPaneMaterials.setViewportView(textAreaMaterials);
+
+        tabbedPaneDependencies.addTab("Materials", scrollPaneMaterials);
+
+        textAreaSounds.setColumns(20);
+        textAreaSounds.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        textAreaSounds.setRows(5);
+        scrollPaneSounds.setViewportView(textAreaSounds);
+
+        tabbedPaneDependencies.addTab("Sounds", scrollPaneSounds);
+
+        textAreaSoundScripts.setColumns(20);
+        textAreaSoundScripts.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        textAreaSoundScripts.setRows(5);
+        scrollPaneSoundScripts.setViewportView(textAreaSoundScripts);
+
+        tabbedPaneDependencies.addTab("Sound scripts", scrollPaneSoundScripts);
+
+        textAreaSoundscapes.setColumns(20);
+        textAreaSoundscapes.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        textAreaSoundscapes.setRows(5);
+        scrollPaneSoundscapes.setViewportView(textAreaSoundscapes);
+
+        tabbedPaneDependencies.addTab("Soundscapes", scrollPaneSoundscapes);
+
+        textAreaModels.setColumns(20);
+        textAreaModels.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        textAreaModels.setRows(5);
+        scrollPaneModels.setViewportView(textAreaModels);
+
+        tabbedPaneDependencies.addTab("Models", scrollPaneModels);
+
+        textAreaParticles.setColumns(20);
+        textAreaParticles.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        textAreaParticles.setRows(5);
+        scrollPaneParticles.setViewportView(textAreaParticles);
+
+        tabbedPaneDependencies.addTab("Particles", scrollPaneParticles);
+
+        tabbedPane.addTab("Dependencies", tabbedPaneDependencies);
+
         menuFile.setText("File");
 
         openFileMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
@@ -1057,9 +1139,22 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelVmex;
     private javax.swing.JFileChooser saveFileChooser;
     private javax.swing.JScrollPane scrollPaneLumps;
+    private javax.swing.JScrollPane scrollPaneMaterials;
+    private javax.swing.JScrollPane scrollPaneModels;
+    private javax.swing.JScrollPane scrollPaneParticles;
+    private javax.swing.JScrollPane scrollPaneSoundScripts;
+    private javax.swing.JScrollPane scrollPaneSounds;
+    private javax.swing.JScrollPane scrollPaneSoundscapes;
     private javax.swing.JTabbedPane tabbedPane;
+    private javax.swing.JTabbedPane tabbedPaneDependencies;
     private javax.swing.JTable tableEntities;
     private javax.swing.JTable tableLumps;
+    private javax.swing.JTextArea textAreaMaterials;
+    private javax.swing.JTextArea textAreaModels;
+    private javax.swing.JTextArea textAreaParticles;
+    private javax.swing.JTextArea textAreaSoundScripts;
+    private javax.swing.JTextArea textAreaSounds;
+    private javax.swing.JTextArea textAreaSoundscapes;
     private javax.swing.JTextField textFieldAppID;
     private javax.swing.JTextField textFieldBrushEnts;
     private javax.swing.JTextField textFieldCompressed;

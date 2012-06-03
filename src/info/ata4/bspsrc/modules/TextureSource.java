@@ -53,6 +53,7 @@ public class TextureSource extends ModuleRead {
         
         reader.loadTexInfo();
         reader.loadTexData();
+        reader.loadCubemaps();
         
         texnameToCubemap = new int[bsp.texnames.size()];
         Arrays.fill(texnameToCubemap, -1);
