@@ -14,6 +14,8 @@ import info.ata4.bsplib.BspFileFilter;
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.entity.Entity;
+import info.ata4.bsplib.lump.Lump;
+import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bspsrc.modules.BspChecksum;
 import info.ata4.bspsrc.modules.BspProtection;
 import info.ata4.bspsrc.modules.CompileParameters;
@@ -23,11 +25,14 @@ import info.ata4.util.gui.FileExtensionFilter;
 import info.ata4.util.gui.components.DecimalFormatCellRenderer;
 import info.ata4.util.gui.components.ProgressCellRenderer;
 import info.ata4.util.log.ConsoleFormatter;
+import info.ata4.util.log.DialogHandler;
 import info.ata4.util.log.LogUtils;
 import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteOrder;
@@ -36,8 +41,14 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.table.TableColumnModel;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.CloseShieldInputStream;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -51,6 +62,8 @@ public class BspInfoFrame extends javax.swing.JFrame {
     public static final String VERSION = "1.0";
     
     private File currentFile;
+    private BspFile bspFile;
+    private BspFileReader bspReader;
     private FileDrop fdrop;
     
     /**
@@ -94,6 +107,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 }
             }
         });
+        
+        // add dialog log handler
+        L.addHandler(new DialogHandler(this));
     }
     
     public final void reset() {
@@ -109,6 +125,11 @@ public class BspInfoFrame extends javax.swing.JFrame {
         textFieldFileCRC.setText(null);
         textFieldMapCRC.setText(null);
         
+        textFieldVbspParams.setText(null);
+        textFieldVvisParams.setText(null);
+        textFieldVradParams.setText(null);
+        
+        // protection
         checkBoxVmexEntity.setSelected(false);
         checkBoxVmexTexture.setSelected(false);
         checkBoxVmexBrush.setSelected(false);
@@ -140,9 +161,12 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 // set waiting cursor
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 
+                // enable menu
+                menuTools.setEnabled(true);
+                
                 try {
                     // init fields that use info from the BspFile only
-                    BspFile bspFile = new BspFile();
+                    bspFile = new BspFile();
                     bspFile.load(currentFile);
 
                     textFieldName.setText(bspFile.getName());
@@ -152,7 +176,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     textFieldEndian.setText(bspFile.getByteOrder() == ByteOrder.LITTLE_ENDIAN ? "Little endian" : "Big endian");
                     
                     // init fields that require further BSP loading
-                    BspFileReader bspReader = new BspFileReader(bspFile);
+                    bspReader = new BspFileReader(bspFile);
                     bspReader.loadEntities();
                     
                     SourceApp app = bspFile.getSourceApp();
@@ -195,19 +219,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     } else {
                         textFieldVradParams.setText("(not run)");
                     }
-                    
-                    // init checksum fields
-                    BspChecksum checksum = new BspChecksum(bspReader);
-                    
-                    textFieldFileCRC.setText(String.format("%x", checksum.getFileCRC()));
-                    textFieldMapCRC.setText(String.format("%x", checksum.getMapCRC()));
-                    
-                    // init lump data table
-                    LumpTableModel ltm = new LumpTableModel();
-                    ltm.update(bspFile);
-                    
-                    tableLumps.setModel(ltm);
-                    
+                   
                     // init entity stats                    
                     int brushEnts = 0;
                     int pointEnts = 0;
@@ -234,8 +246,23 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     etm.update(bspReader);
                     
                     tableEntities.setModel(etm);
+                    
+                    // init checksum fields
+                    BspChecksum checksum = new BspChecksum(bspReader);
+                    
+                    textFieldFileCRC.setText(String.format("%x", checksum.getFileCRC()));
+                    textFieldMapCRC.setText(String.format("%x", checksum.getMapCRC()));
+                    
+                    // init lump data table
+                    LumpTableModel ltm = new LumpTableModel();
+                    ltm.update(bspFile);
+                    
+                    tableLumps.setModel(ltm);
                 } catch (Exception ex) {
-                    L.log(Level.SEVERE, null, ex);
+                    L.log(Level.SEVERE, "Couldn't read BSP file", ex);
+                    
+                    // disable menu
+                    menuTools.setEnabled(false);
                 } finally {
                     // free previously opened files and resources
                     System.gc();
@@ -247,6 +274,36 @@ public class BspInfoFrame extends javax.swing.JFrame {
         }).start();
     }
     
+    private void extractEmbedded(File destination) {
+        ZipArchiveInputStream zis = null;
+
+        try {
+            FileUtils.forceMkdir(destination);
+            
+            Lump pakLump = bspFile.getLump(LumpType.LUMP_PAKFILE);
+            zis = new ZipArchiveInputStream(pakLump.getInputStream());
+            int files = 0;
+            
+            for (ZipArchiveEntry ze; (ze = zis.getNextZipEntry()) != null; files++) {
+                File entryFile = new File(destination, ze.getName());
+                L.log(Level.INFO, "Extracting {0}", ze.getName());
+
+                try {
+                    InputStream cszis = new CloseShieldInputStream(zis);
+                    FileUtils.copyInputStreamToFile(cszis, entryFile);
+                } catch (IOException ex) {
+                    L.log(Level.WARNING, "Couldn't extract file", ex);
+                }
+            }
+            
+            JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " files.");
+        } catch (IOException ex) {
+            L.log(Level.WARNING, "Couldn't read pakfile", ex);
+        } finally {
+            IOUtils.closeQuietly(zis);
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -256,7 +313,8 @@ public class BspInfoFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        fileChooser = new javax.swing.JFileChooser();
+        openFileChooser = new javax.swing.JFileChooser();
+        saveFileChooser = new javax.swing.JFileChooser();
         tabbedPane = new javax.swing.JTabbedPane();
         panelGeneral = new javax.swing.JPanel();
         panelGame = new javax.swing.JPanel();
@@ -282,11 +340,11 @@ public class BspInfoFrame extends javax.swing.JFrame {
         labelMapCRC = new javax.swing.JLabel();
         textFieldMapCRC = new javax.swing.JTextField();
         panelCompileParams = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
+        labelVbsp = new javax.swing.JLabel();
         textFieldVbspParams = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
+        labelVvis = new javax.swing.JLabel();
         textFieldVvisParams = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
+        labelVrad = new javax.swing.JLabel();
         textFieldVradParams = new javax.swing.JTextField();
         panelLumps = new javax.swing.JPanel();
         scrollPaneLumps = new javax.swing.JScrollPane();
@@ -314,10 +372,13 @@ public class BspInfoFrame extends javax.swing.JFrame {
         menuFile = new javax.swing.JMenu();
         openFileMenuItem = new javax.swing.JMenuItem();
         menuTools = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
+        menuItemExtractFiles = new javax.swing.JMenuItem();
+        menuItemExtractLumps = new javax.swing.JMenuItem();
 
-        fileChooser.setFileFilter(new FileExtensionFilter("Source engine map file", "bsp"));
+        openFileChooser.setFileFilter(new FileExtensionFilter("Source engine map file", "bsp"));
+
+        saveFileChooser.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
+        saveFileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("BSPInfo");
@@ -493,15 +554,15 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
         panelCompileParams.setBorder(javax.swing.BorderFactory.createTitledBorder("Compile parameters"));
 
-        jLabel4.setText("vbsp");
+        labelVbsp.setText("vbsp");
 
         textFieldVbspParams.setEditable(false);
 
-        jLabel5.setText("vvis");
+        labelVvis.setText("vvis");
 
         textFieldVvisParams.setEditable(false);
 
-        jLabel6.setText("vrad");
+        labelVrad.setText("vrad");
 
         textFieldVradParams.setEditable(false);
 
@@ -512,9 +573,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCompileParamsLayout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addGroup(panelCompileParamsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel6)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel5))
+                    .addComponent(labelVrad)
+                    .addComponent(labelVbsp)
+                    .addComponent(labelVvis))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelCompileParamsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(textFieldVradParams)
@@ -527,15 +588,15 @@ public class BspInfoFrame extends javax.swing.JFrame {
             .addGroup(panelCompileParamsLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelCompileParamsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
+                    .addComponent(labelVbsp)
                     .addComponent(textFieldVbspParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelCompileParamsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textFieldVvisParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
+                    .addComponent(labelVvis))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelCompileParamsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
+                    .addComponent(labelVrad)
                     .addComponent(textFieldVradParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -776,12 +837,23 @@ public class BspInfoFrame extends javax.swing.JFrame {
         menuBar.add(menuFile);
 
         menuTools.setText("Tools");
+        menuTools.setEnabled(false);
 
-        jMenuItem1.setText("Extract embedded files");
-        menuTools.add(jMenuItem1);
+        menuItemExtractFiles.setText("Extract embedded files");
+        menuItemExtractFiles.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuItemExtractFilesActionPerformed(evt);
+            }
+        });
+        menuTools.add(menuItemExtractFiles);
 
-        jMenuItem2.setText("Extract lumps");
-        menuTools.add(jMenuItem2);
+        menuItemExtractLumps.setText("Extract lumps");
+        menuItemExtractLumps.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuItemExtractLumpsActionPerformed(evt);
+            }
+        });
+        menuTools.add(menuItemExtractLumps);
 
         menuBar.add(menuTools);
 
@@ -841,13 +913,26 @@ public class BspInfoFrame extends javax.swing.JFrame {
     }
     
     private void openFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileMenuItemActionPerformed
-        int result = fileChooser.showOpenDialog(this);
+        int result = openFileChooser.showOpenDialog(this);
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
         
-        loadFile(fileChooser.getSelectedFile());
+        loadFile(openFileChooser.getSelectedFile());
     }//GEN-LAST:event_openFileMenuItemActionPerformed
+
+    private void menuItemExtractFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemExtractFilesActionPerformed
+        int result = saveFileChooser.showSaveDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        
+        extractEmbedded(saveFileChooser.getSelectedFile());
+    }//GEN-LAST:event_menuItemExtractFilesActionPerformed
+
+    private void menuItemExtractLumpsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemExtractLumpsActionPerformed
+        L.severe("test");
+    }//GEN-LAST:event_menuItemExtractLumpsActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxBSPProtect;
@@ -856,15 +941,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxVmexBrush;
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxVmexEntity;
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxVmexTexture;
-    private javax.swing.JFileChooser fileChooser;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel labelAppID;
     private javax.swing.JLabel labelCompressed;
@@ -874,11 +953,17 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JLabel labelMapCRC;
     private javax.swing.JLabel labelName;
     private javax.swing.JLabel labelRevision;
+    private javax.swing.JLabel labelVbsp;
     private javax.swing.JLabel labelVersion;
+    private javax.swing.JLabel labelVrad;
+    private javax.swing.JLabel labelVvis;
     private info.ata4.util.gui.components.URILabel linkLabelAppURL;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenu menuFile;
+    private javax.swing.JMenuItem menuItemExtractFiles;
+    private javax.swing.JMenuItem menuItemExtractLumps;
     private javax.swing.JMenu menuTools;
+    private javax.swing.JFileChooser openFileChooser;
     private javax.swing.JMenuItem openFileMenuItem;
     private javax.swing.JPanel panelChecksums;
     private javax.swing.JPanel panelCompileParams;
@@ -891,6 +976,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelOther;
     private javax.swing.JPanel panelProt;
     private javax.swing.JPanel panelVmex;
+    private javax.swing.JFileChooser saveFileChooser;
     private javax.swing.JScrollPane scrollPaneLumps;
     private javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JTable tableEntities;
