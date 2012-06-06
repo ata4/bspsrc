@@ -22,7 +22,6 @@ import info.ata4.util.gui.FileDrop;
 import info.ata4.util.gui.FileExtensionFilter;
 import info.ata4.util.gui.components.DecimalFormatCellRenderer;
 import info.ata4.util.gui.components.ProgressCellRenderer;
-import info.ata4.util.log.ConsoleFormatter;
 import info.ata4.util.log.DialogHandler;
 import info.ata4.util.log.LogUtils;
 import java.awt.Cursor;
@@ -70,8 +69,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        LogUtils.configure();
-        ConsoleFormatter.setPrintStackTrace(true);
+        LogUtils.configure("debug");
         
         // set the system look and feel
         try {

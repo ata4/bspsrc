@@ -36,7 +36,7 @@ public class BspUnzip {
     private static final Logger L = Logger.getLogger(BspUnzip.class.getName());
     
     public static void main(String[] args) {
-        LogUtils.configure();
+        LogUtils.configure("normal");
         
         Options opts = new Options();
         opts.addOption(new Option("f", "Extract embedded files directly."));

@@ -36,7 +36,7 @@ public class BspEntSplit {
     private static final Logger L = Logger.getLogger(BspEntSplit.class.getName());
 
     public static void main(String[] args) {
-        LogUtils.configure();
+        LogUtils.configure("normal");
 
         Options opts = new Options();
         opts.addOption(new Option("p", "Remove *all* entity data from the BSP, including the worldspawn. Note: This will crash clients who try to play the resulting map locally!"));

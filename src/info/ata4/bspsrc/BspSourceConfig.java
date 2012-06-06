@@ -12,6 +12,7 @@ package info.ata4.bspsrc;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.util.log.ConsoleFormatter;
+import info.ata4.util.log.LogUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -58,24 +59,10 @@ public final class BspSourceConfig implements Serializable {
     
     private boolean debug = false;
     private Set<BspFileEntry> files = new HashSet<BspFileEntry>();
-
-    public BspSourceConfig() {
-        updateDebugState();
-    }
     
-    private void updateDebugState() {
-        this.updateDebugState(debug);
-    }
-    
-    private void updateDebugState(boolean debug) {
-        Logger rootLogger = Logger.getLogger("info.ata4");
-
-        // max out logger verbosity in debug mode
-        rootLogger.setLevel(debug ? Level.ALL : Level.INFO);
-        
-        // enable/disable stack trace in log formatter
+    private void updateLogger(boolean debug) {
+        LogUtils.configure(debug ? "debug" : "normal");
         ConsoleFormatter.setPrintStackTrace(debug);
-        
         if (debug) {
             L.fine("Debug mode on, verbosity set to maximum");
         }
@@ -119,7 +106,7 @@ public final class BspSourceConfig implements Serializable {
     }
 
     public void setDebug(boolean debug) {
-        updateDebugState(debug);
+        updateLogger(debug);
         this.debug = debug;
     }
 }

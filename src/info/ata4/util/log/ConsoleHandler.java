@@ -23,6 +23,10 @@ import java.util.logging.LogRecord;
 public class ConsoleHandler extends Handler {
 
     private boolean doneHeader;
+        
+    public ConsoleHandler() {
+        setFormatter(new ConsoleFormatter());
+    }
 
     private void doHeaders() {
         if (!doneHeader) {

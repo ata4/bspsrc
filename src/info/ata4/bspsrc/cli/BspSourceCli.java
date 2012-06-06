@@ -43,7 +43,7 @@ public class BspSourceCli {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        LogUtils.configure();
+        LogUtils.configure("normal");
         
         try {
             BspSourceCli cli = new BspSourceCli();

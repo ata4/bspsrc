@@ -29,12 +29,12 @@ public class ConsoleFormatter extends Formatter {
     
     static {
         Map<Level, String> levelPrefix = new HashMap<Level, String>();
-        levelPrefix.put(Level.CONFIG, "[config]");
-        levelPrefix.put(Level.FINE, "[debug]");
-        levelPrefix.put(Level.FINER, "[debug]");
-        levelPrefix.put(Level.FINEST, "[trace]");
-        levelPrefix.put(Level.INFO, "[info]");
-        levelPrefix.put(Level.SEVERE, "[error]");
+        levelPrefix.put(Level.CONFIG,  "[config]");
+        levelPrefix.put(Level.FINE,    "[debug]");
+        levelPrefix.put(Level.FINER,   "[debug]");
+        levelPrefix.put(Level.FINEST,  "[trace]");
+        levelPrefix.put(Level.INFO,    "[info]");
+        levelPrefix.put(Level.SEVERE,  "[error]");
         levelPrefix.put(Level.WARNING, "[warning]");
         
         LEVEL_PREFIX = Collections.unmodifiableMap(levelPrefix);
@@ -66,10 +66,9 @@ public class ConsoleFormatter extends Formatter {
 
         sb.append(formatMessage(record));
 
-        // print stack trace if enabled
-        if (record.getThrown() != null) {
-            Throwable thrown = record.getThrown();
-            
+        // print stack trace if given
+        Throwable thrown = record.getThrown();
+        if (thrown != null) {
             if (printStackTrace) {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
@@ -79,7 +78,7 @@ public class ConsoleFormatter extends Formatter {
                 sb.append(sw.toString());
             } else {
                 sb.append(": ");
-                sb.append(thrown.getClass().getName()); 
+                sb.append(thrown.getClass().getName());
                 if (thrown.getMessage() != null) {
                     sb.append(": ");
                     sb.append(thrown.getMessage());

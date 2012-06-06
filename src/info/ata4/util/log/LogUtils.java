@@ -9,9 +9,10 @@
  */
 package info.ata4.util.log;
 
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.LogManager;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Logging utility class.
@@ -23,26 +24,24 @@ public class LogUtils {
     private LogUtils() {
     }
     
-    public static void configure(Level level) {
-        Logger logger = Logger.getLogger("");
+    public static void configure(String config) {
+        InputStream is = null;
         
-        // remove default handler
-        for (Handler handler : logger.getHandlers()) {
-            logger.removeHandler(handler);
+        try {
+            is = LogUtils.class.getResourceAsStream(config + ".properties");
+            LogManager.getLogManager().readConfiguration(is);
+        } catch (IOException ex) {
+            // don't use the logging system here, maybe it went to hell!
+           System.err.println("Can't read logger configuration: " + ex);
+            
+            try {
+                LogManager.getLogManager().readConfiguration();
+            } catch (IOException ex2) {
+                // okay, this is just silly...
+                System.err.println("Can't restore logger configuration: " + ex2);
+            }
+        } finally {
+            IOUtils.closeQuietly(is);
         }
-
-        // create new console handler
-        ConsoleHandler conHandler = new ConsoleHandler();
-        conHandler.setFormatter(new ConsoleFormatter());
-        logger.addHandler(conHandler);
-        
-        // set level
-        if (level != null) {
-            logger.setLevel(level);
-        }
-    }
-    
-    public static void configure() {
-        configure(Level.INFO);
     }
 }

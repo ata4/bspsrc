@@ -35,7 +35,7 @@ public class BspLumpSplit {
     private static final Logger L = Logger.getLogger(BspLumpSplit.class.getName());
     
     public static void main(String[] args) {
-        LogUtils.configure();
+        LogUtils.configure("normal");
         
         Options opts = new Options();
         
