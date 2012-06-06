@@ -58,6 +58,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
     private static final Logger L = Logger.getLogger(BspInfoFrame.class.getName());
     
+    public static final String NAME = "BSPInfo";
     public static final String VERSION = "1.0";
     
     private File currentFile;
@@ -158,6 +159,8 @@ public class BspInfoFrame extends javax.swing.JFrame {
     
     public void loadFile(File file) {
         currentFile = file;
+        
+        setTitle(NAME + " " + VERSION + " - " + file.getName());
 
         new Thread(new Runnable() {
             public void run() {
@@ -452,16 +455,6 @@ public class BspInfoFrame extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tableEntities = new javax.swing.JTable();
-        panelProt = new javax.swing.JPanel();
-        panelVmex = new javax.swing.JPanel();
-        checkBoxVmexEntity = new info.ata4.util.gui.components.ReadOnlyCheckBox();
-        checkBoxVmexTexture = new info.ata4.util.gui.components.ReadOnlyCheckBox();
-        checkBoxVmexBrush = new info.ata4.util.gui.components.ReadOnlyCheckBox();
-        panelIID = new javax.swing.JPanel();
-        checkBoxIIDObfs = new info.ata4.util.gui.components.ReadOnlyCheckBox();
-        checkBoxIIDTexHack = new info.ata4.util.gui.components.ReadOnlyCheckBox();
-        panelOther = new javax.swing.JPanel();
-        checkBoxBSPProtect = new info.ata4.util.gui.components.ReadOnlyCheckBox();
         tabbedPaneDependencies = new javax.swing.JTabbedPane();
         scrollPaneMaterials = new javax.swing.JScrollPane();
         textAreaMaterials = new javax.swing.JTextArea();
@@ -475,6 +468,16 @@ public class BspInfoFrame extends javax.swing.JFrame {
         textAreaModels = new javax.swing.JTextArea();
         scrollPaneParticles = new javax.swing.JScrollPane();
         textAreaParticles = new javax.swing.JTextArea();
+        panelProt = new javax.swing.JPanel();
+        panelVmex = new javax.swing.JPanel();
+        checkBoxVmexEntity = new info.ata4.util.gui.components.ReadOnlyCheckBox();
+        checkBoxVmexTexture = new info.ata4.util.gui.components.ReadOnlyCheckBox();
+        checkBoxVmexBrush = new info.ata4.util.gui.components.ReadOnlyCheckBox();
+        panelIID = new javax.swing.JPanel();
+        checkBoxIIDObfs = new info.ata4.util.gui.components.ReadOnlyCheckBox();
+        checkBoxIIDTexHack = new info.ata4.util.gui.components.ReadOnlyCheckBox();
+        panelOther = new javax.swing.JPanel();
+        checkBoxBSPProtect = new info.ata4.util.gui.components.ReadOnlyCheckBox();
         menuBar = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         openFileMenuItem = new javax.swing.JMenuItem();
@@ -488,7 +491,6 @@ public class BspInfoFrame extends javax.swing.JFrame {
         saveFileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("BSPInfo");
 
         panelGame.setBorder(javax.swing.BorderFactory.createTitledBorder("Game"));
 
@@ -818,6 +820,51 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
         tabbedPane.addTab("Entities", panelEntities);
 
+        textAreaMaterials.setColumns(20);
+        textAreaMaterials.setEditable(false);
+        textAreaMaterials.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        textAreaMaterials.setRows(5);
+        scrollPaneMaterials.setViewportView(textAreaMaterials);
+
+        tabbedPaneDependencies.addTab("Materials", scrollPaneMaterials);
+
+        textAreaSounds.setColumns(20);
+        textAreaSounds.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        textAreaSounds.setRows(5);
+        scrollPaneSounds.setViewportView(textAreaSounds);
+
+        tabbedPaneDependencies.addTab("Sounds", scrollPaneSounds);
+
+        textAreaSoundScripts.setColumns(20);
+        textAreaSoundScripts.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        textAreaSoundScripts.setRows(5);
+        scrollPaneSoundScripts.setViewportView(textAreaSoundScripts);
+
+        tabbedPaneDependencies.addTab("Sound scripts", scrollPaneSoundScripts);
+
+        textAreaSoundscapes.setColumns(20);
+        textAreaSoundscapes.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        textAreaSoundscapes.setRows(5);
+        scrollPaneSoundscapes.setViewportView(textAreaSoundscapes);
+
+        tabbedPaneDependencies.addTab("Soundscapes", scrollPaneSoundscapes);
+
+        textAreaModels.setColumns(20);
+        textAreaModels.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        textAreaModels.setRows(5);
+        scrollPaneModels.setViewportView(textAreaModels);
+
+        tabbedPaneDependencies.addTab("Models", scrollPaneModels);
+
+        textAreaParticles.setColumns(20);
+        textAreaParticles.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        textAreaParticles.setRows(5);
+        scrollPaneParticles.setViewportView(textAreaParticles);
+
+        tabbedPaneDependencies.addTab("Particles", scrollPaneParticles);
+
+        tabbedPane.addTab("Dependencies", tabbedPaneDependencies);
+
         panelVmex.setBorder(javax.swing.BorderFactory.createTitledBorder("VMEX"));
 
         checkBoxVmexEntity.setText("Entity flag");
@@ -930,51 +977,6 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
         tabbedPane.addTab("Protection", panelProt);
 
-        textAreaMaterials.setColumns(20);
-        textAreaMaterials.setEditable(false);
-        textAreaMaterials.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
-        textAreaMaterials.setRows(5);
-        scrollPaneMaterials.setViewportView(textAreaMaterials);
-
-        tabbedPaneDependencies.addTab("Materials", scrollPaneMaterials);
-
-        textAreaSounds.setColumns(20);
-        textAreaSounds.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
-        textAreaSounds.setRows(5);
-        scrollPaneSounds.setViewportView(textAreaSounds);
-
-        tabbedPaneDependencies.addTab("Sounds", scrollPaneSounds);
-
-        textAreaSoundScripts.setColumns(20);
-        textAreaSoundScripts.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
-        textAreaSoundScripts.setRows(5);
-        scrollPaneSoundScripts.setViewportView(textAreaSoundScripts);
-
-        tabbedPaneDependencies.addTab("Sound scripts", scrollPaneSoundScripts);
-
-        textAreaSoundscapes.setColumns(20);
-        textAreaSoundscapes.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
-        textAreaSoundscapes.setRows(5);
-        scrollPaneSoundscapes.setViewportView(textAreaSoundscapes);
-
-        tabbedPaneDependencies.addTab("Soundscapes", scrollPaneSoundscapes);
-
-        textAreaModels.setColumns(20);
-        textAreaModels.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
-        textAreaModels.setRows(5);
-        scrollPaneModels.setViewportView(textAreaModels);
-
-        tabbedPaneDependencies.addTab("Models", scrollPaneModels);
-
-        textAreaParticles.setColumns(20);
-        textAreaParticles.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
-        textAreaParticles.setRows(5);
-        scrollPaneParticles.setViewportView(textAreaParticles);
-
-        tabbedPaneDependencies.addTab("Particles", scrollPaneParticles);
-
-        tabbedPane.addTab("Dependencies", tabbedPaneDependencies);
-
         menuFile.setText("File");
 
         openFileMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
@@ -1033,7 +1035,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
     private void initComponentsCustom() {
         // add version to title
-        setTitle(getTitle() + " " + VERSION);
+        setTitle(NAME + " " + VERSION);
         
         // instant awesome, just add icons!
         try {
