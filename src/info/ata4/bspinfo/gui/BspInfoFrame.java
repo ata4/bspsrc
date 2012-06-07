@@ -20,6 +20,7 @@ import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bspsrc.modules.*;
 import info.ata4.util.gui.FileDrop;
 import info.ata4.util.gui.FileExtensionFilter;
+import info.ata4.util.gui.ListTableModel;
 import info.ata4.util.gui.components.DecimalFormatCellRenderer;
 import info.ata4.util.gui.components.ProgressCellRenderer;
 import info.ata4.util.log.DialogHandler;
@@ -34,8 +35,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.ByteOrder;
 import java.text.DecimalFormat;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -43,6 +43,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.io.FileUtils;
@@ -297,107 +298,6 @@ public class BspInfoFrame extends javax.swing.JFrame {
         for (String string : strings) {
             textArea.append(string);
             textArea.append("\n");
-        }
-    }
-    
-    private void extractEmbedded(File destination) {
-       try {
-            FileUtils.forceMkdir(destination);
-        } catch (IOException ex) {
-            L.log(Level.WARNING, "Couldn't create directory", ex);
-        }
-       
-        // set waiting cursor
-        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        
-        ZipArchiveInputStream zis = null;
-
-        try {
-            Lump pakLump = bspFile.getLump(LumpType.LUMP_PAKFILE);
-            zis = new ZipArchiveInputStream(pakLump.getInputStream());
-            int files = 0;
-            
-            for (ZipArchiveEntry ze; (ze = zis.getNextZipEntry()) != null; files++) {
-                File entryFile = new File(destination, ze.getName());
-                L.log(Level.INFO, "Extracting {0}", ze.getName());
-
-                try {
-                    InputStream cszis = new CloseShieldInputStream(zis);
-                    FileUtils.copyInputStreamToFile(cszis, entryFile);
-                } catch (IOException ex) {
-                    L.log(Level.WARNING, "Couldn't extract file", ex);
-                }
-            }
-            
-            JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " embedded files.");
-        } catch (IOException ex) {
-            L.log(Level.WARNING, "Couldn't read pakfile", ex);
-        } finally {
-            IOUtils.closeQuietly(zis);
-            
-            // reset cursor
-            setCursor(Cursor.getDefaultCursor());
-        }
-    }
-    
-    private void extractLumps(File destination) {
-        try {
-            FileUtils.forceMkdir(destination);
-        } catch (IOException ex) {
-            L.log(Level.WARNING, "Couldn't create directory", ex);
-        }
-        
-        // set waiting cursor
-        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-        try {
-            List<Lump> lumps = bspFile.getLumps();
-            int files = 0;
-
-            for (Lump lump : lumps) {
-                try {
-                    if (lump.getType() == LumpType.LUMP_UNKNOWN) {
-                        continue;
-                    }
-
-                    String fileName = String.format("%02d_%s.bin", lump.getIndex(),
-                            lump.getName());
-                    File lumpFile = new File(destination, fileName);
-
-                    L.log(Level.INFO, "Extracting {0}", lump);
-
-                    InputStream is = lump.getInputStream();
-                    FileUtils.copyInputStreamToFile(is, lumpFile);
-                    files++;
-                } catch (IOException ex) {
-                    L.log(Level.SEVERE, "Can't extract lump", ex);
-                }
-            }
-
-            File gameLumpsDir = new File(destination, "game");
-            gameLumpsDir.mkdir();
-
-            List<GameLump> gameLumps = bspFile.getGameLumps();
-
-            for (GameLump lump : gameLumps) {
-                try {
-                    String fileName = String.format("%s_v%d.bin", lump.getName(), lump.getVersion());
-                    File lumpFile = new File(gameLumpsDir, fileName);
-
-                    L.log(Level.INFO, "Extracting {0}", lump);
-
-                    InputStream is = lump.getInputStream();
-                    FileUtils.copyInputStreamToFile(is, lumpFile);
-                    files++;
-                } catch (IOException ex) {
-                    L.log(Level.SEVERE, "Can't extract lump", ex);
-                }
-            }
-
-            JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " lump files.");
-        } finally {
-            // reset cursor
-            setCursor(Cursor.getDefaultCursor());
         }
     }
     
@@ -1082,7 +982,20 @@ public class BspInfoFrame extends javax.swing.JFrame {
             return;
         }
         
-        extractEmbedded(saveFileChooser.getSelectedFile());
+        File dest = saveFileChooser.getSelectedFile();
+        
+        // set waiting cursor
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        try {
+            int files = BspFileUtils.extractPak(bspFile, dest);
+            JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " embedded files.");
+        } catch (IOException ex) {
+            L.log(Level.WARNING, "Couldn't read pakfile", ex);
+        } finally {
+            // reset cursor
+            setCursor(Cursor.getDefaultCursor());
+        }
     }//GEN-LAST:event_menuItemExtractFilesActionPerformed
 
     private void menuItemExtractLumpsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemExtractLumpsActionPerformed
@@ -1092,7 +1005,20 @@ public class BspInfoFrame extends javax.swing.JFrame {
             return;
         }
         
-        extractLumps(saveFileChooser.getSelectedFile());
+        File dest = saveFileChooser.getSelectedFile();
+        
+        // set waiting cursor
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        try {
+            int files = BspFileUtils.extractLumps(bspFile, dest);
+            JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " lump files.");
+        } catch (IOException ex) {
+            L.log(Level.WARNING, "Can't extract lumps", ex);
+        } finally {
+            // reset cursor
+            setCursor(Cursor.getDefaultCursor());
+        }
     }//GEN-LAST:event_menuItemExtractLumpsActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
