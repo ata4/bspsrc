@@ -41,12 +41,14 @@ public class PakFile {
         return new ZipArchiveInputStream(pakLump.getInputStream(), "Cp437", false);
     }
     
-    public void extract(File dest) throws IOException {
-        extract(dest, true);
+    public void unpack(File dest) throws IOException {
+        unpack(dest, true);
     }
 
-    public void extract(File dest, boolean direct) throws IOException {
+    public void unpack(File dest, boolean direct) throws IOException {
         if (direct) {
+            FileUtils.forceMkdir(dest);
+            
             ZipArchiveInputStream zis = getArchiveInputStream();
             ZipArchiveEntry ze;
 
@@ -72,23 +74,20 @@ public class PakFile {
                     
                     L.log(Level.INFO, "Extracting {0}", ze.getName());
 
-                    try {
-                        InputStream cszis = new CloseShieldInputStream(zis);
-                        FileUtils.copyInputStreamToFile(cszis, entryFile);
-                    } catch (IOException ex) {
-                        L.log(Level.WARNING, "Couldn''t extract file", ex);
-                    }
+                    InputStream cszis = new CloseShieldInputStream(zis);
+                    FileUtils.copyInputStreamToFile(cszis, entryFile);
                 }
             } finally {
                 IOUtils.closeQuietly(zis);
             }
         } else {
+            L.log(Level.INFO, "Extracting pakfile to {0}", dest);
+            InputStream is = pakLump.getInputStream();
+            
             try {
-                L.log(Level.INFO, "Extracting pakfile to {0}", dest);
-                InputStream is = pakLump.getInputStream();
                 FileUtils.copyInputStreamToFile(is, dest);
-            } catch (Exception ex) {
-                L.log(Level.SEVERE, "Couldn't extract the pakfile", ex);
+            } finally {
+                IOUtils.closeQuietly(is);
             }
         }
     }

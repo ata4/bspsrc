@@ -101,7 +101,7 @@ public class BspSource implements Runnable {
             // extract embedded files
             if (config.unpackEmbedded) {
                 try {
-                    bsp.getPakFile().extract(entry.getPakDir());
+                    bsp.getPakFile().unpack(entry.getPakDir());
                 } catch (IOException ex) {
                     L.log(Level.WARNING, "Can't extract embedded files", ex);
                 }

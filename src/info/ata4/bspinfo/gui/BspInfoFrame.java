@@ -14,13 +14,10 @@ import info.ata4.bsplib.BspFileFilter;
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.entity.Entity;
-import info.ata4.bsplib.lump.GameLump;
-import info.ata4.bsplib.lump.Lump;
-import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bspsrc.modules.*;
 import info.ata4.util.gui.FileDrop;
 import info.ata4.util.gui.FileExtensionFilter;
-import info.ata4.util.gui.ListTableModel;
+import info.ata4.util.gui.components.ByteSizeCellRenderer;
 import info.ata4.util.gui.components.DecimalFormatCellRenderer;
 import info.ata4.util.gui.components.ProgressCellRenderer;
 import info.ata4.util.log.DialogHandler;
@@ -30,25 +27,18 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteOrder;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.CloseShieldInputStream;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -156,6 +146,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
         textAreaSoundscapes.setText(null);
         textAreaModels.setText(null);
         textAreaParticles.setText(null);
+        
+        // embedded files
+        tableEmbedded.setModel(new EmbeddedTableModel());
     }
     
     public void loadFile(File file) {
@@ -175,20 +168,20 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 menuTools.setEnabled(true);
                 
                 try {
-                    // init fields that use info from the BspFile only
+                    // load BSP file
                     bspFile = new BspFile();
                     bspFile.load(currentFile);
+                    
+                    bspReader = new BspFileReader(bspFile);
+                    bspReader.loadEntities();
 
+                    // general
                     textFieldName.setText(bspFile.getName());
                     textFieldVersion.setText(String.valueOf(bspFile.getVersion()));
                     textFieldRevision.setText(String.valueOf(bspFile.getRevision()));
                     textFieldCompressed.setText(bspFile.isCompressed() ? "Yes" : "No");
                     textFieldEndian.setText(bspFile.getByteOrder() == ByteOrder.LITTLE_ENDIAN ? "Little endian" : "Big endian");
-                    
-                    // init fields that require further BSP loading
-                    bspReader = new BspFileReader(bspFile);
-                    bspReader.loadEntities();
-                    
+
                     SourceApp app = bspFile.getSourceApp();
                     
                     textFieldAppID.setText(String.valueOf(app.getAppID()));
@@ -199,20 +192,6 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     if (steamStoreURI != null) {
                         linkLabelAppURL.setURI("Steam store link", steamStoreURI);
                     }
-                    
-                    // init fields that require analysis modules
-                    TextureSource texsrc = new TextureSource(bspReader);
-                    BspProtection prot = new BspProtection(bspReader, texsrc);
-                    prot.check();
-                    
-                    checkBoxVmexEntity.setSelected(prot.hasEntityFlag());
-                    checkBoxVmexTexture.setSelected(prot.hasTextureFlag());
-                    checkBoxVmexBrush.setSelected(prot.hasBrushFlag());
-                    
-                    checkBoxIIDObfs.setSelected(prot.hasObfuscatedEntities());
-                    checkBoxIIDTexHack.setSelected(prot.hasModifiedTexinfo());
-                    
-                    checkBoxBSPProtect.setSelected(prot.hasEncryptedEntities());
                     
                     CompileParameters cparams = new CompileParameters(bspReader);
                     
@@ -229,8 +208,25 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     } else {
                         textFieldVradParams.setText("(not run)");
                     }
-                   
-                    // init entity stats                    
+                    
+                    // protection
+                    TextureSource texsrc = new TextureSource(bspReader);
+                    BspProtection prot = new BspProtection(bspReader, texsrc);
+                    prot.check();
+                    
+                    checkBoxVmexEntity.setSelected(prot.hasEntityFlag());
+                    checkBoxVmexTexture.setSelected(prot.hasTextureFlag());
+                    checkBoxVmexBrush.setSelected(prot.hasBrushFlag());
+                    
+                    checkBoxIIDObfs.setSelected(prot.hasObfuscatedEntities());
+                    checkBoxIIDTexHack.setSelected(prot.hasModifiedTexinfo());
+                    
+                    checkBoxBSPProtect.setSelected(prot.hasEncryptedEntities());
+
+                    // lumps
+                    tableLumps.setModel(new LumpTableModel(bspFile));
+                    
+                    // entities
                     int brushEnts = 0;
                     int pointEnts = 0;
                     
@@ -251,25 +247,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     textFieldTotalEnts.setText(df.format(totalEnts));
                     textFieldBrushEnts.setText(df.format(brushEnts));
                     textFieldPointEnts.setText(df.format(pointEnts));
+                    tableEntities.setModel(new EntityTableModel(bspReader));
                     
-                    EntityTableModel etm = new EntityTableModel();
-                    etm.update(bspReader);
-                    
-                    tableEntities.setModel(etm);
-                    
-                    // init checksum fields
-                    BspChecksum checksum = new BspChecksum(bspReader);
-                    
-                    textFieldFileCRC.setText(String.format("%x", checksum.getFileCRC()));
-                    textFieldMapCRC.setText(String.format("%x", checksum.getMapCRC()));
-                    
-                    // init lump data table
-                    LumpTableModel ltm = new LumpTableModel();
-                    ltm.update(bspFile);
-                    
-                    tableLumps.setModel(ltm);
-                    
-                    // init dependencies
+                    // dependencies
                     BspDependencies bspres = new BspDependencies(bspReader);
   
                     fillTextArea(textAreaMaterials, bspres.getMaterials());
@@ -278,6 +258,15 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     fillTextArea(textAreaSoundscapes, bspres.getSoundscapes());
                     fillTextArea(textAreaModels, bspres.getModels());
                     fillTextArea(textAreaParticles, bspres.getParticles());
+                    
+                    // embedded files
+                    tableEmbedded.setModel(new EmbeddedTableModel(bspFile));
+                    
+                    // checksum (last step, takes most time)
+                    BspChecksum checksum = new BspChecksum(bspReader);
+                    
+                    textFieldFileCRC.setText(String.format("%x", checksum.getFileCRC()));
+                    textFieldMapCRC.setText(String.format("%x", checksum.getMapCRC()));
                 } catch (Exception ex) {
                     L.log(Level.SEVERE, "Couldn't read BSP file", ex);
                     
@@ -368,6 +357,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
         textAreaModels = new javax.swing.JTextArea();
         scrollPaneParticles = new javax.swing.JScrollPane();
         textAreaParticles = new javax.swing.JTextArea();
+        panelEmbedded = new javax.swing.JPanel();
+        scrollPaneEmbedded = new javax.swing.JScrollPane();
+        tableEmbedded = new javax.swing.JTable();
         panelProt = new javax.swing.JPanel();
         panelVmex = new javax.swing.JPanel();
         checkBoxVmexEntity = new info.ata4.util.gui.components.ReadOnlyCheckBox();
@@ -621,7 +613,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addComponent(panelGame, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(panelChecksums, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(panelCompileParams, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(173, Short.MAX_VALUE))
+                .addContainerGap(101, Short.MAX_VALUE))
         );
         panelGeneralLayout.setVerticalGroup(
             panelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -634,7 +626,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 .addComponent(panelChecksums, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelCompileParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(42, Short.MAX_VALUE))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("General", panelGeneral);
@@ -650,14 +642,14 @@ public class BspInfoFrame extends javax.swing.JFrame {
             panelLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelLumpsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneLumps)
+                .addComponent(scrollPaneLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
                 .addContainerGap())
         );
         panelLumpsLayout.setVerticalGroup(
             panelLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelLumpsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
+                .addComponent(scrollPaneLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -699,7 +691,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(textFieldTotalEnts, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelEntitiesLayout.setVerticalGroup(
@@ -714,7 +706,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(textFieldTotalEnts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 434, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -764,6 +756,30 @@ public class BspInfoFrame extends javax.swing.JFrame {
         tabbedPaneDependencies.addTab("Particles", scrollPaneParticles);
 
         tabbedPane.addTab("Dependencies", tabbedPaneDependencies);
+
+        tableEmbedded.setAutoCreateRowSorter(true);
+        tableEmbedded.setModel(new EmbeddedTableModel());
+        tableEmbedded.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        scrollPaneEmbedded.setViewportView(tableEmbedded);
+
+        javax.swing.GroupLayout panelEmbeddedLayout = new javax.swing.GroupLayout(panelEmbedded);
+        panelEmbedded.setLayout(panelEmbeddedLayout);
+        panelEmbeddedLayout.setHorizontalGroup(
+            panelEmbeddedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelEmbeddedLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(scrollPaneEmbedded, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        panelEmbeddedLayout.setVerticalGroup(
+            panelEmbeddedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelEmbeddedLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(scrollPaneEmbedded, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        tabbedPane.addTab("Embedded files", panelEmbedded);
 
         panelVmex.setBorder(javax.swing.BorderFactory.createTitledBorder("VMEX"));
 
@@ -861,7 +877,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addGroup(panelProtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(panelVmex, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(panelIID, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(251, Short.MAX_VALUE))
+                .addContainerGap(179, Short.MAX_VALUE))
         );
         panelProtLayout.setVerticalGroup(
             panelProtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -872,7 +888,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 .addComponent(panelIID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelOther, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(257, Short.MAX_VALUE))
+                .addContainerGap(242, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("Protection", panelProt);
@@ -949,21 +965,30 @@ public class BspInfoFrame extends javax.swing.JFrame {
         DecimalFormat largeFormat = new DecimalFormat("#,##0");
         
         // set table column widths and special renderers
-        TableColumnModel tcm = tableLumps.getColumnModel();
+        TableColumnModel tcm;
+        
+        // lump table
+        tcm = tableLumps.getColumnModel();
         tcm.getColumn(0).setPreferredWidth(30);
         tcm.getColumn(1).setPreferredWidth(150);
         tcm.getColumn(4).setPreferredWidth(40);
-        tcm.getColumn(2).setCellRenderer(new DecimalFormatCellRenderer(largeFormat));
+        tcm.getColumn(2).setCellRenderer(new ByteSizeCellRenderer(false));
         tcm.getColumn(3).setCellRenderer(new ProgressCellRenderer());
+        tableLumps.setAutoCreateColumnsFromModel(false);
         
+        // entity table
         tcm = tableEntities.getColumnModel();
+        tcm.getColumn(0).setPreferredWidth(250);
         tcm.getColumn(1).setPreferredWidth(50);
         tcm.getColumn(1).setCellRenderer(new DecimalFormatCellRenderer(largeFormat));
-        
-        // don't rebuild columns when replacing the model from now on to keep
-        // the preferred width set above
-        tableLumps.setAutoCreateColumnsFromModel(false);
         tableEntities.setAutoCreateColumnsFromModel(false);
+        
+        // embedded table
+        tcm = tableEmbedded.getColumnModel();
+        tcm.getColumn(0).setPreferredWidth(250);
+        tcm.getColumn(1).setPreferredWidth(50);
+        tcm.getColumn(1).setCellRenderer(new ByteSizeCellRenderer(false));
+        tableEmbedded.setAutoCreateColumnsFromModel(false);
     }
     
     private void openFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileMenuItemActionPerformed
@@ -988,10 +1013,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
         try {
-            int files = BspFileUtils.extractPak(bspFile, dest);
-            JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " embedded files.");
+            bspFile.getPakFile().unpack(dest);
         } catch (IOException ex) {
-            L.log(Level.WARNING, "Couldn't read pakfile", ex);
+            L.log(Level.WARNING, "Couldn't extract embedded files", ex);
         } finally {
             // reset cursor
             setCursor(Cursor.getDefaultCursor());
@@ -1011,10 +1035,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
         try {
-            int files = BspFileUtils.extractLumps(bspFile, dest);
-            JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " lump files.");
+            BspFileUtils.extractLumps(bspFile, dest);
         } catch (IOException ex) {
-            L.log(Level.WARNING, "Can't extract lumps", ex);
+            L.log(Level.WARNING, "Couldn't extract lumps", ex);
         } finally {
             // reset cursor
             setCursor(Cursor.getDefaultCursor());
@@ -1054,6 +1077,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem openFileMenuItem;
     private javax.swing.JPanel panelChecksums;
     private javax.swing.JPanel panelCompileParams;
+    private javax.swing.JPanel panelEmbedded;
     private javax.swing.JPanel panelEntities;
     private javax.swing.JPanel panelGame;
     private javax.swing.JPanel panelGeneral;
@@ -1064,6 +1088,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelProt;
     private javax.swing.JPanel panelVmex;
     private javax.swing.JFileChooser saveFileChooser;
+    private javax.swing.JScrollPane scrollPaneEmbedded;
     private javax.swing.JScrollPane scrollPaneLumps;
     private javax.swing.JScrollPane scrollPaneMaterials;
     private javax.swing.JScrollPane scrollPaneModels;
@@ -1073,6 +1098,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane scrollPaneSoundscapes;
     private javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JTabbedPane tabbedPaneDependencies;
+    private javax.swing.JTable tableEmbedded;
     private javax.swing.JTable tableEntities;
     private javax.swing.JTable tableLumps;
     private javax.swing.JTextArea textAreaMaterials;

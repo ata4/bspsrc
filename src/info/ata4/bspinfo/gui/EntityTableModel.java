@@ -26,7 +26,9 @@ public class EntityTableModel extends ListTableModel {
         columnClasses = new Class[] {String.class, Integer.class};
     }
 
-    public void update(BspFileReader bspReader) {
+    public EntityTableModel(BspFileReader bspReader) {
+        this();
+        
         Set<String> classes = bspReader.getEntityClassSet();
         List<Entity> entities = bspReader.getData().entities;
         List<String> entityStrings = new ArrayList<String>();

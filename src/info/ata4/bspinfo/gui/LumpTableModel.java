@@ -25,11 +25,13 @@ public class LumpTableModel extends ListTableModel {
     
     public LumpTableModel() {
         super(5);
-        columnNames = Arrays.asList(new String[]{"ID", "Name", "Size (bytes)", "Size (%)", "Version"});
+        columnNames = Arrays.asList(new String[]{"ID", "Name", "Size", "Size usage", "Version"});
         columnClasses = new Class[] {Integer.class, String.class, Integer.class, Integer.class, Integer.class};
     }
     
-    public void update(BspFile bspFile) {
+    public LumpTableModel(BspFile bspFile) {
+        this();
+        
         List<Lump> lumps = bspFile.getLumps();
         
         float lumpSize = 0;
