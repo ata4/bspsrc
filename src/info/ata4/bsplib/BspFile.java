@@ -55,8 +55,11 @@ public class BspFile {
     public static final int HEADER_LUMPS = 64;
     public static final int HEADER_SIZE = 1036;
 
-    // bsp source file
+    // BSP source file
     private File file;
+    
+    // BSP name, usually the file name without ".bsp"
+    private String name;
 
     // lump table
     private List<Lump> lumps = new ArrayList<Lump>(HEADER_LUMPS);
@@ -71,18 +74,28 @@ public class BspFile {
     private SourceApp app = SourceApp.UNKNOWN;
     
     /**
-     * Opens the BSP file and loads its headers
+     * Opens the BSP file and loads its headers and lumps.
      *
      * @param file BSP file to open
-     * @param useLumpFiles load lump files associated to the BSP file, if true
+     * @param memMapping if set to true, the file will be mapped to memory. This
+     *            is faster than loading it entirely to memory first, but the map
+     *            can't be saved in the same file because of memory management
+     *            restrictions of the JVM.
      * @throws IOException if the file can't be opened or read
      */
-    public void load(File file) throws IOException {
+    public void load(File file, boolean memMapping) throws IOException {
         this.file = file;
-
+        this.name = FilenameUtils.getBaseName(file.getPath());
+        
         L.log(Level.FINE, "Loading headers from {0}", file.getName());
         
-        ByteBuffer bb = MappedFileUtils.openReadOnly(file);
+        ByteBuffer bb;
+        
+        if (memMapping) {
+            bb = MappedFileUtils.openReadOnly(file);
+        } else {
+            bb = MappedFileUtils.load(file);
+        }
         
         // make sure we have enough room for reading
         if (bb.capacity() < HEADER_SIZE) {
@@ -105,7 +118,8 @@ public class BspFile {
                 // No GoldSrc! Please!
                 throw new BspException("The GoldSrc format is not supported");
             } else {
-                throw new BspException("Unknown file ident: " + StringMacroUtils.unmakeID(ident));
+                throw new BspException("Unknown file ident: " + ident + " (" +
+                        StringMacroUtils.unmakeID(ident) + ")");
             }
         }
 
@@ -142,6 +156,17 @@ public class BspFile {
         mapRev = bb.getInt();
 
         L.log(Level.FINER, "Map revision: {0}", mapRev);
+    }
+    
+    /**
+     * Opens the BSP file and loads its headers and lumps. The map is loaded
+     * with memory-mapping for efficiency.
+     *
+     * @param file BSP file to open
+     * @throws IOException if the file can't be opened or read
+     */
+    public void load(File file) throws IOException {
+        load(file, true);
     }
     
     public void save(File file) throws IOException {
@@ -675,7 +700,11 @@ public class BspFile {
      * @return BSP name
      */
     public String getName() {
-        return FilenameUtils.getBaseName(file.getPath());
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
