@@ -76,7 +76,7 @@ public class BspEntSplit {
             File file = new File(arg);
             
             // create a backup
-            File bakFile = new File(file.getPath() + ".bak");
+            File bakFile = new File(arg + ".bak");
             if (!file.renameTo(bakFile)) {
                 L.log(Level.SEVERE, "Can't create backup file, splitting cancelled");
                 continue;
@@ -96,6 +96,10 @@ public class BspEntSplit {
             // extract entities to a lump file
             try {
                 File lmpFile = bspFile.getNextLumpFile();
+                
+                // temp hack for the ugly load/save method
+                lmpFile = new File(lmpFile.getPath().replace(".bsp", ""));
+                
                 LumpFile lumpFile = new LumpFile(bspFile);
                 lumpFile.setLump(entLump);
                 lumpFile.save(lmpFile);
