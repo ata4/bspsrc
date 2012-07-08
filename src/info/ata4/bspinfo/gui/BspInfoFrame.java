@@ -182,6 +182,8 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     bspFile = new BspFile();
                     bspFile.load(currentFile);
                     
+                    boolean compressed = bspFile.isCompressed();
+                    
                     bspReader = new BspFileReader(bspFile);
                     bspReader.loadEntities();
 
@@ -189,7 +191,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     textFieldName.setText(bspFile.getName());
                     textFieldVersion.setText(String.valueOf(bspFile.getVersion()));
                     textFieldRevision.setText(String.valueOf(bspFile.getRevision()));
-                    textFieldCompressed.setText(bspFile.isCompressed() ? "Yes" : "No");
+                    textFieldCompressed.setText(compressed ? "Yes" : "No");
                     textFieldEndian.setText(bspFile.getByteOrder() == ByteOrder.LITTLE_ENDIAN ? "Little endian" : "Big endian");
 
                     SourceApp app = bspFile.getSourceApp();
