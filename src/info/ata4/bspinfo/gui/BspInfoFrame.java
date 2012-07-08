@@ -9,11 +9,16 @@
  */
 package info.ata4.bspinfo.gui;
 
+import info.ata4.bspinfo.gui.models.EmbeddedTableModel;
+import info.ata4.bspinfo.gui.models.EntityTableModel;
+import info.ata4.bspinfo.gui.models.GameLumpTableModel;
+import info.ata4.bspinfo.gui.models.LumpTableModel;
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.BspFileFilter;
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.entity.Entity;
+import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bspsrc.modules.*;
 import info.ata4.util.gui.FileDrop;
 import info.ata4.util.gui.FileExtensionFilter;
@@ -36,6 +41,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.table.TableColumnModel;
@@ -149,6 +155,13 @@ public class BspInfoFrame extends javax.swing.JFrame {
         
         // embedded files
         tableEmbedded.setModel(new EmbeddedTableModel());
+        
+        // disable buttons
+        extractLumpButton.setEnabled(false);
+        extractAllLumpsButton.setEnabled(false);
+        
+        extractGameLumpButton.setEnabled(false);
+        extractAllGameLumpsButton.setEnabled(false);
     }
     
     public void loadFile(File file) {
@@ -163,10 +176,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 
                 // set waiting cursor
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                
-                // enable menu
-                menuTools.setEnabled(true);
-                
+
                 try {
                     // load BSP file
                     bspFile = new BspFile();
@@ -226,6 +236,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     // lumps
                     tableLumps.setModel(new LumpTableModel(bspFile));
                     
+                    // game lumps
+                    tableGameLumps.setModel(new GameLumpTableModel(bspFile));
+                    
                     // entities
                     int brushEnts = 0;
                     int pointEnts = 0;
@@ -267,11 +280,15 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     
                     textFieldFileCRC.setText(String.format("%x", checksum.getFileCRC()));
                     textFieldMapCRC.setText(String.format("%x", checksum.getMapCRC()));
+                    
+                    // enable buttons
+                    extractLumpButton.setEnabled(true);
+                    extractAllLumpsButton.setEnabled(true);
+
+                    extractGameLumpButton.setEnabled(true);
+                    extractAllGameLumpsButton.setEnabled(true);
                 } catch (Exception ex) {
                     L.log(Level.SEVERE, "Couldn't read BSP file", ex);
-                    
-                    // disable menu
-                    menuTools.setEnabled(false);
                 } finally {
                     // free previously opened files and resources
                     System.gc();
@@ -300,7 +317,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         openFileChooser = new javax.swing.JFileChooser();
-        saveFileChooser = new javax.swing.JFileChooser();
+        saveDirectoryChooser = new javax.swing.JFileChooser();
         tabbedPane = new javax.swing.JTabbedPane();
         panelGeneral = new javax.swing.JPanel();
         panelGame = new javax.swing.JPanel();
@@ -335,6 +352,13 @@ public class BspInfoFrame extends javax.swing.JFrame {
         panelLumps = new javax.swing.JPanel();
         scrollPaneLumps = new javax.swing.JScrollPane();
         tableLumps = new javax.swing.JTable();
+        extractLumpButton = new javax.swing.JButton();
+        extractAllLumpsButton = new javax.swing.JButton();
+        panelGameLumps = new javax.swing.JPanel();
+        scrollPaneGameLumps = new javax.swing.JScrollPane();
+        tableGameLumps = new javax.swing.JTable();
+        extractGameLumpButton = new javax.swing.JButton();
+        extractAllGameLumpsButton = new javax.swing.JButton();
         panelEntities = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         textFieldPointEnts = new javax.swing.JTextField();
@@ -373,14 +397,11 @@ public class BspInfoFrame extends javax.swing.JFrame {
         menuBar = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         openFileMenuItem = new javax.swing.JMenuItem();
-        menuTools = new javax.swing.JMenu();
-        menuItemExtractFiles = new javax.swing.JMenuItem();
-        menuItemExtractLumps = new javax.swing.JMenuItem();
 
         openFileChooser.setFileFilter(new FileExtensionFilter("Source engine map file", "bsp"));
 
-        saveFileChooser.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
-        saveFileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+        saveDirectoryChooser.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
+        saveDirectoryChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -553,7 +574,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        panelCompileParams.setBorder(javax.swing.BorderFactory.createTitledBorder("Compile parameters"));
+        panelCompileParams.setBorder(javax.swing.BorderFactory.createTitledBorder("Detected compile parameters"));
 
         labelVbsp.setText("vbsp");
 
@@ -613,7 +634,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addComponent(panelGame, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(panelChecksums, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(panelCompileParams, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(101, Short.MAX_VALUE))
+                .addContainerGap(121, Short.MAX_VALUE))
         );
         panelGeneralLayout.setVerticalGroup(
             panelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -626,7 +647,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 .addComponent(panelChecksums, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelCompileParams, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("General", panelGeneral);
@@ -636,24 +657,99 @@ public class BspInfoFrame extends javax.swing.JFrame {
         tableLumps.getTableHeader().setReorderingAllowed(false);
         scrollPaneLumps.setViewportView(tableLumps);
 
+        extractLumpButton.setText("Extract");
+        extractLumpButton.setEnabled(false);
+        extractLumpButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                extractLumpButtonActionPerformed(evt);
+            }
+        });
+
+        extractAllLumpsButton.setText("Extract all");
+        extractAllLumpsButton.setEnabled(false);
+        extractAllLumpsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                extractAllLumpsButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelLumpsLayout = new javax.swing.GroupLayout(panelLumps);
         panelLumps.setLayout(panelLumpsLayout);
         panelLumpsLayout.setHorizontalGroup(
             panelLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelLumpsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addGroup(panelLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(scrollPaneLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                    .addGroup(panelLumpsLayout.createSequentialGroup()
+                        .addComponent(extractLumpButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(extractAllLumpsButton)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelLumpsLayout.setVerticalGroup(
             panelLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelLumpsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
+                .addComponent(scrollPaneLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(extractLumpButton)
+                    .addComponent(extractAllLumpsButton))
                 .addContainerGap())
         );
 
         tabbedPane.addTab("Lumps", panelLumps);
+
+        tableGameLumps.setAutoCreateRowSorter(true);
+        tableGameLumps.setModel(new GameLumpTableModel());
+        tableGameLumps.getTableHeader().setReorderingAllowed(false);
+        scrollPaneGameLumps.setViewportView(tableGameLumps);
+
+        extractGameLumpButton.setText("Extract");
+        extractGameLumpButton.setEnabled(false);
+        extractGameLumpButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                extractGameLumpButtonActionPerformed(evt);
+            }
+        });
+
+        extractAllGameLumpsButton.setText("Extract all");
+        extractAllGameLumpsButton.setEnabled(false);
+        extractAllGameLumpsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                extractAllGameLumpsButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelGameLumpsLayout = new javax.swing.GroupLayout(panelGameLumps);
+        panelGameLumps.setLayout(panelGameLumpsLayout);
+        panelGameLumpsLayout.setHorizontalGroup(
+            panelGameLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelGameLumpsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelGameLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(scrollPaneGameLumps, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(panelGameLumpsLayout.createSequentialGroup()
+                        .addComponent(extractGameLumpButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(extractAllGameLumpsButton)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        panelGameLumpsLayout.setVerticalGroup(
+            panelGameLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelGameLumpsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(scrollPaneGameLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelGameLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(extractGameLumpButton)
+                    .addComponent(extractAllGameLumpsButton))
+                .addContainerGap())
+        );
+
+        tabbedPane.addTab("Game lumps", panelGameLumps);
 
         jLabel3.setText("Point");
 
@@ -691,7 +787,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(textFieldTotalEnts, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelEntitiesLayout.setVerticalGroup(
@@ -706,7 +802,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(textFieldTotalEnts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 403, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -768,14 +864,14 @@ public class BspInfoFrame extends javax.swing.JFrame {
             panelEmbeddedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelEmbeddedLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneEmbedded, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addComponent(scrollPaneEmbedded, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
                 .addContainerGap())
         );
         panelEmbeddedLayout.setVerticalGroup(
             panelEmbeddedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelEmbeddedLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneEmbedded, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
+                .addComponent(scrollPaneEmbedded, javax.swing.GroupLayout.DEFAULT_SIZE, 434, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -877,7 +973,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addGroup(panelProtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(panelVmex, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(panelIID, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(179, Short.MAX_VALUE))
+                .addContainerGap(199, Short.MAX_VALUE))
         );
         panelProtLayout.setVerticalGroup(
             panelProtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -888,7 +984,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 .addComponent(panelIID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelOther, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(242, Short.MAX_VALUE))
+                .addContainerGap(226, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("Protection", panelProt);
@@ -905,27 +1001,6 @@ public class BspInfoFrame extends javax.swing.JFrame {
         menuFile.add(openFileMenuItem);
 
         menuBar.add(menuFile);
-
-        menuTools.setText("Tools");
-        menuTools.setEnabled(false);
-
-        menuItemExtractFiles.setText("Extract embedded files");
-        menuItemExtractFiles.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemExtractFilesActionPerformed(evt);
-            }
-        });
-        menuTools.add(menuItemExtractFiles);
-
-        menuItemExtractLumps.setText("Extract lumps");
-        menuItemExtractLumps.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemExtractLumpsActionPerformed(evt);
-            }
-        });
-        menuTools.add(menuItemExtractLumps);
-
-        menuBar.add(menuTools);
 
         setJMenuBar(menuBar);
 
@@ -976,6 +1051,14 @@ public class BspInfoFrame extends javax.swing.JFrame {
         tcm.getColumn(3).setCellRenderer(new ProgressCellRenderer());
         tableLumps.setAutoCreateColumnsFromModel(false);
         
+        // game lump table
+        tcm = tableGameLumps.getColumnModel();
+        tcm.getColumn(0).setPreferredWidth(30);
+        tcm.getColumn(3).setPreferredWidth(40);
+        tcm.getColumn(1).setCellRenderer(new ByteSizeCellRenderer(false));
+        tcm.getColumn(2).setCellRenderer(new ProgressCellRenderer());
+        tableGameLumps.setAutoCreateColumnsFromModel(false);
+        
         // entity table
         tcm = tableEntities.getColumnModel();
         tcm.getColumn(0).setPreferredWidth(250);
@@ -1000,49 +1083,130 @@ public class BspInfoFrame extends javax.swing.JFrame {
         loadFile(openFileChooser.getSelectedFile());
     }//GEN-LAST:event_openFileMenuItemActionPerformed
 
-    private void menuItemExtractFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemExtractFilesActionPerformed
-        saveFileChooser.setCurrentDirectory(currentFile);
-        int result = saveFileChooser.showSaveDialog(this);
-        if (result != JFileChooser.APPROVE_OPTION) {
+    private void extractLumpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extractLumpButtonActionPerformed
+        int[] selected = tableLumps.getSelectedRows();
+        
+        if (selected.length == 0) {
             return;
         }
         
-        File dest = saveFileChooser.getSelectedFile();
-        
+        saveDirectoryChooser.setCurrentDirectory(currentFile);
+        int result = saveDirectoryChooser.showSaveDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File dest = saveDirectoryChooser.getSelectedFile();
+
         // set waiting cursor
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
         try {
-            bspFile.getPakFile().unpack(dest);
-        } catch (IOException ex) {
-            L.log(Level.WARNING, "Couldn't extract embedded files", ex);
+            int files = 0;
+            
+            for (int index : selected) {
+                int lumpIndex = (Integer) tableLumps.getModel().getValueAt(index, 0);
+                LumpType lumpType = LumpType.get(lumpIndex, bspFile.getVersion());
+
+                try {
+                    BspFileUtils.extractLump(bspFile, dest, lumpType);
+                    files++;
+                } catch (IOException ex) {
+                    L.log(Level.WARNING, "Couldn't extract lump " + lumpType, ex);
+                }
+            }
+            
+            JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " lumps.");
         } finally {
             // reset cursor
             setCursor(Cursor.getDefaultCursor());
         }
-    }//GEN-LAST:event_menuItemExtractFilesActionPerformed
+    }//GEN-LAST:event_extractLumpButtonActionPerformed
 
-    private void menuItemExtractLumpsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemExtractLumpsActionPerformed
-        saveFileChooser.setCurrentDirectory(currentFile);
-        int result = saveFileChooser.showSaveDialog(this);
+    private void extractAllLumpsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extractAllLumpsButtonActionPerformed
+        saveDirectoryChooser.setCurrentDirectory(currentFile);
+        int result = saveDirectoryChooser.showSaveDialog(this);
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
         
-        File dest = saveFileChooser.getSelectedFile();
+        File dest = saveDirectoryChooser.getSelectedFile();
         
         // set waiting cursor
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
         try {
             BspFileUtils.extractLumps(bspFile, dest);
+            JOptionPane.showMessageDialog(this, "Successfully extracted all lumps.");
         } catch (IOException ex) {
             L.log(Level.WARNING, "Couldn't extract lumps", ex);
         } finally {
             // reset cursor
             setCursor(Cursor.getDefaultCursor());
         }
-    }//GEN-LAST:event_menuItemExtractLumpsActionPerformed
+    }//GEN-LAST:event_extractAllLumpsButtonActionPerformed
+
+    private void extractGameLumpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extractGameLumpButtonActionPerformed
+        int[] selected = tableGameLumps.getSelectedRows();
+        
+        if (selected.length == 0) {
+            return;
+        }
+        
+        saveDirectoryChooser.setCurrentDirectory(currentFile);
+        int result = saveDirectoryChooser.showSaveDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File dest = saveDirectoryChooser.getSelectedFile();
+
+        // set waiting cursor
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        try {
+            int files = 0;
+            
+            for (int index : selected) {
+                String id = (String) tableGameLumps.getModel().getValueAt(index, 0);
+
+                try {
+                    BspFileUtils.extractGameLump(bspFile, dest, id);
+                    files++;
+                } catch (IOException ex) {
+                    L.log(Level.WARNING, "Couldn't extract game lump " + id, ex);
+                }
+            }
+            
+            JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " game lumps.");
+        } finally {
+            // reset cursor
+            setCursor(Cursor.getDefaultCursor());
+        }
+    }//GEN-LAST:event_extractGameLumpButtonActionPerformed
+
+    private void extractAllGameLumpsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extractAllGameLumpsButtonActionPerformed
+        saveDirectoryChooser.setCurrentDirectory(currentFile);
+        int result = saveDirectoryChooser.showSaveDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        
+        File dest = saveDirectoryChooser.getSelectedFile();
+        
+        // set waiting cursor
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        try {
+            BspFileUtils.extractGameLumps(bspFile, dest);
+            JOptionPane.showMessageDialog(this, "Successfully extracted all game lumps.");
+        } catch (IOException ex) {
+            L.log(Level.WARNING, "Couldn't extract lumps", ex);
+        } finally {
+            // reset cursor
+            setCursor(Cursor.getDefaultCursor());
+        }
+    }//GEN-LAST:event_extractAllGameLumpsButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxBSPProtect;
@@ -1051,6 +1215,10 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxVmexBrush;
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxVmexEntity;
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxVmexTexture;
+    private javax.swing.JButton extractAllGameLumpsButton;
+    private javax.swing.JButton extractAllLumpsButton;
+    private javax.swing.JButton extractGameLumpButton;
+    private javax.swing.JButton extractLumpButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -1070,9 +1238,6 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private info.ata4.util.gui.components.URILabel linkLabelAppURL;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenu menuFile;
-    private javax.swing.JMenuItem menuItemExtractFiles;
-    private javax.swing.JMenuItem menuItemExtractLumps;
-    private javax.swing.JMenu menuTools;
     private javax.swing.JFileChooser openFileChooser;
     private javax.swing.JMenuItem openFileMenuItem;
     private javax.swing.JPanel panelChecksums;
@@ -1080,6 +1245,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelEmbedded;
     private javax.swing.JPanel panelEntities;
     private javax.swing.JPanel panelGame;
+    private javax.swing.JPanel panelGameLumps;
     private javax.swing.JPanel panelGeneral;
     private javax.swing.JPanel panelHeaders;
     private javax.swing.JPanel panelIID;
@@ -1087,8 +1253,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelOther;
     private javax.swing.JPanel panelProt;
     private javax.swing.JPanel panelVmex;
-    private javax.swing.JFileChooser saveFileChooser;
+    private javax.swing.JFileChooser saveDirectoryChooser;
     private javax.swing.JScrollPane scrollPaneEmbedded;
+    private javax.swing.JScrollPane scrollPaneGameLumps;
     private javax.swing.JScrollPane scrollPaneLumps;
     private javax.swing.JScrollPane scrollPaneMaterials;
     private javax.swing.JScrollPane scrollPaneModels;
@@ -1100,6 +1267,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JTabbedPane tabbedPaneDependencies;
     private javax.swing.JTable tableEmbedded;
     private javax.swing.JTable tableEntities;
+    private javax.swing.JTable tableGameLumps;
     private javax.swing.JTable tableLumps;
     private javax.swing.JTextArea textAreaMaterials;
     private javax.swing.JTextArea textAreaModels;

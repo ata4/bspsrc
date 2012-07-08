@@ -29,8 +29,8 @@ public class BspFileUtils {
     
     private static final Logger L = Logger.getLogger(BspFileUtils.class.getName());
     
-    public static void extractLumps(BspFile bspFile, File dest) throws IOException {
-        FileUtils.forceMkdir(dest);
+    static void extractLump(BspFile bspFile, File destDir, LumpType type) throws IOException {
+        FileUtils.forceMkdir(destDir);
 
         List<Lump> lumps = bspFile.getLumps();
 
@@ -38,10 +38,14 @@ public class BspFileUtils {
             if (lump.getType() == LumpType.LUMP_UNKNOWN) {
                 continue;
             }
+            
+            if (type != null && lump.getType() != type) {
+                continue;
+            }
 
             String fileName = String.format("%02d_%s.bin", lump.getIndex(),
                     lump.getName());
-            File lumpFile = new File(dest, fileName);
+            File lumpFile = new File(destDir, fileName);
 
             L.log(Level.INFO, "Extracting {0}", lump);
 
@@ -52,24 +56,37 @@ public class BspFileUtils {
                 throw new BspFileException("Can't extract lump", ex);
             }
         }
-
-        File gameLumpsDir = new File(dest, "game");
-        gameLumpsDir.mkdir();
+    }
+        
+    public static void extractLumps(BspFile bspFile, File destDir) throws IOException {
+        extractLump(bspFile, destDir, null);
+    }
+    
+    static void extractGameLump(BspFile bspFile, File destDir, String type) throws IOException {
+        FileUtils.forceMkdir(destDir);
 
         List<GameLump> gameLumps = bspFile.getGameLumps();
 
-        for (GameLump lump : gameLumps) {
-            String fileName = String.format("%s_v%d.bin", lump.getName(), lump.getVersion());
-            File lumpFile = new File(gameLumpsDir, fileName);
+        for (GameLump gameLump : gameLumps) {
+            if (type != null && !gameLump.getName().equalsIgnoreCase(type)) {
+                continue;
+            }
+            
+            String fileName = String.format("%s_v%d.bin", gameLump.getName(), gameLump.getVersion());
+            File lumpFile = new File(destDir, fileName);
 
-            L.log(Level.INFO, "Extracting {0}", lump);
+            L.log(Level.INFO, "Extracting {0}", gameLump);
 
             try {
-                InputStream is = lump.getInputStream();
+                InputStream is = gameLump.getInputStream();
                 FileUtils.copyInputStreamToFile(is, lumpFile);
             } catch (IOException ex) {
                 throw new BspFileException("Can't extract lump", ex);
             }
         }
+    }
+    
+    public static void extractGameLumps(BspFile bspFile, File destDir) throws IOException {
+        extractGameLump(bspFile, destDir, null);
     }
 }

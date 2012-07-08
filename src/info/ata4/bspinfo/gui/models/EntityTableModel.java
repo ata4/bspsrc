@@ -7,7 +7,7 @@
  **    May you find forgiveness for yourself and forgive others.
  **    May you share freely, never taking more than you give.
  */
-package info.ata4.bspinfo.gui;
+package info.ata4.bspinfo.gui.models;
 
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.entity.Entity;
@@ -45,5 +45,10 @@ public class EntityTableModel extends ListTableModel {
             row.add(Collections.frequency(entityStrings, cls));
             addRow(row);
         }
+    }
+    
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false;
     }
 }
