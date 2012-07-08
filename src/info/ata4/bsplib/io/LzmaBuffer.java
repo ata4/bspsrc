@@ -10,17 +10,17 @@
 
 package info.ata4.bsplib.io;
 
-import lzma.LzmaDecoder;
-import lzma.LzmaEncoder;
+import info.ata4.bsplib.util.StringMacroUtils;
 import info.ata4.util.io.ByteBufferInputStream;
 import info.ata4.util.io.ByteBufferOutputStream;
-import info.ata4.bsplib.util.StringMacroUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import lzma.LzmaDecoder;
+import lzma.LzmaEncoder;
 import org.apache.commons.io.IOUtils;
 
 /**

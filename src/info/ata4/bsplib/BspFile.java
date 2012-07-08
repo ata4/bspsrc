@@ -192,6 +192,7 @@ public class BspFile {
         for (int i = 0; i < HEADER_LUMPS; i++) {
             int vers, ofs, len, fourCC;
 
+            // L4D2 maps use a different order
             if (app.getAppID() == SourceAppID.LEFT_4_DEAD_2) {
                 vers = bb.getInt();
                 ofs = bb.getInt();

@@ -55,8 +55,8 @@ public class FaceSource extends ModuleDecompile {
     // mapped original faces
     List<Set<Integer>> origFaceToSplitFace;
     
-    // Current offset MultiBlend lump
-    private int multiblendOffset = 0;
+    // current offset in multiblend lump
+    private int multiblendOffset;
 
     public FaceSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
             BspDecompiler parent, TextureSource texsrc) {
@@ -589,11 +589,6 @@ public class FaceSource extends ModuleDecompile {
         
         final boolean hasMultiBlend = !bsp.dispmultiblend.isEmpty() && di.hasMultiBlend();
         
-        if (hasMultiBlend && idispinfo > 0) {
-            DDispInfo diprev = bsp.dispinfos.get(idispinfo - 1);
-            multiblendOffset += di.dispVertStart - diprev.dispVertStart;
-        }
-
         // build vertex related strings
         for (int i = 0; i < vertcount; i++) {
             DDispVert dv = bsp.dispverts.get(di.dispVertStart + i);
@@ -616,7 +611,7 @@ public class FaceSource extends ModuleDecompile {
             alphaSb.append(dv.alpha);
             
             if (hasMultiBlend) {
-                // Multiblend
+                // multiblend
                 multiblendSb.append(dmb.multiblend.x);
                 multiblendSb.append(" ");
                 multiblendSb.append(dmb.multiblend.y);
@@ -652,7 +647,7 @@ public class FaceSource extends ModuleDecompile {
                 distanceSb.setLength(0);
                 alphaSb.setLength(0);
 
-                // Multiblend
+                // multiblend
                 if (hasMultiBlend) {
                     multiBlendMap.put("row" + multiBlendMap.size(), multiblendSb.toString());
                     alphaBlendMap.put("row" + alphaBlendMap.size(), alphablendSb.toString());
@@ -681,7 +676,12 @@ public class FaceSource extends ModuleDecompile {
                 }
             }
         }
-
+        
+        // count up multiblend index
+        if (hasMultiBlend) {
+            multiblendOffset += vertcount;
+        }
+        
         // build triangle tags
         int tcount = di.getTriangleTagCount();
 
