@@ -14,6 +14,7 @@ import info.ata4.bsplib.lump.LumpType;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -47,39 +48,7 @@ public class PakFile {
 
     public void unpack(File dest, boolean direct) throws IOException {
         if (direct) {
-            FileUtils.forceMkdir(dest);
-            
-            ZipArchiveInputStream zis = getArchiveInputStream();
-            ZipArchiveEntry ze;
-
-            try {
-                if (!dest.exists()) {
-                    dest.mkdir();
-                }
-                
-                while ((ze = zis.getNextZipEntry()) != null) {
-                    String zipName = ze.getName();
-                    
-                    // some maps have embedded files with absolute paths, for
-                    // whatever reason...
-                    zipName = zipName.replace(':', '_');
-                    
-                    File entryFile = new File(dest, zipName);
-
-                    // don't overwrite any files
-                    if (entryFile.exists()) {
-                        L.log(Level.INFO, "Skipped {0}", ze.getName());
-                        continue;
-                    }
-                    
-                    L.log(Level.INFO, "Extracting {0}", ze.getName());
-
-                    InputStream cszis = new CloseShieldInputStream(zis);
-                    FileUtils.copyInputStreamToFile(cszis, entryFile);
-                }
-            } finally {
-                IOUtils.closeQuietly(zis);
-            }
+            unpack(dest, null);
         } else {
             L.log(Level.INFO, "Extracting pakfile to {0}", dest);
             InputStream is = pakLump.getInputStream();
@@ -89,6 +58,46 @@ public class PakFile {
             } finally {
                 IOUtils.closeQuietly(is);
             }
+        }
+    }
+    
+    public void unpack(File dest, List<String> names) throws IOException {
+        FileUtils.forceMkdir(dest);
+
+        ZipArchiveInputStream zis = getArchiveInputStream();
+        ZipArchiveEntry ze;
+
+        try {
+            if (!dest.exists()) {
+                dest.mkdir();
+            }
+
+            while ((ze = zis.getNextZipEntry()) != null) {
+                String zipName = ze.getName();
+                
+                if (names != null && !names.contains(zipName)) {
+                    continue;
+                }
+
+                // some maps have embedded files with absolute paths, for
+                // whatever reason...
+                zipName = zipName.replace(':', '_');
+
+                File entryFile = new File(dest, zipName);
+
+                // don't overwrite any files
+                if (entryFile.exists()) {
+                    L.log(Level.INFO, "Skipped {0}", ze.getName());
+                    continue;
+                }
+
+                L.log(Level.INFO, "Extracting {0}", ze.getName());
+
+                InputStream cszis = new CloseShieldInputStream(zis);
+                FileUtils.copyInputStreamToFile(cszis, entryFile);
+            }
+        } finally {
+            IOUtils.closeQuietly(zis);
         }
     }
 }

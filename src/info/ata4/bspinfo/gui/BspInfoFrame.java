@@ -36,6 +36,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.ByteOrder;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -162,6 +163,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
         
         extractGameLumpButton.setEnabled(false);
         extractAllGameLumpsButton.setEnabled(false);
+        
+        extractEmbeddedButton.setEnabled(false);
+        extractAllEmbeddedButton.setEnabled(false);
     }
     
     public void loadFile(File file) {
@@ -289,6 +293,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
                     extractGameLumpButton.setEnabled(true);
                     extractAllGameLumpsButton.setEnabled(true);
+                    
+                    extractEmbeddedButton.setEnabled(true);
+                    extractAllEmbeddedButton.setEnabled(true);
                 } catch (Exception ex) {
                     L.log(Level.SEVERE, "Couldn't read BSP file", ex);
                 } finally {
@@ -386,6 +393,8 @@ public class BspInfoFrame extends javax.swing.JFrame {
         panelEmbedded = new javax.swing.JPanel();
         scrollPaneEmbedded = new javax.swing.JScrollPane();
         tableEmbedded = new javax.swing.JTable();
+        extractEmbeddedButton = new javax.swing.JButton();
+        extractAllEmbeddedButton = new javax.swing.JButton();
         panelProt = new javax.swing.JPanel();
         panelVmex = new javax.swing.JPanel();
         checkBoxVmexEntity = new info.ata4.util.gui.components.ReadOnlyCheckBox();
@@ -860,20 +869,46 @@ public class BspInfoFrame extends javax.swing.JFrame {
         tableEmbedded.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         scrollPaneEmbedded.setViewportView(tableEmbedded);
 
+        extractEmbeddedButton.setText("Extract");
+        extractEmbeddedButton.setEnabled(false);
+        extractEmbeddedButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                extractEmbeddedButtonActionPerformed(evt);
+            }
+        });
+
+        extractAllEmbeddedButton.setText("Extract all");
+        extractAllEmbeddedButton.setEnabled(false);
+        extractAllEmbeddedButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                extractAllEmbeddedButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelEmbeddedLayout = new javax.swing.GroupLayout(panelEmbedded);
         panelEmbedded.setLayout(panelEmbeddedLayout);
         panelEmbeddedLayout.setHorizontalGroup(
             panelEmbeddedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelEmbeddedLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneEmbedded, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                .addGroup(panelEmbeddedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(scrollPaneEmbedded, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                    .addGroup(panelEmbeddedLayout.createSequentialGroup()
+                        .addComponent(extractEmbeddedButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(extractAllEmbeddedButton)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelEmbeddedLayout.setVerticalGroup(
             panelEmbeddedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelEmbeddedLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneEmbedded, javax.swing.GroupLayout.DEFAULT_SIZE, 434, Short.MAX_VALUE)
+                .addComponent(scrollPaneEmbedded, javax.swing.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelEmbeddedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(extractEmbeddedButton)
+                    .addComponent(extractAllEmbeddedButton))
                 .addContainerGap())
         );
 
@@ -1210,6 +1245,65 @@ public class BspInfoFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_extractAllGameLumpsButtonActionPerformed
 
+    private void extractEmbeddedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extractEmbeddedButtonActionPerformed
+        int[] selected = tableEmbedded.getSelectedRows();
+        
+        if (selected.length == 0) {
+            return;
+        }
+        
+        saveDirectoryChooser.setCurrentDirectory(currentFile);
+        int result = saveDirectoryChooser.showSaveDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File dest = saveDirectoryChooser.getSelectedFile();
+        
+        // set waiting cursor
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        
+        List<String> names = new ArrayList<String>();
+
+        for (int index : selected) {
+            names.add((String) tableEmbedded.getModel().getValueAt(index, 0));
+        }
+
+        try {
+            bspFile.getPakFile().unpack(dest, names);
+
+            JOptionPane.showMessageDialog(this, "Successfully extracted " + names.size() + " embedded files.");
+        } catch (IOException ex) {
+            L.log(Level.WARNING, "Couldn't extract embedded files", ex);
+        } finally {
+            // reset cursor
+            setCursor(Cursor.getDefaultCursor());
+        }
+    }//GEN-LAST:event_extractEmbeddedButtonActionPerformed
+
+    private void extractAllEmbeddedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extractAllEmbeddedButtonActionPerformed
+        saveDirectoryChooser.setCurrentDirectory(currentFile);
+        int result = saveDirectoryChooser.showSaveDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        
+        File dest = saveDirectoryChooser.getSelectedFile();
+        
+        // set waiting cursor
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        try {
+            bspFile.getPakFile().unpack(dest);
+            JOptionPane.showMessageDialog(this, "Successfully extracted all embedded files.");
+        } catch (IOException ex) {
+            L.log(Level.WARNING, "Couldn't extract embedded files", ex);
+        } finally {
+            // reset cursor
+            setCursor(Cursor.getDefaultCursor());
+        }
+    }//GEN-LAST:event_extractAllEmbeddedButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxBSPProtect;
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxIIDObfs;
@@ -1217,8 +1311,10 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxVmexBrush;
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxVmexEntity;
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxVmexTexture;
+    private javax.swing.JButton extractAllEmbeddedButton;
     private javax.swing.JButton extractAllGameLumpsButton;
     private javax.swing.JButton extractAllLumpsButton;
+    private javax.swing.JButton extractEmbeddedButton;
     private javax.swing.JButton extractGameLumpButton;
     private javax.swing.JButton extractLumpButton;
     private javax.swing.JLabel jLabel1;
