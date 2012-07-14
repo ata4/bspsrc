@@ -41,11 +41,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -1140,9 +1138,12 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
         try {
             int files = 0;
+            TableModel model = tableLumps.getModel();
+            RowSorter sorter = tableLumps.getRowSorter();
             
             for (int index : selected) {
-                int lumpIndex = (Integer) tableLumps.getModel().getValueAt(index, 0);
+                index = sorter.convertRowIndexToModel(index);
+                int lumpIndex = (Integer) model.getValueAt(index, 0);
                 LumpType lumpType = LumpType.get(lumpIndex, bspFile.getVersion());
 
                 try {
@@ -1203,9 +1204,12 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
         try {
             int files = 0;
+            TableModel model = tableGameLumps.getModel();
+            RowSorter sorter = tableGameLumps.getRowSorter();
             
             for (int index : selected) {
-                String id = (String) tableGameLumps.getModel().getValueAt(index, 0);
+                index = sorter.convertRowIndexToModel(index);
+                String id = (String) model.getValueAt(index, 0);
 
                 try {
                     BspFileUtils.extractGameLump(bspFile, dest, id);
@@ -1264,9 +1268,12 @@ public class BspInfoFrame extends javax.swing.JFrame {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         
         List<String> names = new ArrayList<String>();
+        TableModel model = tableEmbedded.getModel();
+        RowSorter sorter = tableEmbedded.getRowSorter();
 
         for (int index : selected) {
-            names.add((String) tableEmbedded.getModel().getValueAt(index, 0));
+            index = sorter.convertRowIndexToModel(index);
+            names.add((String) model.getValueAt(index, 0));
         }
 
         try {
