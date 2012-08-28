@@ -129,29 +129,17 @@ public class BrushSource extends ModuleDecompile {
         }
     }
     
-    public void writeBrush(int ibrush, Vector3f origin, Vector3f angles) {
+    public boolean writeBrush(int ibrush, Vector3f origin, Vector3f angles) {
         DBrush brush = bsp.brushes.get(ibrush);
         
         int brushID = parent.nextBrushID();
         
         // map brush index to ID
         brushIndexToID.put(ibrush, brushID);
-        
-        writer.start("solid");
-        writer.put("id", brushID);
 
-        if (config.isDebug()) {
-            // write contents for debugging
-            writer.put("bspsrc_brush_index", ibrush);
-            writer.put("bspsrc_brush_contents", brush.contents.toString());
-        }
+        Map<Integer, Winding> validBrushSides = new HashMap<Integer, Winding>();
 
-        if (L.isLoggable(Level.FINER)) {
-            L.log(Level.FINER, "Brush {0} {1}", new Object[]{brush, brush.contents});
-        }
-
-        int nullsides = 0;
-
+        // check the brush sides before writing the brush
         for (int i = 0; i < brush.numside; i++) {
             int ibrushside = brush.fstside + i;
             
@@ -165,8 +153,12 @@ public class BrushSource extends ModuleDecompile {
             // crunch faces
             wind.removeDegenerated();
 
-            if (wind.isHuge() && L.isLoggable(Level.FINER)) {
-                L.log(Level.FINER, "Side {0} of brush {1} is huge", new Object[]{i, brush});
+            if (wind.isHuge()) {
+                if (L.isLoggable(Level.FINER)) {
+                    L.log(Level.FINER, "Skipped huge side {0} of brush {1}",
+                            new Object[]{i, brush});
+                }
+                continue;
             }
             
             // rotate
@@ -181,44 +173,79 @@ public class BrushSource extends ModuleDecompile {
 
             if (wind.isEmpty()) {
                 // skip sides with no vertices
-                nullsides++;
                 if (L.isLoggable(Level.FINER)) {
-                    L.log(Level.FINER, "Side {0} of brush {1} is null", new Object[]{i, brush});
+                    L.log(Level.FINER, "Skipped empty side {0} of brush {1}",
+                            new Object[]{i, brush});
                 }
-            } else if (wind.size() < 3) {
+                continue;
+            } 
+            
+            if (wind.size() < 3) {
                 // skip sides with too few vertices
-                nullsides++;
                 if (L.isLoggable(Level.FINER)) {
-                    L.log(Level.FINER, "Side {0} of brush {1} was overcrunched", new Object[]{i, brush});
+                    L.log(Level.FINER, "Skipped side {0} of brush {1} with less than 3 vertices",
+                            new Object[]{i, brush});
                 }
-            } else {
-                writeSide(ibrushside, ibrush, wind, origin, angles);
+                continue;
             }
-        }
-
-        // all brush sides invalid = invalid brush
-        if (nullsides == brush.numside) {
-            L.log(Level.WARNING, "Brush {0} is null", brush);
+            
+            validBrushSides.put(ibrushside, wind);
         }
         
+        // all brush sides invalid = invalid brush
+        if (validBrushSides.isEmpty()) {
+            L.log(Level.WARNING, "Skipped empty brush {0}", brush);
+            return false;
+        } 
+        
+        // skip brushes with less than three sides, they can't be compiled and
+        // may crash Hammer
+        if (validBrushSides.size() < 3) {
+            L.log(Level.WARNING, "Skipped brush {0} with less than 3 sides", brush);
+            return false;
+        }
+        
+        if (L.isLoggable(Level.FINER)) {
+            L.log(Level.FINER, "Brush {0} contents {1}", new Object[]{brush, brush.contents});
+        }
+        
+        // now write the brush
+        writer.start("solid");
+        writer.put("id", brushID);
+
+        if (config.isDebug()) {
+            // write contents for debugging
+            writer.put("bspsrc_brush_index", ibrush);
+            writer.put("bspsrc_brush_contents", brush.contents.toString());
+        }
+
+        // write valid sides only
+        for (Map.Entry<Integer, Winding> entry : validBrushSides.entrySet()) {
+            int ibrushside = entry.getKey();
+            Winding wind = entry.getValue();
+            writeSide(ibrushside, ibrush, wind, origin, angles);
+        }
+
         // don't add visgroup metadata here if this is a protector detail brush
         if (!brush.isDetail() && bspprot.isProtectedBrush(brush)) {
             parent.writeMetaVisgroup("VMEX protector brushes");
         }
 
         writer.end("solid");
+        
+        return true;
     }
     
-    public void writeBrush(int ibrush) {
-        writeBrush(ibrush, null, null);
+    public boolean writeBrush(int ibrush) {
+        return writeBrush(ibrush, null, null);
     }
 
-    private void writeSide(int ibrushside, int ibrush, Winding wind, Vector3f origin, Vector3f angles) {
+    private boolean writeSide(int ibrushside, int ibrush, Winding wind, Vector3f origin, Vector3f angles) {
         DBrushSide brushSide = bsp.brushSides.get(ibrushside);
         
         if (brushSide.bevel) {
             // don't output bevel faces - they lead to bad brushes
-            return;
+            return false;
         }
         
         // calculate plane vectors
@@ -230,6 +257,7 @@ public class BrushSource extends ModuleDecompile {
         
         if (!e1.isValid() || !e2.isValid() || !e3.isValid()) {
             L.log(Level.WARNING, "Brush side with wind {0} is invalid", wind);
+            return false;
         }
         
         // calculate plane normal
@@ -280,25 +308,29 @@ public class BrushSource extends ModuleDecompile {
         writer.put(texture);
 
         writer.end("side");
+        
+        return true;
     }
 
-    public void writeModel(int imodel, Vector3f origin, Vector3f angles) {
+    public boolean writeModel(int imodel, Vector3f origin, Vector3f angles) {
         DBrushModel bmodel;
         
         try {
             bmodel = models.get(imodel);
         } catch (IndexOutOfBoundsException ex) {
             L.log(Level.WARNING, "Invalid model index {0}", imodel);
-            return;
+            return false;
         }
         
         for (int i = 0; i < bmodel.numbrush; i++) {
             writeBrush(bmodel.fstbrush + i, origin, angles);
         }
+        
+        return true;
     }
     
-    public void writeModel(int imodel) {
-        writeModel(imodel);
+    public boolean writeModel(int imodel) {
+        return writeModel(imodel);
     }
 
     public int getWorldbrushes() {
