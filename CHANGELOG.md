@@ -1,5 +1,10 @@
 ## Changelog
 
+### 1.3.7 - 28.08.2012
+* Added graphical BSPInfo tool to replace the various command line tools in previous versions
+* Fixed a displacement MultiBlend indexing bug
+* Fixed protector brushes tied to func_detail not being added to visgroups correctly
+
 ### 1.3.6 - 24.04.2012
 * Added support for static props in newer CS:GO maps
 
