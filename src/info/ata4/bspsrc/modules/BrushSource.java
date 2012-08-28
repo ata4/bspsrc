@@ -203,7 +203,7 @@ public class BrushSource extends ModuleDecompile {
         
         // don't add visgroup metadata here if this is a protector detail brush
         if (!brush.isDetail() && bspprot.isProtectedBrush(brush)) {
-            parent.writeMetaVisgroup("VMEX flagged brushes");
+            parent.writeMetaVisgroup("VMEX protector brushes");
         }
 
         writer.end("solid");

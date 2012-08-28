@@ -337,7 +337,7 @@ public class EntitySource extends ModuleDecompile {
             
             // write visgroup metadata if this is a protector brush
             if (bspprot.isProtectedBrush(brush)) {
-                parent.writeMetaVisgroup("VMEX flagged brushes");
+                parent.writeMetaVisgroup("VMEX protector brushes");
             }
             
             writer.end("entity");
