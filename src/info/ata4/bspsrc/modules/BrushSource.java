@@ -201,7 +201,8 @@ public class BrushSource extends ModuleDecompile {
             L.log(Level.WARNING, "Brush {0} is null", brush);
         }
         
-        if (bspprot.isProtectedBrush(brush)) {
+        // don't add visgroup metadata here if this is a protector detail brush
+        if (!brush.isDetail() && bspprot.isProtectedBrush(brush)) {
             parent.writeMetaVisgroup("VMEX flagged brushes");
         }
 

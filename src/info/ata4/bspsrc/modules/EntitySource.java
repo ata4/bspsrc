@@ -334,6 +334,12 @@ public class EntitySource extends ModuleDecompile {
             writer.put("id", parent.nextBrushID());
             writer.put("classname", "func_detail");
             brushsrc.writeBrush(i);
+            
+            // write visgroup metadata if this is a protector brush
+            if (bspprot.isProtectedBrush(brush)) {
+                parent.writeMetaVisgroup("VMEX flagged brushes");
+            }
+            
             writer.end("entity");
         }
     }
