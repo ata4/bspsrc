@@ -2,6 +2,7 @@
 
 ### 1.3.7 - 28.08.2012
 * Added graphical BSPInfo tool to replace the various command line tools in previous versions
+* Improved checking of invalid brushes and brush sides to prevent writing of corrupted VMF files that could crash Hammer
 * Fixed a displacement MultiBlend indexing bug
 * Fixed protector brushes tied to func_detail not being added to visgroups correctly
 
