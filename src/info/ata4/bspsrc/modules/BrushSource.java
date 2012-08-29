@@ -142,6 +142,7 @@ public class BrushSource extends ModuleDecompile {
         Map<Integer, Winding> validBrushSides = new HashMap<Integer, Winding>();
 
         // check and preprocess the brush sides before writing the brush
+        brushSideLoop:
         for (int i = 0; i < brush.numside; i++) {
             int ibrushside = brush.fstside + i;
             DBrushSide brushSide = bsp.brushSides.get(ibrushside);
@@ -149,26 +150,49 @@ public class BrushSource extends ModuleDecompile {
             if (brushSide.bevel) {
                 continue;
             }
+
+            Winding wind = Winding.windFromSide(bsp, brush, i);
             
-            int iplane = brushSide.pnum;
-            DPlane plane = bsp.planes.get(iplane);
-            Winding planeWind = Winding.windFromPlane(plane);
+            Vector3f[] plane = wind.buildPlane();
             
-            if (planeWind.hasDuplicates()) {
+            Vector3f e1 = plane[0];
+            Vector3f e2 = plane[1];
+            Vector3f e3 = plane[2];
+
+            if (!e1.isValid() || !e2.isValid() || !e3.isValid()) {
                 if (L.isLoggable(Level.FINER)) {
-                    L.log(Level.WARNING, "Skipped side {0} of brush {1} with invalid plane",
-                            new Object[]{i, ibrush});
+                    L.log(Level.WARNING, "Skipped invalid side {0} of brush {1}",
+                            new Object[]{i, brush});
                 }
                 continue;
             }
+            
+            // Check for duplicate plane points. All three plane points must be unique
+            // or it isn't a valid plane.
+            for (int p1 = 0; p1 < plane.length; p1++) {
+                for (int p2 = 0; p2 < plane.length; p2++) {
+                    if (p1 == p2) {
+                        continue;
+                    }
 
-            Winding faceWind = Winding.windFromSide(bsp, brush, i);
+                    Vector3f v1 = plane[p1];
+                    Vector3f v2 = plane[p2];
+
+                    if (v1.equals(v2)) {
+                        if (L.isLoggable(Level.FINER)) {
+                            L.log(Level.WARNING, "Skipped side {0} of brush {1} with invalid plane",
+                                    new Object[]{i, brush});
+                        }
+                        continue brushSideLoop;
+                    }
+                }
+            }
 
             // TODO: what exactly does this?
             // crunch faces
-            faceWind.removeDegenerated();
+            wind.removeDegenerated();
 
-            if (faceWind.isHuge()) {
+            if (wind.isHuge()) {
                 if (L.isLoggable(Level.FINER)) {
                     L.log(Level.WARNING, "Skipped huge side {0} of brush {1}",
                                 new Object[]{i, brush});
@@ -178,15 +202,15 @@ public class BrushSource extends ModuleDecompile {
             
             // rotate
             if (angles != null) {
-                faceWind.rotate(angles);
+                wind.rotate(angles);
             }
             
             // translate to origin
             if (origin != null) {
-                faceWind.translate(origin);
+                wind.translate(origin);
             }
 
-            if (faceWind.isEmpty()) {
+            if (wind.isEmpty()) {
                 if (L.isLoggable(Level.FINER)) {
                     // skip sides with no vertices
                     L.log(Level.WARNING, "Skipped empty side {0} of brush {1}",
@@ -195,7 +219,7 @@ public class BrushSource extends ModuleDecompile {
                 continue;
             } 
             
-            if (faceWind.size() < 3) {
+            if (wind.size() < 3) {
                 if (L.isLoggable(Level.FINER)) {
                     // skip sides with too few vertices
                     L.log(Level.WARNING, "Skipped side {0} of brush {1} with less than 3 vertices",
@@ -204,7 +228,7 @@ public class BrushSource extends ModuleDecompile {
                 continue;
             }
             
-            validBrushSides.put(ibrushside, faceWind);
+            validBrushSides.put(ibrushside, wind);
         }
         
         // all brush sides invalid = invalid brush
@@ -214,7 +238,7 @@ public class BrushSource extends ModuleDecompile {
         } 
         
         // skip brushes with less than three sides, they can't be compiled and
-        // may crash Hammer
+        // may crash older Hammer builds
         if (validBrushSides.size() < 3) {
             L.log(Level.WARNING, "Skipped brush {0} with less than 3 sides", ibrush);
             return false;
@@ -265,11 +289,6 @@ public class BrushSource extends ModuleDecompile {
         Vector3f e1 = plane[0];
         Vector3f e2 = plane[1];
         Vector3f e3 = plane[2];
-        
-        if (!e1.isValid() || !e2.isValid() || !e3.isValid()) {
-            L.log(Level.WARNING, "Brush side with wind {0} is invalid", wind);
-            return false;
-        }
         
         // calculate plane normal
         // NOTE: the plane normal from the BSP could be invalid if the brush was
