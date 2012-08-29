@@ -291,23 +291,27 @@ public class TextureSource extends ModuleRead {
     /**
      * Corrects the texture for a single brush side by checking the flags.
      * Required for some tool textures that are altered by vbsp.
-     *
-     * @param the brush to be checked
-     * @param original texture string
-     * @return fixed texture string
+     * 
+     * @param texture texture to fix
+     * @param ibrush brush index
+     * @param ibrushside brush side index
+     * @return previous material name or null if the material wasn't changed
      */
-    public void fixToolTexture(int ibrush, int ibrushside, Texture texture) {
+    public String fixToolTextures(Texture texture, int ibrush, int ibrushside) {
         String oldTex = texture.getMaterial();
         String newTex = getToolTexture(ibrush, ibrushside);
         
         if (newTex != null && !newTex.equals(oldTex)) {
-            texture.setMaterial(newTex);
-            
             if (L.isLoggable(Level.FINEST)) {
                 // display differences
                 L.log(Level.FINEST, "{0} -> {1}", new Object[] {oldTex, texture.getMaterial()});
             }
+            
+            texture.setMaterial(newTex);
+            return oldTex;
         }
+        
+        return null;
     }
 
     private String getToolTexture(int ibrush, int ibrushside) {

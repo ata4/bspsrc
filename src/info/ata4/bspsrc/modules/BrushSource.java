@@ -191,7 +191,7 @@ public class BrushSource extends ModuleDecompile {
                         Vector3f v2 = plane[p2];
 
                         if (v1.equals(v2)) {
-                            throw new BrushSideException("duplicate plane points");
+                            throw new BrushSideException("duplicate plane point " + v1);
                         }
                     }
                 }
@@ -280,15 +280,13 @@ public class BrushSource extends ModuleDecompile {
         Vector3f normal = ev12.cross(ev13).normalize();
         
         Texture texture = texsrc.getTexture(brushSide.texinfo, origin, angles, normal);
+        String origMaterial = null;
         
         // set face texture string
         if (!config.faceTexture.equals("")) {
             texture.setMaterial(config.faceTexture);
-        } else {
-            // fix tool textures
-            if (config.fixToolTextures) {
-                texsrc.fixToolTexture(ibrush, ibrushside, texture);
-            }
+        } else if (config.fixToolTextures) {
+            origMaterial = texsrc.fixToolTextures(texture, ibrush, ibrushside);
         }
         
         int sideID = parent.nextSideID();
@@ -308,6 +306,10 @@ public class BrushSource extends ModuleDecompile {
             writer.put("bspsrc_brushside_index", ibrushside);
             writer.put("bspsrc_normal", normal);
             writer.put("bspsrc_winding", wind.toString());
+            
+            if (origMaterial != null) {
+                writer.put("bspsrc_original_material", origMaterial);
+            }
             
             if (brushSide.texinfo != -1) {
                 writer.put("bspsrc_texinfo_index", brushSide.texinfo);
