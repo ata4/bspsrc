@@ -73,7 +73,7 @@ public class DBrush implements DStruct {
 
     @Override
     public String toString() {
-        return fstside + " (" + numside + ")";
+        return "DBrush[f:" + fstside + ", n:" + numside + "]";
     }
 
     public int getSize() {

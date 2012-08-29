@@ -359,7 +359,7 @@ public class EntitySource extends ModuleDecompile {
             boolean vflip = o.uvpoints[3].z == 1;
 
             for (int j = 0; j < 4; j++) {
-                o.uvpoints[j] = o.uvpoints[j].setAxis(2, 0);
+                o.uvpoints[j] = o.uvpoints[j].set(2, 0);
             }
 
             Vector3f vbasis = o.basisNormal.cross(ubasis).normalize();

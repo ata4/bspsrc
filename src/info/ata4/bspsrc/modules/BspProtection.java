@@ -398,8 +398,8 @@ public class BspProtection extends ModuleRead {
             DBrushSide bs = bsp.brushSides.get(brush.fstside + i);
             DPlane bpl = bsp.planes.get(bs.pnum);
 
-            for (int j = 0; j < 3; j++) {
-                if (Math.abs(bpl.normal.getAxis(j)) > ALIGNED_ALPHA) {
+            for (float value : bpl.normal) {
+                if (Math.abs(value) > ALIGNED_ALPHA) {
                     return true;
                 }
             }

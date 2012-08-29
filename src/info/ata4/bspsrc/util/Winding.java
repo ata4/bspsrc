@@ -155,8 +155,8 @@ public class Winding implements List<Vector3f> {
         int idir = -1;
 
         // for each axis
-        for (int i = 0; i < Vector3f.AXES; i++) {
-            float dc = Math.abs(pl.normal.getAxis(i));
+        for (int i = 0; i < pl.normal.size; i++) {
+            float dc = Math.abs(pl.normal.get(i));
             // find the biggest component
             if (dc <= dmax) {
                 continue;
@@ -229,8 +229,8 @@ public class Winding implements List<Vector3f> {
      */
     public boolean isHuge() {
         for (Vector3f point : this) {
-            for (int i = 0; i < Vector3f.AXES; i++) {
-                if (Math.abs(point.getAxis(i)) > MAX_COORD) {
+            for (float value : point) {
+                if (Math.abs(value) > MAX_COORD) {
                     return true;
                 }
             }
@@ -354,15 +354,15 @@ public class Winding implements List<Vector3f> {
             // vector of the split vertex
             Vector3f mv = Vector3f.NULL;
 
-            for (int j = 0; j < Vector3f.AXES; j++) {
+            for (int j = 0; j < normal.size; j++) {
                 // avoid round off error when possible
-                if (normal.getAxis(j) == 1.0f) {
-                    mv = mv.setAxis(j, dist);
-                } else if (normal.getAxis(j) == -1.0f) {
-                    mv = mv.setAxis(j, -dist);
+                if (normal.get(j) == 1) {
+                    mv = mv.set(j, dist);
+                } else if (normal.get(j) == -1) {
+                    mv = mv.set(j, -dist);
                 } else {
                     // check it! MSH
-                    mv = mv.setAxis(j, p1.getAxis(j) + dot * (p2.getAxis(j) - p1.getAxis(j)));
+                    mv = mv.set(j, p1.get(j) + dot * (p2.get(j) - p1.get(j)));
                 }
             }
 
@@ -403,7 +403,7 @@ public class Winding implements List<Vector3f> {
         float min = 1e6f;
 
         for (int i = 0; i < size; i++) {
-            float mdist = 0.0f;
+            float mdist = 0;
             
             // get the aggregate distance at offset i
             for (int j = 0; j < size; j++) {

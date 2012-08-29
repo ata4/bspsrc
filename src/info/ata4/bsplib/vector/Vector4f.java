@@ -15,15 +15,12 @@ package info.ata4.bsplib.vector;
  *
  * @author Sandern
  */
-public final class Vector4f {
+public final class Vector4f extends VectorXf {
 
     // frequently used pre-defined vectors
     public static final Vector4f NULL = new Vector4f(0, 0, 0, 0);
     public static final Vector4f MAX_VALUE = new Vector4f(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
     public static final Vector4f MIN_VALUE = MAX_VALUE.scalar(-1); // don't use Float.MIN_VALUE here
-    
-    // number of axes, since no arrays/collections are used
-    public static final int AXES = 4;
     
     // vector values
     public final float x;
@@ -59,6 +56,7 @@ public final class Vector4f {
      * @param z the vector z component
      */
     public Vector4f(float x, float y, float z, float w) {
+        super(4);
         this.x = x;
         this.y = y;
         this.z = z;
@@ -66,13 +64,13 @@ public final class Vector4f {
     }
     
     /**
-     * Returns the value of the n'th axis.
+     * Returns the value of the n'th component.
      * 
-     * @param axis axis number
-     * @return axis value
+     * @param index component number
+     * @return component value
      */
-    public float getAxis(int axis) {
-        switch (axis) {
+    public float get(int index) {
+        switch (index) {
             case 0:
                 return this.x;
             case 1:
@@ -87,14 +85,14 @@ public final class Vector4f {
     }
 
     /**
-     * Set the value of the n'th axis.
+     * Set the value of the n'th component.
      * 
-     * @param axis axis number
-     * @param value new axis value
+     * @param index component number
+     * @param value new component value
      * @return vector with new value
      */
-    public Vector4f setAxis(int axis, float value) {
-        switch (axis) {
+    public Vector4f set(int index, float value) {
+        switch (index) {
             case 0:
                 return new Vector4f(value, y, z, w);
             case 1:
@@ -247,58 +245,4 @@ public final class Vector4f {
         
         return new Vector4f(rx, ry, rz, rw);
     }
-    
-    /**
-     * Checks if the vector has NaN values.
-     * 
-     * @return true if one value is NaN
-     */
-    public boolean isNaN() {
-        return Float.isNaN(x) || Float.isNaN(y) || Float.isNaN(z) || Float.isNaN(w);
-    }
-
-    /**
-     * Checks if the vector has infinite values.
-     * 
-     * @return true if one value is infinite
-     */
-    public boolean isInfinite() {
-        return Float.isInfinite(x) || Float.isInfinite(y) || Float.isInfinite(z) || Float.isInfinite(w);
-    }
-    
-    /**
-     * Checks if the vector has NaN or infinite values.
-     * 
-     * @return true if one value is NaN or infinite
-     */
-    public boolean isValid() {
-        return !isNaN() && !isInfinite();
-    }
-
-    @Override
-    public String toString() {
-        return "(" + x + ", " + y + ", " + z + ", " + w + ")";
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(!(obj instanceof Vector4f)) {
-            return false;
-        }
-
-        Vector4f that = (Vector4f) obj;
-
-        return this.x == that.x && this.y == that.y && this.z == that.z && this.w == that.w;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 89 * hash + Float.floatToIntBits(this.x);
-        hash = 89 * hash + Float.floatToIntBits(this.y);
-        hash = 89 * hash + Float.floatToIntBits(this.z);
-        hash = 89 * hash + Float.floatToIntBits(this.w);
-        return hash;
-    }
-
 }
