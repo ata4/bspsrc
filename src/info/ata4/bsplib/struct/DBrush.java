@@ -71,11 +71,6 @@ public class DBrush implements DStruct {
         return contents.contains(BrushFlag.CONTENTS_WINDOW);
     }
 
-    @Override
-    public String toString() {
-        return "DBrush[f:" + fstside + ", n:" + numside + "]";
-    }
-
     public int getSize() {
         return 12;
     }

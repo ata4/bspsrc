@@ -37,7 +37,7 @@ public class Winding implements List<Vector3f> {
     private static final float EPS_SPLIT = 0.01f;
     private static final float EPS_COMP = 0.5f;
     private static final float EPS_DEGEN = 0.1f;
-
+    
     // list of vectors to vertex points
     private List<Vector3f> verts;
     
@@ -538,9 +538,36 @@ public class Winding implements List<Vector3f> {
         
         return plane;
     }
+    
+    /**
+     * Checks if this winding contains any duplicate vertices.
+     * 
+     * @return true if this winding contains duplicate vertices
+     */
+    public boolean hasDuplicates() {
+        final int size = verts.size();
+        
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (i == j) {
+                    continue;
+                }
+
+                Vector3f v1 = verts.get(i);
+                Vector3f v2 = verts.get(j);
+
+                if (v1.equals(v2)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
 
     /**
-     * Removes degenerated(?) vertices from this winding.
+     * Removes degenerated vertices from this winding. A vertex is degenerated
+     * when its distance to the previous vertex is smaller than {@link EPS_DEGEN}.
      * 
      * @return number of removed vertices
      */
@@ -555,11 +582,11 @@ public class Winding implements List<Vector3f> {
 
         for (int i = 0; i < size; i++) {
             int j = (i + 1) % size;
-            Vector3f v0 = verts.get(i);
-            Vector3f v1 = verts.get(j);
+            Vector3f v1 = verts.get(i);
+            Vector3f v2 = verts.get(j);
 
-            if (v0.sub(v1).length() > EPS_DEGEN) {
-                vertsNew.add(v0);
+            if (v1.sub(v2).length() > EPS_DEGEN) {
+                vertsNew.add(v1);
             }
         }
         

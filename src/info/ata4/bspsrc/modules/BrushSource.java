@@ -153,6 +153,14 @@ public class BrushSource extends ModuleDecompile {
             int iplane = brushSide.pnum;
             DPlane plane = bsp.planes.get(iplane);
             Winding planeWind = Winding.windFromPlane(plane);
+            
+            if (planeWind.hasDuplicates()) {
+                if (L.isLoggable(Level.FINER)) {
+                    L.log(Level.WARNING, "Skipped side {0} of brush {1} with invalid plane",
+                            new Object[]{i, ibrush});
+                }
+                continue;
+            }
 
             Winding faceWind = Winding.windFromSide(bsp, brush, i);
 
@@ -163,7 +171,7 @@ public class BrushSource extends ModuleDecompile {
             if (faceWind.isHuge()) {
                 if (L.isLoggable(Level.FINER)) {
                     L.log(Level.WARNING, "Skipped huge side {0} of brush {1}",
-                            new Object[]{i, brush});
+                                new Object[]{i, brush});
                 }
                 continue;
             }
@@ -179,19 +187,19 @@ public class BrushSource extends ModuleDecompile {
             }
 
             if (faceWind.isEmpty()) {
-                // skip sides with no vertices
                 if (L.isLoggable(Level.FINER)) {
+                    // skip sides with no vertices
                     L.log(Level.WARNING, "Skipped empty side {0} of brush {1}",
-                            new Object[]{i, brush});
+                            new Object[]{i, ibrush});
                 }
                 continue;
             } 
             
             if (faceWind.size() < 3) {
-                // skip sides with too few vertices
                 if (L.isLoggable(Level.FINER)) {
+                    // skip sides with too few vertices
                     L.log(Level.WARNING, "Skipped side {0} of brush {1} with less than 3 vertices",
-                            new Object[]{i, brush});
+                            new Object[]{i, ibrush});
                 }
                 continue;
             }
@@ -201,19 +209,15 @@ public class BrushSource extends ModuleDecompile {
         
         // all brush sides invalid = invalid brush
         if (validBrushSides.isEmpty()) {
-            L.log(Level.WARNING, "Skipped empty brush {0}", brush);
+            L.log(Level.WARNING, "Skipped empty brush {0}", ibrush);
             return false;
         } 
         
         // skip brushes with less than three sides, they can't be compiled and
         // may crash Hammer
         if (validBrushSides.size() < 3) {
-            L.log(Level.WARNING, "Skipped brush {0} with less than 3 sides", brush);
+            L.log(Level.WARNING, "Skipped brush {0} with less than 3 sides", ibrush);
             return false;
-        }
-        
-        if (L.isLoggable(Level.FINER)) {
-            L.log(Level.FINER, "Brush {0} contents {1}", new Object[]{brush, brush.contents});
         }
         
         // now write the brush

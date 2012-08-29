@@ -103,7 +103,7 @@ public abstract class VectorXf implements Iterable<Float> {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         
-        sb.append("Vector").append(size).append("f[");
+        sb.append("(");
         
         for (int i = 0; i < size; i++) {
             sb.append(get(i));
@@ -112,7 +112,7 @@ public abstract class VectorXf implements Iterable<Float> {
             }
         }
         
-        sb.append("]");
+        sb.append(")");
         
         return sb.toString();
     }
