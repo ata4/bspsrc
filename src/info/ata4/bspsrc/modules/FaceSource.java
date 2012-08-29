@@ -387,6 +387,11 @@ public class FaceSource extends ModuleDecompile {
             e3 = e1.add(bedge);
             
             Vector3f tv1 = e2.sub(e1).normalize();
+            
+            // use null vector if the result is invalid
+            if (!tv1.isValid()) {
+                tv1 = Vector3f.NULL;
+            }
 
             texture.setUAxis(new TextureAxis(tv1));
             texture.setVAxis(new TextureAxis(tv2));

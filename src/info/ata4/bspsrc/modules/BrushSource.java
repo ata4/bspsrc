@@ -208,8 +208,11 @@ public class BrushSource extends ModuleDecompile {
 
                 validBrushSides.put(ibrushside, wind);
             } catch (BrushSideException ex) {
-                 L.log(Level.WARNING, "Skipped side {0} of brush {1}: {2}",
+                if (config.isDebug()) {
+                    L.log(Level.WARNING, "Skipped side {0} of brush {1}: {2}",
                             new Object[]{i, ibrush, ex.getMessage()});
+
+                }
             }
         }
         
