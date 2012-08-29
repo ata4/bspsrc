@@ -499,7 +499,7 @@ public class Winding implements List<Vector3f> {
      * 
      * @return Vector3f array with three points of the triangle
      */
-    public Vector3f[] getVertexPlane() {
+    public Vector3f[] buildPlane() {
         Vector3f[] vertsNew = new Vector3f[verts.size()];
         Vector3f[] plane = new Vector3f[3];
         

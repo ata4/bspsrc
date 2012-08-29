@@ -14,6 +14,8 @@ import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.struct.DBrush;
 import info.ata4.bsplib.struct.DBrushSide;
 import info.ata4.bsplib.struct.DModel;
+import info.ata4.bsplib.struct.DPlane;
+import info.ata4.bsplib.struct.DVertex;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.Texture;
@@ -139,23 +141,28 @@ public class BrushSource extends ModuleDecompile {
 
         Map<Integer, Winding> validBrushSides = new HashMap<Integer, Winding>();
 
-        // check the brush sides before writing the brush
+        // check and preprocess the brush sides before writing the brush
         for (int i = 0; i < brush.numside; i++) {
             int ibrushside = brush.fstside + i;
-            
-            if (bsp.brushSides.get(ibrushside).bevel) {
+            DBrushSide brushSide = bsp.brushSides.get(ibrushside);
+
+            if (brushSide.bevel) {
                 continue;
             }
             
-            Winding wind = Winding.windFromSide(bsp, brush, i);
+            int iplane = brushSide.pnum;
+            DPlane plane = bsp.planes.get(iplane);
+            Winding planeWind = Winding.windFromPlane(plane);
+
+            Winding faceWind = Winding.windFromSide(bsp, brush, i);
 
             // TODO: what exactly does this?
             // crunch faces
-            wind.removeDegenerated();
+            faceWind.removeDegenerated();
 
-            if (wind.isHuge()) {
+            if (faceWind.isHuge()) {
                 if (L.isLoggable(Level.FINER)) {
-                    L.log(Level.FINER, "Skipped huge side {0} of brush {1}",
+                    L.log(Level.WARNING, "Skipped huge side {0} of brush {1}",
                             new Object[]{i, brush});
                 }
                 continue;
@@ -163,33 +170,33 @@ public class BrushSource extends ModuleDecompile {
             
             // rotate
             if (angles != null) {
-                wind.rotate(angles);
+                faceWind.rotate(angles);
             }
             
             // translate to origin
             if (origin != null) {
-                wind.translate(origin);
+                faceWind.translate(origin);
             }
 
-            if (wind.isEmpty()) {
+            if (faceWind.isEmpty()) {
                 // skip sides with no vertices
                 if (L.isLoggable(Level.FINER)) {
-                    L.log(Level.FINER, "Skipped empty side {0} of brush {1}",
+                    L.log(Level.WARNING, "Skipped empty side {0} of brush {1}",
                             new Object[]{i, brush});
                 }
                 continue;
             } 
             
-            if (wind.size() < 3) {
+            if (faceWind.size() < 3) {
                 // skip sides with too few vertices
                 if (L.isLoggable(Level.FINER)) {
-                    L.log(Level.FINER, "Skipped side {0} of brush {1} with less than 3 vertices",
+                    L.log(Level.WARNING, "Skipped side {0} of brush {1} with less than 3 vertices",
                             new Object[]{i, brush});
                 }
                 continue;
             }
             
-            validBrushSides.put(ibrushside, wind);
+            validBrushSides.put(ibrushside, faceWind);
         }
         
         // all brush sides invalid = invalid brush
@@ -249,7 +256,7 @@ public class BrushSource extends ModuleDecompile {
         }
         
         // calculate plane vectors
-        Vector3f[] plane = wind.getVertexPlane();
+        Vector3f[] plane = wind.buildPlane();
         
         Vector3f e1 = plane[0];
         Vector3f e2 = plane[1];

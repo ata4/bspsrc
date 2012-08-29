@@ -254,7 +254,7 @@ public class FaceSource extends ModuleDecompile {
         }
         
         // calculate plane vectors
-        Vector3f[] plane = wind.getVertexPlane();
+        Vector3f[] plane = wind.buildPlane();
         
         Vector3f e1 = plane[0];
         Vector3f e2 = plane[1];
@@ -353,7 +353,7 @@ public class FaceSource extends ModuleDecompile {
      * Writes prismatic back brush sides for a face
      */
     private void writePrismBack(Winding wind, Texture texture, float depth) {
-        Vector3f[] plane = wind.getVertexPlane();
+        Vector3f[] plane = wind.buildPlane();
         
         Vector3f e1 = plane[0];
         Vector3f e2 = plane[1];
@@ -400,7 +400,7 @@ public class FaceSource extends ModuleDecompile {
      * Writes pyramidal back brush sides for a face
      */
     private void writePyramBack(Winding wind, Texture texture, float depth) {
-        Vector3f[] plane = wind.getVertexPlane();
+        Vector3f[] plane = wind.buildPlane();
         
         Vector3f e1 = plane[0];
         Vector3f e2 = plane[1];
@@ -481,7 +481,7 @@ public class FaceSource extends ModuleDecompile {
             return;
         }
         
-        Vector3f[] plane = wind.getVertexPlane();
+        Vector3f[] plane = wind.buildPlane();
         
         Vector3f e1 = plane[0];
         Vector3f e2 = plane[1];
