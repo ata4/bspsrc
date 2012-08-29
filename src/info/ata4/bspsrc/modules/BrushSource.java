@@ -143,7 +143,7 @@ public class BrushSource extends ModuleDecompile {
         for (int i = 0; i < brush.numside; i++) {
             int ibrushside = brush.fstside + i;
             DBrushSide brushSide = bsp.brushSides.get(ibrushside);
-
+            
             if (brushSide.bevel) {
                 continue;
             }
@@ -229,11 +229,13 @@ public class BrushSource extends ModuleDecompile {
         // now write the brush
         writer.start("solid");
         writer.put("id", brushID);
-
-        if (config.isDebug()) {
-            // write contents for debugging
-            writer.put("bspsrc_brush_index", ibrush);
-            writer.put("bspsrc_brush_contents", brush.contents.toString());
+        
+        // write metadata for debugging
+        if (config.isDebug()) {    
+            writer.start("bspsrc_debug");
+            writer.put("brush_index", ibrush);
+            writer.put("brush_contents", brush.contents.toString());
+            writer.end("bspsrc_debug");
         }
 
         // write valid sides only
@@ -302,19 +304,22 @@ public class BrushSource extends ModuleDecompile {
         writer.start("side");
         writer.put("id", sideID);
         
+        // write metadata for debugging
         if (config.isDebug()) {
-            writer.put("bspsrc_brushside_index", ibrushside);
-            writer.put("bspsrc_normal", normal);
-            writer.put("bspsrc_winding", wind.toString());
+            writer.start("bspsrc_debug");
+            writer.put("brushside_index", ibrushside);
+            writer.put("normal", normal);
+            writer.put("winding", wind.toString());
             
             if (origMaterial != null) {
-                writer.put("bspsrc_original_material", origMaterial);
+                writer.put("original_material", origMaterial);
             }
             
             if (brushSide.texinfo != -1) {
-                writer.put("bspsrc_texinfo_index", brushSide.texinfo);
-                writer.put("bspsrc_texinfo_flags", bsp.texinfos.get(brushSide.texinfo).flags.toString());
+                writer.put("texinfo_index", brushSide.texinfo);
+                writer.put("texinfo_flags", bsp.texinfos.get(brushSide.texinfo).flags.toString());
             }
+            writer.end("bspsrc_debug");
         }
         
         writer.put("plane", e1, e2, e3);

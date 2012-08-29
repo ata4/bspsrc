@@ -279,15 +279,18 @@ public class FaceSource extends ModuleDecompile {
         writer.start("solid");
         writer.put("id", parent.nextBrushID());
         
+        // write metadata for debugging
         if (config.isDebug()) {
-            writer.put("bspsrc_face_index", iface);
-            writer.put("bspsrc_normal", normal);
-            writer.put("bspsrc_winding", wind.toString());
+            writer.start("bspsrc_debug");
+            writer.put("face_index", iface);
+            writer.put("normal", normal);
+            writer.put("winding", wind.toString());
             
             if (face.texinfo != -1) {
-                writer.put("bspsrc_texinfo_index", face.texinfo);
-                writer.put("bspsrc_texinfo_flags", bsp.texinfos.get(face.texinfo).flags.toString());
+                writer.put("texinfo_index", face.texinfo);
+                writer.put("texinfo_flags", bsp.texinfos.get(face.texinfo).flags.toString());
             }
+            writer.end("bspsrc_debug");
         }
         
         int sideID = parent.nextSideID();

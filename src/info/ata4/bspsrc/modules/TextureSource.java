@@ -301,7 +301,7 @@ public class TextureSource extends ModuleRead {
         String oldTex = texture.getMaterial();
         String newTex = getToolTexture(ibrush, ibrushside);
         
-        if (newTex != null && !newTex.equals(oldTex)) {
+        if (newTex != null && !newTex.equalsIgnoreCase(oldTex)) {
             if (L.isLoggable(Level.FINEST)) {
                 // display differences
                 L.log(Level.FINEST, "{0} -> {1}", new Object[] {oldTex, texture.getMaterial()});
