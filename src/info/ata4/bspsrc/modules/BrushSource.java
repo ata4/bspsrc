@@ -73,8 +73,6 @@ public class BrushSource extends ModuleDecompile {
      * the index of the last worldbrush.
      */
     private void assignBrushes() {
-        L.fine("Walking BSP tree");
-        
         // walk the BSP tree
         // to from the headnode of each model
         // to calculate the minimum and maximum brush in the tree

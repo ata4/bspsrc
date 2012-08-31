@@ -575,9 +575,9 @@ public class FaceSource extends ModuleDecompile {
         Map<String, String> multiBlendMap = new LinkedHashMap<String, String>();
         Map<String, String> alphaBlendMap = new LinkedHashMap<String, String>();
 
-        Map<String, String>[] multiBlendColorMap = new LinkedHashMap[DDispMultiBlend.MAX_MULTIBLEND_CHANNELS];
+        List<Map<String, String>> multiBlendColorMaps = new ArrayList(DDispMultiBlend.MAX_MULTIBLEND_CHANNELS);
         for (int i = 0; i < DDispMultiBlend.MAX_MULTIBLEND_CHANNELS; i++) {
-            multiBlendColorMap[i] = new LinkedHashMap<String, String>(); //initialize each individually
+            multiBlendColorMaps.add(new LinkedHashMap<String, String>());
         }
 
         StringBuilder normalSb = new StringBuilder();
@@ -585,9 +585,9 @@ public class FaceSource extends ModuleDecompile {
         StringBuilder alphaSb = new StringBuilder();
         StringBuilder multiblendSb = new StringBuilder();
         StringBuilder alphablendSb = new StringBuilder();
-        StringBuilder[] multiblendColorSb = new StringBuilder[DDispMultiBlend.MAX_MULTIBLEND_CHANNELS];
+        List<StringBuilder> multiblendColorSbs = new ArrayList<StringBuilder>(DDispMultiBlend.MAX_MULTIBLEND_CHANNELS);
         for (int i = 0; i < DDispMultiBlend.MAX_MULTIBLEND_CHANNELS; i++) {
-            multiblendColorSb[i] = new StringBuilder();
+            multiblendColorSbs.add(new StringBuilder());
         }
         StringBuilder triangleTagSb = new StringBuilder();
         StringBuilder allowedVertSb = new StringBuilder();
@@ -637,11 +637,12 @@ public class FaceSource extends ModuleDecompile {
                 alphablendSb.append(dmb.alphablend.w);
 
                 for (int j = 0; j < dmb.multiblendcolors.length; j++) {
-                    multiblendColorSb[j].append(dmb.multiblendcolors[j].x);
-                    multiblendColorSb[j].append(" ");
-                    multiblendColorSb[j].append(dmb.multiblendcolors[j].y);
-                    multiblendColorSb[j].append(" ");
-                    multiblendColorSb[j].append(dmb.multiblendcolors[j].z);
+                    StringBuilder mbcsb = multiblendColorSbs.get(j);
+                    mbcsb.append(dmb.multiblendcolors[j].x);
+                    mbcsb.append(" ");
+                    mbcsb.append(dmb.multiblendcolors[j].y);
+                    mbcsb.append(" ");
+                    mbcsb.append(dmb.multiblendcolors[j].z);
                 }
             }
 
@@ -660,13 +661,15 @@ public class FaceSource extends ModuleDecompile {
                     multiBlendMap.put("row" + multiBlendMap.size(), multiblendSb.toString());
                     alphaBlendMap.put("row" + alphaBlendMap.size(), alphablendSb.toString());
                     for (int j = 0; j < dmb.multiblendcolors.length; j++) {
-                        multiBlendColorMap[j].put("row" + multiBlendColorMap[j].size(), multiblendColorSb[j].toString());
+                        Map<String, String> multiBlendColorMap = multiBlendColorMaps.get(j);
+                        multiBlendColorMap.put("row" + multiBlendColorMap.size(),
+                                multiblendColorSbs.get(j).toString());
                     }
 
                     multiblendSb.setLength(0);
                     alphablendSb.setLength(0);
                     for (int j = 0; j < dmb.multiblendcolors.length; j++) {
-                        multiblendColorSb[j].setLength(0);
+                        multiblendColorSbs.get(j).setLength(0);
                     }
                 }
             } else {
@@ -679,7 +682,7 @@ public class FaceSource extends ModuleDecompile {
                     alphablendSb.append(" ");
 
                     for (int j = 0; j < dmb.multiblendcolors.length; j++) {
-                        multiblendColorSb[j].append(" ");
+                        multiblendColorSbs.get(j).append(" ");
                     }
                 }
             }
@@ -765,7 +768,7 @@ public class FaceSource extends ModuleDecompile {
 
             for (int j = 0; j < DDispMultiBlend.MAX_MULTIBLEND_CHANNELS; j++) {
                 writer.start("multiblend_color_" + j);
-                writer.put(multiBlendColorMap[j]);
+                writer.put(multiBlendColorMaps.get(j));
                 writer.end("multiblend_color_" + j);
             }
         }
