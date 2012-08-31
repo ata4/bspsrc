@@ -38,9 +38,6 @@ public class Winding implements List<Vector3f> {
     private static final float EPS_COMP = 0.5f;
     private static final float EPS_DEGEN = 0.1f;
     
-    // list of vectors to vertex points
-    private List<Vector3f> verts;
-    
     /**
      * Constructs a winding from face vertices
      *
@@ -84,7 +81,7 @@ public class Winding implements List<Vector3f> {
         int ibside = brush.fstside + side;
         int iplane = bsp.brushSides.get(ibside).pnum;
         
-        Winding w = windFromPlane(bsp.planes.get(iplane));
+        Winding w = fromPlane(bsp.planes.get(iplane));
 
         // clip to all other planes
         for (int i = 0; i < brush.numside; i++) {
@@ -113,7 +110,7 @@ public class Winding implements List<Vector3f> {
         return w;
     }
     
-    public static Winding windFromAreaportal(BspData bsp, DAreaportal ap) {
+    public static Winding fromAreaportal(BspData bsp, DAreaportal ap) {
         Winding w = new Winding();
         
         for (int i = 0; i < ap.clipPortalVerts; i++) {
@@ -131,7 +128,7 @@ public class Winding implements List<Vector3f> {
      * @param opd Occluder polygon data
      * @return Winding for the occluder
      */
-    public static Winding windFromOccluder(BspData bsp, DOccluderPolyData opd) {
+    public static Winding fromOccluder(BspData bsp, DOccluderPolyData opd) {
         Winding w = new Winding();
 
         for (int k = 0; k < opd.vertexcount; k++) {
@@ -149,7 +146,7 @@ public class Winding implements List<Vector3f> {
      * 
      * @param pl plane
      */
-    public static Winding windFromPlane(DPlane pl) {
+    public static Winding fromPlane(DPlane pl) {
         // find the dominant axis of plane normal
         float dmax = -1.0F;
         int idir = -1;
@@ -211,6 +208,9 @@ public class Winding implements List<Vector3f> {
         return w;
     }
     
+    // list of vectors to vertex points
+    private List<Vector3f> verts;
+    
     public Winding() {
         this.verts = new ArrayList<Vector3f>();
     }
@@ -253,7 +253,7 @@ public class Winding implements List<Vector3f> {
     public void clipEpsilon(Vector3f normal, float dist, float eps, boolean back) {        
         // counts number of front, back and on vertices
         int[] counts = new int[] {0, 0, 0};
-        int size = verts.size();
+        final int size = verts.size();
         float[] dists = new float[size + 1];
         int[] sides = new int[size + 1];
 
@@ -578,7 +578,7 @@ public class Winding implements List<Vector3f> {
         
         ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
         
-        int size = verts.size();
+        final int size = verts.size();
 
         for (int i = 0; i < size; i++) {
             int j = (i + 1) % size;
@@ -611,7 +611,7 @@ public class Winding implements List<Vector3f> {
         
         ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
         
-        int size = verts.size();
+        final int size = verts.size();
 
         for (int i = 0; i < size; i++) {
             int j = (i + 1) % size;
@@ -640,7 +640,7 @@ public class Winding implements List<Vector3f> {
      */
     public float getArea() {
         float total = 0;
-        int size = verts.size();
+        final int size = verts.size();
 
         for (int i = 2; i < size; i++) {
             Vector3f v1 = verts.get(i - 1).sub(verts.get(0));
@@ -687,7 +687,7 @@ public class Winding implements List<Vector3f> {
     public void addBackface() {
         List<Vector3f> vertsNew = new ArrayList<Vector3f>();
         
-        int size = verts.size();
+        final int size = verts.size();
         
         for (int i = 0; i < size; i++) {
             if (i != 0) {
@@ -764,7 +764,7 @@ public class Winding implements List<Vector3f> {
     }
 
     public Vector3f set(int index, Vector3f element) {
-        int size = verts.size();
+        final int size = verts.size();
 
         if (size == index) {
             verts.add(element);

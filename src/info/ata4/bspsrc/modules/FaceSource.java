@@ -453,7 +453,7 @@ public class FaceSource extends ModuleDecompile {
     }
     
     public void writeAreaportal(DAreaportal ap) {
-        Winding wind = Winding.windFromAreaportal(bsp, ap);
+        Winding wind = Winding.fromAreaportal(bsp, ap);
         // TODO: extrude polygon in the correct direction, currently it seems to be random?
         writePolygon(wind, ToolTexture.AREAPORTAL, true);
     }
@@ -469,7 +469,7 @@ public class FaceSource extends ModuleDecompile {
     public void writeOccluder(DOccluderData od) {
         for (int i = 0; i < od.polycount; i++) {
             DOccluderPolyData opd = bsp.occluderPolyDatas.get(od.firstpoly + i);
-            Winding wind = Winding.windFromOccluder(bsp, opd);
+            Winding wind = Winding.fromOccluder(bsp, opd);
             // extrude by 8 units instead of one, the skip sides are ignored anyway
             writePolygon(wind, ToolTexture.OCCLUDER, ToolTexture.SKIP, true, 8);
         }

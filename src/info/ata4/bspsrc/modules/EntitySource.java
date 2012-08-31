@@ -626,7 +626,7 @@ public class EntitySource extends ModuleDecompile {
         }
 
         // create areaportal winding
-        Winding wp = Winding.windFromAreaportal(bsp, ap);
+        Winding wp = Winding.fromAreaportal(bsp, ap);
 
         for (int i = 0; i < bsp.brushes.size(); i++) {
             DBrush brush = bsp.brushes.get(i);
