@@ -149,7 +149,7 @@ public class BrushSource extends ModuleDecompile {
             }
 
             try {
-                Winding wind = Winding.windFromSide(bsp, brush, i);
+                Winding wind = Winding.fromSide(bsp, brush, i);
                 
                 // remove close vertices
                 wind.removeDegenerated();

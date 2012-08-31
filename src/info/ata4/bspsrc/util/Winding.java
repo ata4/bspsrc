@@ -46,7 +46,7 @@ public class Winding implements List<Vector3f> {
      * @param both if true, wind in both directions
      * @return Winding for the face
      */
-    public static Winding windFromFace(BspData bsp, DFace face) {
+    public static Winding fromFace(BspData bsp, DFace face) {
         Winding w = new Winding();
 
         for (int i = 0; i < face.numedge; i++) {
@@ -77,7 +77,7 @@ public class Winding implements List<Vector3f> {
      * @param side Brush side ID
      * @return Winding for the brush side
      */
-    public static Winding windFromSide(BspData bsp, DBrush brush, int side) {
+    public static Winding fromSide(BspData bsp, DBrush brush, int side) {
         int ibside = brush.fstside + side;
         int iplane = bsp.brushSides.get(ibside).pnum;
         

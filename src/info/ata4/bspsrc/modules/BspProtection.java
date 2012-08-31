@@ -375,7 +375,7 @@ public class BspProtection extends ModuleRead {
 
         // get limits for all brush side windings
         for (int i = 0; i < brush.numside; i++) {
-            Vector3f[] bounds = Winding.windFromSide(bsp, brush, i).getBounds();
+            Vector3f[] bounds = Winding.fromSide(bsp, brush, i).getBounds();
             min = bounds[0].min(min);
             max = bounds[1].max(max);
         }

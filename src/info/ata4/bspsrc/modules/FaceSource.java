@@ -241,7 +241,7 @@ public class FaceSource extends ModuleDecompile {
             return;
         }
 
-        Winding wind = Winding.windFromFace(bsp, face);
+        Winding wind = Winding.fromFace(bsp, face);
         
         // translate to origin
         if (origin != null) {
@@ -806,7 +806,7 @@ public class FaceSource extends ModuleDecompile {
         // look at every oface
         for (int i = 0; i < bsp.origFaces.size(); i++) {
             DFace origFace = bsp.origFaces.get(i);
-            Winding wind = Winding.windFromFace(bsp, origFace);
+            Winding wind = Winding.fromFace(bsp, origFace);
             origFace.area += wind.getArea();
 
             if (L.isLoggable(Level.FINEST)) {

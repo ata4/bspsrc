@@ -647,7 +647,7 @@ public class EntitySource extends ModuleDecompile {
                 
                 // create brush side winding
                 if (bsw[ibs] == null) {
-                    bsw[ibs] = Winding.windFromSide(bsp, brush, j);
+                    bsw[ibs] = Winding.fromSide(bsp, brush, j);
                 }
 
                 // compare windings
@@ -697,7 +697,7 @@ public class EntitySource extends ModuleDecompile {
         }
         
         // create winding from original face
-        Winding wof = Winding.windFromFace(bsp, origFace);
+        Winding wof = Winding.fromFace(bsp, origFace);
 
         for (int i = 0; i < bsp.brushes.size(); i++) {
             DBrush brush = bsp.brushes.get(i);
@@ -709,7 +709,7 @@ public class EntitySource extends ModuleDecompile {
 
                 // create winding from brush side
                 if (bsw[ibs] == null) {
-                    bsw[ibs] = Winding.windFromSide(bsp, brush, j);
+                    bsw[ibs] = Winding.fromSide(bsp, brush, j);
                 }
 
                 // check for valid face: same plane, same texinfo, same geometry
