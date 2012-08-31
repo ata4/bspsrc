@@ -151,8 +151,7 @@ public class BrushSource extends ModuleDecompile {
             try {
                 Winding wind = Winding.windFromSide(bsp, brush, i);
                 
-                // TODO: what exactly does this?
-                // crunch faces
+                // remove close vertices
                 wind.removeDegenerated();
                 
                 // skip sides with no vertices
@@ -165,6 +164,7 @@ public class BrushSource extends ModuleDecompile {
                     throw new BrushSideException("less than 3 vertices");
                 }
                 
+                // skip sides that are way too big
                 if (wind.isHuge()) {
                     throw new BrushSideException("too big");
                 }
@@ -179,8 +179,8 @@ public class BrushSource extends ModuleDecompile {
                     throw new BrushSideException("invalid plane");
                 }
 
-                // Check for duplicate plane points. All three plane points must be unique
-                // or it isn't a valid plane.
+                // Check for duplicate plane points. All three plane points must
+                // be unique or it isn't a valid plane.
                 for (int p1 = 0; p1 < plane.length; p1++) {
                     for (int p2 = 0; p2 < plane.length; p2++) {
                         if (p1 == p2) {
@@ -206,6 +206,7 @@ public class BrushSource extends ModuleDecompile {
                     wind.translate(origin);
                 }
 
+                // the brush side should be safe to write
                 validBrushSides.put(ibrushside, wind);
             } catch (BrushSideException ex) {
                 if (config.isDebug()) {
@@ -265,8 +266,8 @@ public class BrushSource extends ModuleDecompile {
     private boolean writeSide(int ibrushside, int ibrush, Winding wind, Vector3f origin, Vector3f angles) {
         DBrushSide brushSide = bsp.brushSides.get(ibrushside);
         
+        // don't output bevel faces - they lead to bad brushes
         if (brushSide.bevel) {
-            // don't output bevel faces - they lead to bad brushes
             return false;
         }
         
