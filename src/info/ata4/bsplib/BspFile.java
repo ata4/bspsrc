@@ -316,9 +316,17 @@ public class BspFile {
         try {
             Lump l = getLump(LumpType.LUMP_GAME_LUMP);
             LumpDataInput lr = l.getDataInput();
+
+            // hack for Vindictus
+            if (version == 20 && bo == ByteOrder.LITTLE_ENDIAN
+                    && checkInvalidHeaders(lr, false)
+                    && !checkInvalidHeaders(lr, true)) {
+                L.finer("Found Vindictus game lump header");
+                app = SourceAppDB.getInstance().fromID(SourceAppID.VINDICTUS);
+            }
             
             int glumps = lr.readInt();
-
+            
             for (int i = 0; i < glumps; i++) {
                 int ofs, len, flags, vers, fourCC;
 
@@ -327,7 +335,7 @@ public class BspFile {
                 }
 
                 fourCC = lr.readInt();
-
+                
                 if (app.getAppID() == SourceAppID.VINDICTUS) {
                     flags = lr.readInt();
                     vers = lr.readInt();
@@ -356,7 +364,7 @@ public class BspFile {
                 if (ofs - l.getOffset() > 0) {
                     ofs -= l.getOffset();
                 }
-
+                
                 String glName = StringMacroUtils.unmakeID(fourCC);
 
                 // give dummy entries more useful names
@@ -424,8 +432,13 @@ public class BspFile {
             for (GameLump gl : gameLumps) {
                 // write header
                 lw.writeInt(gl.getFourCC());
-                lw.writeShort(gl.getFlags());
-                lw.writeShort(gl.getVersion());
+                if (app.getAppID() == SourceAppID.VINDICTUS) {
+                    lw.writeInt(gl.getFlags());
+                    lw.writeInt(gl.getVersion());
+                } else {
+                    lw.writeShort(gl.getFlags());
+                    lw.writeShort(gl.getVersion());
+                }
                 lw.writeInt(gl.getOffset());
                 lw.writeInt(gl.getLength());
 
@@ -493,6 +506,33 @@ public class BspFile {
         }
         
         return offset;
+    }
+    
+    /**
+     * Heuristic detection of Vindictus game lump headers.
+     * 
+     * @param lr LumpDataInput for the game lump.
+     * @param vin if true, test with Vindictus struct
+     * @return true if the game lump header probably wasn't read correctly
+     * @throws IOException 
+     */
+    private boolean checkInvalidHeaders(LumpDataInput lr, boolean vin) throws IOException {
+        int glumps = lr.readInt();
+        
+        for (int i = 0; i < glumps; i++) {
+            String glName = StringMacroUtils.unmakeID(lr.readInt());
+
+            // check for unusual chars that indicate a reading error
+            if (!glName.matches("^[a-zA-Z0-9]{4}$")) {
+                lr.position(0);
+                return true;
+            }
+
+            lr.skipBytes(vin ? 16 : 12);
+        }
+
+        lr.position(0);
+        return false;
     }
     
     /**

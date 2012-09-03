@@ -955,6 +955,46 @@
             weapon_zeno_musket
         </entities>
     </app>
+    <app name="Vindictus / Mabinogi: Heroes" id="-100">
+        <version min="20" />
+        <files>^\d{2}([a-z]{1,2}|_(m)?boss(_return|_alice)?)|[pu]\d{2}|lobby_.+$</files>
+        <entities>
+            func_brush_projectile_remove
+            info_custom_eye_target
+            info_npc_spawn_destination
+            info_player_dark_knight
+            info_player_paladin
+            npc_actor
+            npc_bear
+            npc_giant_spider
+            npc_glasgavelen
+            npc_gnoll
+            npc_goblin
+            npc_golem
+            npc_kobold
+            npc_lizardman
+            npc_ogre
+            npc_player_select
+            npc_toad
+            npc_troll
+            npc_vamplord
+            npc_yeti
+            pix_fog_srgb_controller
+            point_countdown_gauge
+            prop_beanbag
+            prop_ctf
+            prop_gourd
+            prop_vehicle_ballista
+            prop_vehicle_ballista_rope
+            prop_world
+            score_ctf
+            script_entity
+            script_listener
+            script_listener_survivor
+            trigger_givesubweapon
+            trigger_req_player_touch
+        </entities>
+    </app>
     <app name="Dear Esther" id="203810">
         <version min="21" />
         <entities>
