@@ -41,6 +41,7 @@ Limitations and known bugs
 Dependencies
 ------------
 
+* [jbsplib](https://github.com/ata4/jbsplib)
 * [apache-commons-io-2.0.1](http://commons.apache.org/io/)
 * [apache-commons-compress-1.1](http://commons.apache.org/compress/)
 * [apache-commons-cli-1.2](http://commons.apache.org/cli/)
