@@ -24,7 +24,7 @@ public class DModel implements DStruct {
 
     public Vector3f mins, maxs;
     public Vector3f origin;
-    public int headnode;
+    public int headnode;    // the head node of the model's BSP tree
     public int fstface;
     public int numface;
 

@@ -1,34 +1,34 @@
 /*
-** 2011 April 5
-**
-** The author disclaims copyright to this source code.  In place of
-** a legal notice, here is a blessing:
-**    May you do good and not evil.
-**    May you find forgiveness for yourself and forgive others.
-**    May you share freely, never taking more than you give.
-*/
+ ** 2011 April 5
+ **
+ ** The author disclaims copyright to this source code.  In place of
+ ** a legal notice, here is a blessing:
+ **    May you do good and not evil.
+ **    May you find forgiveness for yourself and forgive others.
+ **    May you share freely, never taking more than you give.
+ */
 
 package info.ata4.bsplib.entity;
 
-import info.ata4.bsplib.util.StringUtils;
 import info.ata4.bsplib.vector.Vector3f;
 import java.io.PrintStream;
-import java.util.Map.Entry;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Abstract entity representation that works roughly like in Hammer. Has two
  * KeyValue lists, one for normal, unique key-values and one for I/O that may
  * contain duplicates.
- * 
+ *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class Entity {
-    
-    private static final Logger L = Logger.getLogger(Entity.class.getName());
 
+    private static final Logger L = Logger.getLogger(Entity.class.getName());
+    
     private Map<String, String> keyValue = new LinkedHashMap<String, String>();
     private List<KeyValue> keyValueIO = new ArrayList<KeyValue>();
     private String className;
@@ -46,7 +46,7 @@ public class Entity {
         if (className.length() == 0) {
             throw new IllegalArgumentException("Empty class name");
         }
-        
+
         this.className = className;
     }
 
@@ -56,40 +56,40 @@ public class Entity {
      * @param kvList raw key-value list
      */
     public Entity(List<KeyValue> kvList) {
+        String sepChr = String.valueOf((char) 0x1b);
+        
         for (KeyValue kv : kvList) {
             String key = kv.getKey();
             String value = kv.getValue();
-            
-             // special KV, don't add it
+
+            // special KV, don't add it
             if (key.equals("classname")) {
-                className = value;
+                if (className == null) {
+                    className = value;
+                } else {
+                    L.log(Level.WARNING, "Found duplicate classname key, ignoring {0}", kv);
+                }
                 continue;
             }
-            
+
             // search for escape separator chars
-            int sep = StringUtils.countChar(value, (char) 0x1b);
+            int sep = StringUtils.countMatches(value, sepChr);
 
             if (sep == 0) {
                 // try comma, too
-                sep = StringUtils.countChar(value, ',');
+                sep = StringUtils.countMatches(value, ",");
             }
 
             // 6 seps for VTMB and Messiah, 4 otherwise
             boolean io = sep == 4 || sep == 6;
-            
+
             if (io) {
                 keyValueIO.add(kv);
-            } else {                
-                // ignore values with duplicate keys
-                if (keyValue.containsKey(key)) {
-                    L.log(Level.WARNING, "Found duplicate entity key, ignoring {0}", kv);
-                    continue;
-                }
-
+            } else {
                 keyValue.put(key, value);
             }
         }
-        
+
         // check and add missing class name
         if (className == null || className.isEmpty()) {
             L.log(Level.WARNING, "Missing or empty class name, using \"unknown_entity\"");
@@ -104,15 +104,15 @@ public class Entity {
     public Set<String> getKeys() {
         return keyValue.keySet();
     }
-    
+
     public Collection<String> getValues() {
         return keyValue.values();
     }
-    
+
     public Set<Entry<String, String>> getEntrySet() {
         return keyValue.entrySet();
     }
-    
+
     public boolean hasKey(String key) {
         return keyValue.containsKey(key);
     }
@@ -153,17 +153,24 @@ public class Entity {
     public void setTargetName(String value) {
         setValue("targetname", value);
     }
-    
+
     public Vector3f getVector3f(String key) {
-        String vecString = getValue(key);
-        
-        if (vecString == null) {
+        String str = getValue(key);
+
+        if (str == null) {
             return null;
         }
-        
+
         // parse origin values
         try {
-            return StringUtils.parseVector(vecString);
+            // split string by whitespaces
+            String[] costr = StringUtils.split(str, ' ');
+
+            float x = costr.length > 0 ? Float.parseFloat(costr[0]) : 0;
+            float y = costr.length > 1 ? Float.parseFloat(costr[1]) : 0;
+            float z = costr.length > 2 ? Float.parseFloat(costr[2]) : 0;
+
+            return new Vector3f(x, y, z);
         } catch (NumberFormatException ex) {
             return null;
         }
@@ -230,7 +237,7 @@ public class Entity {
 
     /**
      * Prints all key-values to a PrintStream.
-     * 
+     *
      * @param ps PrintStream to write to
      */
     public void dump(PrintStream ps) {
@@ -250,7 +257,7 @@ public class Entity {
 
         ps.println();
     }
-    
+
     /**
      * Prints all key-values to standard output
      */

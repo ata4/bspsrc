@@ -13,10 +13,10 @@ package info.ata4.bsplib;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bsplib.app.SourceAppID;
-import info.ata4.bsplib.compression.LzmaBuffer;
+import info.ata4.bsplib.io.LzmaBuffer;
 import info.ata4.bsplib.lump.*;
-import info.ata4.bsplib.util.MappedFileUtils;
-import info.ata4.bsplib.util.StringUtils;
+import info.ata4.bsplib.util.StringMacroUtils;
+import info.ata4.util.io.MappedFileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -42,7 +42,7 @@ public class BspFile {
     private static final Logger L = Logger.getLogger(BspFile.class.getName());
 
     // big-endian "VBSP"
-    public static final int BSP_ID = StringUtils.makeID("VBSP");
+    public static final int BSP_ID = StringMacroUtils.makeID("VBSP");
     
     // endianness
     private ByteOrder bo;
@@ -55,8 +55,11 @@ public class BspFile {
     public static final int HEADER_LUMPS = 64;
     public static final int HEADER_SIZE = 1036;
 
-    // bsp source file
+    // BSP source file
     private File file;
+    
+    // BSP name, usually the file name without ".bsp"
+    private String name;
 
     // lump table
     private List<Lump> lumps = new ArrayList<Lump>(HEADER_LUMPS);
@@ -69,20 +72,30 @@ public class BspFile {
     private int mapRev;
     
     private SourceApp app = SourceApp.UNKNOWN;
-
+    
     /**
-     * Opens the BSP file and loads its headers
+     * Opens the BSP file and loads its headers and lumps.
      *
      * @param file BSP file to open
-     * @param useLumpFiles load lump files associated to the BSP file, if true
+     * @param memMapping if set to true, the file will be mapped to memory. This
+     *            is faster than loading it entirely to memory first, but the map
+     *            can't be saved in the same file because of memory management
+     *            restrictions of the JVM.
      * @throws IOException if the file can't be opened or read
      */
-    public void load(File file) throws IOException {
+    public void load(File file, boolean memMapping) throws IOException {
         this.file = file;
-
+        this.name = FilenameUtils.getBaseName(file.getPath());
+        
         L.log(Level.FINE, "Loading headers from {0}", file.getName());
         
-        ByteBuffer bb = MappedFileUtils.openReadOnly(file);
+        ByteBuffer bb;
+        
+        if (memMapping) {
+            bb = MappedFileUtils.openReadOnly(file);
+        } else {
+            bb = MappedFileUtils.load(file);
+        }
         
         // make sure we have enough room for reading
         if (bb.capacity() < HEADER_SIZE) {
@@ -105,11 +118,12 @@ public class BspFile {
                 // No GoldSrc! Please!
                 throw new BspException("The GoldSrc format is not supported");
             } else {
-                throw new BspException("Unknown file ident: " + StringUtils.unmakeID(ident));
+                throw new BspException("Unknown file ident: " + ident + " (" +
+                        StringMacroUtils.unmakeID(ident) + ")");
             }
         }
 
-        L.log(Level.FINER, "Ident: {0} ({1})", new Object[]{ident, StringUtils.unmakeID(ident)});
+        L.log(Level.FINER, "Ident: {0} ({1})", new Object[]{ident, StringMacroUtils.unmakeID(ident)});
         L.log(Level.FINER, "Endianness: {0}", bo);
 
         // set byte order
@@ -144,6 +158,17 @@ public class BspFile {
         L.log(Level.FINER, "Map revision: {0}", mapRev);
     }
     
+    /**
+     * Opens the BSP file and loads its headers and lumps. The map is loaded
+     * with memory-mapping for efficiency.
+     *
+     * @param file BSP file to open
+     * @throws IOException if the file can't be opened or read
+     */
+    public void load(File file) throws IOException {
+        load(file, true);
+    }
+    
     public void save(File file) throws IOException {
         int size = fixLumpOffsets();
         
@@ -167,6 +192,7 @@ public class BspFile {
         for (int i = 0; i < HEADER_LUMPS; i++) {
             int vers, ofs, len, fourCC;
 
+            // L4D2 maps use a different order
             if (app.getAppID() == SourceAppID.LEFT_4_DEAD_2) {
                 vers = bb.getInt();
                 ofs = bb.getInt();
@@ -210,7 +236,7 @@ public class BspFile {
                         new Object[]{lenOld, ltype, len});
             }
 
-            Lump l = new Lump(ltype);
+            Lump l = new Lump(i, ltype);
             l.setBuffer(bb, ofs, len);
             l.setParentFile(file);
             l.setFourCC(fourCC);
@@ -290,9 +316,17 @@ public class BspFile {
         try {
             Lump l = getLump(LumpType.LUMP_GAME_LUMP);
             LumpDataInput lr = l.getDataInput();
+
+            // hack for Vindictus
+            if (version == 20 && bo == ByteOrder.LITTLE_ENDIAN
+                    && checkInvalidHeaders(lr, false)
+                    && !checkInvalidHeaders(lr, true)) {
+                L.finer("Found Vindictus game lump header");
+                app = SourceAppDB.getInstance().fromID(SourceAppID.VINDICTUS);
+            }
             
             int glumps = lr.readInt();
-
+            
             for (int i = 0; i < glumps; i++) {
                 int ofs, len, flags, vers, fourCC;
 
@@ -301,7 +335,7 @@ public class BspFile {
                 }
 
                 fourCC = lr.readInt();
-
+                
                 if (app.getAppID() == SourceAppID.VINDICTUS) {
                     flags = lr.readInt();
                     vers = lr.readInt();
@@ -330,8 +364,8 @@ public class BspFile {
                 if (ofs - l.getOffset() > 0) {
                     ofs -= l.getOffset();
                 }
-
-                String glName = StringUtils.unmakeID(fourCC);
+                
+                String glName = StringMacroUtils.unmakeID(fourCC);
 
                 // give dummy entries more useful names
                 if (glName.trim().isEmpty()) {
@@ -398,8 +432,13 @@ public class BspFile {
             for (GameLump gl : gameLumps) {
                 // write header
                 lw.writeInt(gl.getFourCC());
-                lw.writeShort(gl.getFlags());
-                lw.writeShort(gl.getVersion());
+                if (app.getAppID() == SourceAppID.VINDICTUS) {
+                    lw.writeInt(gl.getFlags());
+                    lw.writeInt(gl.getVersion());
+                } else {
+                    lw.writeShort(gl.getFlags());
+                    lw.writeShort(gl.getVersion());
+                }
                 lw.writeInt(gl.getOffset());
                 lw.writeInt(gl.getLength());
 
@@ -467,6 +506,33 @@ public class BspFile {
         }
         
         return offset;
+    }
+    
+    /**
+     * Heuristic detection of Vindictus game lump headers.
+     * 
+     * @param lr LumpDataInput for the game lump.
+     * @param vin if true, test with Vindictus struct
+     * @return true if the game lump header probably wasn't read correctly
+     * @throws IOException 
+     */
+    private boolean checkInvalidHeaders(LumpDataInput lr, boolean vin) throws IOException {
+        int glumps = lr.readInt();
+        
+        for (int i = 0; i < glumps; i++) {
+            String glName = StringMacroUtils.unmakeID(lr.readInt());
+
+            // check for unusual chars that indicate a reading error
+            if (!glName.matches("^[a-zA-Z0-9]{4}$")) {
+                lr.position(0);
+                return true;
+            }
+
+            lr.skipBytes(vin ? 16 : 12);
+        }
+
+        lr.position(0);
+        return false;
     }
     
     /**
@@ -555,6 +621,7 @@ public class BspFile {
             }
             
             if (!l.isCompressed()) {
+                L.log(Level.FINE, "Compressing {0}", l.getName());
                 l.compress();
             }
         }
@@ -566,6 +633,7 @@ public class BspFile {
             }
             
             if (!gl.isCompressed()) {
+                L.log(Level.FINE, "Compressing {0}", gl.getName());
                 gl.compress();
             }
         }
@@ -673,7 +741,11 @@ public class BspFile {
      * @return BSP name
      */
     public String getName() {
-        return FilenameUtils.getBaseName(file.getPath());
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -700,7 +772,7 @@ public class BspFile {
      *
      * @return map revision
      */
-    public int getMapRev() {
+    public int getRevision() {
         return mapRev;
     }
 

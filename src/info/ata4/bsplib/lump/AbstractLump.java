@@ -10,9 +10,9 @@
 
 package info.ata4.bsplib.lump;
 
-import info.ata4.bsplib.compression.LzmaBuffer;
-import info.ata4.bsplib.io.ByteBufferInputStream;
-import info.ata4.bsplib.io.ByteBufferOutputStream;
+import info.ata4.bsplib.io.LzmaBuffer;
+import info.ata4.util.io.ByteBufferInputStream;
+import info.ata4.util.io.ByteBufferOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,7 +30,7 @@ public abstract class AbstractLump {
     
     private static final Logger L = Logger.getLogger(AbstractLump.class.getName());
     
-    private ByteBuffer buffer;
+    private ByteBuffer buffer = ByteBuffer.allocate(0);
     private int offset;
     private int version = 0;
     private int fourCC = 0;

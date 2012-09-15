@@ -11,7 +11,7 @@
 package info.ata4.bsplib.vector;
 
 /**
- * An immutable three-dimensional vector class for float values.
+ * An immutable fluent interface three-dimensional vector class for float values.
  * 
  * Original class name: unmap.Vec
  * Original author: Bob (Mellish?)
@@ -19,30 +19,17 @@ package info.ata4.bsplib.vector;
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public final class Vector3f {
+public final class Vector3f extends VectorXf {
 
     // frequently used pre-defined vectors
     public static final Vector3f NULL = new Vector3f(0, 0, 0);
-    public static final Vector3f INVALID = new Vector3f(Float.NaN, Float.NaN, Float.NaN);
     public static final Vector3f MAX_VALUE = new Vector3f(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
     public static final Vector3f MIN_VALUE = MAX_VALUE.scalar(-1); // don't use Float.MIN_VALUE here
-    
-    // number of axes, since no arrays/collections are used
-    public static final int AXES = 3;
     
     // vector values
     public final float x;
     public final float y;
     public final float z;
-
-    /**
-     * Default constructor, equivalent to Vector3f(0, 0, 0).
-     * 
-     * @deprecated Use Vector3f.NULL instead
-     */
-    public Vector3f() {
-        this(0, 0, 0);
-    }
 
     /**
      * Replicating contructor
@@ -72,19 +59,20 @@ public final class Vector3f {
      * @param z the vector z component
      */
     public Vector3f(float x, float y, float z) {
+        super(3);
         this.x = x;
         this.y = y;
         this.z = z;
     }
     
     /**
-     * Returns the value of the n'th axis.
+     * Returns the value of the n'th component.
      * 
-     * @param axis axis number
-     * @return axis value
+     * @param index component index
+     * @return component value
      */
-    public float getAxis(int axis) {
-        switch (axis) {
+    public float get(int index) {
+        switch (index) {
             case 0:
                 return this.x;
             case 1:
@@ -97,14 +85,14 @@ public final class Vector3f {
     }
 
     /**
-     * Set the value of the n'th axis.
+     * Set the value of the n'th component.
      * 
-     * @param axis axis number
-     * @param value new axis value
+     * @param index component index
+     * @param value new component value
      * @return vector with new value
      */
-    public Vector3f setAxis(int axis, float value) {
-        switch (axis) {
+    public Vector3f set(int index, float value) {
+        switch (index) {
             case 0:
                 return new Vector3f(value, y, z);
             case 1:
@@ -234,25 +222,9 @@ public final class Vector3f {
     }
 
     /**
-     * Vector multiplication-addition: this + scale*that
-     * 
-     * @param scale
-     * @param that
-     * @return 
-     */
-    public Vector3f addMult(float scale, Vector3f that) {
-        // same as this.add(that.scalar(scale)) with just one new instance?
-        float rx = this.x + scale * that.x;
-        float ry = this.y + scale * that.y;
-        float rz = this.z + scale * that.z;
-
-        return new Vector3f(rx, ry, rz);
-    }
-
-    /**
      * Rotates the vector.
      * 
-     * @param angles angles for each axis in degrees
+     * @param angles angles for each component in degrees
      * @return rotated vector
      */
     public Vector3f rotate(Vector3f angles) {
@@ -316,60 +288,10 @@ public final class Vector3f {
 
         return new Vector3f(rx, ry, rz);
     }
-    
-    /**
-     * Checks if the vector has NaN values.
-     * 
-     * @return true if one value is NaN
-     */
-    public boolean isNaN() {
-        return Float.isNaN(x) || Float.isNaN(y) || Float.isNaN(z);
-    }
 
     /**
-     * Checks if the vector has infinite values.
-     * 
-     * @return true if one value is infinite
+     * Private helper class for rotation
      */
-    public boolean isInfinite() {
-        return Float.isInfinite(x) || Float.isInfinite(y) || Float.isInfinite(z);
-    }
-    
-    /**
-     * Checks if the vector has NaN or infinite values.
-     * 
-     * @return true if one value is NaN or infinite
-     */
-    public boolean isValid() {
-        return !isNaN() && !isInfinite();
-    }
-
-    @Override
-    public String toString() {
-        return "(" + x + ", " + y + ", " + z + ")";
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(!(obj instanceof Vector3f)) {
-            return false;
-        }
-
-        Vector3f that = (Vector3f) obj;
-
-        return this.x == that.x && this.y == that.y && this.z == that.z;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 17 * hash + Float.floatToIntBits(this.x);
-        hash = 17 * hash + Float.floatToIntBits(this.y);
-        hash = 17 * hash + Float.floatToIntBits(this.z);
-        return hash;
-    }
-    
-    // private helper class for rotation
     private class Point2d {
 
         private final double x;

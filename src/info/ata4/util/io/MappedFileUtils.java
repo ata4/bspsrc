@@ -7,12 +7,9 @@
  **    May you find forgiveness for yourself and forgive others.
  **    May you share freely, never taking more than you give.
  */
-package info.ata4.bsplib.util;
+package info.ata4.util.io;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import org.apache.commons.io.FileUtils;
@@ -24,6 +21,37 @@ import org.apache.commons.io.IOUtils;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class MappedFileUtils {
+    
+    public static ByteBuffer load(File file) throws IOException {
+        long size = file.length();
+        
+        // allocateDirect doesn't allow long values. Therefore, files with more
+        // than 4GB can't be loaded, so check the size first!
+        if (size > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("File is larger than 4GB");
+        }
+        
+        // BSP files can be pretty large, so don't use the JVM heap
+        ByteBuffer bb = ByteBuffer.allocateDirect((int) size);
+        
+        InputStream is = null;
+        OutputStream os = null;
+        
+        // fill the byte buffer from an input stream
+        try {
+            is = FileUtils.openInputStream(file);
+            os = new ByteBufferOutputStream(bb);
+            IOUtils.copy(is, os);
+        } finally {
+            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(os);
+        }
+        
+        // prepare byte buffer to be read from the start
+        bb.rewind();
+        
+        return bb;
+    }
     
     public static ByteBuffer openReadOnly(File file) throws IOException {
         ByteBuffer bb;

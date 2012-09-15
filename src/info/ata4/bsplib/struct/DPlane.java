@@ -28,7 +28,7 @@ public class DPlane implements DStruct {
     
     @Override
     public String toString() {
-        return normal + " [" + dist + "]";
+        return "DPlane[n:" + normal + ", d:" + dist + ", t:" + type + "]";
     }
 
     public int getSize() {

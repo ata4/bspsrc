@@ -8,19 +8,19 @@
 **    May you share freely, never taking more than you give.
 */
 
-package info.ata4.bsplib.compression;
+package info.ata4.bsplib.io;
 
-import info.ata4.bsplib.compression.lzma.LzmaDecoder;
-import info.ata4.bsplib.compression.lzma.LzmaEncoder;
-import info.ata4.bsplib.io.ByteBufferInputStream;
-import info.ata4.bsplib.io.ByteBufferOutputStream;
-import info.ata4.bsplib.util.StringUtils;
+import info.ata4.bsplib.util.StringMacroUtils;
+import info.ata4.util.io.ByteBufferInputStream;
+import info.ata4.util.io.ByteBufferOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import lzma.LzmaDecoder;
+import lzma.LzmaEncoder;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -32,7 +32,7 @@ public class LzmaBuffer {
     
     private static final Logger L = Logger.getLogger(LzmaBuffer.class.getName());
     
-    public final static int LZMA_ID = StringUtils.makeID("LZMA");
+    public final static int LZMA_ID = StringMacroUtils.makeID("LZMA");
     public final static int HEADER_SIZE = 17;
 
     public static ByteBuffer uncompress(ByteBuffer buffer) throws IOException {

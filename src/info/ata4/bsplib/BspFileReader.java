@@ -17,7 +17,7 @@ import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.io.EntityInputStream;
 import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.struct.*;
-import info.ata4.bsplib.util.EnumConverter;
+import info.ata4.util.io.EnumConverter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -294,8 +294,9 @@ public class BspFileReader {
                 
                 int pos = lr.position();
                 sp.read(lr);
-                if (lr.position() - pos != sp.getSize()) {
-                    throw new IOException("Bytes read: " + pos + "; expected: " + sp.getSize());
+                int size = sp.getSize();
+                if (lr.position() - pos != size) {
+                    throw new IOException("Bytes read: " + pos + "; expected: " + size);
                 }
                 
                 bsp.staticProps.add(sp);

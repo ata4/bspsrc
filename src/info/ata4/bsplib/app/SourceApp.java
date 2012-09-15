@@ -9,6 +9,8 @@
  */
 package info.ata4.bsplib.app;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -63,6 +65,20 @@ public class SourceApp {
 
     public int getAppID() {
         return appID;
+    }
+    
+    public URI getSteamStoreURI() {
+        // don't return the URI for unknown or custom appIDs
+        if (this == SourceApp.UNKNOWN || appID < 0) {
+            return null;
+        }
+        
+        try {
+            return new URI(String.format("http://store.steampowered.com/app/%d/", appID));
+        } catch (URISyntaxException ex) {
+            // this really shouldn't happen...
+            return null;
+        }
     }
 
     public String getFilePattern() {
