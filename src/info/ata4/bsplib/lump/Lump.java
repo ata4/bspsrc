@@ -32,6 +32,10 @@ public class Lump extends AbstractLump {
         this.type = type;
     }
 
+    public Lump(LumpType type) {
+        this(type.getIndex(), type);
+    }
+
     public void setParentFile(File parentFile) {
         this.parentFile = parentFile;
     }
