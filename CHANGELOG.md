@@ -1,5 +1,8 @@
 ## Changelog
 
+### 1.3.8
+* Improved support and detection of Vindictus maps
+
 ### 1.3.7 - 28.08.2012
 * Added graphical BSPInfo tool to replace the various command line tools in previous versions
 * Improved checking of invalid brushes and brush sides to prevent writing of corrupted VMF files that could crash Hammer
