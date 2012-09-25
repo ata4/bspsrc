@@ -3,7 +3,7 @@
     <!-- Valve Source engine games -->
     <app name="Half-Life 2" id="220">
         <version min="17" max="20" />
-        <files>^d[1-3]_</files>
+        <files><![CDATA[^d[1-3]_]]></files>
         <!-- Lower the maximum points, these entities are quite common in the
              episodes and many Source mods. -->
         <entities points="5">
@@ -117,7 +117,7 @@
     </app>
     <app name="Counter-Strike: Source" id="240">
         <version min="19" max="20" />
-        <files>^[de|cs]_</files>
+        <files><![CDATA[^[de|cs]_]]></files>
         <entities>
             func_bomb_target
             func_buyzone
@@ -129,7 +129,7 @@
     </app>
     <app name="Day of Defeat: Source" id="300">
         <version min="19" max="20" />
-        <files>^dod_</files>
+        <files><![CDATA[^dod_]]></files>
         <entities>
             dod_bomb_dispenser
             dod_bomb_target
@@ -144,7 +144,7 @@
     </app>
     <app name="Half-Life 2: Deathmatch" id="320">
         <version min="19" max="20" />
-        <files>^dm_</files>
+        <files><![CDATA[^dm_]]></files>
         <entities points="3">
             info_player_combine
             info_player_deathmatch
@@ -154,7 +154,7 @@
     <!-- The Orange Box start -->
     <app name="Half-Life 2: Episode One" id="380">
         <version min="20" />
-        <files>^ep1_</files>
+        <files><![CDATA[^ep1_]]></files>
         <entities points="10">
             info_darknessmode_lightsource
             filter_combineball_type
@@ -166,7 +166,7 @@
     </app>
     <app name="Portal" id="400">
         <version min="20" />
-        <files>^(testchmb_a|escape)_</files>
+        <files><![CDATA[^(testchmb_a|escape)_]]></files>
         <entities>
             env_portal_credits
             func_portal_bumper
@@ -186,7 +186,7 @@
     </app>
     <app name="Half-Life 2: Episode Two" id="420">
         <version min="20" />
-        <files>^ep2_</files>
+        <files><![CDATA[^ep2_]]></files>
         <entities points="10">
             func_tank_combine_cannon
             func_tanktrain
@@ -204,7 +204,7 @@
     </app>
     <app name="Team Fortress 2" id="440">
         <version min="20" />
-        <files>^(arena|cp|ctf|pl(r?)|t[cr]|koth|sd|mvm)_</files>
+        <files><![CDATA[^(arena|cp|ctf|pl(r?)|t[cr]|koth|sd|mvm)_]]></files>
         <entities>
             bot_hint_sentrygun
             bot_hint_teleporter_exit
@@ -256,7 +256,7 @@
     <!-- The Orange Box end -->
     <app name="Left 4 Dead" id="500">
         <version min="20" />
-        <files>^l4d_</files>
+        <files><![CDATA[^l4d_]]></files>
         <entities>
             env_outtro_stats
             env_player_blocker
@@ -291,7 +291,7 @@
     </app>
     <app name="Left 4 Dead 2" id="550">
         <version min="21" />
-        <files>^c\d{1,2}m\d{1,2}_</files>
+        <files><![CDATA[^c\d{1,2}m\d{1,2}_]]></files>
         <entities>
             commentary_zombie_spawner
             env_airstrike_indoors
@@ -375,7 +375,7 @@
     </app>
     <app name="Portal 2" id="620">
         <version min="21" />
-        <files>^(mp_coop|sp_a[1-5])_</files>
+        <files><![CDATA[^(mp_coop|sp_a[1-5])_]]></files>
         <entities>
             env_lightrail_endpoint
             env_player_viewfinder
@@ -457,7 +457,7 @@
     </app>
     <app name="Alien Swarm" id="630">
         <version min="21" />
-        <files>^asi-</files>
+        <files><![CDATA[^asi-]]></files>
         <entities>
             asw_alien_goo
             asw_ambient_generic
@@ -570,7 +570,7 @@
     </app>
     <app name="Counter-Strike: Global Offensive" id="1800">
         <version min="21" />
-        <files>^[de|cs]_</files>
+        <files><![CDATA[^[de|cs]_]]></files>
         <entities>
             func_bomb_target
             func_buyzone
@@ -591,7 +591,7 @@
     -->
     <app name="Dark Messiah of Might &amp; Magic" id="2100">
         <version min="20" />
-        <files>^l\d{2}_</files>
+        <files><![CDATA[^l\d{2}_]]></files>
         <entities>
             env_entity_SpellCaster
             func_mm_avoidsimplify
@@ -678,7 +678,7 @@
     </app>
     <app name="Vampire: The Masquerade - Bloodlines" id="2600">
         <version min="17" />
-        <files>^(ch|hw|la|s[mp])_</files>
+        <files><![CDATA[^(ch|hw|la|s[mp])_]]></files>
         <entities points="30">
             item_g_astrolite
             item_g_bach_journal
@@ -811,7 +811,7 @@
     <app name="Garry's Mod" id="4000">
         <version min="20" />
         <!-- There are very few hard-coded Garry's Mod entities, so priorize the prefix -->
-        <files points="5">^(gm(dm)?|mr|ifn|rp|sb|gms|zs|fw)_</files>
+        <files points="5"><![CDATA[^(gm(dm)?|mr|ifn|rp|sb|gms|zs|fw)_]]></files>
         <!-- info_gamemode is used in L4D2 as well, but the maps have a different BSP version -->
         <entities>
             info_gamemode
@@ -867,7 +867,7 @@
     </app>
     <app name="Zombie Panic! Source" id="17500">
         <version min="20" />
-        <files>^zp[aols]_</files>
+        <files><![CDATA[^zp[aols]_]]></files>
         <entities>
             func_humanclip
             func_zombieclip 
@@ -957,7 +957,7 @@
     </app>
     <app name="Vindictus / Mabinogi: Heroes" id="-100">
         <version min="20" />
-        <files>^\d{2}([a-z]{1,2}|_(m)?boss(_return|_alice)?)|[pu]\d{2}|lobby_.+$</files>
+        <files><![CDATA[^\d{2}([a-z]{1,2}|_(m)?boss(_return|_alice)?)|[pu]\d{2}|lobby_.+$]]></files>
         <entities>
             func_brush_projectile_remove
             info_custom_eye_target
@@ -993,6 +993,111 @@
             script_listener_survivor
             trigger_givesubweapon
             trigger_req_player_touch
+        </entities>
+    </app>
+    <app name="Black Mesa" id="-200">
+        <version min="20" />
+        <files><![CDATA[^bm_c[0-3]a[0-5][a-h]$]]></files>
+        <entities>
+            ai_goal_throw_prop
+            camera_satellite
+            env_dispenser
+            env_introcredits
+            env_mortar_controller
+            env_mortar_launcher
+            env_particle_beam
+            env_particle_tesla
+            env_pinch
+            env_tram_screen
+            env_xen_portal
+            env_xen_portal_template
+            env_xen_pushpad
+            filter_activator_flag
+            filter_damage_class
+            fog_volume
+            func_50cal
+            func_conveyor_bms
+            func_friction
+            func_minefield
+            func_tow
+            grenade_satchel
+            grenade_tripmine
+            info_dlightmap_update
+            info_stopallsounds
+            info_target_helicoptercrash
+            item_ammo_energy
+            item_ammo_glock
+            item_ammo_mp5
+            item_ammo_shotgun
+            item_crate
+            item_grenade_mp5
+            item_grenade_rpg
+            item_longjump
+            item_tow_missile
+            item_weapon_357
+            item_weapon_crossbow
+            item_weapon_crowbar
+            item_weapon_frag
+            item_weapon_glock
+            item_weapon_gluon
+            item_weapon_hivehand
+            item_weapon_mp5
+            item_weapon_rpg
+            item_weapon_satchel
+            item_weapon_shotgun
+            item_weapon_snark
+            item_weapon_tau
+            item_weapon_tripmine
+            logic_parent
+            material_timer
+            npc_abrams
+            npc_alien_controller
+            npc_alien_grunt
+            npc_alien_grunt_unarmored
+            npc_alien_slave
+            npc_apache
+            npc_babycrab
+            npc_bullsquid
+            npc_cockroach
+            npc_flyer_flock
+            npc_gargantua
+            npc_generic
+            npc_gonarch
+            npc_houndeye
+            npc_human_assassin
+            npc_human_commander
+            npc_human_grenadier
+            npc_human_grunt
+            npc_human_medic
+            npc_human_scientist
+            npc_human_scientist_eli
+            npc_human_scientist_female
+            npc_human_scientist_kleiner
+            npc_human_security
+            npc_lav
+            npc_maintenance
+            npc_manta
+            npc_nihilanth
+            npc_osprey
+            npc_rat
+            npc_sentry_ceiling
+            npc_sentry_ground
+            npc_snark
+            npc_tentacle
+            npc_zombie_grunt
+            npc_zombie_scientist
+            npc_zombie_scientist_torso
+            npc_zombie_security
+            prop_flare
+            prop_physics_respawnable
+            prop_retinalscanner
+            prop_surgerybot
+            prop_train_apprehension
+            prop_train_awesome
+            trigger_gargantua_shake
+            trigger_lift
+            trigger_weaponfire
+            xen_portal
         </entities>
     </app>
     <app name="Dear Esther" id="203810">
