@@ -1,6 +1,6 @@
 ## Changelog
 
-### 1.3.8
+### 1.3.8 - 01.10.2012
 * Improved support and detection of Vindictus maps
 * Fixed wrong detection of Black Mesa maps
 
