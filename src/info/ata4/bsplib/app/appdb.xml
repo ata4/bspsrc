@@ -1096,6 +1096,7 @@
     </app>
     <app name="Dear Esther" id="203810">
         <version min="21" />
+        <files><![CDATA[^donnelley|esther|jakobson|paul$]]></files>
         <entities>
             de_env_wind
             de_func_smokevolume
