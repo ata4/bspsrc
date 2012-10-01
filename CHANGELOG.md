@@ -2,6 +2,7 @@
 
 ### 1.3.8
 * Improved support and detection of Vindictus maps
+* Fixed wrong detection of Black Mesa maps
 
 ### 1.3.7 - 28.08.2012
 * Added graphical BSPInfo tool to replace the various command line tools in previous versions
