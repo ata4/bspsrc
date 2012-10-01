@@ -19,6 +19,7 @@ import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.lump.LumpType;
+import info.ata4.bspsrc.BspSource;
 import info.ata4.bspsrc.modules.*;
 import info.ata4.util.gui.FileDrop;
 import info.ata4.util.gui.FileExtensionFilter;
@@ -55,7 +56,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private static final Logger L = Logger.getLogger(BspInfoFrame.class.getName());
     
     public static final String NAME = "BSPInfo";
-    public static final String VERSION = "1.0";
+    public static final String VERSION = BspSource.VERSION;
     
     private File currentFile;
     private BspFile bspFile;
