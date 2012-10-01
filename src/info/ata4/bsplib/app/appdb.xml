@@ -596,7 +596,6 @@
             env_entity_SpellCaster
             func_mm_avoidsimplify
             info_node_mm_link_controller
-            item_crate
             item_food_fish_hanged
             item_food_magic_toad
             item_loot_scroll_charm
@@ -1014,7 +1013,6 @@
             env_xen_pushpad
             filter_activator_flag
             filter_damage_class
-            fog_volume
             func_50cal
             func_conveyor_bms
             func_friction
@@ -1029,7 +1027,6 @@
             item_ammo_glock
             item_ammo_mp5
             item_ammo_shotgun
-            item_crate
             item_grenade_mp5
             item_grenade_rpg
             item_longjump
@@ -1048,8 +1045,6 @@
             item_weapon_snark
             item_weapon_tau
             item_weapon_tripmine
-            logic_parent
-            material_timer
             npc_abrams
             npc_alien_controller
             npc_alien_grunt
@@ -1061,7 +1056,6 @@
             npc_cockroach
             npc_flyer_flock
             npc_gargantua
-            npc_generic
             npc_gonarch
             npc_houndeye
             npc_human_assassin
