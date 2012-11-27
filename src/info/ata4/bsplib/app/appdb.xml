@@ -349,12 +349,19 @@
     <app name="Dota 2" id="570">
         <version min="22" max="23" />
         <entities>
+            dota_displacement_visibility
             dota_item_rune_spawner
+            dota_prop_customtexture
+            dota_world_particle_system
+            ent_dota_dire_candybucket
             ent_dota_fountain
             ent_dota_game_events
+            ent_dota_halloffame
             ent_dota_lightinfo
+            ent_dota_radiant_candybucket
             ent_dota_shop
             ent_dota_tree
+            ent_sugar_rush
             info_courier_spawn_dire
             info_courier_spawn_radiant
             info_player_start_badguys
@@ -364,6 +371,7 @@
             npc_dota_fort
             npc_dota_neutral_spawner
             npc_dota_roshan_spawner
+            npc_dota_spawner
             npc_dota_spawner_bad_bot
             npc_dota_spawner_bad_mid
             npc_dota_spawner_bad_top
@@ -568,7 +576,7 @@
             trigger_asw_synup_chatter
         </entities>
     </app>
-    <app name="Counter-Strike: Global Offensive" id="1800">
+    <app name="Counter-Strike: Global Offensive" id="730">
         <version min="21" />
         <files><![CDATA[^[de|cs]_]]></files>
         <entities>
