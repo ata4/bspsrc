@@ -1,7 +1,14 @@
 jbsplib
 =======
 
-A basic Source engine BSP library for Java.
+A basic Source engine BSP file library written in Java.
+
+It is divided into a low-level file reader/writer (BspFile) and a high-level struct reader (BspReader).
+
+Compatibility
+-------------
+
+Most Source games are supported thanks to a build-in game database.
 
 Usage
 -----
@@ -22,7 +29,7 @@ try {
 ```
 
 
-Print the class names for all entities in d1_canals_01.bsp:
+Print the detected game and the class/target names for all entities in d1_canals_01.bsp:
 
 ```java
 try {
@@ -33,13 +40,27 @@ try {
 
 	// load just the entities
 	bspReader.loadEntities();
+	
+	// print the detected game
+	// BspFile.getSourceApp() will be fully available after the call
+	// of BspReader.loadEntities(). Before that, it can only detect
+	// few games based on the file header and structure.
+	System.out.println("Game: " + bspFile.getSourceApp());
+	System.out.println();
 
 	// get the entity list from the loaded data
 	List<Entity> entities = bspReader.getData().entities;
 
-	// print the class name for each entity
+	// print the class/target name for each entity
 	for (Entity entity : entities) {
-		System.out.println(entity.getClassName());
+			System.out.print(entity.getClassName());
+			
+			// print target name if available
+			if (entity.getTargetName() != null) {
+				System.out.print(":" + entity.getTargetName());
+			}
+			
+			System.out.println();
 	}
 } catch (IOException ex) {
 	ex.printStackTrace();
