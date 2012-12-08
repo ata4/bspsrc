@@ -73,6 +73,17 @@ public class BspFile {
     
     private SourceApp app = SourceApp.UNKNOWN;
     
+    public BspFile() {
+    }
+    
+    public BspFile(File file, boolean memMapping) throws IOException {
+        load(file, memMapping);
+    }
+    
+    public BspFile(File file) throws IOException {
+        load(file);
+    }
+    
     /**
      * Opens the BSP file and loads its headers and lumps.
      *
@@ -661,7 +672,8 @@ public class BspFile {
         }
         
         // remove dummy game lump
-        if (!gameLumps.isEmpty()) {
+        if (!gameLumps.isEmpty()
+                && gameLumps.get(gameLumps.size() - 1).getLength() == 0) {
             gameLumps.remove(gameLumps.size() - 1);
         }
     }
@@ -715,7 +727,8 @@ public class BspFile {
     }
 
     /**
-     * Generates the file name for the next new lump file
+     * Generates the file name for the next new lump file based on the name of
+     * this file.
      *
      * @return new lump file
      */
@@ -744,6 +757,12 @@ public class BspFile {
         return name;
     }
     
+    /**
+     * Manually sets a new name for this file. This won't rename the actual file,
+     * but changes the result of <code>{@link #getNextLumpFile}</code>.
+     * 
+     * @param name new BSP name
+     */
     public void setName(String name) {
         this.name = name;
     }
@@ -765,6 +784,23 @@ public class BspFile {
     public int getVersion() {
         return version;
     }
+    
+    /**
+     * Sets a new BSP version. Note that this won't convert any lump structures
+     * to ensure compatibility between Source engine games that use this
+     * version!
+     *
+     * @param version new BSP version
+     * @throws BspException if the version is outside the allowed range of
+     *                      VERSION_MIN to VERSION_MIN.
+     */
+    public void setVersion(int version) throws BspException {
+        if (version > VERSION_MAX || version < VERSION_MIN) {
+            throw new BspException("Unsupported version");
+        }
+        
+        this.version = version;
+    }
 
     /**
      * Returns the map revision, usually equals the "mapversion" keyvalue in the
@@ -774,6 +810,15 @@ public class BspFile {
      */
     public int getRevision() {
         return mapRev;
+    }
+    
+    /**
+     * Sets a new map revision number.
+     * 
+     * @param mapRev new map revision
+     */
+    public void setRevision(int mapRev) {
+        this.mapRev = mapRev;
     }
 
     /**
@@ -786,11 +831,31 @@ public class BspFile {
         return bo;
     }
 
+    /**
+     * Returns the detected Source engine application for this file.
+     * 
+     * @return Source engine application
+     */
     public SourceApp getSourceApp() {
         return app;
     }
 
+    /**
+     * Manually set the Source engine application used for file handling.
+     * 
+     * @param appID new Source engine application
+     */
     public void setSourceApp(SourceApp appID) {
         this.app = appID;
+    }
+    
+    /**
+     * Returns the BSP reader for this file.
+     * 
+     * @return BSP reader for this file
+     * @throws IOException on IO errors
+     */
+    public BspFileReader getReader() throws IOException {
+        return new BspFileReader(this);
     }
 }
