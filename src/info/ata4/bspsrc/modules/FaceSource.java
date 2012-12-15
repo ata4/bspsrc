@@ -81,7 +81,7 @@ public class FaceSource extends ModuleDecompile {
     }
 
     /**
-     * Writes all splitted faces
+     * Writes all split faces
      */
     public void writeFaces() {
         L.info("Writing split faces");
