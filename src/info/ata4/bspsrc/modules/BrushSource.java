@@ -142,6 +142,7 @@ public class BrushSource extends ModuleDecompile {
             int ibrushside = brush.fstside + i;
             DBrushSide brushSide = bsp.brushSides.get(ibrushside);
             
+            // don't output surplus bevel faces - they lead to bad brushes
             if (brushSide.bevel) {
                 continue;
             }
@@ -263,11 +264,6 @@ public class BrushSource extends ModuleDecompile {
 
     private boolean writeSide(int ibrushside, int ibrush, Winding wind, Vector3f origin, Vector3f angles) {
         DBrushSide brushSide = bsp.brushSides.get(ibrushside);
-        
-        // don't output bevel faces - they lead to bad brushes
-        if (brushSide.bevel) {
-            return false;
-        }
         
         // calculate plane vectors
         Vector3f[] plane = wind.buildPlane();
