@@ -207,6 +207,10 @@ public class TextureSource extends ModuleRead {
 
         return texture;
     }
+    
+    public Texture getTexture(short itexinfo) {
+        return getTexture(itexinfo, null, null, null);
+    }
 
     /**
      * Creates a texture with the selected material and default alignment.
