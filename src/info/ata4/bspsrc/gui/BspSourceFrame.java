@@ -669,7 +669,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         });
 
         checkBoxFixRotation.setText("Fix rotation of instances");
-        checkBoxFixRotation.setToolTipText("<html>\nFixes rotation of brush entities that were compiled from rotated instances.<br>\nThe wrong rotation of these brushes is visible in Hammer only and <br>\nwon't affect re-compilation.<br>\n<b>Note:</b> may cause \"texture axis perpendicular to face\" errors.\n</html>");
+        checkBoxFixRotation.setToolTipText("<html>\nFixes rotation of brush entities that were compiled from rotated instances.<br>\nThe wrong rotation of these brushes is visible in Hammer only and <br>\nwon't affect re-compilation.\n</html>");
         checkBoxFixRotation.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 checkBoxFixRotationActionPerformed(evt);
@@ -854,7 +854,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         });
 
         checkBoxExtractEmbedded.setText("Extract embedded files");
-        checkBoxExtractEmbedded.setToolTipText("<html>\nUnpack all files that are embedded into the BSP file (pakfile extraction).\n</html>");
+        checkBoxExtractEmbedded.setToolTipText("<html>\nExtract all resource files that are embedded into the BSP file.\n</html>");
         checkBoxExtractEmbedded.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 checkBoxExtractEmbeddedActionPerformed(evt);
@@ -864,7 +864,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         labelSourceFormat.setText("VMF format");
 
         comboBoxSourceFormat.setModel(getSourceFormatModel());
-        comboBoxSourceFormat.setToolTipText("<html>\n<p>Sets the VMF source format.</p>\n<p>On default, newer maps are decompiled to a format<br/>\nthat is incompatible with older Hammer versions. <br/>\nSelect <i>\"Source 2003-2009\"</i> if you want to make sure that<br/>\nthe decompiled map is loadable in old Hammer versions.\n</html>");
+        comboBoxSourceFormat.setToolTipText("<html>\n<p>Sets the VMF source format.</p>\n<p>On default, newer maps are decompiled to a format<br/>\nthat is incompatible with older Hammer versions. <br/>\nSelect <i>\"Source 2004-2009\"</i> if you want to make sure that<br/>\nthe decompiled map is loadable in old Hammer versions.\n</html>");
         comboBoxSourceFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboBoxSourceFormatActionPerformed(evt);
@@ -892,9 +892,9 @@ public class BspSourceFrame extends javax.swing.JFrame {
                             .addComponent(labelSourceFormat)
                             .addComponent(labelMapFormat))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(comboBoxMapFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(comboBoxSourceFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGroup(panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(comboBoxMapFormat, 0, 190, Short.MAX_VALUE)
+                            .addComponent(comboBoxSourceFormat, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap(44, Short.MAX_VALUE))
         );
         panelOtherLayout.setVerticalGroup(
