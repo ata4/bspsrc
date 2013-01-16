@@ -8,7 +8,7 @@
 **    May you share freely, never taking more than you give.
 */
 
-package info.ata4.util.io;
+package info.ata4.util;
 
 import java.util.EnumSet;
 import java.util.Set;

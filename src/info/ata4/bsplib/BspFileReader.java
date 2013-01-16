@@ -17,7 +17,7 @@ import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.io.EntityInputStream;
 import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.struct.*;
-import info.ata4.util.io.EnumConverter;
+import info.ata4.util.EnumConverter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
