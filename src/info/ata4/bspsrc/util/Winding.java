@@ -456,10 +456,8 @@ public class Winding implements List<Vector3f> {
     }
     
     public Vector3f[] getBounds() {
-        final float M = Float.MAX_VALUE;
-        
-        Vector3f mins = new Vector3f(M, M, M);
-        Vector3f maxs = new Vector3f(-M, -M, -M);
+        Vector3f mins = Vector3f.MAX_VALUE;
+        Vector3f maxs = Vector3f.MIN_VALUE;
         
         for (Vector3f vert : verts) {
             mins = mins.min(vert);
