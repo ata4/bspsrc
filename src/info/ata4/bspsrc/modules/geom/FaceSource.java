@@ -8,12 +8,18 @@
 **    May you share freely, never taking more than you give.
 */
 
-package info.ata4.bspsrc.modules;
+package info.ata4.bspsrc.modules.geom;
 
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.*;
+import info.ata4.bspsrc.modules.BspDecompiler;
+import info.ata4.bspsrc.modules.ModuleDecompile;
+import info.ata4.bspsrc.modules.texture.Texture;
+import info.ata4.bspsrc.modules.texture.TextureAxis;
+import info.ata4.bspsrc.modules.texture.TextureSource;
+import info.ata4.bspsrc.modules.texture.ToolTexture;
 import info.ata4.bspsrc.util.Winding;
 import java.util.*;
 import java.util.logging.Level;
@@ -48,12 +54,12 @@ public class FaceSource extends ModuleDecompile {
     private Set<Integer> undersizedFaces = new HashSet<Integer>();
     
     // brush side ID mapping arrays
-    Map<Integer, Integer> faceToID = new HashMap<Integer, Integer>();
-    Map<Integer, Integer> origFaceToID = new HashMap<Integer, Integer>();
-    Map<Short, Integer> dispinfoToID = new HashMap<Short, Integer>();
+    public Map<Integer, Integer> faceToID = new HashMap<Integer, Integer>();
+    public Map<Integer, Integer> origFaceToID = new HashMap<Integer, Integer>();
+    public Map<Short, Integer> dispinfoToID = new HashMap<Short, Integer>();
     
     // mapped original faces
-    List<Set<Integer>> origFaceToSplitFace;
+    public List<Set<Integer>> origFaceToSplitFace;
     
     // current offset in multiblend lump
     private int multiblendOffset;

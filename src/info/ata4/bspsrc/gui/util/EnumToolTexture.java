@@ -7,9 +7,9 @@
  **    May you find forgiveness for yourself and forgive others.
  **    May you share freely, never taking more than you give.
  */
-package info.ata4.bspsrc.gui;
+package info.ata4.bspsrc.gui.util;
 
-import info.ata4.bspsrc.ToolTexture;
+import info.ata4.bspsrc.modules.texture.ToolTexture;
 
 /**
  * Enumeration for some tool textures.

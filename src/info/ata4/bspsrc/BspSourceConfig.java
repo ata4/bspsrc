@@ -11,6 +11,8 @@
 package info.ata4.bspsrc;
 
 import info.ata4.bsplib.app.SourceApp;
+import info.ata4.bspsrc.modules.geom.BrushMode;
+import info.ata4.bspsrc.util.SourceFormat;
 import info.ata4.util.log.ConsoleFormatter;
 import info.ata4.util.log.LogUtils;
 import java.io.Serializable;

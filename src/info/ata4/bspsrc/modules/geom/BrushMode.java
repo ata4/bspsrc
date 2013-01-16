@@ -8,9 +8,9 @@
 **    May you share freely, never taking more than you give.
 */
 
-package info.ata4.bspsrc;
+package info.ata4.bspsrc.modules.geom;
 
-import info.ata4.util.io.EnumConverter;
+import info.ata4.util.EnumConverter;
 
 /**
  * Enumeration for brush modes.

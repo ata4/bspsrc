@@ -20,7 +20,7 @@ import info.ata4.bsplib.struct.DLeaf;
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class TreeLimit {
+public class BspTreeStats {
 
     private BspData bsp;
     private int bmin;   //min brush
@@ -29,7 +29,7 @@ public class TreeLimit {
     private int fmax;   //max face
     private int nmax;   //max node
 
-    public TreeLimit(BspData bsp) {
+    public BspTreeStats(BspData bsp) {
         this.bsp = bsp;
         reset();
     }

@@ -9,6 +9,7 @@
  */
 package info.ata4.bspinfo.gui;
 
+import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspinfo.gui.models.EmbeddedTableModel;
 import info.ata4.bspinfo.gui.models.EntityTableModel;
 import info.ata4.bspinfo.gui.models.GameLumpTableModel;

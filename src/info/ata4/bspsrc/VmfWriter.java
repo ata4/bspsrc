@@ -13,6 +13,8 @@ package info.ata4.bspsrc;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.bspsrc.modules.texture.Texture;
+import info.ata4.bspsrc.modules.texture.TextureAxis;
 import java.io.*;
 import java.util.Collections;
 import java.util.EmptyStackException;

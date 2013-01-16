@@ -8,7 +8,7 @@
 **    May you share freely, never taking more than you give.
 */
 
-package info.ata4.bspsrc.modules;
+package info.ata4.bspsrc.modules.geom;
 
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.struct.DBrush;
@@ -16,9 +16,13 @@ import info.ata4.bsplib.struct.DBrushSide;
 import info.ata4.bsplib.struct.DModel;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.BspSourceConfig;
-import info.ata4.bspsrc.Texture;
 import info.ata4.bspsrc.VmfWriter;
-import info.ata4.bspsrc.util.TreeLimit;
+import info.ata4.bspsrc.modules.BspDecompiler;
+import info.ata4.bspsrc.modules.BspProtection;
+import info.ata4.bspsrc.modules.ModuleDecompile;
+import info.ata4.bspsrc.modules.texture.Texture;
+import info.ata4.bspsrc.modules.texture.TextureSource;
+import info.ata4.bspsrc.util.BspTreeStats;
 import info.ata4.bspsrc.util.Winding;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,8 +58,8 @@ public class BrushSource extends ModuleDecompile {
     private int worldbrushes = 0;
     
     // brush side ID mappings
-    Map<Integer, Integer> brushSideToID = new HashMap<Integer, Integer>();
-    Map<Integer, Integer> brushIndexToID = new HashMap<Integer, Integer>();
+    public Map<Integer, Integer> brushSideToID = new HashMap<Integer, Integer>();
+    public Map<Integer, Integer> brushIndexToID = new HashMap<Integer, Integer>();
 
     public BrushSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
             BspDecompiler parent, TextureSource texsrc, BspProtection bspprot) {
@@ -79,7 +83,7 @@ public class BrushSource extends ModuleDecompile {
         // much simpler than the guessing method
         // plus this recovers null-faced brushes
         
-        TreeLimit tl = new TreeLimit(bsp);
+        BspTreeStats tl = new BspTreeStats(bsp);
         
         // walk model 0 (worldspawn model)
         tl.walk(0);

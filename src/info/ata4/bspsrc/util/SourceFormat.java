@@ -7,9 +7,9 @@
  **    May you find forgiveness for yourself and forgive others.
  **    May you share freely, never taking more than you give.
  */
-package info.ata4.bspsrc;
+package info.ata4.bspsrc.util;
 
-import info.ata4.util.io.EnumConverter;
+import info.ata4.util.EnumConverter;
 
 /**
  * Map source format enumeration.

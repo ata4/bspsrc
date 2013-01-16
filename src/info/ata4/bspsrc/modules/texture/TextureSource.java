@@ -8,15 +8,13 @@
 **    May you share freely, never taking more than you give.
 */
 
-package info.ata4.bspsrc.modules;
+package info.ata4.bspsrc.modules.texture;
 
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.bspsrc.Texture;
-import info.ata4.bspsrc.TextureAxis;
-import info.ata4.bspsrc.ToolTexture;
+import info.ata4.bspsrc.modules.ModuleRead;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;

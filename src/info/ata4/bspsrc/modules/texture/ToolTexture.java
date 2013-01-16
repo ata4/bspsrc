@@ -8,7 +8,7 @@
  **    May you share freely, never taking more than you give.
  */
 
-package info.ata4.bspsrc;
+package info.ata4.bspsrc.modules.texture;
 
 /**
  * Enumeration of (mostly) game-independent tool textures.

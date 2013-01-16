@@ -12,10 +12,14 @@ package info.ata4.bspsrc.modules;
 
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.entity.Entity;
-import info.ata4.bspsrc.BrushMode;
 import info.ata4.bspsrc.BspSourceConfig;
-import info.ata4.bspsrc.Camera;
 import info.ata4.bspsrc.VmfWriter;
+import info.ata4.bspsrc.modules.entity.Camera;
+import info.ata4.bspsrc.modules.entity.EntitySource;
+import info.ata4.bspsrc.modules.geom.BrushMode;
+import info.ata4.bspsrc.modules.geom.BrushSource;
+import info.ata4.bspsrc.modules.geom.FaceSource;
+import info.ata4.bspsrc.modules.texture.TextureSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
