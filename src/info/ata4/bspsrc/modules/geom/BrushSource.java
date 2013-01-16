@@ -159,7 +159,8 @@ public class BrushSource extends ModuleDecompile {
                 continue;
             }
             
-            // NOTE: occluder brushes aren't worldbrushes
+            // NOTE: occluder brushes aren't worldbrushes, so they don't need to
+            // be handled here
 
             writeBrush(i);
         }
@@ -286,7 +287,7 @@ public class BrushSource extends ModuleDecompile {
             writeSide(ibrushside, ibrush, wind, origin, angles);
         }
 
-        // don't add visgroup metadata here if this is a protector detail brush
+        // add visgroup metadata if this is a protector detail brush
         if (!brush.isDetail() && bspprot.isProtectedBrush(brush)) {
             parent.writeMetaVisgroup("VMEX protector brushes");
         }
