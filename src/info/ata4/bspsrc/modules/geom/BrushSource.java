@@ -58,8 +58,8 @@ public class BrushSource extends ModuleDecompile {
     private int worldbrushes = 0;
     
     // brush side ID mappings
-    public Map<Integer, Integer> brushSideToID = new HashMap<Integer, Integer>();
-    public Map<Integer, Integer> brushIndexToID = new HashMap<Integer, Integer>();
+    private Map<Integer, Integer> brushSideToID = new HashMap<Integer, Integer>();
+    private Map<Integer, Integer> brushIndexToID = new HashMap<Integer, Integer>();
 
     public BrushSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
             BspDecompiler parent, TextureSource texsrc, BspProtection bspprot) {
@@ -70,6 +70,40 @@ public class BrushSource extends ModuleDecompile {
         this.bspprot = bspprot;
 
         assignBrushes();
+    }
+    
+    /**
+     * Returns the brush side VMF ID for the corresponding brush side index.
+     * The brush side must have been previously written via
+     * {@link #writeSide writeSide}.
+     * 
+     * @param ibrushside brush side index
+     * @return brush side ID or -1 if the index isn't mapped yet
+     */
+    public int getBrushSideIDForIndex(int ibrushside) {
+        if (brushSideToID.containsKey(ibrushside)) {
+            return brushSideToID.get(ibrushside);
+        }
+        
+        // not found
+        return -1;
+    }
+    
+    /**
+     * Returns the brush VMF ID for the corresponding brush index.
+     * The brush must have been previously written via
+     * {@link #writeBrush writeBrush}.
+     * 
+     * @param ibrush brush index
+     * @return brush ID or -1 if the index isn't mapped yet
+     */
+    public int getBrushIDForIndex(int ibrush) {
+        if (brushIndexToID.containsKey(ibrush)) {
+            return brushIndexToID.get(ibrush);
+        }
+        
+        // not found
+        return -1;
     }
 
     /**

@@ -54,9 +54,9 @@ public class FaceSource extends ModuleDecompile {
     private Set<Integer> undersizedFaces = new HashSet<Integer>();
     
     // brush side ID mapping arrays
-    public Map<Integer, Integer> faceToID = new HashMap<Integer, Integer>();
-    public Map<Integer, Integer> origFaceToID = new HashMap<Integer, Integer>();
-    public Map<Short, Integer> dispinfoToID = new HashMap<Short, Integer>();
+    private Map<Integer, Integer> faceToID = new HashMap<Integer, Integer>();
+    private Map<Integer, Integer> origFaceToID = new HashMap<Integer, Integer>();
+    private Map<Short, Integer> dispinfoToID = new HashMap<Short, Integer>();
     
     // mapped original faces
     public List<Set<Integer>> origFaceToSplitFace;
@@ -84,6 +84,46 @@ public class FaceSource extends ModuleDecompile {
                 }
             }
         }
+    }
+    
+    /**
+     * Returns the brush side VMF ID for the corresponding face index.
+     * The face must have been previously written via {@link #writeFace writeFace}.
+     * It automatically looks up the original face if the split face wasn't found.
+     * 
+     * @param iface face index
+     * @return brush side ID or -1 if the index isn't mapped yet
+     */
+    public int getBrushSideIDForFace(int iface) {
+        if (faceToID.containsKey(iface)) {
+            return faceToID.get(iface);
+        } else {
+            // try origface
+            int ioface = bsp.faces.get(iface).origFace;
+            if (origFaceToID.containsKey(ioface)) {
+                return faceToID.get(ioface);
+            }
+        }
+        
+        // not found
+        return -1;
+    }
+    
+    /**
+     * Returns the brush side VMF ID for the corresponding dispInfo index.
+     * The displacement must have been previously written via
+     * {@link #writeDisplacement writeDisplacement}.
+     * 
+     * @param idispinfo dispinfo index
+     * @return brush side ID or -1 if the index isn't mapped yet
+     */
+    public int getBrushSideIDForDispInfo(short idispinfo) {
+        if (dispinfoToID.containsKey(idispinfo)) {
+            return dispinfoToID.get(idispinfo);
+        }
+        
+        // not found
+        return -1;
     }
 
     /**
@@ -581,7 +621,7 @@ public class FaceSource extends ModuleDecompile {
         Map<String, String> multiBlendMap = new LinkedHashMap<String, String>();
         Map<String, String> alphaBlendMap = new LinkedHashMap<String, String>();
 
-        List<Map<String, String>> multiBlendColorMaps = new ArrayList(DDispMultiBlend.MAX_MULTIBLEND_CHANNELS);
+        List<Map<String, String>> multiBlendColorMaps = new ArrayList<Map<String, String>>(DDispMultiBlend.MAX_MULTIBLEND_CHANNELS);
         for (int i = 0; i < DDispMultiBlend.MAX_MULTIBLEND_CHANNELS; i++) {
             multiBlendColorMaps.add(new LinkedHashMap<String, String>());
         }

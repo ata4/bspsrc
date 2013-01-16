@@ -435,15 +435,10 @@ public class EntitySource extends ModuleDecompile {
             } else {
                 for (int j = 0; j < faceCount; j++) {
                     int iface = o.ofaces[j];
+                    int faceId = facesrc.getBrushSideIDForFace(iface);
                     
-                    if (facesrc.faceToID.containsKey(iface)) {
-                        // try origface
-                        int ioface = bsp.faces.get(iface).origFace;
-                        if (facesrc.origFaceToID.containsKey(ioface)) {
-                            sides.add(facesrc.faceToID.get(ioface));
-                        }
-                    } else {
-                        sides.add(facesrc.faceToID.get(iface));
+                    if (faceId != -1) {
+                        sides.add(faceId);
                     }
                 }
             }
@@ -694,8 +689,8 @@ public class EntitySource extends ModuleDecompile {
         
         // use sideid of displacement, if existing
         if (origFace.dispInfo != -1) {
-            if (facesrc.dispinfoToID.containsKey(origFace.dispInfo)) {
-                Integer side = facesrc.dispinfoToID.get(origFace.dispInfo);
+            int side = facesrc.getBrushSideIDForDispInfo(origFace.dispInfo);
+            if (side != -1) {
                 L.log(Level.FINER, "O: {0} D: {1} id: {2}",
                         new Object[]{ioverlay, origFace.dispInfo, side});
                 sides.add(side);
@@ -712,7 +707,13 @@ public class EntitySource extends ModuleDecompile {
 
             for (int j = 0; j < brush.numside; j++) {
                 int ibs = brush.fstside + j;
-                Integer side = brushsrc.brushSideToID.get(ibs);
+                int side = brushsrc.getBrushSideIDForIndex(ibs);
+                
+                // skip unmapped brush sides
+                if (side == -1) {
+                    continue;
+                }
+                
                 DBrushSide bs = bsp.brushSides.get(ibs);
 
                 // create winding from brush side
@@ -721,7 +722,7 @@ public class EntitySource extends ModuleDecompile {
                 }
 
                 // check for valid face: same plane, same texinfo, same geometry
-                if (side == null || origFace.pnum != bs.pnum || origFace.texinfo != bs.texinfo
+                if (origFace.pnum != bs.pnum || origFace.texinfo != bs.texinfo
                         || !bsw[ibs].matches(wof)) {
                     continue;
                 }
@@ -729,13 +730,13 @@ public class EntitySource extends ModuleDecompile {
                 L.log(Level.FINER, "O: {0} OF: {1} B: {2} BS: {3} id: {4}",
                         new Object[]{ioverlay, ioface, i, ibs, side});
 
+                sides.add(side);
+                
                 // make sure we won't have too many brush sides for that overlay
                 if (sides.size() >= maxOverlaySides) {
                     L.log(Level.WARNING, "Too many brush sides for overlay {0}", ioverlay);
-                    return;
+                    break;
                 }
-
-                sides.add(side);
             }
         }
 
