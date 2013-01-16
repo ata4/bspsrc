@@ -68,6 +68,7 @@ public class EntitySource extends ModuleDecompile {
     // settings
     private int maxCubemapSides = 8;
     private int maxOverlaySides = 64;
+    private boolean mergeFuncDetail = true;
 
     public EntitySource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
             BspDecompiler parent, BrushSource brushsrc, FaceSource facesrc,
@@ -330,25 +331,66 @@ public class EntitySource extends ModuleDecompile {
     public void writeDetails() {
         L.info("Writing func_details");
 
-        for (int i = 0; i < bsp.brushes.size(); i++) {
-            DBrush brush = bsp.brushes.get(i);
-
-            // is a detail brush?
-            if (!brush.isSolid() || !brush.isDetail()) {
-                continue;
-            }
-
+        if (mergeFuncDetail) {
+            List<Integer> protBrushIDs = new ArrayList<Integer>();
+            
             writer.start("entity");
             writer.put("id", parent.nextBrushID());
             writer.put("classname", "func_detail");
-            brushsrc.writeBrush(i);
-            
-            // write visgroup metadata if this is a protector brush
-            if (bspprot.isProtectedBrush(brush)) {
-                parent.writeMetaVisgroup("VMEX protector brushes");
+
+            for (int i = 0; i < bsp.brushes.size(); i++) {
+                DBrush brush = bsp.brushes.get(i);
+
+                // is a detail brush?
+                if (!brush.isSolid() || !brush.isDetail()) {
+                    continue;
+                }
+                
+                // if protector brush, mark it and write it later
+                if (bspprot.isProtectedBrush(brush)) {
+                    protBrushIDs.add(i);
+                    continue;
+                }
+
+                brushsrc.writeBrush(i);
             }
-            
+
             writer.end("entity");
+            
+            // write protector brushes separately
+            if (!protBrushIDs.isEmpty()) {
+                writer.start("entity");
+                writer.put("id", parent.nextBrushID());
+                writer.put("classname", "func_detail");
+                parent.writeMetaVisgroup("VMEX protector brushes");
+                
+                for (int brushId : protBrushIDs) {
+                    brushsrc.writeBrush(brushId);
+                }
+                
+                writer.end("entity");
+            }
+        } else {
+            for (int i = 0; i < bsp.brushes.size(); i++) {
+                DBrush brush = bsp.brushes.get(i);
+
+                // is a detail brush?
+                if (!brush.isSolid() || !brush.isDetail()) {
+                    continue;
+                }
+
+                writer.start("entity");
+                writer.put("id", parent.nextBrushID());
+                writer.put("classname", "func_detail");
+                brushsrc.writeBrush(i);
+
+                // write visgroup metadata if this is a protector brush
+                if (bspprot.isProtectedBrush(brush)) {
+                    parent.writeMetaVisgroup("VMEX protector brushes");
+                }
+
+                writer.end("entity");
+            }
         }
     }
 
