@@ -15,7 +15,7 @@ import info.ata4.bsplib.lump.LumpDataOutput;
 import java.io.IOException;
 
 /**
- * DLeaf structure variant used in Vindictus that uses integers rather than shorts.
+ * DLeaf structure variant used in Vindictus that uses integers in place of shorts.
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */

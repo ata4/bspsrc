@@ -14,7 +14,8 @@ import info.ata4.bsplib.lump.LumpDataOutput;
 import java.io.IOException;
 
 /**
- *
+ * DOverlay variant for Vindictus that uses integers in place of shorts.
+ * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DOverlayVin extends DOverlay {
