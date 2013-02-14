@@ -245,7 +245,7 @@ public class FaceSource extends ModuleDecompile {
     public void writeDispFaces() {
         L.info("Writing displacements");
 
-        if (bsp.dispinfos.isEmpty()) {
+        if (bsp.dispinfos == null || bsp.dispinfos.isEmpty()) {
             // no displacements, don't bother searching for matching faces
             return;
         }
