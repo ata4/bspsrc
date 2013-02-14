@@ -534,7 +534,7 @@ public class BspFileReader {
             return;
         }
         
-        bsp.leafFaces = loadIntegerLump(LumpType.LUMP_LEAFFACES, true);
+        bsp.leafFaces = loadIntegerLump(LumpType.LUMP_LEAFFACES, appID != SourceAppID.VINDICTUS);
     }
 
     public void loadLeafBrushes() {
@@ -542,7 +542,7 @@ public class BspFileReader {
             return;
         }
         
-        bsp.leafBrushes = loadIntegerLump(LumpType.LUMP_LEAFBRUSHES, true);
+        bsp.leafBrushes = loadIntegerLump(LumpType.LUMP_LEAFBRUSHES, appID != SourceAppID.VINDICTUS);
     }
 
     public void loadOverlays() {
