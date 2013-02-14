@@ -550,7 +550,13 @@ public class BspFileReader {
             return;
         }
         
-        bsp.overlays = loadLump(LumpType.LUMP_OVERLAYS, DOverlay.class);
+        Class struct = DOverlay.class;
+        
+        if (appID == SourceAppID.VINDICTUS) {
+            struct = DOverlayVin.class;
+        }
+        
+        bsp.overlays = loadLump(LumpType.LUMP_OVERLAYS, struct);
         
         // read fade distances
         if (bsp.overlayFades == null) {
