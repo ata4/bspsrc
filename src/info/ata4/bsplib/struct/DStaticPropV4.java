@@ -11,8 +11,8 @@ package info.ata4.bsplib.struct;
 
 import info.ata4.bsplib.lump.LumpDataInput;
 import info.ata4.bsplib.lump.LumpDataOutput;
-import info.ata4.util.EnumConverter;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.util.EnumConverter;
 import java.io.IOException;
 import java.util.Set;
 

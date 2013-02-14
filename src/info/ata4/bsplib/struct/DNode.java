@@ -53,15 +53,15 @@ public class DNode implements DStruct {
         lo.writeInt(planenum);
         lo.writeInt(children[0]);
         lo.writeInt(children[1]);
-        lo.writeInt(mins[0]);
-        lo.writeInt(mins[1]);
-        lo.writeInt(mins[2]);
-        lo.writeInt(maxs[0]);
-        lo.writeInt(maxs[1]);
-        lo.writeInt(maxs[2]);
-        lo.writeInt(fstface);
-        lo.writeInt(numface);
-        lo.writeInt(area);
+        lo.writeShort(mins[0]);
+        lo.writeShort(mins[1]);
+        lo.writeShort(mins[2]);
+        lo.writeShort(maxs[0]);
+        lo.writeShort(maxs[1]);
+        lo.writeShort(maxs[2]);
+        lo.writeShort(fstface);
+        lo.writeShort(numface);
+        lo.writeShort(area);
         lo.writeShort(0); // paddding
     }
 }

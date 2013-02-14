@@ -114,9 +114,11 @@ public class BspFileReader {
         
         Class struct = DBrushSide.class;
 
-        // newer BSP files have a slightly different struct that is still reported
-        // as version 0
-        if (bspFile.getVersion() >= 21 && appID != SourceAppID.LEFT_4_DEAD_2) {
+        if (appID == SourceAppID.VINDICTUS) {
+            struct = DBrushSideVin.class;
+        } else if (bspFile.getVersion() >= 21 && appID != SourceAppID.LEFT_4_DEAD_2) {
+            // newer BSP files have a slightly different struct that is still reported
+            // as version 0
             struct = DBrushSideV2.class;
         }
 
@@ -141,7 +143,14 @@ public class BspFileReader {
 
     public void loadEdges() {
         if (bsp.edges == null) {
-            bsp.edges = loadLump(LumpType.LUMP_EDGES, DEdge.class);
+            
+            Class struct = DEdge.class;
+            
+            if (appID == SourceAppID.VINDICTUS) {
+                struct = DEdgeVin.class;
+            }
+            
+            bsp.edges = loadLump(LumpType.LUMP_EDGES, struct);
         }
     }
 
@@ -154,6 +163,8 @@ public class BspFileReader {
         
         if (appID == SourceAppID.VAMPIRE_BLOODLINES) {
             struct = DFaceVTMB.class;
+        } else if (appID == SourceAppID.VINDICTUS) {
+            struct = DFaceVin.class;
         } else {
             switch (bspFile.getVersion()) {
                 case 17:
@@ -218,6 +229,8 @@ public class BspFileReader {
         GameLump sprpLump = bspFile.getGameLump("sprp");
 
         if (sprpLump == null) {
+            // static prop lump not available
+            bsp.staticProps = new ArrayList<DStaticProp>();
             return;
         }
 
@@ -227,13 +240,13 @@ public class BspFileReader {
             final int padsize = 128;
             final int psnames = lr.readInt();
             
+            L.log(Level.FINE, "Static prop names: {0}", psnames);
+            
             bsp.staticPropName = new ArrayList<String>(psnames);
 
             for (int i = 0; i < psnames; i++) {
                 bsp.staticPropName.add(lr.readString(padsize));
             }
-
-            L.log(Level.FINE, "Static prop names: {0}", psnames);
 
             // model path strings in Zeno Clash
             if (appID == SourceAppID.ZENO_CLASH) {
@@ -329,7 +342,9 @@ public class BspFileReader {
         
         Class struct = DDispInfo.class;
         
-        if (bspFile.getVersion() == 17 && appID == SourceAppID.HALF_LIFE_2) {
+        if (appID == SourceAppID.VINDICTUS) {
+            struct = DDispInfoVin.class;
+        } else if (bspFile.getVersion() == 17 && appID == SourceAppID.HALF_LIFE_2) {
             struct = DDispInfoBSP17.class;
         } else if (bspFile.getVersion() == 22) {
             struct = DDispInfoBSP22.class;
@@ -467,15 +482,15 @@ public class BspFileReader {
             IOUtils.closeQuietly(entReader);
         }
         
-        // heuristic game detection to handle special BSP formats
-        if (entReader != null && bspFile.getSourceApp().getAppID() == SourceAppID.UNKNOWN) {
+        // detect appID with heuristics to handle special BSP formats if it's
+        // still unknown or undefined at this point
+        if (entReader != null && appID == SourceAppID.UNKNOWN) {
             SourceAppDB appDB = SourceAppDB.getInstance();
             SourceApp app = appDB.find(bspFile.getName(), bspFile.getVersion(), entityClasses);
             bspFile.setSourceApp(app);
+            appID = app.getAppID();
         }
-        
-        appID = bspFile.getSourceApp().getAppID();
-        
+
         L.log(Level.FINE, "Entities: {0}", bsp.entities.size());
     }
 
@@ -484,7 +499,14 @@ public class BspFileReader {
             return;
         }
         
-        bsp.nodes = loadLump(LumpType.LUMP_NODES, DNode.class);
+        Class struct = DNode.class;
+        
+        if (appID == SourceAppID.VINDICTUS) {
+            // use special struct for Vindictus
+            struct = DNodeVin.class;
+        }
+        
+        bsp.nodes = loadLump(LumpType.LUMP_NODES, struct);
     }
 
     public void loadLeaves() {
@@ -493,12 +515,14 @@ public class BspFileReader {
         }
         
         Class struct = DLeafV1.class;
-
-        // choose if we need to read AmbientLighting or not,
-        // it was used in initial Half-Life 2 maps only and
-        // doesn't exist in newer or older versions
-        if (getLump(LumpType.LUMP_LEAFS).getVersion() == 0
+        
+        if (appID == SourceAppID.VINDICTUS) {
+            // use special struct for Vindictus
+            struct = DLeafVin.class;
+        } else if (getLump(LumpType.LUMP_LEAFS).getVersion() == 0
                 && bspFile.getVersion() == 19) {
+            // read AmbientLighting, it was used in initial Half-Life 2 maps 
+            // only and doesn't exist in newer or older versions
             struct = DLeafV0.class;
         }
 
@@ -544,7 +568,13 @@ public class BspFileReader {
             return;
         }
         
-        bsp.areaportals = loadLump(LumpType.LUMP_AREAPORTALS, DAreaportal.class);
+        Class struct = DAreaportal.class;
+        
+        if (appID == SourceAppID.VINDICTUS) {
+            struct = DAreaportalVin.class;
+        }
+        
+        bsp.areaportals = loadLump(LumpType.LUMP_AREAPORTALS, struct);
     }
 
     public void loadOccluders() {

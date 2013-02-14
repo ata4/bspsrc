@@ -347,6 +347,7 @@ public class BspFile {
 
                 fourCC = lr.readInt();
                 
+                // Vindictus uses integers rather than unsigned shorts
                 if (app.getAppID() == SourceAppID.VINDICTUS) {
                     flags = lr.readInt();
                     vers = lr.readInt();

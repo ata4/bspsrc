@@ -10,10 +10,10 @@
 
 package info.ata4.bsplib.lump;
 
-import info.ata4.util.io.ByteBufferDataInput;
 import info.ata4.bsplib.struct.Color32;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bsplib.vector.Vector4f;
+import info.ata4.util.io.ByteBufferDataInput;
 import java.io.IOException;
 
 /**
@@ -66,7 +66,7 @@ public class LumpDataInput extends ByteBufferDataInput {
      * @throws IOException on reading errors
      */
     public String readString(int limit) throws IOException {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(limit);
         int startPos = buf.position();
 
         while (hasRemaining()) {
@@ -75,10 +75,10 @@ public class LumpDataInput extends ByteBufferDataInput {
                 break;
             }
 
-            byte c;
+            byte c = readByte();
 
             // stop on NUL
-            if ((c = readByte()) == 0) {
+            if (c == 0) {
                 break;
             }
 

@@ -16,5 +16,5 @@ package info.ata4.bsplib;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class BspLib {
-    public static final String VERSION = "0.3";
+    public static final String VERSION = "0.31";
 }
