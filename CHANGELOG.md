@@ -1,5 +1,9 @@
 ## Changelog
 
+### 1.3.9 - 15.02.2013
+* Added full support for Vindictus maps
+* Instead of creating one entity for each brush, func_details are now merged to one large entity for all detail brushes. This allows smaller VMF files and avoids some re-compiling problems for complex maps.
+
 ### 1.3.8 - 01.10.2012
 * Improved support and detection of Vindictus maps
 * Fixed wrong detection of Black Mesa maps
