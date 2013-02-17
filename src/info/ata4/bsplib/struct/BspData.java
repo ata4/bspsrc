@@ -60,6 +60,7 @@ public class BspData {
     public List<Integer> occluderVerts;
     public List<Integer> surfEdges;
     public List<String> staticPropName;
+    public List<Integer> staticPropLeaf;
     public List<String> texnames;
     public Set<LevelFlag> mapFlags;
 }

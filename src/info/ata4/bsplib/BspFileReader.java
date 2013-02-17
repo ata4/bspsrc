@@ -256,7 +256,14 @@ public class BspFileReader {
 
             // StaticPropLeafLump_t
             int propleaves = lr.readInt();
-            lr.skipBytes(propleaves * 2); // TODO: save as structure
+            
+            L.log(Level.FINE, "Static prop leaves: {0}", propleaves);
+            
+            bsp.staticPropLeaf = new ArrayList<Integer>(propleaves);
+            
+            for (int i = 0; i < propleaves; i++) {
+                bsp.staticPropLeaf.add(lr.readUnsignedShort());
+            }
 
             // StaticPropLump_t
             final int propstatics = lr.readInt();
