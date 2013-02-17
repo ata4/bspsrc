@@ -9,10 +9,10 @@
  */
 package info.ata4.bsplib.lump;
 
-import info.ata4.util.io.ByteBufferDataOutput;
 import info.ata4.bsplib.struct.Color32;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bsplib.vector.Vector4f;
+import info.ata4.util.io.ByteBufferDataOutput;
 import java.io.IOException;
 
 /**
@@ -59,5 +59,30 @@ public class LumpDataOutput extends ByteBufferDataOutput {
         writeFloat(v.y);
         writeFloat(v.z);
         writeFloat(v.w);
+    }
+    
+    /**
+     * Writes a fixed size NUL-padded string
+     *
+     * @param string string to write
+     * @param length total length of the string including NUL padding
+     * @throws IOException on writing errors
+     * @throws IllegalArgumentException if the string lenght exceeds the limit
+     */
+    public void writeString(String string, int length) throws IOException {
+        byte[] stringBytes = string.getBytes();
+        
+        if (length <= 0) {
+            throw new IllegalArgumentException("Invalid length");
+        }
+        
+        if (stringBytes.length > length) {
+            throw new IllegalArgumentException("String is too long");
+        }
+        
+        byte[] paddingBytes = new byte[length - string.length()];
+        
+        write(stringBytes);
+        write(paddingBytes);
     }
 }

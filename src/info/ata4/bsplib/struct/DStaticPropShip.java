@@ -22,20 +22,22 @@ public class DStaticPropShip extends DStaticPropV5 {
     
     public String targetname;
     
+    public static final int TARGETNAME_LEN = 128;
+    
     @Override
     public int getSize() {
-        return super.getSize() + 128;
+        return super.getSize() + TARGETNAME_LEN;
     }
     
     @Override
     public void read(LumpDataInput li) throws IOException {
         super.read(li);
-        targetname = li.readString(128);
+        targetname = li.readString(TARGETNAME_LEN);
     }
     
     @Override
     public void write(LumpDataOutput lo) throws IOException {
-        // TODO: needs LumpDataOutput.writeString(int len)
-        throw new UnsupportedOperationException();
+        super.write(lo);
+        lo.writeString(targetname, TARGETNAME_LEN);
     }
 }

@@ -61,17 +61,21 @@ public class LumpDataInput extends ByteBufferDataInput {
     /**
      * Reads a fixed size NUL-padded string
      *
-     * @param limit maximum length of the string, including padding
+     * @param length total length of the string including NUL padding
      * @return String, without padding
      * @throws IOException on reading errors
      */
-    public String readString(int limit) throws IOException {
-        StringBuilder sb = new StringBuilder(limit);
+    public String readString(int length) throws IOException {
+        if (length <= 0) {
+            throw new IllegalArgumentException("Invalid length");
+        }
+        
+        StringBuilder sb = new StringBuilder(length);
         int startPos = buf.position();
 
         while (hasRemaining()) {
             // stop on string end
-            if (sb.length() >= limit) {
+            if (sb.length() >= length) {
                 break;
             }
 
@@ -86,16 +90,16 @@ public class LumpDataInput extends ByteBufferDataInput {
         }
 
         // skip padding, - 1 because of the first NUL that has already been read
-        int remaining = limit - sb.length() - 1;
+        int remaining = length - sb.length() - 1;
         if (remaining > 0) {
             skipBytes(remaining);
         }
 
         // check buffer position
         int bytesRead = buf.position() - startPos;
-        if (bytesRead != limit) {
+        if (bytesRead != length) {
             throw new IOException("String reading error: expected length "
-                    + limit + ", got " + bytesRead);
+                    + length + ", got " + bytesRead);
         }
 
         return sb.toString();

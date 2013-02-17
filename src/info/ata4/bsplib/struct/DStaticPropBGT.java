@@ -24,18 +24,18 @@ public class DStaticPropBGT extends DStaticPropV6 {
     
     @Override
     public int getSize() {
-        return super.getSize() + 128;
+        return super.getSize() + DStaticPropShip.TARGETNAME_LEN;
     }
     
     @Override
     public void read(LumpDataInput li) throws IOException {
         super.read(li);
-        targetname = li.readString(128);
+        targetname = li.readString(DStaticPropShip.TARGETNAME_LEN);
     }
     
     @Override
     public void write(LumpDataOutput lo) throws IOException {
-        // TODO: needs LumpDataOutput.writeString(int len)
-        throw new UnsupportedOperationException();
+        super.write(lo);
+        lo.writeString(targetname, DStaticPropShip.TARGETNAME_LEN);
     }
 }
