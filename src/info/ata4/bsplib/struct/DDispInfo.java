@@ -22,7 +22,6 @@ import java.io.IOException;
  */
 public class DDispInfo implements DStruct {
 
-    public static final int ALLOWEDVERTS_SIZE = 10;
     public static final int DISP_INFO_FLAG_HAS_MULTIBLEND = 0x40000000;
     public static final int DISP_INFO_FLAG_MAGIC = 0x80000000;
 
@@ -37,7 +36,7 @@ public class DDispInfo implements DStruct {
     public int lightmapAlphaStart;
     public int lightmapSamplePositionStart;
     protected byte[] neighbors = new byte[90]; // TODO: use structures
-    public int[] allowedVerts = new int[ALLOWEDVERTS_SIZE]; // allowed verts
+    public int[] allowedVerts = new int[10]; // allowed verts
 
     public int getPowerSize() {
         return 1 << power;
@@ -68,7 +67,7 @@ public class DDispInfo implements DStruct {
         lightmapSamplePositionStart = li.readInt();
         li.readFully(neighbors);
 
-        for (int i = 0; i < ALLOWEDVERTS_SIZE; i++) {
+        for (int i = 0; i < allowedVerts.length; i++) {
             allowedVerts[i] = li.readInt();
         }
     }
@@ -86,7 +85,7 @@ public class DDispInfo implements DStruct {
         lo.writeInt(lightmapSamplePositionStart);
         lo.write(neighbors);
 
-        for (int i = 0; i < ALLOWEDVERTS_SIZE; i++) {
+        for (int i = 0; i < allowedVerts.length; i++) {
             lo.writeInt(allowedVerts[i]);
         }
     }

@@ -45,7 +45,7 @@ public class DDispInfoBSP23 extends DDispInfo {
         unknown2 = li.readInt();
         li.readFully(neighbors);
         
-        for (int i = 0; i < ALLOWEDVERTS_SIZE; i++) {
+        for (int i = 0; i < allowedVerts.length; i++) {
             allowedVerts[i] = li.readInt();
         }
     }
@@ -66,7 +66,7 @@ public class DDispInfoBSP23 extends DDispInfo {
         lo.write(unknown2);
         lo.write(neighbors);
         
-        for (int i = 0; i < ALLOWEDVERTS_SIZE; i++) {
+        for (int i = 0; i < allowedVerts.length; i++) {
             lo.writeInt(allowedVerts[i]);
         }
     }

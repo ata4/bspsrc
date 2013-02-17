@@ -44,7 +44,7 @@ public class DDispInfoBSP17 extends DDispInfo {
         lightmapSamplePositionStart = li.readInt();
         li.readFully(neighbors);
         
-        for (int i = 0; i < ALLOWEDVERTS_SIZE; i++) {
+        for (int i = 0; i < allowedVerts.length; i++) {
             allowedVerts[i] = li.readInt();
         }
     }
@@ -62,7 +62,7 @@ public class DDispInfoBSP17 extends DDispInfo {
         lo.writeInt(lightmapSamplePositionStart);
         lo.write(neighbors);
         
-        for (int i = 0; i < ALLOWEDVERTS_SIZE; i++) {
+        for (int i = 0; i < allowedVerts.length; i++) {
             lo.writeInt(allowedVerts[i]);
         }
     }
