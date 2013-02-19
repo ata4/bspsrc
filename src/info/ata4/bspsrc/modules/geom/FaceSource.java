@@ -54,9 +54,9 @@ public class FaceSource extends ModuleDecompile {
     private Set<Integer> undersizedFaces = new HashSet<Integer>();
     
     // brush side ID mapping arrays
-    private Map<Integer, Integer> faceToID = new HashMap<Integer, Integer>();
-    private Map<Integer, Integer> origFaceToID = new HashMap<Integer, Integer>();
-    private Map<Short, Integer> dispinfoToID = new HashMap<Short, Integer>();
+    private Map<Integer, Integer> faceToVMF = new HashMap<Integer, Integer>();
+    private Map<Integer, Integer> origFaceToVMF = new HashMap<Integer, Integer>();
+    private Map<Short, Integer> dispinfoToVMF = new HashMap<Short, Integer>();
     
     // mapped original faces
     public Map<Integer, Set<Integer>> origFaceToSplitFace = new HashMap<Integer, Set<Integer>>();
@@ -94,14 +94,14 @@ public class FaceSource extends ModuleDecompile {
      * @param iface face index
      * @return brush side ID or -1 if the index isn't mapped yet
      */
-    public int getBrushSideIDForFace(int iface) {
-        if (faceToID.containsKey(iface)) {
-            return faceToID.get(iface);
+    public int getVMFBrushSideIDForFace(int iface) {
+        if (faceToVMF.containsKey(iface)) {
+            return faceToVMF.get(iface);
         } else {
             // try origface
             int ioface = bsp.faces.get(iface).origFace;
-            if (origFaceToID.containsKey(ioface)) {
-                return origFaceToID.get(ioface);
+            if (origFaceToVMF.containsKey(ioface)) {
+                return origFaceToVMF.get(ioface);
             }
         }
         
@@ -117,9 +117,9 @@ public class FaceSource extends ModuleDecompile {
      * @param idispinfo dispinfo index
      * @return brush side ID or -1 if the index isn't mapped yet
      */
-    public int getBrushSideIDForDispInfo(short idispinfo) {
-        if (dispinfoToID.containsKey(idispinfo)) {
-            return dispinfoToID.get(idispinfo);
+    public int getVMFBrushSideIDForDispInfo(short idispinfo) {
+        if (dispinfoToVMF.containsKey(idispinfo)) {
+            return dispinfoToVMF.get(idispinfo);
         }
         
         // not found
@@ -342,9 +342,9 @@ public class FaceSource extends ModuleDecompile {
         
         // map face index to brush side ID
         if (orig) {
-            origFaceToID.put(iface, sideID);
+            origFaceToVMF.put(iface, sideID);
         } else {
-            faceToID.put(iface, sideID);
+            faceToVMF.put(iface, sideID);
         }
         
         // create texture
@@ -371,7 +371,7 @@ public class FaceSource extends ModuleDecompile {
         // write displacement?
         if (disp && config.writeDisp) {
             // map face index to brush side ID
-            dispinfoToID.put(face.dispInfo, sideID);
+            dispinfoToVMF.put(face.dispInfo, sideID);
             // write dispinfo section
             writeDisplacement(face.dispInfo);
         }

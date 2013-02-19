@@ -477,7 +477,7 @@ public class EntitySource extends ModuleDecompile {
             } else {
                 for (int j = 0; j < faceCount; j++) {
                     int iface = o.ofaces[j];
-                    int faceId = facesrc.getBrushSideIDForFace(iface);
+                    int faceId = facesrc.getVMFBrushSideIDForFace(iface);
                     
                     if (faceId != -1) {
                         sides.add(faceId);
@@ -731,7 +731,7 @@ public class EntitySource extends ModuleDecompile {
         
         // use sideid of displacement, if existing
         if (origFace.dispInfo != -1) {
-            int side = facesrc.getBrushSideIDForDispInfo(origFace.dispInfo);
+            int side = facesrc.getVMFBrushSideIDForDispInfo(origFace.dispInfo);
             if (side != -1) {
                 L.log(Level.FINER, "O: {0} D: {1} id: {2}",
                         new Object[]{ioverlay, origFace.dispInfo, side});
