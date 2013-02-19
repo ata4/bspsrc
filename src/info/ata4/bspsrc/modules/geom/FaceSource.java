@@ -101,7 +101,7 @@ public class FaceSource extends ModuleDecompile {
             // try origface
             int ioface = bsp.faces.get(iface).origFace;
             if (origFaceToID.containsKey(ioface)) {
-                return faceToID.get(ioface);
+                return origFaceToID.get(ioface);
             }
         }
         
@@ -855,8 +855,12 @@ public class FaceSource extends ModuleDecompile {
         // look at every oface
         for (int i = 0; i < bsp.origFaces.size(); i++) {
             DFace origFace = bsp.origFaces.get(i);
-            Winding wind = Winding.fromFace(bsp, origFace);
-            origFace.area += wind.getArea();
+            
+            // recalculate face area when required
+            if (origFace.area == 0) {
+                Winding wind = Winding.fromFace(bsp, origFace);
+                origFace.area = wind.getArea();
+            }
 
             if (L.isLoggable(Level.FINEST)) {
                 L.log(Level.FINEST, "OF {0}: area {1}", new Object[]{i, origFace.area});
