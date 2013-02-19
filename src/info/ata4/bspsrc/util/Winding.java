@@ -270,7 +270,7 @@ public class Winding implements List<Vector3f> {
     }
     
     public Winding(Winding that) {
-        this.verts = Collections.unmodifiableList(new ArrayList<Vector3f>(that.verts));
+        this.verts = that.verts;
     }
     
     private Winding(List<Vector3f> verts) {
