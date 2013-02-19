@@ -142,16 +142,17 @@ public class BspFileReader {
     }
 
     public void loadEdges() {
-        if (bsp.edges == null) {
-            
-            Class struct = DEdge.class;
-            
-            if (appID == SourceAppID.VINDICTUS) {
-                struct = DEdgeVin.class;
-            }
-            
-            bsp.edges = loadLump(LumpType.LUMP_EDGES, struct);
+        if (bsp.edges != null) {
+            return;
         }
+
+        Class struct = DEdge.class;
+
+        if (appID == SourceAppID.VINDICTUS) {
+            struct = DEdgeVin.class;
+        }
+
+        bsp.edges = loadLump(LumpType.LUMP_EDGES, struct);
     }
 
     private void loadFaces(boolean orig) {
