@@ -57,6 +57,7 @@ public class FaceSource extends ModuleDecompile {
     private Map<Integer, Integer> faceToVMF = new HashMap<Integer, Integer>();
     private Map<Integer, Integer> origFaceToVMF = new HashMap<Integer, Integer>();
     private Map<Short, Integer> dispinfoToVMF = new HashMap<Short, Integer>();
+     private Map<Short, Integer> origToBrushSide = new HashMap<Short, Integer>();
     
     // mapped original faces
     public Map<Integer, Set<Integer>> origFaceToSplitFace = new HashMap<Integer, Set<Integer>>();
@@ -82,6 +83,13 @@ public class FaceSource extends ModuleDecompile {
                 if (face.origFace != -1) {
                     bsp.origFaces.get(face.origFace).texinfo = face.texinfo;
                 }
+            }
+        }
+        
+        // map original faces to brush sides
+        if (!bsp.origFaces.isEmpty()) {
+            for (DFace face : bsp.origFaces) {
+                Winding w = Winding.fromFace(bsp, face);
             }
         }
     }

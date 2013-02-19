@@ -58,9 +58,6 @@ public class EntitySource extends ModuleDecompile {
 
     // list of areaportal brush ids
     private Set<Integer> apBrushes = new HashSet<Integer>();
-    
-    // cached brush side windings
-    private Winding[] bsw;
 
     // overlay target names
     private Map<Integer, String> overlayNames = new HashMap<Integer, String>();
@@ -80,8 +77,6 @@ public class EntitySource extends ModuleDecompile {
         this.facesrc = facesrc;
         this.texsrc = texsrc;
         this.bspprot = bspprot;
-
-        bsw = new Winding[bsp.brushSides.size()];
         
         processEntities();
     }
@@ -688,15 +683,11 @@ public class EntitySource extends ModuleDecompile {
 
             // compare each brush side with areaportal face
             for (int j = 0; j < brush.numside; j++) {
-                int ibs = brush.fstside + j;
-                
                 // create brush side winding
-                if (bsw[ibs] == null) {
-                    bsw[ibs] = Winding.fromSide(bsp, brush, j);
-                }
+                Winding w = Winding.fromSide(bsp, brush, j);
 
                 // compare windings
-                if (bsw[ibs].matches(wp)) {
+                if (w.matches(wp)) {
                     L.log(Level.FINER, "Brush {0} for portal key {1}",
                             new Object[]{i, portalnum});
 
@@ -759,13 +750,11 @@ public class EntitySource extends ModuleDecompile {
                 DBrushSide bs = bsp.brushSides.get(ibs);
 
                 // create winding from brush side
-                if (bsw[ibs] == null) {
-                    bsw[ibs] = Winding.fromSide(bsp, brush, j);
-                }
+                Winding w = Winding.fromSide(bsp, brush, j);
 
                 // check for valid face: same plane, same texinfo, same geometry
                 if (origFace.pnum != bs.pnum || origFace.texinfo != bs.texinfo
-                        || !bsw[ibs].matches(wof)) {
+                        || !w.matches(wof)) {
                     continue;
                 }
 

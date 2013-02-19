@@ -38,6 +38,20 @@ public class Winding implements List<Vector3f> {
     private static final float EPS_COMP = 0.5f;
     private static final float EPS_DEGEN = 0.1f;
     
+    private static Map<DFace, Winding> faceCache = new HashMap<DFace, Winding>();
+    private static Map<DBrushSide, Winding> brushSideCache = new HashMap<DBrushSide, Winding>();
+    private static Map<DAreaportal, Winding> areaportalCache = new HashMap<DAreaportal, Winding>();
+    private static Map<DOccluderPolyData, Winding> occluderCache = new HashMap<DOccluderPolyData, Winding>();
+    private static Map<DPlane, Winding> planeCache = new HashMap<DPlane, Winding>();
+    
+    public static void clearCache() {
+        faceCache.clear();
+        brushSideCache.clear();
+        areaportalCache.clear();
+        occluderCache.clear();
+        planeCache.clear();
+    }
+    
     /**
      * Constructs a winding from face vertices
      *
@@ -47,6 +61,10 @@ public class Winding implements List<Vector3f> {
      * @return Winding for the face
      */
     public static Winding fromFace(BspData bsp, DFace face) {
+        if (faceCache.containsKey(face)) {
+            return faceCache.get(face);
+        }
+        
         Winding w = new Winding();
 
         for (int i = 0; i < face.numedge; i++) {
@@ -63,6 +81,8 @@ public class Winding implements List<Vector3f> {
             
             w.verts.add(bsp.verts.get(v).point);
         }
+        
+        faceCache.put(face, w);
 
         return w;
     }
@@ -79,7 +99,13 @@ public class Winding implements List<Vector3f> {
      */
     public static Winding fromSide(BspData bsp, DBrush brush, int side) {
         int ibside = brush.fstside + side;
-        int iplane = bsp.brushSides.get(ibside).pnum;
+        DBrushSide bside = bsp.brushSides.get(ibside);
+        
+        if (brushSideCache.containsKey(bside)) {
+            return brushSideCache.get(bside);
+        }
+        
+        int iplane = bside.pnum;
         
         Winding w = fromPlane(bsp.planes.get(iplane));
 
@@ -106,17 +132,25 @@ public class Winding implements List<Vector3f> {
             w.clipPlane(flipPlane, false);
         }
         
+        brushSideCache.put(bside, w);
+        
         // return the clipped winding
         return w;
     }
     
     public static Winding fromAreaportal(BspData bsp, DAreaportal ap) {
+        if (areaportalCache.containsKey(ap)) {
+            return areaportalCache.get(ap);
+        }
+        
         Winding w = new Winding();
         
         for (int i = 0; i < ap.clipPortalVerts; i++) {
             int pvi = ap.firstClipPortalVert + i;
             w.verts.add(bsp.clipPortalVerts.get(pvi).point);
         }
+        
+        areaportalCache.put(ap, w);
         
         return w;
     }
@@ -129,12 +163,18 @@ public class Winding implements List<Vector3f> {
      * @return Winding for the occluder
      */
     public static Winding fromOccluder(BspData bsp, DOccluderPolyData opd) {
+        if (occluderCache.containsKey(opd)) {
+            return occluderCache.get(opd);
+        }
+        
         Winding w = new Winding();
 
         for (int k = 0; k < opd.vertexcount; k++) {
             int pvi = bsp.occluderVerts.get(opd.firstvertexindex + k);
             w.verts.add(bsp.verts.get(pvi).point);
         }
+        
+        occluderCache.put(opd, w);
         
         return w;
     }
@@ -147,6 +187,10 @@ public class Winding implements List<Vector3f> {
      * @param pl plane
      */
     public static Winding fromPlane(DPlane pl) {
+        if (planeCache.containsKey(pl)) {
+            return planeCache.get(pl);
+        }
+        
         // find the dominant axis of plane normal
         float dmax = -1.0F;
         int idir = -1;
@@ -204,6 +248,8 @@ public class Winding implements List<Vector3f> {
         w.verts.add(org.add(vrt).add(vup)); // right up
         w.verts.add(org.add(vrt).sub(vup)); // right down
         w.verts.add(org.sub(vrt).sub(vup)); // left down
+        
+        planeCache.put(pl, w);
         
         return w;
     }

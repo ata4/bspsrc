@@ -20,6 +20,7 @@ import info.ata4.bspsrc.modules.geom.BrushMode;
 import info.ata4.bspsrc.modules.geom.BrushSource;
 import info.ata4.bspsrc.modules.geom.FaceSource;
 import info.ata4.bspsrc.modules.texture.TextureSource;
+import info.ata4.bspsrc.util.Winding;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -59,6 +60,8 @@ public class BspDecompiler extends ModuleDecompile {
     public BspDecompiler(BspFileReader reader, VmfWriter writer, BspSourceConfig config) {
         super(reader, writer);
 
+        Winding.clearCache();
+        
         this.config = config;
         
         texsrc = new TextureSource(reader);
