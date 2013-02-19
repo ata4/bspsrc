@@ -65,8 +65,8 @@ public class Winding implements List<Vector3f> {
             return faceCache.get(face);
         }
         
-        Winding w = new Winding();
-
+        List<Vector3f> verts = new ArrayList<Vector3f>();
+        
         for (int i = 0; i < face.numedge; i++) {
             int v;
             int sedge = bsp.surfEdges.get(face.fstedge + i);
@@ -79,8 +79,10 @@ public class Winding implements List<Vector3f> {
                 v = bsp.edges.get(sedge).v[0];
             }
             
-            w.verts.add(bsp.verts.get(v).point);
+            verts.add(bsp.verts.get(v).point);
         }
+        
+        Winding w = new Winding(verts);
         
         faceCache.put(face, w);
 
@@ -129,7 +131,7 @@ public class Winding implements List<Vector3f> {
             DPlane flipPlane = new DPlane();
             flipPlane.normal = plane.normal.scalar(-1);
             flipPlane.dist = -plane.dist;
-            w.clipPlane(flipPlane, false);
+            w = w.clipPlane(flipPlane, false);
         }
         
         brushSideCache.put(bside, w);
@@ -143,12 +145,14 @@ public class Winding implements List<Vector3f> {
             return areaportalCache.get(ap);
         }
         
-        Winding w = new Winding();
+        List<Vector3f> verts = new ArrayList<Vector3f>();
         
         for (int i = 0; i < ap.clipPortalVerts; i++) {
             int pvi = ap.firstClipPortalVert + i;
-            w.verts.add(bsp.clipPortalVerts.get(pvi).point);
+            verts.add(bsp.clipPortalVerts.get(pvi).point);
         }
+                
+        Winding w = new Winding(verts);
         
         areaportalCache.put(ap, w);
         
@@ -167,12 +171,14 @@ public class Winding implements List<Vector3f> {
             return occluderCache.get(opd);
         }
         
-        Winding w = new Winding();
+        List<Vector3f> verts = new ArrayList<Vector3f>();
 
         for (int k = 0; k < opd.vertexcount; k++) {
             int pvi = bsp.occluderVerts.get(opd.firstvertexindex + k);
-            w.verts.add(bsp.verts.get(pvi).point);
+            verts.add(bsp.verts.get(pvi).point);
         }
+        
+        Winding w = new Winding(verts);
         
         occluderCache.put(opd, w);
         
@@ -240,14 +246,16 @@ public class Winding implements List<Vector3f> {
 
         vup = vup.scalar(MAX_LEN);
         vrt = vrt.scalar(MAX_LEN);
-
-        Winding w = new Winding();
         
+        List<Vector3f> verts = new ArrayList<Vector3f>();
+
         // move diagonally away from org to create the corner verts
-        w.verts.add(org.sub(vrt).add(vup)); // left up
-        w.verts.add(org.add(vrt).add(vup)); // right up
-        w.verts.add(org.add(vrt).sub(vup)); // right down
-        w.verts.add(org.sub(vrt).sub(vup)); // left down
+        verts.add(org.sub(vrt).add(vup)); // left up
+        verts.add(org.add(vrt).add(vup)); // right up
+        verts.add(org.add(vrt).sub(vup)); // right down
+        verts.add(org.sub(vrt).sub(vup)); // left down
+        
+        Winding w = new Winding(verts);
         
         planeCache.put(pl, w);
         
@@ -255,14 +263,18 @@ public class Winding implements List<Vector3f> {
     }
     
     // list of vectors to vertex points
-    private List<Vector3f> verts;
+    private final List<Vector3f> verts;
     
     public Winding() {
-        this.verts = new ArrayList<Vector3f>();
+        this.verts = Collections.unmodifiableList(new ArrayList<Vector3f>());
     }
     
     public Winding(Winding that) {
-        this.verts = new ArrayList<Vector3f>(that.verts);
+        this.verts = Collections.unmodifiableList(new ArrayList<Vector3f>(that.verts));
+    }
+    
+    private Winding(List<Vector3f> verts) {
+        this.verts = Collections.unmodifiableList(verts);
     }
 
     /**
@@ -296,7 +308,7 @@ public class Winding implements List<Vector3f> {
      * @param eps clipping epsilon
      * @param back keep vertices behind the plane?
      */
-    public void clipEpsilon(Vector3f normal, float dist, float eps, boolean back) {        
+    public Winding clipEpsilon(Vector3f normal, float dist, float eps, boolean back) {        
         // counts number of front, back and on vertices
         int[] counts = new int[] {0, 0, 0};
         final int size = verts.size();
@@ -335,16 +347,18 @@ public class Winding implements List<Vector3f> {
         if (counts[SIDE_FRONT] == 0) {
             // no vertices in front - all behind clip plane
             if (!back) {
-                verts.clear();
+                return new Winding();
+            } else {
+                return this;
             }
-            return;
         }
         if (counts[SIDE_BACK] == 0) {
             // no vertices in back - all in front of clip plane
             if (back) {
-                verts.clear();
+                return new Winding();
+            } else {
+                return this;
             }
-            return;
         }
         
         List<Vector3f> vertsNew = new ArrayList<Vector3f>();
@@ -416,8 +430,7 @@ public class Winding implements List<Vector3f> {
             vertsNew.add(mv);
         }
         
-        // update vertex list
-        this.verts = vertsNew;
+        return new Winding(vertsNew);
     }
 
     /**
@@ -427,8 +440,8 @@ public class Winding implements List<Vector3f> {
      * @param pl plane to clip to
      * @param back keep vertices behind the plane?
      */
-    public void clipPlane(DPlane pl, boolean back) {
-        clipEpsilon(pl.normal, pl.dist, EPS_SPLIT, back);
+    public Winding clipPlane(DPlane pl, boolean back) {
+        return clipEpsilon(pl.normal, pl.dist, EPS_SPLIT, back);
     }
 
     /**
@@ -615,9 +628,9 @@ public class Winding implements List<Vector3f> {
      * 
      * @return number of removed vertices
      */
-    public int removeDegenerated() {
+    public Winding removeDegenerated() {
         if (verts.isEmpty()) {
-            return 0;
+            return this;
         }
         
         ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
@@ -633,14 +646,8 @@ public class Winding implements List<Vector3f> {
                 vertsNew.add(v1);
             }
         }
-        
-        int removed = verts.size() - vertsNew.size();
 
-        if (removed != 0) {
-            verts = vertsNew;
-        }
-        
-        return removed;
+        return new Winding(vertsNew);
     }
     
     /**
@@ -648,9 +655,9 @@ public class Winding implements List<Vector3f> {
      * 
      * @return number of removed vertices
      */
-    public int removeCollinear() {
+    public Winding removeCollinear() {
         if (verts.isEmpty()) {
-            return 0;
+            return this;
         }
         
         ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
@@ -668,13 +675,7 @@ public class Winding implements List<Vector3f> {
             }
         }
         
-        int removed = size - vertsNew.size();
-
-        if (removed != 0) {
-            verts = vertsNew;
-        }
-        
-        return removed;
+        return new Winding(vertsNew);
     }
     
     /**
@@ -700,35 +701,39 @@ public class Winding implements List<Vector3f> {
      * 
      * @param angles rotation angles
      */
-    public void rotate(Vector3f angles) {
+    public Winding rotate(Vector3f angles) {
         if (verts.isEmpty()) {
-            return;
+            return this;
         }
 
-        ArrayList<Vector3f> vNew = new ArrayList<Vector3f>();
+        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
         
         for (Vector3f vert : verts) {
-            vNew.add(vert.rotate(angles));
+            vertsNew.add(vert.rotate(angles));
         }
 
-        verts = vNew;
+        return new Winding(vertsNew);
     }
     
-    public void translate(Vector3f offset) {
+    public Winding translate(Vector3f offset) {
         if (verts.isEmpty()) {
-            return;
+            return this;
         }
         
-        ArrayList<Vector3f> vNew = new ArrayList<Vector3f>();
+        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
         
         for (Vector3f vert : verts) {
-            vNew.add(vert.add(offset));
+            vertsNew.add(vert.add(offset));
         }
 
-        verts = vNew;
+        return new Winding(vertsNew);
     }
     
-    public void addBackface() {
+    public Winding addBackface() {
+        if (verts.isEmpty()) {
+            return this;
+        }
+        
         List<Vector3f> vertsNew = new ArrayList<Vector3f>();
         
         final int size = verts.size();
@@ -742,9 +747,7 @@ public class Winding implements List<Vector3f> {
             }
         }
         
-        vertsNew.add(verts.get(0));
-        
-        verts = vertsNew;
+        return new Winding(vertsNew);
     }
     
     public int size() {
@@ -772,11 +775,11 @@ public class Winding implements List<Vector3f> {
     }
 
     public boolean add(Vector3f e) {
-        return verts.add(e);
+        throw new UnsupportedOperationException();
     }
 
     public boolean remove(Object o) {
-        return verts.remove(o);
+        throw new UnsupportedOperationException();
     }
 
     public boolean containsAll(Collection<?> c) {
@@ -784,23 +787,23 @@ public class Winding implements List<Vector3f> {
     }
 
     public boolean addAll(Collection<? extends Vector3f> c) {
-        return verts.addAll(c);
+        throw new UnsupportedOperationException();
     }
 
     public boolean addAll(int index, Collection<? extends Vector3f> c) {
-        return verts.addAll(index, c);
+        throw new UnsupportedOperationException();
     }
 
     public boolean removeAll(Collection<?> c) {
-        return verts.removeAll(c);
+        throw new UnsupportedOperationException();
     }
 
     public boolean retainAll(Collection<?> c) {
-        return verts.retainAll(c);
+        throw new UnsupportedOperationException();
     }
 
     public void clear() {
-        verts.clear();
+        throw new UnsupportedOperationException();
     }
 
     public Vector3f get(int index) {
@@ -808,25 +811,15 @@ public class Winding implements List<Vector3f> {
     }
 
     public Vector3f set(int index, Vector3f element) {
-        final int size = verts.size();
-
-        if (size == index) {
-            verts.add(element);
-            return verts.get(index);
-        } else if (size > index) {
-            return verts.set(index, element);
-        } else {
-            throw new IllegalArgumentException("Vertex " + element + ": index "
-                    + index + " > size " + size);
-        }
+        throw new UnsupportedOperationException();
     }
 
     public void add(int index, Vector3f element) {
-        verts.add(index, element);
+        throw new UnsupportedOperationException();
     }
 
     public Vector3f remove(int index) {
-        return verts.remove(index);
+        throw new UnsupportedOperationException();
     }
 
     public int indexOf(Object o) {

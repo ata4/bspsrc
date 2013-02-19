@@ -298,12 +298,12 @@ public class FaceSource extends ModuleDecompile {
         
         // translate to origin
         if (origin != null) {
-            wind.translate(origin);
+            wind = wind.translate(origin);
         }
         
         // rotate
         if (angles != null) {
-            wind.rotate(angles);
+            wind = wind.rotate(angles);
         }
         
         // calculate plane vectors

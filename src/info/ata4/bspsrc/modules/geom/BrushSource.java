@@ -187,10 +187,7 @@ public class BrushSource extends ModuleDecompile {
             }
 
             try {
-                Winding wind = Winding.fromSide(bsp, brush, i);
-                
-                // remove close vertices
-                wind.removeDegenerated();
+                Winding wind = Winding.fromSide(bsp, brush, i).removeDegenerated();
                 
                 // skip sides with no vertices
                 if (wind.isEmpty()) {
@@ -236,12 +233,12 @@ public class BrushSource extends ModuleDecompile {
 
                 // rotate
                 if (angles != null) {
-                    wind.rotate(angles);
+                    wind = wind.rotate(angles);
                 }
 
                 // translate to origin
                 if (origin != null) {
-                    wind.translate(origin);
+                    wind = wind.translate(origin);
                 }
 
                 // the brush side should be safe to write
