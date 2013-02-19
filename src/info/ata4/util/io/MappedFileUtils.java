@@ -26,7 +26,7 @@ public class MappedFileUtils {
         long size = file.length();
         
         // allocateDirect doesn't allow long values. Therefore, files with more
-        // than 4GB can't be loaded, so check the size first!
+        // than 2GB can't be loaded, so check the size first!
         if (size > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("File is larger than 4GB");
         }
