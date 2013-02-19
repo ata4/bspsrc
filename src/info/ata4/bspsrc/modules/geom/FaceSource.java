@@ -180,8 +180,7 @@ public class FaceSource extends ModuleDecompile {
      * its split faces.
      */
     public void writeOrigFacesPlus() {
-        buildFaceMaps();
-        buildOrigFaceAreas();
+        createFaceMapping();
         
         // set of face indices that are already written
         Set<Integer> writtenFaces = new HashSet<Integer>();
@@ -826,7 +825,7 @@ public class FaceSource extends ModuleDecompile {
      * Builds a HashSet array of all faces corresponding to i'th orig face.
      * Also calculates the area of ofaces.
      */
-    private void buildFaceMaps() {
+    private void createFaceMapping() {        
         L.info("Building split face to original face maps");
 
         // look at every face
@@ -849,9 +848,7 @@ public class FaceSource extends ModuleDecompile {
             //  add this face to the set
             faceSet.add(i);
         }
-    }
-    
-    private void buildOrigFaceAreas() {
+        
         L.info("Building original face areas");
 
         // look at every oface
@@ -873,9 +870,9 @@ public class FaceSource extends ModuleDecompile {
 
             Set<Integer> faceSet = origFaceToSplitFace.get(i);
 
-            // iterate through the corresponding splitfaces
+            // iterate through the corresponding split faces
             for (Integer face : faceSet) {
-                // add up the areas of all splitfaces
+                // add up the areas of all split faces
                 carea += bsp.faces.get(face).area;
             }
 
