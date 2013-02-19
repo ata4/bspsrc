@@ -276,26 +276,6 @@ public class Winding implements List<Vector3f> {
     private Winding(List<Vector3f> verts) {
         this.verts = Collections.unmodifiableList(verts);
     }
-
-    /**
-     * Returns true if the winding still has one of the points
-     * from basewinding for plane.
-     * 
-     * Equals WindingIsHuge() from brushbsp.cpp
-     * 
-     * @return true if winding is huge
-     */
-    public boolean isHuge() {
-        for (Vector3f point : this) {
-            for (float value : point) {
-                if (Math.abs(value) > MAX_COORD) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
     
     /**
      * Clips this winding to a plane defined by a normal and distance, removing
@@ -442,6 +422,136 @@ public class Winding implements List<Vector3f> {
      */
     public Winding clipPlane(DPlane pl, boolean back) {
         return clipEpsilon(pl.normal, pl.dist, EPS_SPLIT, back);
+    }
+    
+   /**
+     * Removes degenerated vertices from this winding. A vertex is degenerated
+     * when its distance to the previous vertex is smaller than {@link EPS_DEGEN}.
+     * 
+     * @return number of removed vertices
+     */
+    public Winding removeDegenerated() {
+        if (verts.isEmpty()) {
+            return this;
+        }
+        
+        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
+        
+        final int size = verts.size();
+
+        for (int i = 0; i < size; i++) {
+            int j = (i + 1) % size;
+            Vector3f v1 = verts.get(i);
+            Vector3f v2 = verts.get(j);
+
+            if (v1.sub(v2).length() > EPS_DEGEN) {
+                vertsNew.add(v1);
+            }
+        }
+
+        return new Winding(vertsNew);
+    }
+    
+    /**
+     * Removes collinear vertices from this winding.
+     * 
+     * @return number of removed vertices
+     */
+    public Winding removeCollinear() {
+        if (verts.isEmpty()) {
+            return this;
+        }
+        
+        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
+        
+        final int size = verts.size();
+
+        for (int i = 0; i < size; i++) {
+            int j = (i + 1) % size;
+            int k = (i + size - 1) % size;
+            Vector3f v1 = verts.get(j).sub(verts.get(i)).normalize();
+            Vector3f v2 = verts.get(i).sub(verts.get(k)).normalize();
+
+            if (v1.dot(v2) < 0.999) {
+                vertsNew.add(verts.get(i));
+            }
+        }
+        
+        return new Winding(vertsNew);
+    }
+    
+    /**
+     * Rotates all vertices in this winding by the given euler angles.
+     * 
+     * @param angles rotation angles
+     */
+    public Winding rotate(Vector3f angles) {
+        if (verts.isEmpty()) {
+            return this;
+        }
+
+        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
+        
+        for (Vector3f vert : verts) {
+            vertsNew.add(vert.rotate(angles));
+        }
+
+        return new Winding(vertsNew);
+    }
+    
+    public Winding translate(Vector3f offset) {
+        if (verts.isEmpty()) {
+            return this;
+        }
+        
+        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
+        
+        for (Vector3f vert : verts) {
+            vertsNew.add(vert.add(offset));
+        }
+
+        return new Winding(vertsNew);
+    }
+    
+    public Winding addBackface() {
+        if (verts.isEmpty()) {
+            return this;
+        }
+        
+        List<Vector3f> vertsNew = new ArrayList<Vector3f>();
+        
+        final int size = verts.size();
+        
+        for (int i = 0; i < size; i++) {
+            if (i != 0) {
+                vertsNew.add(verts.get(i));
+            }
+            if (i != size) {
+                vertsNew.add(verts.get(i));
+            }
+        }
+        
+        return new Winding(vertsNew);
+    }
+    
+    /**
+     * Returns true if the winding still has one of the points
+     * from basewinding for plane.
+     * 
+     * Equals WindingIsHuge() from brushbsp.cpp
+     * 
+     * @return true if winding is huge
+     */
+    public boolean isHuge() {
+        for (Vector3f point : this) {
+            for (float value : point) {
+                if (Math.abs(value) > MAX_COORD) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -621,62 +731,6 @@ public class Winding implements List<Vector3f> {
         
         return false;
     }
-
-    /**
-     * Removes degenerated vertices from this winding. A vertex is degenerated
-     * when its distance to the previous vertex is smaller than {@link EPS_DEGEN}.
-     * 
-     * @return number of removed vertices
-     */
-    public Winding removeDegenerated() {
-        if (verts.isEmpty()) {
-            return this;
-        }
-        
-        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
-        
-        final int size = verts.size();
-
-        for (int i = 0; i < size; i++) {
-            int j = (i + 1) % size;
-            Vector3f v1 = verts.get(i);
-            Vector3f v2 = verts.get(j);
-
-            if (v1.sub(v2).length() > EPS_DEGEN) {
-                vertsNew.add(v1);
-            }
-        }
-
-        return new Winding(vertsNew);
-    }
-    
-    /**
-     * Removes collinear vertices from this winding.
-     * 
-     * @return number of removed vertices
-     */
-    public Winding removeCollinear() {
-        if (verts.isEmpty()) {
-            return this;
-        }
-        
-        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
-        
-        final int size = verts.size();
-
-        for (int i = 0; i < size; i++) {
-            int j = (i + 1) % size;
-            int k = (i + size - 1) % size;
-            Vector3f v1 = verts.get(j).sub(verts.get(i)).normalize();
-            Vector3f v2 = verts.get(i).sub(verts.get(k)).normalize();
-
-            if (v1.dot(v2) < 0.999) {
-                vertsNew.add(verts.get(i));
-            }
-        }
-        
-        return new Winding(vertsNew);
-    }
     
     /**
      * Returns the total area of this winding.
@@ -694,60 +748,6 @@ public class Winding implements List<Vector3f> {
         }
         
         return total * 0.5f;
-    }
-
-    /**
-     * Rotates all vertices in this winding by the given euler angles.
-     * 
-     * @param angles rotation angles
-     */
-    public Winding rotate(Vector3f angles) {
-        if (verts.isEmpty()) {
-            return this;
-        }
-
-        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
-        
-        for (Vector3f vert : verts) {
-            vertsNew.add(vert.rotate(angles));
-        }
-
-        return new Winding(vertsNew);
-    }
-    
-    public Winding translate(Vector3f offset) {
-        if (verts.isEmpty()) {
-            return this;
-        }
-        
-        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
-        
-        for (Vector3f vert : verts) {
-            vertsNew.add(vert.add(offset));
-        }
-
-        return new Winding(vertsNew);
-    }
-    
-    public Winding addBackface() {
-        if (verts.isEmpty()) {
-            return this;
-        }
-        
-        List<Vector3f> vertsNew = new ArrayList<Vector3f>();
-        
-        final int size = verts.size();
-        
-        for (int i = 0; i < size; i++) {
-            if (i != 0) {
-                vertsNew.add(verts.get(i));
-            }
-            if (i != size) {
-                vertsNew.add(verts.get(i));
-            }
-        }
-        
-        return new Winding(vertsNew);
     }
     
     public int size() {
