@@ -59,7 +59,7 @@ public class FaceSource extends ModuleDecompile {
     private Map<Short, Integer> dispinfoToID = new HashMap<Short, Integer>();
     
     // mapped original faces
-    public List<Set<Integer>> origFaceToSplitFace;
+    public Map<Integer, Set<Integer>> origFaceToSplitFace = new HashMap<Integer, Set<Integer>>();
     
     // current offset in multiblend lump
     private int multiblendOffset;
@@ -829,23 +829,25 @@ public class FaceSource extends ModuleDecompile {
     private void buildFaceMaps() {
         L.info("Building split face to original face maps");
 
-        // the i'th entry of this array is the set of faces in the i'th oface
-        origFaceToSplitFace = new ArrayList<Set<Integer>>(bsp.origFaces.size());
-
-        // create a hashset for each oface
-        for (int i = 0; i < bsp.origFaces.size(); i++) {
-            origFaceToSplitFace.add(new HashSet<Integer>());
-        }
-
         // look at every face
         for (int i = 0; i < bsp.faces.size(); i++) {
             int o = bsp.faces.get(i).origFace;
-
+            
             // must check for no face correspondence
-            if (o >= 0) {
-                //  add this face to the set
-                origFaceToSplitFace.get(o).add(i);
+            if (o == -1) {
+                continue;
             }
+
+            Set<Integer> faceSet;
+
+            if (origFaceToSplitFace.containsKey(o)) {
+                faceSet = origFaceToSplitFace.get(o);
+            } else {
+                origFaceToSplitFace.put(o, faceSet = new HashSet<Integer>());
+            }
+
+            //  add this face to the set
+            faceSet.add(i);
         }
     }
     
