@@ -26,6 +26,8 @@ import java.util.*;
  */
 
 public class Winding implements List<Vector3f> {
+    
+    private static final Winding EMPTY = new Winding(Collections.unmodifiableList(new ArrayList<Vector3f>()));
 
     private static final int MAX_LEN = 56756; // sqrt(3)*32768
     private static final int MAX_COORD = 32768;
@@ -39,7 +41,7 @@ public class Winding implements List<Vector3f> {
     private static final float EPS_DEGEN = 0.1f;
     
     private static Map<DFace, Winding> faceCache = new HashMap<DFace, Winding>();
-    private static Map<DBrushSide, Winding> brushSideCache = new HashMap<DBrushSide, Winding>();
+    private static Map<Integer, Winding> brushSideCache = new HashMap<Integer, Winding>();
     private static Map<DAreaportal, Winding> areaportalCache = new HashMap<DAreaportal, Winding>();
     private static Map<DOccluderPolyData, Winding> occluderCache = new HashMap<DOccluderPolyData, Winding>();
     private static Map<DPlane, Winding> planeCache = new HashMap<DPlane, Winding>();
@@ -103,10 +105,14 @@ public class Winding implements List<Vector3f> {
         int ibside = brush.fstside + side;
         DBrushSide bside = bsp.brushSides.get(ibside);
         
-        if (brushSideCache.containsKey(bside)) {
-            return brushSideCache.get(bside);
-        }
+        int cacheHash = 5;
+        cacheHash = cacheHash * 14 + brush.hashCode();
+        cacheHash = cacheHash * 8 + bside.hashCode();
         
+        if (brushSideCache.containsKey(cacheHash)) {
+            return brushSideCache.get(cacheHash);
+        }
+
         int iplane = bside.pnum;
         
         Winding w = fromPlane(bsp.planes.get(iplane));
@@ -134,7 +140,7 @@ public class Winding implements List<Vector3f> {
             w = w.clipPlane(flipPlane, false);
         }
         
-        brushSideCache.put(bside, w);
+        brushSideCache.put(cacheHash, w);
         
         // return the clipped winding
         return w;
@@ -265,10 +271,6 @@ public class Winding implements List<Vector3f> {
     // list of vectors to vertex points
     private final List<Vector3f> verts;
     
-    public Winding() {
-        this.verts = Collections.unmodifiableList(new ArrayList<Vector3f>());
-    }
-    
     public Winding(Winding that) {
         this.verts = that.verts;
     }
@@ -327,7 +329,7 @@ public class Winding implements List<Vector3f> {
         if (counts[SIDE_FRONT] == 0) {
             // no vertices in front - all behind clip plane
             if (!back) {
-                return new Winding();
+                return EMPTY;
             } else {
                 return this;
             }
@@ -335,7 +337,7 @@ public class Winding implements List<Vector3f> {
         if (counts[SIDE_BACK] == 0) {
             // no vertices in back - all in front of clip plane
             if (back) {
-                return new Winding();
+                return EMPTY;
             } else {
                 return this;
             }
