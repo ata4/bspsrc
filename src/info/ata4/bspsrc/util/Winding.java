@@ -90,6 +90,65 @@ public class Winding implements List<Vector3f> {
 
         return w;
     }
+    
+    /**
+     * Constructs a winding from a brush, for a brush side
+     * 
+     * Equals the brush side part of CreateBrushWindings() in brushbsp.cpp
+     *
+     * @param bsp BSP data
+     * @param brush Brush
+     * @param bside Brush side
+     * @return Winding for the brush side
+     */
+    public static Winding fromSide(BspData bsp, DBrush brush, DBrushSide bside) {
+        int cacheHash = 5;
+        cacheHash = cacheHash * 14 + brush.hashCode();
+        cacheHash = cacheHash * 8 + bside.hashCode();
+        
+        if (brushSideCache.containsKey(cacheHash)) {
+            return brushSideCache.get(cacheHash);
+        }
+
+        int iplane = bside.pnum;
+        boolean hasSide = false;
+        
+        Winding w = fromPlane(bsp.planes.get(iplane));
+
+        // clip to all other planes
+        for (int i = 0; i < brush.numside; i++) {
+            int ibside2 = brush.fstside + i;
+            DBrushSide bside2 = bsp.brushSides.get(ibside2);
+
+            // don't clip plane to itself
+            if (bside2 == bside) {
+                hasSide = true;
+                continue;
+            }
+            
+            // don't clip to bevel planes
+            if (bside2.bevel) {
+                continue;
+            }
+
+            // remove everything behind the plane
+            int iplane2 = bside2.pnum;
+            DPlane plane = bsp.planes.get(iplane2);
+            DPlane flipPlane = new DPlane();
+            flipPlane.normal = plane.normal.scalar(-1);
+            flipPlane.dist = -plane.dist;
+            w = w.clipPlane(flipPlane, false);
+        }
+        
+        if (!hasSide) {
+            throw new IllegalArgumentException("Brush side is not part of brush!");
+        }
+        
+        brushSideCache.put(cacheHash, w);
+        
+        // return the clipped winding
+        return w;
+    }
 
     /**
      * Constructs a winding from a brush, for a brush side
@@ -104,46 +163,7 @@ public class Winding implements List<Vector3f> {
     public static Winding fromSide(BspData bsp, DBrush brush, int side) {
         int ibside = brush.fstside + side;
         DBrushSide bside = bsp.brushSides.get(ibside);
-        
-        int cacheHash = 5;
-        cacheHash = cacheHash * 14 + brush.hashCode();
-        cacheHash = cacheHash * 8 + bside.hashCode();
-        
-        if (brushSideCache.containsKey(cacheHash)) {
-            return brushSideCache.get(cacheHash);
-        }
-
-        int iplane = bside.pnum;
-        
-        Winding w = fromPlane(bsp.planes.get(iplane));
-
-        // clip to all other planes
-        for (int i = 0; i < brush.numside; i++) {
-            int ibside2 = brush.fstside + i;
-            int iplane2 = bsp.brushSides.get(ibside2).pnum;
-            
-            // don't clip plane to itself
-            if (i == side) {
-                continue;
-            }
-            
-            // don't clip to bevel planes
-            if (bsp.brushSides.get(ibside2).bevel) {
-                continue;
-            }
-
-            // remove everything behind the plane
-            DPlane plane = bsp.planes.get(iplane2);
-            DPlane flipPlane = new DPlane();
-            flipPlane.normal = plane.normal.scalar(-1);
-            flipPlane.dist = -plane.dist;
-            w = w.clipPlane(flipPlane, false);
-        }
-        
-        brushSideCache.put(cacheHash, w);
-        
-        // return the clipped winding
-        return w;
+        return fromSide(bsp, brush, bside);
     }
     
     public static Winding fromAreaportal(BspData bsp, DAreaportal ap) {
