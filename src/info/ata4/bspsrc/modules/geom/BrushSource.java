@@ -187,7 +187,7 @@ public class BrushSource extends ModuleDecompile {
             }
 
             try {
-                Winding wind = Winding.fromSide(bsp, brush, i).removeDegenerated();
+                Winding wind = Winding.fromSide(bsp, brush, brushSide).removeDegenerated();
                 
                 // skip sides with no vertices
                 if (wind.isEmpty()) {
