@@ -26,4 +26,5 @@ public class SourceAppID {
     public static final int THE_SHIP = 2400;
     public static final int BLOODY_GOOD_TIME = 2450;
     public static final int DEAR_ESTHER = 203810;
+    public static final int DOTA_2_BETA = 570;
 }

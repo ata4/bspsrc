@@ -562,6 +562,8 @@ public class BspFileReader {
         
         if (appID == SourceAppID.VINDICTUS) {
             struct = DOverlayVin.class;
+        } else if (appID == SourceAppID.DOTA_2_BETA) {
+            struct = DOverlayDota2.class;
         }
         
         bsp.overlays = loadLump(LumpType.LUMP_OVERLAYS, struct);
