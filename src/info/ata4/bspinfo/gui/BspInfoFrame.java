@@ -9,7 +9,6 @@
  */
 package info.ata4.bspinfo.gui;
 
-import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspinfo.gui.models.EmbeddedTableModel;
 import info.ata4.bspinfo.gui.models.EntityTableModel;
 import info.ata4.bspinfo.gui.models.GameLumpTableModel;
@@ -20,8 +19,13 @@ import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.lump.LumpType;
+import info.ata4.bsplib.struct.BspData;
 import info.ata4.bspsrc.BspSource;
-import info.ata4.bspsrc.modules.*;
+import info.ata4.bspsrc.modules.BspChecksum;
+import info.ata4.bspsrc.modules.BspDependencies;
+import info.ata4.bspsrc.modules.BspProtection;
+import info.ata4.bspsrc.modules.CompileParameters;
+import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.util.gui.FileDrop;
 import info.ata4.util.gui.FileExtensionFilter;
 import info.ata4.util.gui.components.ByteSizeCellRenderer;
@@ -190,6 +194,8 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     
                     bspReader = new BspFileReader(bspFile);
                     bspReader.loadEntities();
+                    
+                    BspData data = bspReader.getData();
 
                     // general
                     textFieldName.setText(bspFile.getName());
@@ -197,6 +203,11 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     textFieldRevision.setText(String.valueOf(bspFile.getRevision()));
                     textFieldCompressed.setText(compressed ? "Yes" : "No");
                     textFieldEndian.setText(bspFile.getByteOrder() == ByteOrder.LITTLE_ENDIAN ? "Little endian" : "Big endian");
+                    
+                    if (data.entities != null && !data.entities.isEmpty()) {
+                        Entity worldspawn = data.entities.get(0);
+                        textFieldComment.setText(worldspawn.getValue("comment"));
+                    }
 
                     SourceApp app = bspFile.getSourceApp();
                     
@@ -346,6 +357,8 @@ public class BspInfoFrame extends javax.swing.JFrame {
         labelName = new javax.swing.JLabel();
         textFieldRevision = new javax.swing.JTextField();
         labelRevision = new javax.swing.JLabel();
+        labelComment = new javax.swing.JLabel();
+        textFieldComment = new javax.swing.JTextField();
         panelChecksums = new javax.swing.JPanel();
         labelFileCRC = new javax.swing.JLabel();
         textFieldFileCRC = new javax.swing.JTextField();
@@ -491,6 +504,10 @@ public class BspInfoFrame extends javax.swing.JFrame {
         labelRevision.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         labelRevision.setText("Revision");
 
+        labelComment.setText("Comment");
+
+        textFieldComment.setEditable(false);
+
         javax.swing.GroupLayout panelHeadersLayout = new javax.swing.GroupLayout(panelHeaders);
         panelHeaders.setLayout(panelHeadersLayout);
         panelHeadersLayout.setHorizontalGroup(
@@ -513,13 +530,19 @@ public class BspInfoFrame extends javax.swing.JFrame {
                                 .addComponent(textFieldRevision, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(textFieldName, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(panelHeadersLayout.createSequentialGroup()
-                        .addComponent(labelCompressed)
+                        .addGroup(panelHeadersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(labelComment)
+                            .addComponent(labelCompressed))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(textFieldCompressed, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(12, 12, 12)
-                        .addComponent(labelEndian, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(textFieldEndian, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(panelHeadersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelHeadersLayout.createSequentialGroup()
+                                .addComponent(textFieldCompressed, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(12, 12, 12)
+                                .addComponent(labelEndian, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(textFieldEndian, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(textFieldComment))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelHeadersLayout.setVerticalGroup(
@@ -541,6 +564,10 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addComponent(textFieldCompressed, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(labelEndian)
                     .addComponent(textFieldEndian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelHeadersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labelComment)
+                    .addComponent(textFieldComment, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -651,7 +678,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
             panelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelGeneralLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(panelHeaders, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panelHeaders, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelGame, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -703,7 +730,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
             panelLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelLumpsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+                .addComponent(scrollPaneLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(extractLumpButton)
@@ -752,7 +779,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
             panelGameLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelGameLumpsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneGameLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+                .addComponent(scrollPaneGameLumps, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelGameLumpsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(extractGameLumpButton)
@@ -813,7 +840,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(textFieldTotalEnts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 403, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -904,7 +931,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
             panelEmbeddedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelEmbeddedLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneEmbedded, javax.swing.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+                .addComponent(scrollPaneEmbedded, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelEmbeddedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(extractEmbeddedButton)
@@ -1021,7 +1048,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 .addComponent(panelIID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelOther, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(226, Short.MAX_VALUE))
+                .addContainerGap(246, Short.MAX_VALUE))
         );
 
         tabbedPane.addTab("Protection", panelProt);
@@ -1331,6 +1358,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel labelAppID;
+    private javax.swing.JLabel labelComment;
     private javax.swing.JLabel labelCompressed;
     private javax.swing.JLabel labelEndian;
     private javax.swing.JLabel labelFileCRC;
@@ -1384,6 +1412,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JTextArea textAreaSoundscapes;
     private javax.swing.JTextField textFieldAppID;
     private javax.swing.JTextField textFieldBrushEnts;
+    private javax.swing.JTextField textFieldComment;
     private javax.swing.JTextField textFieldCompressed;
     private javax.swing.JTextField textFieldEndian;
     private javax.swing.JTextField textFieldFileCRC;
