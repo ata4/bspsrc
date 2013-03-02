@@ -15,6 +15,15 @@
         <Property name="fileSelectionMode" type="int" value="1"/>
       </Properties>
     </Component>
+    <Component class="javax.swing.JFileChooser" name="saveZipFileChooser">
+      <Properties>
+        <Property name="acceptAllFileFilterUsed" type="boolean" value="false"/>
+        <Property name="dialogType" type="int" value="1"/>
+        <Property name="fileFilter" type="javax.swing.filechooser.FileFilter" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="new FileExtensionFilter(&quot;Zip file&quot;, &quot;zip&quot;)" type="code"/>
+        </Property>
+      </Properties>
+    </Component>
     <Menu class="javax.swing.JMenuBar" name="menuBar">
       <SubComponents>
         <Menu class="javax.swing.JMenu" name="menuFile">
@@ -970,6 +979,8 @@
                               <Component id="extractEmbeddedButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="extractAllEmbeddedButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="extractEmbeddedZipButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
                       </Group>
@@ -986,6 +997,7 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="extractEmbeddedButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="extractAllEmbeddedButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="extractEmbeddedZipButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -1029,6 +1041,15 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="extractAllEmbeddedButtonActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="extractEmbeddedZipButton">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Extract Zip file"/>
+                <Property name="enabled" type="boolean" value="false"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="extractEmbeddedZipButtonActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

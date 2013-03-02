@@ -170,6 +170,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         
         extractEmbeddedButton.setEnabled(false);
         extractAllEmbeddedButton.setEnabled(false);
+        extractEmbeddedZipButton.setEnabled(false);
     }
     
     public void loadFile(File file) {
@@ -307,6 +308,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     
                     extractEmbeddedButton.setEnabled(true);
                     extractAllEmbeddedButton.setEnabled(true);
+                    extractEmbeddedZipButton.setEnabled(true);
                 } catch (Exception ex) {
                     L.log(Level.SEVERE, "Couldn't read BSP file", ex);
                 } finally {
@@ -338,6 +340,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
         openFileChooser = new javax.swing.JFileChooser();
         saveDirectoryChooser = new javax.swing.JFileChooser();
+        saveZipFileChooser = new javax.swing.JFileChooser();
         tabbedPane = new javax.swing.JTabbedPane();
         panelGeneral = new javax.swing.JPanel();
         panelGame = new javax.swing.JPanel();
@@ -408,6 +411,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         tableEmbedded = new javax.swing.JTable();
         extractEmbeddedButton = new javax.swing.JButton();
         extractAllEmbeddedButton = new javax.swing.JButton();
+        extractEmbeddedZipButton = new javax.swing.JButton();
         panelProt = new javax.swing.JPanel();
         panelVmex = new javax.swing.JPanel();
         checkBoxVmexEntity = new info.ata4.util.gui.components.ReadOnlyCheckBox();
@@ -426,6 +430,10 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
         saveDirectoryChooser.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
         saveDirectoryChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+
+        saveZipFileChooser.setAcceptAllFileFilterUsed(false);
+        saveZipFileChooser.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
+        saveZipFileChooser.setFileFilter(new FileExtensionFilter("Zip file", "zip"));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -912,6 +920,14 @@ public class BspInfoFrame extends javax.swing.JFrame {
             }
         });
 
+        extractEmbeddedZipButton.setText("Extract Zip file");
+        extractEmbeddedZipButton.setEnabled(false);
+        extractEmbeddedZipButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                extractEmbeddedZipButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelEmbeddedLayout = new javax.swing.GroupLayout(panelEmbedded);
         panelEmbedded.setLayout(panelEmbeddedLayout);
         panelEmbeddedLayout.setHorizontalGroup(
@@ -924,6 +940,8 @@ public class BspInfoFrame extends javax.swing.JFrame {
                         .addComponent(extractEmbeddedButton)
                         .addGap(18, 18, 18)
                         .addComponent(extractAllEmbeddedButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(extractEmbeddedZipButton)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -935,7 +953,8 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelEmbeddedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(extractEmbeddedButton)
-                    .addComponent(extractAllEmbeddedButton))
+                    .addComponent(extractAllEmbeddedButton)
+                    .addComponent(extractEmbeddedZipButton))
                 .addContainerGap())
         );
 
@@ -1330,7 +1349,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
         try {
-            bspFile.getPakFile().unpack(dest);
+            bspFile.getPakFile().unpack(dest, false);
             JOptionPane.showMessageDialog(this, "Successfully extracted all embedded files.");
         } catch (IOException ex) {
             L.log(Level.WARNING, "Couldn't extract embedded files", ex);
@@ -1339,6 +1358,29 @@ public class BspInfoFrame extends javax.swing.JFrame {
             setCursor(Cursor.getDefaultCursor());
         }
     }//GEN-LAST:event_extractAllEmbeddedButtonActionPerformed
+
+    private void extractEmbeddedZipButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extractEmbeddedZipButtonActionPerformed
+        saveZipFileChooser.setSelectedFile(new File(currentFile.getParent(), bspFile.getName() + ".zip"));
+        int result = saveZipFileChooser.showSaveDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        
+        File dest = saveZipFileChooser.getSelectedFile();
+        
+        // set waiting cursor
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        
+        try {
+            bspFile.getPakFile().unpack(dest, true);
+            JOptionPane.showMessageDialog(this, "Successfully extracted embedded Zip file.");
+        } catch (IOException ex) {
+            L.log(Level.WARNING, "Couldn't extract embedded files", ex);
+        } finally {
+            // reset cursor
+            setCursor(Cursor.getDefaultCursor());
+        }
+    }//GEN-LAST:event_extractEmbeddedZipButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private info.ata4.util.gui.components.ReadOnlyCheckBox checkBoxBSPProtect;
@@ -1351,6 +1393,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JButton extractAllGameLumpsButton;
     private javax.swing.JButton extractAllLumpsButton;
     private javax.swing.JButton extractEmbeddedButton;
+    private javax.swing.JButton extractEmbeddedZipButton;
     private javax.swing.JButton extractGameLumpButton;
     private javax.swing.JButton extractLumpButton;
     private javax.swing.JLabel jLabel1;
@@ -1389,6 +1432,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelProt;
     private javax.swing.JPanel panelVmex;
     private javax.swing.JFileChooser saveDirectoryChooser;
+    private javax.swing.JFileChooser saveZipFileChooser;
     private javax.swing.JScrollPane scrollPaneEmbedded;
     private javax.swing.JScrollPane scrollPaneGameLumps;
     private javax.swing.JScrollPane scrollPaneLumps;
