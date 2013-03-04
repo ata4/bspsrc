@@ -1375,7 +1375,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
             bspFile.getPakFile().unpack(dest, true);
             JOptionPane.showMessageDialog(this, "Successfully extracted embedded Zip file.");
         } catch (IOException ex) {
-            L.log(Level.WARNING, "Couldn't extract embedded files", ex);
+            L.log(Level.WARNING, "Couldn't extract embedded Zip file", ex);
         } finally {
             // reset cursor
             setCursor(Cursor.getDefaultCursor());
