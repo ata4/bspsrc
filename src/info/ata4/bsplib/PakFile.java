@@ -43,13 +43,11 @@ public class PakFile {
     }
     
     public void unpack(File dest) throws IOException {
-        unpack(dest, true);
+        unpack(dest, false);
     }
 
     public void unpack(File dest, boolean direct) throws IOException {
         if (direct) {
-            unpack(dest, null);
-        } else {
             L.log(Level.INFO, "Extracting pakfile to {0}", dest);
             InputStream is = pakLump.getInputStream();
             
@@ -58,6 +56,8 @@ public class PakFile {
             } finally {
                 IOUtils.closeQuietly(is);
             }
+        } else {
+            unpack(dest, null);
         }
     }
     
