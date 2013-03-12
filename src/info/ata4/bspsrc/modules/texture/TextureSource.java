@@ -371,9 +371,9 @@ public class TextureSource extends ModuleRead {
         }
 
         // invisible
-        if (brush.isGrate() && brush.isTranslucent()) {
-            return ToolTexture.INVIS;
-        }
+//        if (brush.isGrate() && brush.isTranslucent()) {
+//            return ToolTexture.INVIS;
+//        }
         
         return null;
     }
