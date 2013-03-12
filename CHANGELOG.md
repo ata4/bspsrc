@@ -1,5 +1,11 @@
 ## Changelog
 
+### 1.3.10 - 12.03.2013
+* Fixed an exception when decompiling overlays in the ORIGFACE_PLUS brush mode.
+* Disabled toolsinvisible tool texture detection that replaces correct textures as well.
+* Added support for overlays for the latest Dota 2 build.
+* Added some new features for BSPInfo.
+
 ### 1.3.9 - 15.02.2013
 * Added full support for Vindictus maps
 * Instead of creating one entity for each brush, func_details are now merged to one large entity for all detail brushes. This allows smaller VMF files and avoids some re-compiling problems for complex maps.
