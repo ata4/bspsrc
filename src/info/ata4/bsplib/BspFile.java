@@ -16,7 +16,8 @@ import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.io.LzmaBuffer;
 import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.util.StringMacroUtils;
-import info.ata4.util.io.MappedFileUtils;
+import info.ata4.util.io.NIOFileUtils;
+import info.ata4.util.io.XORUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -46,7 +47,7 @@ public class BspFile {
     
     // endianness
     private ByteOrder bo;
-
+    
     // version limits
     public static final int VERSION_MIN = 17;
     public static final int VERSION_MAX = 23;
@@ -77,11 +78,19 @@ public class BspFile {
     }
     
     public BspFile(File file, boolean memMapping) throws IOException {
-        load(file, memMapping);
+        loadImpl(file, memMapping);
     }
     
     public BspFile(File file) throws IOException {
+        loadImpl(file);
+    }
+    
+    private void loadImpl(File file) throws IOException {
         load(file);
+    }
+    
+    private void loadImpl(File file, boolean memMapping) throws IOException {
+        load(file, memMapping);
     }
     
     /**
@@ -100,41 +109,8 @@ public class BspFile {
         
         L.log(Level.FINE, "Loading headers from {0}", file.getName());
         
-        ByteBuffer bb;
+        ByteBuffer bb = createBuffer(memMapping);
         
-        if (memMapping) {
-            bb = MappedFileUtils.openReadOnly(file);
-        } else {
-            bb = MappedFileUtils.load(file);
-        }
-        
-        // make sure we have enough room for reading
-        if (bb.capacity() < HEADER_SIZE) {
-            throw new BspException("Invalid or missing header");
-        }
-
-        // read ident
-        int ident = bb.getInt();
-        
-        // check ident and endianness...
-        if (ident == BSP_ID) {
-            bo = ByteOrder.BIG_ENDIAN;
-        } else {
-            // probably little-endian, swap before doing more tests
-            ident = EndianUtils.swapInteger(ident);
-
-            if (ident == BSP_ID) {
-                bo = ByteOrder.LITTLE_ENDIAN;
-            } else if (ident == 0x1E) {
-                // No GoldSrc! Please!
-                throw new BspException("The GoldSrc format is not supported");
-            } else {
-                throw new BspException("Unknown file ident: " + ident + " (" +
-                        StringMacroUtils.unmakeID(ident) + ")");
-            }
-        }
-
-        L.log(Level.FINER, "Ident: {0} ({1})", new Object[]{ident, StringMacroUtils.unmakeID(ident)});
         L.log(Level.FINER, "Endianness: {0}", bo);
 
         // set byte order
@@ -185,7 +161,7 @@ public class BspFile {
         
         L.log(Level.FINE, "Saving headers to {0}", file.getName());
         
-        ByteBuffer bb = MappedFileUtils.openReadWrite(file, size);
+        ByteBuffer bb = NIOFileUtils.openReadWrite(file, size);
         
         bb.order(bo);
         bb.putInt(BSP_ID);
@@ -195,6 +171,85 @@ public class BspFile {
         saveLumps(bb);
         
         bb.putInt(mapRev);
+    }
+    
+    /**
+     * Creates a byte buffer for the BSP file, checks its ident, detects its
+     * endianness and performs other low-level I/O operations if required.
+     * 
+     * @param memMapping true if the map should be loaded as a memory-mapped file
+     * @throws IOException if the buffer couldn't be created
+     * @throws BspException if the header or file format is invalid
+     */
+    private ByteBuffer createBuffer(boolean memMapping) throws IOException, BspException {
+        ByteBuffer bb;
+        
+        if (memMapping) {
+            bb = NIOFileUtils.openReadOnly(file);
+        } else {
+            bb = NIOFileUtils.load(file);
+        }
+        
+        // make sure we have enough room for reading
+        if (bb.capacity() < HEADER_SIZE) {
+            throw new BspException("Invalid or missing header");
+        }
+        
+        int ident = bb.getInt();
+
+        if (ident == BSP_ID) {
+            // ordinary big-endian ident
+            bo = ByteOrder.BIG_ENDIAN;
+            return bb;
+        }
+        
+        // probably little-endian, swap before doing more tests
+        ident = EndianUtils.swapInteger(ident);
+
+        if (ident == BSP_ID) {
+            // ordinary little-endian ident
+            bo = ByteOrder.LITTLE_ENDIAN;
+            return bb;
+        }
+
+        if (ident == 0x1E) {
+            // No GoldSrc! Please!
+            throw new BspException("The GoldSrc format is not supported");
+        }
+        
+        // check for XOR encryption
+        // right now, only Tactical Intervention uses this, for whatever reason
+        byte[] mapKey = new byte[32];
+        
+        // grab the key from a location where the deciphered map always(?) stores 
+        // at least 32 null bytes
+        bb.position(352);
+        bb.get(mapKey);
+        
+        // try to decrypt only the ident for now, it's much faster...
+        int identXor = XORUtils.xor(ident, mapKey);
+
+        if (identXor == BSP_ID) {
+            bo = ByteOrder.LITTLE_ENDIAN;
+            
+            L.log(Level.FINE, "Found Tactical Intervention XOR encryption using the key \"{0}\"", new String(mapKey));
+            
+            // fully reload the map into memory if that isn't the case already
+            if (memMapping || bb.isReadOnly()) {
+                bb = NIOFileUtils.load(file);
+            }
+            
+            //  then decrypt it
+            XORUtils.xor(bb, mapKey);
+            
+            // go back to the position after the ident
+            bb.position(4);
+            
+            return bb;
+        }
+        
+        throw new BspException("Unknown file ident: " + ident + " (" +
+                StringMacroUtils.unmakeID(ident) + ")");
     }
 
     private void loadLumps(ByteBuffer bb) {

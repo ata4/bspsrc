@@ -16,11 +16,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 /**
- * Utility class to open memory-mapped files.
+ * Utility class to open files via NIO buffers.
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class MappedFileUtils {
+public class NIOFileUtils {
     
     public static ByteBuffer load(File file) throws IOException {
         long size = file.length();
@@ -33,18 +33,16 @@ public class MappedFileUtils {
         
         // BSP files can be pretty large, so don't use the JVM heap
         ByteBuffer bb = ByteBuffer.allocateDirect((int) size);
-        
-        InputStream is = null;
-        OutputStream os = null;
-        
-        // fill the byte buffer from an input stream
+        FileInputStream fis = null;
+
         try {
-            is = FileUtils.openInputStream(file);
-            os = new ByteBufferOutputStream(bb);
-            IOUtils.copy(is, os);
+            fis = FileUtils.openInputStream(file);
+            // get file channel
+            FileChannel fc = fis.getChannel();
+            // fill the byte buffer with the file channel
+            fc.read(bb);
         } finally {
-            IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(os);
+            IOUtils.closeQuietly(fis);
         }
         
         // prepare byte buffer to be read from the start
