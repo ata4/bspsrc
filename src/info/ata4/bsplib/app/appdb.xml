@@ -1102,6 +1102,54 @@
             xen_portal
         </entities>
     </app>
+    <app name="Tactical Intervention" id="-300">
+        <version min="20" />
+        <files><![CDATA[^mis_$]]></files>
+        <entities>
+            func_capzone_terrorist_2
+            func_capzone_terrorist_3
+            func_capzone_vis
+            func_coverzone
+            func_hostage_rescue_zone
+            func_stageblocker
+            info_ammo_box_spawn
+            info_heli_CT_spawn
+            info_heli_TER_spawn
+            info_heli_wp
+            info_hostage_spawn_1
+            info_hostage_spawn_2
+            info_hostage_spawn_3
+            info_hostage_waypoint_1
+            info_hostage_waypoint_2
+            info_hostage_waypoint_3
+            info_player_ctstart_A1
+            info_player_ctstart_A2
+            info_player_ctstart_A3
+            info_player_ctstart_B2
+            info_player_ctstart_B3
+            info_player_ctstart_C2
+            info_player_ctstart_C3
+            info_player_shooting_range_spawn
+            info_player_start
+            info_player_terroriststart_A1
+            info_player_terroriststart_A2
+            info_player_terroriststart_A3
+            point_intro_camera
+            point_planning_stage_camera
+            prop_fire_extinguisher
+            prop_rappelpoint
+            info_vehicle_wp
+            info_vip_car_goal
+            info_vip_case_goal
+            info_vip_interm_wp
+            info_vip_wp
+            wheeled_controllable
+            func_capzone_terrorist_1
+            info_player_ctstart_B1
+            info_player_ctstart_C1
+            ti_trigger_once
+        </entities>
+    </app>
     <app name="Dear Esther" id="203810">
         <version min="21" />
         <files><![CDATA[^donnelley|esther|jakobson|paul$]]></files>
