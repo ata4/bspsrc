@@ -223,7 +223,7 @@ public class BspFile {
         
         // grab the key from a location where the deciphered map always(?) stores 
         // at least 32 null bytes
-        bb.position(352);
+        bb.position(384);
         bb.get(mapKey);
         
         // try to decrypt only the ident for now, it's much faster...
@@ -239,7 +239,7 @@ public class BspFile {
                 bb = NIOFileUtils.load(file);
             }
             
-            //  then decrypt it
+            // then decrypt it
             XORUtils.xor(bb, mapKey);
             
             // go back to the position after the ident
