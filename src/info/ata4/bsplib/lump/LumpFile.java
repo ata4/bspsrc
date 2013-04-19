@@ -107,7 +107,7 @@ public class LumpFile {
         
         int size = HEADER_SIZE + lump.getLength();
         
-        ByteBuffer bb = NIOFileUtils.openReadWrite(file, size);
+        ByteBuffer bb = NIOFileUtils.openReadWrite(file, 0, size);
         
         bb.order(lump.getBuffer().order());
         

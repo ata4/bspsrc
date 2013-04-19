@@ -161,7 +161,7 @@ public class BspFile {
         
         L.log(Level.FINE, "Saving headers to {0}", file.getName());
         
-        ByteBuffer bb = NIOFileUtils.openReadWrite(file, size);
+        ByteBuffer bb = NIOFileUtils.openReadWrite(file, 0, size);
         
         bb.order(bo);
         bb.putInt(BSP_ID);
