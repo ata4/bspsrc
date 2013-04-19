@@ -22,69 +22,83 @@ import org.apache.commons.io.IOUtils;
  */
 public class NIOFileUtils {
     
+    private NIOFileUtils() {
+    }
+    
     public static ByteBuffer load(File file) throws IOException {
-        long size = file.length();
+        return load(file, 0, 0);
+    }
+    
+    public static ByteBuffer load(File file, int offset, int length) throws IOException {
+        ByteBuffer bb = ByteBuffer.allocateDirect(length > 0 ? length : (int) file.length());
         
-        // allocateDirect doesn't allow long values. Therefore, files with more
-        // than 2GB can't be loaded, so check the size first!
-        if (size > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("File is larger than 2GB");
-        }
+        // read file into the buffer
+        load(file, offset, length, bb);
         
-        // BSP files can be pretty large, so don't use the JVM heap
-        ByteBuffer bb = ByteBuffer.allocateDirect((int) size);
-        FileInputStream fis = null;
-
-        try {
-            fis = FileUtils.openInputStream(file);
-            // get file channel
-            FileChannel fc = fis.getChannel();
-            // fill the byte buffer with the file channel
-            fc.read(bb);
-        } finally {
-            IOUtils.closeQuietly(fis);
-        }
-        
-        // prepare byte buffer to be read from the start
+        // prepare buffer to be read from the start
         bb.rewind();
         
         return bb;
     }
     
+    public static void load(File file, int offset, int length, ByteBuffer dest) throws IOException {
+        FileChannel fc = null;
+
+        try {
+            // fill the buffer with the file channel
+            fc = FileUtils.openInputStream(file).getChannel();
+            fc.read(dest, offset);
+        } finally {
+            IOUtils.closeQuietly(fc);
+        }
+    }
+    
     public static ByteBuffer openReadOnly(File file) throws IOException {
+        return openReadOnly(file, 0, 0);
+    }
+    
+    public static ByteBuffer openReadOnly(File file, int offset, int length) throws IOException {
         ByteBuffer bb;
-        FileInputStream fis = null;
+        FileChannel fc = null;
         
         try {
-            // open input stream
-            fis = FileUtils.openInputStream(file);
-            // get file channel
-            FileChannel fc = fis.getChannel();
+            fc = FileUtils.openInputStream(file).getChannel();
             // map entire file as byte buffer
-            bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+            bb = fc.map(FileChannel.MapMode.READ_ONLY, offset, length > 0 ? length : fc.size());
         } finally {
-            // close file stream, the byte buffer will remain active
-            IOUtils.closeQuietly(fis);
+            IOUtils.closeQuietly(fc);
         }
         
         return bb;
     }
     
-    public static ByteBuffer openReadWrite(File file, int size) throws IOException {
+    public static ByteBuffer openReadWrite(File file) throws IOException {
+        return openReadWrite(file, 0, 0);
+    }
+    
+    public static ByteBuffer openReadWrite(File file, int offset, int size) throws IOException {
         ByteBuffer bb;
         RandomAccessFile raf = null;
         
         try {
             // open random access file
             raf = new RandomAccessFile(file, "rw");
-            // reset file
-            raf.setLength(0);
+            
+            int fileSize = offset + size;
+            
+            // reset file if a new size is set
+            if (size > 0 && fileSize != raf.length()) {
+                raf.setLength(0);
+                raf.setLength(fileSize);
+            } else {
+                size = (int) raf.length() - offset;
+            }
+            
             // get file channel
             FileChannel fc = raf.getChannel();
             // map file as byte buffer
-            bb = fc.map(FileChannel.MapMode.READ_WRITE, 0, size);
+            bb = fc.map(FileChannel.MapMode.READ_WRITE, offset, size);
         } finally {
-            // close file, the byte buffer will remain active
             IOUtils.closeQuietly(raf);
         }
         
