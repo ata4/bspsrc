@@ -62,16 +62,12 @@ public class PakFile {
     }
     
     public void unpack(File dest, List<String> names) throws IOException {
-        FileUtils.forceMkdir(dest);
-
         ZipArchiveInputStream zis = getArchiveInputStream();
         ZipArchiveEntry ze;
 
         try {
-            if (!dest.exists()) {
-                dest.mkdir();
-            }
-
+            FileUtils.forceMkdir(dest);
+            
             while ((ze = zis.getNextZipEntry()) != null) {
                 String zipName = ze.getName();
                 
