@@ -48,6 +48,7 @@ public class ByteBufferOutputStream extends OutputStream {
         }
     }
 
+    @Override
     public synchronized void write(byte[] bytes, int off, int len) throws IOException {
         try {
             buf.put(bytes, off, len);
