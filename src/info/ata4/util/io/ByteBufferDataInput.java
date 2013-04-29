@@ -10,6 +10,7 @@
 package info.ata4.util.io;
 
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -42,9 +43,13 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
     }
 
     public int skipBytes(int n) throws IOException {
-        n = Math.min(n, buf.remaining());
-        buf.position(buf.position() + n);
-        return n;
+        try {
+            n = Math.min(n, buf.remaining());
+            buf.position(buf.position() + n);
+            return n;
+        } catch (IllegalArgumentException ex) {
+            throw new IOException(ex);
+        }
     }
 
     public boolean readBoolean() throws IOException {
@@ -120,16 +125,22 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
     }
 
     public String readLine() throws IOException {
-        StringBuilder sb = new StringBuilder();
-
-        for (byte c = 0; buf.hasRemaining() && c != '\n'; c = readByte()) {
-            sb.append((char) c);
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (byte c = 0; buf.hasRemaining() && c != '\n'; c = readByte()) {
+                sb.append((char) c);
+            }
+            return sb.toString();
+        } catch (BufferUnderflowException ex) {
+            throw new IOException(ex);
         }
-
-        return sb.toString();
     }
 
     public String readUTF() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        try {
+            return DataInputStream.readUTF(this);
+        } catch (BufferUnderflowException ex) {
+            throw new IOException(ex);
+        }
     }
 }

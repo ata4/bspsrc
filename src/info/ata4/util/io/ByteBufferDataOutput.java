@@ -114,9 +114,13 @@ public class ByteBufferDataOutput extends ByteBufferData implements DataOutput {
     }
 
     public void writeChars(String s) throws IOException {
-        final int len = s.length();
-        for (int i = 0; i < len; i++) {
-            writeChar(s.charAt(i));
+        try {
+            final int len = s.length();
+            for (int i = 0; i < len; i++) {
+                writeChar(s.charAt(i));
+            }
+        } catch (BufferOverflowException ex) {
+            throw new IOException(ex);
         }
     }
 
@@ -133,6 +137,6 @@ public class ByteBufferDataOutput extends ByteBufferData implements DataOutput {
     }
     
     public void write(ByteBufferDataInput di) throws IOException {
-        write(di.buf);
+        write(di.getBuffer());
     }
 }

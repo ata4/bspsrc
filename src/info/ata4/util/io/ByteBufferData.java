@@ -13,20 +13,29 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * Common DataInput/DataOutput class for ByteBuffer
+ * Common DataInput/DataOutput class for a ByteBuffer.
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public abstract class ByteBufferData {
     
-    protected ByteBuffer buf;
+    protected final ByteBuffer buf;
     
     public ByteBufferData(ByteBuffer buf) {
         this.buf = buf;
     }
     
     /**
-     * Checks the lump buffer for remaining bytes. Should always be called when
+     * Returns the underlaying byte buffer.
+     * 
+     * @return byte buffer
+     */
+    public ByteBuffer getBuffer() {
+        return buf;
+    }
+    
+    /**
+     * Checks the byte buffer for remaining bytes. Should always be called when
      * no remaining bytes are expected.
      *
      * @throws IOException if remaining bytes are found
@@ -41,7 +50,7 @@ public abstract class ByteBufferData {
     /**
      * Same as {@link java.nio.ByteBuffer}.hasRemaining()
      *
-     * @return true, if there are remaining bytes in the lump buffer
+     * @return true, if there are remaining bytes in the byte buffer
      */
     public boolean hasRemaining() {
         return buf.hasRemaining();
@@ -50,7 +59,7 @@ public abstract class ByteBufferData {
     /**
      * Same as {@link java.nio.ByteBuffer}.remaining()
      *
-     * @return remaining bytes in the lump buffer
+     * @return remaining bytes in the byte buffer
      */
     public int remaining() {
         return buf.remaining();
@@ -59,7 +68,7 @@ public abstract class ByteBufferData {
     /**
      * Same as {@link java.nio.ByteBuffer}.position()
      *
-     * @return position in the lump buffer
+     * @return position in the byte buffer
      */
     public int position() {
         return buf.position();
