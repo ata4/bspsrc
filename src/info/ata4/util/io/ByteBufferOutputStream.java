@@ -40,7 +40,6 @@ public class ByteBufferOutputStream extends OutputStream {
         this(buf, false);
     }
 
-    @Override
     public synchronized void write(int b) throws IOException {
         try {
             buf.put((byte) b);
@@ -49,7 +48,6 @@ public class ByteBufferOutputStream extends OutputStream {
         }
     }
 
-    @Override
     public synchronized void write(byte[] bytes, int off, int len) throws IOException {
         try {
             buf.put(bytes, off, len);

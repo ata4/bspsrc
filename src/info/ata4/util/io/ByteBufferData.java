@@ -9,13 +9,8 @@
  */
 package info.ata4.util.io;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.HexDump;
 
 /**
  * Common DataInput/DataOutput class for ByteBuffer
@@ -28,24 +23,6 @@ public abstract class ByteBufferData {
     
     public ByteBufferData(ByteBuffer buf) {
         this.buf = buf;
-    }
-    
-    public void dump(File file) throws IOException {
-        ByteBuffer tmpBuf = buf.duplicate();
-        InputStream is = new ByteBufferInputStream(tmpBuf);
-        FileUtils.copyInputStreamToFile(is, file);
-    }
-    
-    public void hexDump(OutputStream out) throws IOException {
-        ByteBuffer tmpBuf = buf.duplicate();
-        tmpBuf.rewind();
-        byte[] data = new byte[tmpBuf.remaining()];
-        buf.get(data);
-        HexDump.dump(data, 0, out, 0);
-    }
-
-    public void hexDump() throws IOException {
-        hexDump(System.out);
     }
     
     /**

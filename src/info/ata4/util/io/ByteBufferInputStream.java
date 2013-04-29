@@ -36,7 +36,6 @@ public class ByteBufferInputStream extends InputStream {
         this(buf, false);
     }
 
-    @Override
     public synchronized int read() throws IOException {
         if (!buf.hasRemaining()) {
             return -1;
@@ -49,7 +48,6 @@ public class ByteBufferInputStream extends InputStream {
         }
     }
 
-    @Override
     public synchronized int read(byte[] bytes, int off, int len) throws IOException {
         if (!buf.hasRemaining()) {
             return -1;

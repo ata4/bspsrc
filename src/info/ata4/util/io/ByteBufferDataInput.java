@@ -25,7 +25,6 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
         super(buf);
     }
 
-    @Override
     public void readFully(byte[] b) throws IOException {
         try {
             buf.get(b);
@@ -34,7 +33,6 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
         }
     }
 
-    @Override
     public void readFully(byte[] b, int off, int len) throws IOException {
         try {
             buf.get(b, off, len);
@@ -43,14 +41,12 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
         }
     }
 
-    @Override
     public int skipBytes(int n) throws IOException {
         n = Math.min(n, buf.remaining());
         buf.position(buf.position() + n);
         return n;
     }
 
-    @Override
     public boolean readBoolean() throws IOException {
         try {
             return buf.get() == 1;
@@ -59,7 +55,6 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
         }
     }
 
-    @Override
     public byte readByte() throws IOException {
         try {
             return buf.get();
@@ -68,12 +63,10 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
         }
     }
 
-    @Override
     public int readUnsignedByte() throws IOException {
         return readByte() & 0xff;
     }
 
-    @Override
     public short readShort() throws IOException {
         try {
             return buf.getShort();
@@ -82,12 +75,10 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
         }
     }
 
-    @Override
     public int readUnsignedShort() throws IOException {
         return readShort() & 0xffff;
     }
 
-    @Override
     public char readChar() throws IOException {
         try {
             return buf.getChar();
@@ -96,7 +87,6 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
         }
     }
 
-    @Override
     public int readInt() throws IOException {
         try {
             return buf.getInt();
@@ -105,7 +95,6 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
         }
     }
 
-    @Override
     public long readLong() throws IOException {
         try {
             return buf.getLong();
@@ -114,7 +103,6 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
         }
     }
 
-    @Override
     public float readFloat() throws IOException {
         try {
             return buf.getFloat();
@@ -123,7 +111,6 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
         }
     }
 
-    @Override
     public double readDouble() throws IOException {
         try {
             return buf.getDouble();
@@ -132,7 +119,6 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
         }
     }
 
-    @Override
     public String readLine() throws IOException {
         StringBuilder sb = new StringBuilder();
 
@@ -143,7 +129,6 @@ public class ByteBufferDataInput extends ByteBufferData implements DataInput {
         return sb.toString();
     }
 
-    @Override
     public String readUTF() throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
