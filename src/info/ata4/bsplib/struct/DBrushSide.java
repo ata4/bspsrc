@@ -10,8 +10,7 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -26,21 +25,24 @@ public class DBrushSide implements DStruct {
     public short dispinfo;
     public boolean bevel;
 
+    @Override
     public int getSize() {
         return 8;
     }
 
-    public void read(LumpDataInput li) throws IOException {
-        pnum = li.readUnsignedShort();
-        texinfo = li.readShort();
-        dispinfo = li.readShort();
-        bevel = li.readShort() == 1;
+    @Override
+    public void read(LumpIO lio) throws IOException {
+        pnum = lio.readUnsignedShort();
+        texinfo = lio.readShort();
+        dispinfo = lio.readShort();
+        bevel = lio.readShort() == 1;
     }
 
-    public void write(LumpDataOutput lo) throws IOException {
-        lo.writeShort(pnum);
-        lo.writeShort(texinfo);
-        lo.writeShort(dispinfo);
-        lo.writeShort(bevel ? 1 : 0);
+    @Override
+    public void write(LumpIO lio) throws IOException {
+        lio.writeShort(pnum);
+        lio.writeShort(texinfo);
+        lio.writeShort(dispinfo);
+        lio.writeShort(bevel ? 1 : 0);
     }
 }

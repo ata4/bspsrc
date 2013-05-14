@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import info.ata4.bsplib.vector.Vector3f;
 import java.io.IOException;
 
@@ -22,16 +21,19 @@ public class DVertex implements DStruct {
     
     public Vector3f point;
 
+    @Override
     public int getSize() {
         return 12;
     }
 
-    public void read(LumpDataInput li) throws IOException {
-        point = li.readVector3f();
+    @Override
+    public void read(LumpIO lio) throws IOException {
+        point = lio.readVector3f();
     }
 
-    public void write(LumpDataOutput lo) throws IOException {
-        lo.writeVector3f(point);
+    @Override
+    public void write(LumpIO lio) throws IOException {
+        lio.writeVector3f(point);
     }
     
 }

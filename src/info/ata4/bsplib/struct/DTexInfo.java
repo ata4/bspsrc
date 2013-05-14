@@ -10,8 +10,7 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import info.ata4.util.EnumConverter;
 import java.io.IOException;
 import java.util.Set;
@@ -30,37 +29,40 @@ public class DTexInfo implements DStruct {
     public Set<SurfaceFlag> flags;  // miptex flags + overrides
     public int texdata;             // Pointer to texture name, size, etc.
 
+    @Override
     public int getSize() {
         return 72;
     }
 
-    public void read(LumpDataInput li) throws IOException {
+    @Override
+    public void read(LumpIO lio) throws IOException {
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 4; k++) {
-                textureVecsTexels[j][k] = li.readFloat();
+                textureVecsTexels[j][k] = lio.readFloat();
             }
         }
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 4; k++) {
-                lightmapVecsLuxels[j][k] = li.readFloat();
+                lightmapVecsLuxels[j][k] = lio.readFloat();
             }
         }
-        flags = EnumConverter.fromInteger(SurfaceFlag.class, li.readInt());
-        texdata = li.readInt();
+        flags = EnumConverter.fromInteger(SurfaceFlag.class, lio.readInt());
+        texdata = lio.readInt();
     }
 
-    public void write(LumpDataOutput lo) throws IOException {
+    @Override
+    public void write(LumpIO lio) throws IOException {
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 4; k++) {
-                lo.writeFloat(textureVecsTexels[j][k]);
+                lio.writeFloat(textureVecsTexels[j][k]);
             }
         }
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 4; k++) {
-                lo.writeFloat(lightmapVecsLuxels[j][k]);
+                lio.writeFloat(lightmapVecsLuxels[j][k]);
             }
         }
-        lo.writeInt(EnumConverter.toInteger(flags));
-        lo.writeInt(texdata);
+        lio.writeInt(EnumConverter.toInteger(flags));
+        lio.writeInt(texdata);
     }
 }

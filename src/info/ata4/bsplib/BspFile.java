@@ -381,47 +381,47 @@ public class BspFile {
         
         try {
             Lump l = getLump(LumpType.LUMP_GAME_LUMP);
-            LumpDataInput lr = l.getDataInput();
+            LumpIO lio = l.getLumpIO();
 
             // hack for Vindictus
             if (version == 20 && bo == ByteOrder.LITTLE_ENDIAN
-                    && checkInvalidHeaders(lr, false)
-                    && !checkInvalidHeaders(lr, true)) {
+                    && checkInvalidHeaders(lio, false)
+                    && !checkInvalidHeaders(lio, true)) {
                 L.finer("Found Vindictus game lump header");
                 app = SourceAppDB.getInstance().fromID(SourceAppID.VINDICTUS);
             }
             
-            int glumps = lr.readInt();
+            int glumps = lio.readInt();
             
             for (int i = 0; i < glumps; i++) {
                 int ofs, len, flags, vers, fourCC;
 
                 if (app.getAppID() == SourceAppID.DARK_MESSIAH) {
-                    lr.readInt(); // unknown
+                    lio.readInt(); // unknown
                 }
 
-                fourCC = lr.readInt();
+                fourCC = lio.readInt();
                 
                 // Vindictus uses integers rather than unsigned shorts
                 if (app.getAppID() == SourceAppID.VINDICTUS) {
-                    flags = lr.readInt();
-                    vers = lr.readInt();
+                    flags = lio.readInt();
+                    vers = lio.readInt();
                 } else {
-                    flags = lr.readUnsignedShort();
-                    vers = lr.readUnsignedShort();
+                    flags = lio.readUnsignedShort();
+                    vers = lio.readUnsignedShort();
                 }
 
-                ofs = lr.readInt();
+                ofs = lio.readInt();
 
                 if (flags == 1) {
                     // game lump is compressed, use next entry offset to determine
                     // compressed size
-                    lr.move(12);
-                    int nextOfs = lr.readInt();
+                    lio.seek(12);
+                    int nextOfs = lio.readInt();
                     len = nextOfs - ofs;
-                    lr.move(-12);
+                    lio.seek(-12);
                 } else {
-                    len = lr.readInt();
+                    len = lio.readInt();
                 }
 
                 // Offset is relative to the beginning of the BSP file,
@@ -493,21 +493,21 @@ public class BspFile {
         
         try {
             Lump l = getLump(LumpType.LUMP_GAME_LUMP);
-            LumpDataOutput lw = l.getDataOutput(size);
-            lw.writeInt(gameLumps.size());
+            LumpIO lio = l.getLumpIO(size);
+            lio.writeInt(gameLumps.size());
 
             for (GameLump gl : gameLumps) {
                 // write header
-                lw.writeInt(gl.getFourCC());
+                lio.writeInt(gl.getFourCC());
                 if (app.getAppID() == SourceAppID.VINDICTUS) {
-                    lw.writeInt(gl.getFlags());
-                    lw.writeInt(gl.getVersion());
+                    lio.writeInt(gl.getFlags());
+                    lio.writeInt(gl.getVersion());
                 } else {
-                    lw.writeShort(gl.getFlags());
-                    lw.writeShort(gl.getVersion());
+                    lio.writeShort(gl.getFlags());
+                    lio.writeShort(gl.getVersion());
                 }
-                lw.writeInt(gl.getOffset());
-                lw.writeInt(gl.getLength());
+                lio.writeInt(gl.getOffset());
+                lio.writeInt(gl.getLength());
 
                 int ofs = gl.getOffset();
 
@@ -520,10 +520,10 @@ public class BspFile {
                 }
 
                 // write buffer data
-                int tmpPos = lw.position();
-                lw.position(ofs);
-                lw.write(gl.getBuffer());
-                lw.position(tmpPos);
+                int tmpPos = lio.position();
+                lio.position(ofs);
+                lio.write(gl.getBuffer());
+                lio.position(tmpPos);
             }
         } catch (IOException ex) {
             L.log(Level.SEVERE, "Couldn''t save game lumps", ex);
@@ -578,27 +578,27 @@ public class BspFile {
     /**
      * Heuristic detection of Vindictus game lump headers.
      * 
-     * @param lr LumpDataInput for the game lump.
+     * @param lio LumpDataInput for the game lump.
      * @param vin if true, test with Vindictus struct
      * @return true if the game lump header probably wasn't read correctly
      * @throws IOException 
      */
-    private boolean checkInvalidHeaders(LumpDataInput lr, boolean vin) throws IOException {
-        int glumps = lr.readInt();
+    private boolean checkInvalidHeaders(LumpIO lio, boolean vin) throws IOException {
+        int glumps = lio.readInt();
         
         for (int i = 0; i < glumps; i++) {
-            String glName = StringMacroUtils.unmakeID(lr.readInt());
+            String glName = StringMacroUtils.unmakeID(lio.readInt());
 
             // check for unusual chars that indicate a reading error
             if (!glName.matches("^[a-zA-Z0-9]{4}$")) {
-                lr.position(0);
+                lio.position(0);
                 return true;
             }
 
-            lr.skipBytes(vin ? 16 : 12);
+            lio.skipBytes(vin ? 16 : 12);
         }
 
-        lr.position(0);
+        lio.position(0);
         return false;
     }
     

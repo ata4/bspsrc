@@ -235,39 +235,39 @@ public class BspFileReader {
             return;
         }
 
-        LumpDataInput lr = sprpLump.getDataInput();
+        LumpIO lio = sprpLump.getLumpIO();
 
         try {
             final int padsize = 128;
-            final int psnames = lr.readInt();
+            final int psnames = lio.readInt();
             
             L.log(Level.FINE, "Static prop names: {0}", psnames);
             
             bsp.staticPropName = new ArrayList<String>(psnames);
 
             for (int i = 0; i < psnames; i++) {
-                bsp.staticPropName.add(lr.readString(padsize));
+                bsp.staticPropName.add(lio.readString(padsize));
             }
 
             // model path strings in Zeno Clash
             if (appID == SourceAppID.ZENO_CLASH) {
-                int psextra = lr.readInt();
-                lr.skipBytes(psextra * padsize);
+                int psextra = lio.readInt();
+                lio.skipBytes(psextra * padsize);
             }
 
             // StaticPropLeafLump_t
-            int propleaves = lr.readInt();
+            int propleaves = lio.readInt();
             
             L.log(Level.FINE, "Static prop leaves: {0}", propleaves);
             
             bsp.staticPropLeaf = new ArrayList<Integer>(propleaves);
             
             for (int i = 0; i < propleaves; i++) {
-                bsp.staticPropLeaf.add(lr.readUnsignedShort());
+                bsp.staticPropLeaf.add(lio.readUnsignedShort());
             }
 
             // StaticPropLump_t
-            final int propstatics = lr.readInt();
+            final int propstatics = lio.readInt();
             
             int sprpver = sprpLump.getVersion();
             Class<? extends DStaticProp> structClass = null;
@@ -313,10 +313,10 @@ public class BspFileReader {
             for (int i = 0; i < propstatics; i++) {
                 DStaticProp sp = structClass.newInstance();
                 
-                int pos = lr.position();
-                sp.read(lr);
+                int pos = lio.position();
+                sp.read(lio);
                 int size = sp.getSize();
-                if (lr.position() - pos != size) {
+                if (lio.position() - pos != size) {
                     throw new IOException("Bytes read: " + pos + "; expected: " + size);
                 }
                 
@@ -325,7 +325,7 @@ public class BspFileReader {
 
             L.log(Level.FINE, "Static props: {0}", propstatics);
 
-            lr.checkRemaining();
+            lio.checkRemaining();
         } catch (IOException ex) {
             lumpError(sprpLump, ex);
         } catch (InstantiationException ex) {
@@ -416,13 +416,13 @@ public class BspFileReader {
         byte[] stringData;
 
         Lump lump = getLump(LumpType.LUMP_TEXDATA_STRING_DATA);
-        LumpDataInput li = lump.getDataInput();
+        LumpIO lio = lump.getLumpIO();
 
         try {
             final int tdsds = lump.getLength();
             stringData = new byte[tdsds];
-            li.readFully(stringData);
-            li.checkRemaining();
+            lio.readFully(stringData);
+            lio.checkRemaining();
         } catch (IOException ex) {
             lumpError(lump, ex);
             return;
@@ -431,7 +431,7 @@ public class BspFileReader {
         L.log(Level.FINE, "Loading {0}", LumpType.LUMP_TEXDATA_STRING_TABLE);
 
         lump = getLump(LumpType.LUMP_TEXDATA_STRING_TABLE);
-        li = lump.getDataInput();
+        lio = lump.getLumpIO();
 
         try {
             final int size = 4;
@@ -441,7 +441,7 @@ public class BspFileReader {
 
             tdst:
             for (int i = 0; i < tdsts; i++) {
-                int ofs = li.readInt();
+                int ofs = lio.readInt();
                 int ofsNull;
                 
                 // find null byte offset
@@ -456,7 +456,7 @@ public class BspFileReader {
 
             L.log(Level.FINE, "Texture data strings: {0}", tdsts);
 
-            li.checkRemaining();
+            lio.checkRemaining();
         } catch (IOException ex) {
             lumpError(lump, ex);
         }
@@ -601,11 +601,11 @@ public class BspFileReader {
         L.log(Level.FINE, "Loading {0}", LumpType.LUMP_OCCLUSION);
 
         Lump lump = getLump(LumpType.LUMP_OCCLUSION);
-        LumpDataInput li = lump.getDataInput();
+        LumpIO lio = lump.getLumpIO();
 
         try {
             // load occluder data
-            final int occluders = lump.getLength() == 0 ? 0 : li.readInt();
+            final int occluders = lump.getLength() == 0 ? 0 : lio.readInt();
             bsp.occluderDatas = new ArrayList<DOccluderData>(occluders);
 
             for (int i = 0; i < occluders; i++) {
@@ -617,35 +617,35 @@ public class BspFileReader {
                     od = new DOccluderDataV1();
                 }
 
-                od.read(li);
+                od.read(lio);
                 bsp.occluderDatas.add(od);
             }
 
             L.log(Level.FINE, "Occluders: {0}", occluders);
 
             // load occluder polys
-            final int occluderPolys = lump.getLength() == 0 ? 0 : li.readInt();
+            final int occluderPolys = lump.getLength() == 0 ? 0 : lio.readInt();
             bsp.occluderPolyDatas = new ArrayList<DOccluderPolyData>(occluderPolys);
 
             for (int i = 0; i < occluderPolys; i++) {
                 DOccluderPolyData opd = new DOccluderPolyData();
-                opd.read(li);
+                opd.read(lio);
                 bsp.occluderPolyDatas.add(opd);
             }
 
             L.log(Level.FINE, "Occluder polygons: {0}", occluderPolys);
 
             // load occluder vertices
-            final int occluderVertices = lump.getLength() == 0 ? 0 : li.readInt();
+            final int occluderVertices = lump.getLength() == 0 ? 0 : lio.readInt();
             bsp.occluderVerts = new ArrayList<Integer>(occluderVertices);
 
             for (int i = 0; i < occluderVertices; i++) {
-                bsp.occluderVerts.add(li.readInt());
+                bsp.occluderVerts.add(lio.readInt());
             }
 
             L.log(Level.FINE, "Occluder vertices: {0}", occluderVertices);
 
-            li.checkRemaining();
+            lio.checkRemaining();
         } catch (IOException ex) {
             lumpError(lump, ex);
         }
@@ -664,7 +664,7 @@ public class BspFileReader {
             return;
         }
 
-        LumpDataInput li = lump.getDataInput();
+        LumpIO li = lump.getLumpIO();
 
         try {
             bsp.mapFlags = EnumConverter.fromInteger(LevelFlag.class, li.readInt());
@@ -716,7 +716,7 @@ public class BspFileReader {
         
         L.log(Level.FINE, "Loading {0}", lumpType);
         
-        LumpDataInput li = lump.getDataInput();
+        LumpIO lio = lump.getLumpIO();
         
         try {
             final int structSize = struct.newInstance().getSize();            
@@ -727,16 +727,16 @@ public class BspFileReader {
             for (int i = 0; i < packetCount; i++) {
                 E packet = struct.newInstance();
                 
-                int pos = li.position();
-                packet.read(li);
-                if (li.position() - pos != packet.getSize()) {
+                int pos = lio.position();
+                packet.read(lio);
+                if (lio.position() - pos != packet.getSize()) {
                     throw new IOException("Bytes read: " + pos + "; expected: " + packet.getSize());
                 }
                 
                 packets.add(packet);
             }
             
-            li.checkRemaining();
+            lio.checkRemaining();
             
             L.log(Level.FINE, "{0} {1} objects", new Object[]{packets.size(), struct.getSimpleName()});
             
@@ -756,7 +756,7 @@ public class BspFileReader {
         L.log(Level.FINE, "Loading {0}", lumpType);
 
         Lump lump = getLump(lumpType);
-        LumpDataInput li = lump.getDataInput();
+        LumpIO lio = lump.getLumpIO();
 
         try {
             final int size = unsignedShort ? 2 : 4;
@@ -766,15 +766,15 @@ public class BspFileReader {
 
             for (int i = 0; i < arraySize; i++) {
                 if (unsignedShort) {
-                    list.add(li.readUnsignedShort());
+                    list.add(lio.readUnsignedShort());
                 } else {
-                    list.add(li.readInt());
+                    list.add(lio.readInt());
                 }
             }
 
             L.log(Level.FINE, "{0} Integer objects", arraySize);
 
-            li.checkRemaining();
+            lio.checkRemaining();
             
             return list;
         } catch (IOException ex) {

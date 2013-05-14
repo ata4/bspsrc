@@ -16,6 +16,7 @@ package info.ata4.bsplib.lump;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public enum LumpType {
+
     LUMP_UNKNOWN(-1),
     // v21
     LUMP_PROPCOLLISION(22, 21),

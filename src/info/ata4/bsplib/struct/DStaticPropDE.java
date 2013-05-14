@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import info.ata4.util.EnumConverter;
 import java.io.IOException;
 
@@ -27,28 +26,28 @@ public class DStaticPropDE extends DStaticPropV8 {
     }
 
     @Override
-    public void read(LumpDataInput li) throws IOException {
-        origin = li.readVector3f();
-        angles = li.readVector3f();
-        propType = li.readUnsignedShort();
-        firstLeaf = li.readUnsignedShort();
-        leafCount = li.readUnsignedShort();
-        solid = li.readUnsignedByte();
-        flags = EnumConverter.fromInteger(StaticPropFlag.class, li.readUnsignedByte());
-        li.skipBytes(4);
-        skin = li.readInt();
-        fademin = li.readFloat();
-        fademax = li.readFloat();
-//        lightingOrigin = li.readVector3f();
-        li.skipBytes(12); // invalid lighting origin vector?
-        forcedFadeScale = li.readFloat();
-        minCPULevel = li.readByte();
-        maxCPULevel = li.readByte();
-        minGPULevel = li.readByte();
-        maxGPULevel = li.readByte();
-        li.skipBytes(1);
-        diffuseModulation = li.readColor32();
-        li.skipBytes(3);
+    public void read(LumpIO lio) throws IOException {
+        origin = lio.readVector3f();
+        angles = lio.readVector3f();
+        propType = lio.readUnsignedShort();
+        firstLeaf = lio.readUnsignedShort();
+        leafCount = lio.readUnsignedShort();
+        solid = lio.readUnsignedByte();
+        flags = EnumConverter.fromInteger(StaticPropFlag.class, lio.readUnsignedByte());
+        lio.skipBytes(4);
+        skin = lio.readInt();
+        fademin = lio.readFloat();
+        fademax = lio.readFloat();
+//        lightingOrigin = lio.readVector3f();
+        lio.skipBytes(12); // invalid lighting origin vector?
+        forcedFadeScale = lio.readFloat();
+        minCPULevel = lio.readByte();
+        maxCPULevel = lio.readByte();
+        minGPULevel = lio.readByte();
+        maxGPULevel = lio.readByte();
+        lio.skipBytes(1);
+        diffuseModulation = lio.readColor32();
+        lio.skipBytes(3);
     }
     
     @Override
@@ -58,7 +57,7 @@ public class DStaticPropDE extends DStaticPropV8 {
     }
 
     @Override
-    public void write(LumpDataOutput lo) throws IOException {
+    public void write(LumpIO lio) throws IOException {
         throw new UnsupportedOperationException();
     }
 }

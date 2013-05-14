@@ -63,4 +63,5 @@ public class BspData {
     public List<Integer> staticPropLeaf;
     public List<String> texnames;
     public Set<LevelFlag> mapFlags;
+
 }

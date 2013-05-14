@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -26,14 +25,14 @@ public class DEdgeVin extends DEdge {
     }
 
     @Override
-    public void read(LumpDataInput li) throws IOException {
-        v[0] = li.readInt();
-        v[1] = li.readInt();
+    public void read(LumpIO lio) throws IOException {
+        v[0] = lio.readInt();
+        v[1] = lio.readInt();
     }
 
     @Override
-    public void write(LumpDataOutput lo) throws IOException {
-        lo.writeInt(v[0]);
-        lo.writeInt(v[1]);
+    public void write(LumpIO lio) throws IOException {
+        lio.writeInt(v[0]);
+        lio.writeInt(v[1]);
     }
 }

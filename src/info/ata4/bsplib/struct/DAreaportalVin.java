@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -26,20 +25,20 @@ public class DAreaportalVin extends DAreaportal {
     }
 
     @Override
-    public void read(LumpDataInput li) throws IOException {
-        portalKey = (short) li.readInt();
-        otherportal = (short) li.readInt();
-        firstClipPortalVert = (short) li.readInt();
-        clipPortalVerts = (short) li.readInt();
-        planenum = li.readInt();
+    public void read(LumpIO lio) throws IOException {
+        portalKey = (short) lio.readInt();
+        otherportal = (short) lio.readInt();
+        firstClipPortalVert = (short) lio.readInt();
+        clipPortalVerts = (short) lio.readInt();
+        planenum = lio.readInt();
     }
 
     @Override
-    public void write(LumpDataOutput lo) throws IOException {
-        lo.writeInt(portalKey);
-        lo.writeInt(otherportal);
-        lo.writeInt(firstClipPortalVert);
-        lo.writeInt(clipPortalVerts);
-        lo.writeInt(planenum);
+    public void write(LumpIO lio) throws IOException {
+        lio.writeInt(portalKey);
+        lio.writeInt(otherportal);
+        lio.writeInt(firstClipPortalVert);
+        lio.writeInt(clipPortalVerts);
+        lio.writeInt(planenum);
     }
 }

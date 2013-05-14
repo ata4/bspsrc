@@ -48,4 +48,5 @@ public enum BrushFlag {
     CONTENTS_TRANSLUCENT,
     CONTENTS_LADDER,
     CONTENTS_HITBOX;
+
 }

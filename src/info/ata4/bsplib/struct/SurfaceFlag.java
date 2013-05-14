@@ -33,4 +33,5 @@ public enum SurfaceFlag {
     SURF_NODECALS,
     SURF_NOCHOP,
     SURF_HITBOX;
+
 }

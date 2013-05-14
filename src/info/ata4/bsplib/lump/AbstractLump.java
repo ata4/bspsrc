@@ -97,18 +97,16 @@ public abstract class AbstractLump {
     public OutputStream getOutputStream() {
         return getOutputStream(getBuffer().limit());
     }
+    
+    public LumpIO getLumpIO(int newCapacity) {
+        if (newCapacity > 0) {
+            checkWriteBuffer(newCapacity);
+        }
+        return new LumpIO(this);
+    }
 
-    public LumpDataInput getDataInput() {
-        return new LumpDataInput(this);
-    }
-    
-    public LumpDataOutput getDataOutput(int newCapacity) {
-        checkWriteBuffer(newCapacity);
-        return new LumpDataOutput(this);
-    }
-    
-    public LumpDataOutput getDataOutput() {
-        return getDataOutput(getBuffer().limit());
+    public LumpIO getLumpIO() {
+        return getLumpIO(-1);
     }
     
     public void setVersion(int vers) {

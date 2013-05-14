@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -21,15 +20,18 @@ public class DDispTri implements DStruct {
     
     public int tags;
 
+    @Override
     public int getSize() {
         return 2;
     }
 
-    public void read(LumpDataInput li) throws IOException {
-        tags = li.readUnsignedShort();
+    @Override
+    public void read(LumpIO lio) throws IOException {
+        tags = lio.readUnsignedShort();
     }
 
-    public void write(LumpDataOutput lo) throws IOException {
-        lo.writeShort(tags);
+    @Override
+    public void write(LumpIO lio) throws IOException {
+        lio.writeShort(tags);
     }
 }

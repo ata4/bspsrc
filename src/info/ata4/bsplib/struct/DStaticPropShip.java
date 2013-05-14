@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -30,14 +29,14 @@ public class DStaticPropShip extends DStaticPropV5 {
     }
     
     @Override
-    public void read(LumpDataInput li) throws IOException {
-        super.read(li);
-        targetname = li.readString(TARGETNAME_LEN);
+    public void read(LumpIO lio) throws IOException {
+        super.read(lio);
+        targetname = lio.readString(TARGETNAME_LEN);
     }
     
     @Override
-    public void write(LumpDataOutput lo) throws IOException {
-        super.write(lo);
-        lo.writeString(targetname, TARGETNAME_LEN);
+    public void write(LumpIO lio) throws IOException {
+        super.write(lio);
+        lio.writeString(targetname, TARGETNAME_LEN);
     }
 }

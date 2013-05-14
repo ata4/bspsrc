@@ -10,8 +10,7 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -24,21 +23,24 @@ public class DCubemapSample implements DStruct {
     public int[] origin = new int[3];
     public byte size;
 
+    @Override
     public int getSize() {
         return 16;
     }
 
-    public void read(LumpDataInput li) throws IOException {
-        origin[0] = li.readInt();
-        origin[1] = li.readInt();
-        origin[2] = li.readInt();
-        size = (byte) li.readInt();
+    @Override
+    public void read(LumpIO lio) throws IOException {
+        origin[0] = lio.readInt();
+        origin[1] = lio.readInt();
+        origin[2] = lio.readInt();
+        size = (byte) lio.readInt();
     }
 
-    public void write(LumpDataOutput lo) throws IOException {
-        lo.writeInt(origin[0]);
-        lo.writeInt(origin[1]);
-        lo.writeInt(origin[2]);
-        lo.writeInt(size);
+    @Override
+    public void write(LumpIO lio) throws IOException {
+        lio.writeInt(origin[0]);
+        lio.writeInt(origin[1]);
+        lio.writeInt(origin[2]);
+        lio.writeInt(size);
     }
 }

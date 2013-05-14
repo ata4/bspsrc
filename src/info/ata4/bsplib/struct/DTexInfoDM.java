@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import info.ata4.util.EnumConverter;
 import java.io.IOException;
 
@@ -29,36 +28,36 @@ public class DTexInfoDM extends DTexInfo {
     }
     
     @Override
-    public void read(LumpDataInput li) throws IOException {
+    public void read(LumpIO lio) throws IOException {
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 4; k++) {
-                textureVecsTexels[j][k] = li.readFloat();
+                textureVecsTexels[j][k] = lio.readFloat();
             }
         }
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 4; k++) {
-                lightmapVecsLuxels[j][k] = li.readFloat();
+                lightmapVecsLuxels[j][k] = lio.readFloat();
             }
         }
-        li.readFully(unknown);
-        flags = EnumConverter.fromInteger(SurfaceFlag.class, li.readInt());
-        texdata = li.readInt();
+        lio.readFully(unknown);
+        flags = EnumConverter.fromInteger(SurfaceFlag.class, lio.readInt());
+        texdata = lio.readInt();
     }
 
     @Override
-    public void write(LumpDataOutput lo) throws IOException {
+    public void write(LumpIO lio) throws IOException {
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 4; k++) {
-                lo.writeFloat(textureVecsTexels[j][k]);
+                lio.writeFloat(textureVecsTexels[j][k]);
             }
         }
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 4; k++) {
-                lo.writeFloat(lightmapVecsLuxels[j][k]);
+                lio.writeFloat(lightmapVecsLuxels[j][k]);
             }
         }
-        lo.write(unknown);
-        lo.writeInt(EnumConverter.toInteger(flags));
-        lo.writeInt(texdata);
+        lio.write(unknown);
+        lio.writeInt(EnumConverter.toInteger(flags));
+        lio.writeInt(texdata);
     }
 }

@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -28,14 +27,14 @@ public class DOverlayDota2 extends DOverlay {
     }
     
     @Override
-    public void read(LumpDataInput li) throws IOException {
-        super.read(li);
-        unknown = li.readInt();
+    public void read(LumpIO lio) throws IOException {
+        super.read(lio);
+        unknown = lio.readInt();
     }
 
     @Override
-    public void write(LumpDataOutput lo) throws IOException {
-        super.write(lo);
-        lo.writeInt(unknown);
+    public void write(LumpIO lio) throws IOException {
+        super.write(lio);
+        lio.writeInt(unknown);
     }
 }

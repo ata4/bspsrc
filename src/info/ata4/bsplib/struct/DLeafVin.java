@@ -10,8 +10,7 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -27,38 +26,38 @@ public class DLeafVin extends DLeaf {
     }
 
     @Override
-    public void read(LumpDataInput li) throws IOException {
-        contents = li.readInt();
-        cluster = (short) li.readInt();
-        areaFlags = (short) li.readInt();
-        mins[0] = (short) li.readInt();
-        mins[1] = (short) li.readInt();
-        mins[2] = (short) li.readInt();
-        maxs[0] = (short) li.readInt();
-        maxs[1] = (short) li.readInt();
-        maxs[2] = (short) li.readInt();
-        fstleafface = li.readInt();
-        numleafface = li.readInt();
-        fstleafbrush = li.readInt();
-        numleafbrush = li.readInt();
-        leafWaterDataID = (short) li.readInt();
+    public void read(LumpIO lio) throws IOException {
+        contents = lio.readInt();
+        cluster = (short) lio.readInt();
+        areaFlags = (short) lio.readInt();
+        mins[0] = (short) lio.readInt();
+        mins[1] = (short) lio.readInt();
+        mins[2] = (short) lio.readInt();
+        maxs[0] = (short) lio.readInt();
+        maxs[1] = (short) lio.readInt();
+        maxs[2] = (short) lio.readInt();
+        fstleafface = lio.readInt();
+        numleafface = lio.readInt();
+        fstleafbrush = lio.readInt();
+        numleafbrush = lio.readInt();
+        leafWaterDataID = (short) lio.readInt();
     }
 
     @Override
-    public void write(LumpDataOutput lo) throws IOException {
-        lo.writeInt(contents);
-        lo.writeInt(cluster);
-        lo.writeInt(areaFlags);
-        lo.writeInt(mins[0]);
-        lo.writeInt(mins[1]);
-        lo.writeInt(mins[2]);
-        lo.writeInt(maxs[0]);
-        lo.writeInt(maxs[1]);
-        lo.writeInt(maxs[2]);
-        lo.writeInt(fstleafface);
-        lo.writeInt(numleafface);
-        lo.writeInt(fstleafbrush);
-        lo.writeInt(numleafbrush);
-        lo.writeInt(leafWaterDataID);
+    public void write(LumpIO lio) throws IOException {
+        lio.writeInt(contents);
+        lio.writeInt(cluster);
+        lio.writeInt(areaFlags);
+        lio.writeInt(mins[0]);
+        lio.writeInt(mins[1]);
+        lio.writeInt(mins[2]);
+        lio.writeInt(maxs[0]);
+        lio.writeInt(maxs[1]);
+        lio.writeInt(maxs[2]);
+        lio.writeInt(fstleafface);
+        lio.writeInt(numleafface);
+        lio.writeInt(fstleafbrush);
+        lio.writeInt(numleafbrush);
+        lio.writeInt(leafWaterDataID);
     }
 }

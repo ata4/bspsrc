@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -25,23 +24,26 @@ public class DPrimitive implements DStruct {
     public int firstVert;
     public int vertCount;
 
+    @Override
     public int getSize() {
         return 10;
     }
 
-    public void read(LumpDataInput li) throws IOException {
-        type = li.readUnsignedShort();
-        firstIndex = li.readUnsignedShort();
-        indexCount = li.readUnsignedShort();
-        firstVert = li.readUnsignedShort();
-        vertCount = li.readUnsignedShort();
+    @Override
+    public void read(LumpIO lio) throws IOException {
+        type = lio.readUnsignedShort();
+        firstIndex = lio.readUnsignedShort();
+        indexCount = lio.readUnsignedShort();
+        firstVert = lio.readUnsignedShort();
+        vertCount = lio.readUnsignedShort();
     }
 
-    public void write(LumpDataOutput lo) throws IOException {
-        lo.writeShort(type);
-        lo.writeShort(firstIndex);
-        lo.writeShort(indexCount);
-        lo.writeShort(firstVert);
-        lo.writeShort(vertCount);
+    @Override
+    public void write(LumpIO lio) throws IOException {
+        lio.writeShort(type);
+        lio.writeShort(firstIndex);
+        lio.writeShort(indexCount);
+        lio.writeShort(firstVert);
+        lio.writeShort(vertCount);
     }
 }

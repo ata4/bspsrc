@@ -10,8 +10,7 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bsplib.vector.Vector4f;
 import java.io.IOException;
@@ -33,25 +32,28 @@ public class DDispMultiBlend implements DStruct {
         this.multiblendcolors = new Vector3f[MAX_MULTIBLEND_CHANNELS];
     }
 
+    @Override
     public int getSize() {
         return 80;
     }
 
-    public void read(LumpDataInput li) throws IOException {
-        multiblend = li.readVector4f();
-        alphablend = li.readVector4f();
+    @Override
+    public void read(LumpIO lio) throws IOException {
+        multiblend = lio.readVector4f();
+        alphablend = lio.readVector4f();
         
         for (int i = 0; i < MAX_MULTIBLEND_CHANNELS; i++) {
-            multiblendcolors[i] = li.readVector3f();
+            multiblendcolors[i] = lio.readVector3f();
         }
     }
 
-    public void write(LumpDataOutput lo) throws IOException {
-        lo.writeVector4f(multiblend);
-        lo.writeVector4f(alphablend);
+    @Override
+    public void write(LumpIO lio) throws IOException {
+        lio.writeVector4f(multiblend);
+        lio.writeVector4f(alphablend);
         
         for (int i = 0; i < MAX_MULTIBLEND_CHANNELS; i++) {
-            lo.writeVector3f(multiblendcolors[i]);
+            lio.writeVector3f(multiblendcolors[i]);
         }
     }
 }

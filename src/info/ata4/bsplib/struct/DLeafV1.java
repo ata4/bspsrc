@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -25,14 +24,14 @@ public class DLeafV1 extends DLeaf  {
     }
     
     @Override
-    public void read(LumpDataInput li) throws IOException {
-        super.read(li);
-        li.readShort(); // padding
+    public void read(LumpIO lio) throws IOException {
+        super.read(lio);
+        lio.readShort(); // padding
     }
    
     @Override
-    public void write(LumpDataOutput lo) throws IOException {
-        super.write(lo);
-        lo.writeShort(0); // padding
+    public void write(LumpIO lio) throws IOException {
+        super.write(lio);
+        lio.writeShort(0); // padding
     }
 }

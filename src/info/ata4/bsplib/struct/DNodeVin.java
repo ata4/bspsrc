@@ -10,8 +10,7 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -27,34 +26,34 @@ public class DNodeVin extends DNode {
     }
 
     @Override
-    public void read(LumpDataInput li) throws IOException {
-        planenum = li.readInt();
-        children[0] = li.readInt();
-        children[1] = li.readInt();
-        mins[0] = (short) li.readInt();
-        mins[1] = (short) li.readInt();
-        mins[2] = (short) li.readInt();
-        maxs[0] = (short) li.readInt();
-        maxs[1] = (short) li.readInt();
-        maxs[2] = (short) li.readInt();
-        fstface = li.readInt();
-        numface = li.readInt();
-        li.readInt(); // paddding
+    public void read(LumpIO lio) throws IOException {
+        planenum = lio.readInt();
+        children[0] = lio.readInt();
+        children[1] = lio.readInt();
+        mins[0] = (short) lio.readInt();
+        mins[1] = (short) lio.readInt();
+        mins[2] = (short) lio.readInt();
+        maxs[0] = (short) lio.readInt();
+        maxs[1] = (short) lio.readInt();
+        maxs[2] = (short) lio.readInt();
+        fstface = lio.readInt();
+        numface = lio.readInt();
+        lio.readInt(); // paddding
     }
 
     @Override
-    public void write(LumpDataOutput lo) throws IOException {
-        lo.writeInt(planenum);
-        lo.writeInt(children[0]);
-        lo.writeInt(children[1]);
-        lo.writeInt(mins[0]);
-        lo.writeInt(mins[1]);
-        lo.writeInt(mins[2]);
-        lo.writeInt(maxs[0]);
-        lo.writeInt(maxs[1]);
-        lo.writeInt(maxs[2]);
-        lo.writeInt(fstface);
-        lo.writeInt(numface);
-        lo.writeInt(0); // paddding
+    public void write(LumpIO lio) throws IOException {
+        lio.writeInt(planenum);
+        lio.writeInt(children[0]);
+        lio.writeInt(children[1]);
+        lio.writeInt(mins[0]);
+        lio.writeInt(mins[1]);
+        lio.writeInt(mins[2]);
+        lio.writeInt(maxs[0]);
+        lio.writeInt(maxs[1]);
+        lio.writeInt(maxs[2]);
+        lio.writeInt(fstface);
+        lio.writeInt(numface);
+        lio.writeInt(0); // paddding
     }
 }

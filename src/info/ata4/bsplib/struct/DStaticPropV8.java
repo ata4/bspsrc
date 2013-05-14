@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -31,22 +30,22 @@ public class DStaticPropV8 extends DStaticPropV5 {
     }
     
     @Override
-    public void read(LumpDataInput li) throws IOException {
-        super.read(li);
-        minCPULevel = li.readByte();
-        maxCPULevel = li.readByte();
-        minGPULevel = li.readByte();
-        maxGPULevel = li.readByte();
-        diffuseModulation = li.readColor32();
+    public void read(LumpIO lio) throws IOException {
+        super.read(lio);
+        minCPULevel = lio.readByte();
+        maxCPULevel = lio.readByte();
+        minGPULevel = lio.readByte();
+        maxGPULevel = lio.readByte();
+        diffuseModulation = lio.readColor32();
     }
     
     @Override
-    public void write(LumpDataOutput lo) throws IOException {
-        super.write(lo);
-        lo.writeByte(minCPULevel);
-        lo.writeByte(maxCPULevel);
-        lo.writeByte(minGPULevel);
-        lo.writeByte(maxGPULevel);
-        lo.writeColor32(diffuseModulation);
+    public void write(LumpIO lio) throws IOException {
+        super.write(lio);
+        lio.writeByte(minCPULevel);
+        lio.writeByte(maxCPULevel);
+        lio.writeByte(minGPULevel);
+        lio.writeByte(maxGPULevel);
+        lio.writeColor32(diffuseModulation);
     }
 }

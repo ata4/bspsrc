@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.util.EnumConverter;
 import java.io.IOException;
@@ -35,36 +34,39 @@ public class DStaticPropV4 implements DStaticProp {
     public float fademax;
     public Vector3f lightingOrigin;
 
+    @Override
     public int getSize() {
         return 56;
     }
 
-    public void read(LumpDataInput li) throws IOException {
-        origin = li.readVector3f();
-        angles = li.readVector3f();
-        propType = li.readUnsignedShort();
-        firstLeaf = li.readUnsignedShort();
-        leafCount = li.readUnsignedShort();
-        solid = li.readUnsignedByte();
-        flags = EnumConverter.fromInteger(StaticPropFlag.class, li.readUnsignedByte());
-        skin = li.readInt();
-        fademin = li.readFloat();
-        fademax = li.readFloat();
-        lightingOrigin = li.readVector3f();
+    @Override
+    public void read(LumpIO lio) throws IOException {
+        origin = lio.readVector3f();
+        angles = lio.readVector3f();
+        propType = lio.readUnsignedShort();
+        firstLeaf = lio.readUnsignedShort();
+        leafCount = lio.readUnsignedShort();
+        solid = lio.readUnsignedByte();
+        flags = EnumConverter.fromInteger(StaticPropFlag.class, lio.readUnsignedByte());
+        skin = lio.readInt();
+        fademin = lio.readFloat();
+        fademax = lio.readFloat();
+        lightingOrigin = lio.readVector3f();
     }
 
-    public void write(LumpDataOutput lo) throws IOException {
-        lo.writeVector3f(origin);
-        lo.writeVector3f(angles);
-        lo.writeShort(propType);
-        lo.writeShort(firstLeaf);
-        lo.writeShort(leafCount);
-        lo.writeByte(solid);
-        lo.writeByte(EnumConverter.toInteger(flags));
-        lo.writeInt(skin);
-        lo.writeFloat(fademin);
-        lo.writeFloat(fademax);
-        lo.writeVector3f(lightingOrigin);
+    @Override
+    public void write(LumpIO lio) throws IOException {
+        lio.writeVector3f(origin);
+        lio.writeVector3f(angles);
+        lio.writeShort(propType);
+        lio.writeShort(firstLeaf);
+        lio.writeShort(leafCount);
+        lio.writeByte(solid);
+        lio.writeByte(EnumConverter.toInteger(flags));
+        lio.writeInt(skin);
+        lio.writeFloat(fademin);
+        lio.writeFloat(fademax);
+        lio.writeVector3f(lightingOrigin);
     }
     
     public boolean usesLightingOrigin() {

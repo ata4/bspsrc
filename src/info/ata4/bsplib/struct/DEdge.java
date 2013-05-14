@@ -9,8 +9,7 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpDataInput;
-import info.ata4.bsplib.lump.LumpDataOutput;
+import info.ata4.bsplib.lump.LumpIO;
 import java.io.IOException;
 
 /**
@@ -21,17 +20,20 @@ public class DEdge implements DStruct {
     
     public int[] v = new int[2]; // vertex numbers
 
+    @Override
     public int getSize() {
         return 4;
     }
 
-    public void read(LumpDataInput li) throws IOException {
-        v[0] = li.readUnsignedShort();
-        v[1] = li.readUnsignedShort();
+    @Override
+    public void read(LumpIO lio) throws IOException {
+        v[0] = lio.readUnsignedShort();
+        v[1] = lio.readUnsignedShort();
     }
 
-    public void write(LumpDataOutput lo) throws IOException {
-        lo.writeShort(v[0]);
-        lo.writeShort(v[1]);
+    @Override
+    public void write(LumpIO lio) throws IOException {
+        lio.writeShort(v[0]);
+        lio.writeShort(v[1]);
     }
 }
