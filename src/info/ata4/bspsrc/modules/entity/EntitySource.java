@@ -13,6 +13,7 @@ package info.ata4.bspsrc.modules.entity;
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.entity.Entity;
+import info.ata4.bsplib.entity.EntityIO;
 import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
@@ -792,16 +793,23 @@ public class EntitySource extends ModuleDecompile {
                 }
             }
             
+            // convert VMF format if requested
             if (config.sourceFormat != SourceFormat.AUTO) {
-                char ioSepOld = ',';
-                char ioSepNew = (char) 0x1b;
+                char srcSep;
+                char dstSep;
+                
+                if (config.sourceFormat == SourceFormat.NEW) {
+                    srcSep = EntityIO.SEP_CHR_OLD;
+                    dstSep = EntityIO.SEP_CHR_NEW;
+                } else {
+                    srcSep = EntityIO.SEP_CHR_NEW;
+                    dstSep = EntityIO.SEP_CHR_OLD;
+                }
                 
                 for (KeyValue kv : ent.getIO()) {
-                    if (config.sourceFormat == SourceFormat.NEW) {
-                        kv.setValue(kv.getValue().replace(ioSepOld, ioSepNew));
-                    } else {
-                        kv.setValue(kv.getValue().replace(ioSepNew, ioSepOld));
-                    }
+                    String value = kv.getValue();
+                    value = value.replace(srcSep, dstSep);
+                    kv.setValue(value);
                 }
             }
             
@@ -809,11 +817,15 @@ public class EntitySource extends ModuleDecompile {
             // inofficial SDK Hammer
             if (bspFile.getSourceApp().getAppID() == SourceAppID.VAMPIRE_BLOODLINES) {
                 for (Map.Entry<String, String> kv : ent.getEntrySet()) {
-                    kv.setValue(kv.getValue().replace("\\\"", ""));
+                    String value = kv.getValue();
+                    value = value.replace("\\\"", "");
+                    kv.setValue(value);
                 }
                 
                 for (KeyValue kv : ent.getIO()) {
-                    kv.setValue(kv.getValue().replace("\\\"", ""));
+                    String value = kv.getValue();
+                    value = value.replace("\\\"", "");
+                    kv.setValue(value);
                 }
             }
             
