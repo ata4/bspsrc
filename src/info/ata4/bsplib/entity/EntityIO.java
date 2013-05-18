@@ -50,11 +50,11 @@ public class EntityIO {
     public EntityIO(String entityIO) {
         String[] elements = StringUtils.split(entityIO, SEP_CHR_NEW);
         
-        if (elements.length < 5) {
+        if (elements.length < 4) {
             elements = StringUtils.split(entityIO, SEP_CHR_OLD);
         }
         
-        if (elements.length < 5) {
+        if (elements.length < 4) {
             throw new IllegalArgumentException("Unsupported I/O format");
         }
         
