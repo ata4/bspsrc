@@ -56,8 +56,6 @@ public class Entity {
      * @param kvList raw key-value list
      */
     public Entity(List<KeyValue> kvList) {
-        String sepChr = String.valueOf((char) 0x1b);
-        
         for (KeyValue kv : kvList) {
             String key = kv.getKey();
             String value = kv.getValue();
@@ -72,18 +70,7 @@ public class Entity {
                 continue;
             }
 
-            // search for escape separator chars
-            int sep = StringUtils.countMatches(value, sepChr);
-
-            if (sep == 0) {
-                // try comma, too
-                sep = StringUtils.countMatches(value, ",");
-            }
-
-            // 6 seps for VTMB and Messiah, 4 otherwise
-            boolean io = sep == 4 || sep == 6;
-
-            if (io) {
+            if (EntityIO.isEntityIO(kv)) {
                 keyValueIO.add(kv);
             } else {
                 keyValue.put(key, value);

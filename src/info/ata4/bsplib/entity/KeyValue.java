@@ -27,14 +27,17 @@ public class KeyValue implements Entry<String, String> {
         this.value = value;
     }
 
+    @Override
     public String getKey() {
         return key;
     }
 
+    @Override
     public String getValue() {
         return value;
     }
     
+    @Override
     public String setValue(String value) {
         String old = this.value;
         this.value = value;
