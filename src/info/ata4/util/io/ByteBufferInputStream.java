@@ -24,16 +24,8 @@ public class ByteBufferInputStream extends InputStream {
 
     private final ByteBuffer buf;
 
-    public ByteBufferInputStream(ByteBuffer buf, boolean rewind) {
-        if (rewind) {
-            buf.rewind();
-        }
-        
-        this.buf = buf;
-    }
-    
     public ByteBufferInputStream(ByteBuffer buf) {
-        this(buf, false);
+        this.buf = buf;
     }
 
     @Override

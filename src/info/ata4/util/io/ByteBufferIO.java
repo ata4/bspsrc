@@ -13,6 +13,8 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -372,4 +374,14 @@ public class ByteBufferIO implements DataInput, DataOutput {
         write(bio.getBuffer());
     }
     // DataOutput extensions end
+    
+    // I/O stream extensions start
+    public InputStream getInputStream() {
+        return new ByteBufferInputStream(buf.duplicate());
+    }
+    
+    public OutputStream getOutputStream() {
+        return new ByteBufferOutputStream(buf.duplicate());
+    }
+    // I/O stream extensions end
 }

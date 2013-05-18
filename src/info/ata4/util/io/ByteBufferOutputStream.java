@@ -24,20 +24,12 @@ public class ByteBufferOutputStream extends OutputStream {
 
     private final ByteBuffer buf;
 
-    public ByteBufferOutputStream(ByteBuffer buf, boolean rewind) {
+    public ByteBufferOutputStream(ByteBuffer buf) {
         if (buf.isReadOnly()) {
             throw new IllegalArgumentException("Buffer is read-only");
         }
-        
-        if (rewind) {
-            buf.rewind();
-        }
 
         this.buf = buf;
-    }
-    
-    public ByteBufferOutputStream(ByteBuffer buf) {
-        this(buf, false);
     }
 
     @Override

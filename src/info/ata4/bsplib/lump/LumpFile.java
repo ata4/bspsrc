@@ -25,6 +25,7 @@ import java.util.logging.Logger;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class LumpFile {
+
     private static final Logger L = Logger.getLogger(LumpFile.class.getName());
     
     public static final int HEADER_SIZE = 20;

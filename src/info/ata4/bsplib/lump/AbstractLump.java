@@ -86,12 +86,16 @@ public abstract class AbstractLump {
     }
     
     public InputStream getInputStream() {
-        return new ByteBufferInputStream(getBuffer(), true);
+        ByteBuffer buf = getBuffer();
+        buf.rewind();
+        return new ByteBufferInputStream(buf);
     }
     
     public OutputStream getOutputStream(int newCapacity) {
         checkWriteBuffer(newCapacity);
-        return new ByteBufferOutputStream(getBuffer(), true);
+        ByteBuffer buf = getBuffer();
+        buf.rewind();
+        return new ByteBufferOutputStream(buf);
     }
     
     public OutputStream getOutputStream() {
@@ -106,7 +110,7 @@ public abstract class AbstractLump {
     }
 
     public LumpIO getLumpIO() {
-        return getLumpIO(-1);
+        return getLumpIO(0);
     }
     
     public void setVersion(int vers) {
@@ -172,7 +176,8 @@ public abstract class AbstractLump {
     protected void checkWriteBuffer(int newCapacity) {
         if (buffer.isReadOnly() || buffer.capacity() != newCapacity) {
             ByteOrder bo = buffer.order();
-            buffer = ByteBuffer.allocateDirect(newCapacity).order(bo);
+            buffer = ByteBuffer.allocateDirect(newCapacity);
+            buffer.order(bo);
             setCompressed(false);
         }
     }

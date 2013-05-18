@@ -34,34 +34,38 @@ public class LzmaBuffer {
     
     public final static int LZMA_ID = StringMacroUtils.makeID("LZMA");
     public final static int HEADER_SIZE = 17;
+    
+    private LzmaBuffer() {
+    }
 
     public static ByteBuffer uncompress(ByteBuffer buffer) throws IOException {
         ByteOrder bo = buffer.order();
-        ByteBuffer buf = buffer.duplicate().order(ByteOrder.LITTLE_ENDIAN);
-        buf.rewind();
+        ByteBuffer bbc = buffer.duplicate();
+        bbc.order(ByteOrder.LITTLE_ENDIAN);
+        bbc.rewind();
         
         // ensure that this buffer is actually compressed
-        if (buf.remaining() < HEADER_SIZE || buf.getInt() != LZMA_ID) {
+        if (bbc.remaining() < HEADER_SIZE || bbc.getInt() != LZMA_ID) {
             throw new IOException("Buffer is not compressed");
         }
         
         // read more from the header
-        int actualSize = buf.getInt();
-        int lzmaSize = buf.getInt();
+        int actualSize = bbc.getInt();
+        int lzmaSize = bbc.getInt();
         byte[] props = new byte[5];
-        buf.get(props);
+        bbc.get(props);
         
-        int lzmaSizeBuf = buf.limit() - HEADER_SIZE;
+        int lzmaSizeBuf = bbc.limit() - HEADER_SIZE;
         
         // check the size of the compressed buffer
         if (lzmaSizeBuf != lzmaSize) {
             L.log(Level.WARNING, "Difference in LZMA data length: found {0} bytes, expected {1}", new Object[]{lzmaSizeBuf, lzmaSize});
         }
         
-        ByteBuffer bbUnpacked = ByteBuffer.allocateDirect(actualSize);
+        ByteBuffer bbu = ByteBuffer.allocateDirect(actualSize);
 
-        ByteBufferInputStream is = new ByteBufferInputStream(buf);
-        ByteBufferOutputStream os = new ByteBufferOutputStream(bbUnpacked);
+        ByteBufferInputStream is = new ByteBufferInputStream(bbc);
+        ByteBufferOutputStream os = new ByteBufferOutputStream(bbu);
 
         try {
             LzmaDecoder decoder = new LzmaDecoder();
@@ -81,21 +85,21 @@ public class LzmaBuffer {
         }
         
         // reset buffer
-        bbUnpacked.rewind();
-        bbUnpacked.order(bo);
+        bbu.order(bo);
+        bbu.rewind();
 
-        return bbUnpacked;
+        return bbu;
     }
     
     public static ByteBuffer compress(ByteBuffer buffer) throws IOException {
         ByteOrder bo = buffer.order();
-        ByteBuffer buf = buffer.duplicate();
-        buf.rewind();
+        ByteBuffer bbu = buffer.duplicate();
+        bbu.rewind();
         
         byte[] props;
         
-        ByteBufferInputStream is = new ByteBufferInputStream(buf);
-        ByteArrayOutputStream os = new ByteArrayOutputStream(buf.limit() / 8);
+        ByteBufferInputStream is = new ByteBufferInputStream(bbu);
+        ByteArrayOutputStream os = new ByteArrayOutputStream(bbu.limit() / 8);
         
         try {
             LzmaEncoder encoder = new LzmaEncoder();
@@ -113,27 +117,28 @@ public class LzmaBuffer {
         byte[] lzma = os.toByteArray();
         int size = HEADER_SIZE + lzma.length;
         
-        ByteBuffer bbPacked = ByteBuffer.allocateDirect(size);
-        bbPacked.order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer bbc = ByteBuffer.allocateDirect(size);
+        bbc.order(ByteOrder.LITTLE_ENDIAN);
         
         // write header
-        bbPacked.putInt(LZMA_ID);
-        bbPacked.putInt(buf.limit());
-        bbPacked.putInt(lzma.length);
-        bbPacked.put(props);
+        bbc.putInt(LZMA_ID);
+        bbc.putInt(bbu.limit());
+        bbc.putInt(lzma.length);
+        bbc.put(props);
         
         // write lzma data
-        bbPacked.put(lzma);
+        bbc.put(lzma);
         
         // reset buffer
-        bbPacked.rewind();
-        bbPacked.order(bo);
+        bbc.order(bo);
+        bbc.rewind();
         
-        return bbPacked;
+        return bbc;
     }
 
     public static boolean isCompressed(ByteBuffer buffer) {
-        ByteBuffer bb = buffer.duplicate().order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer bb = buffer.duplicate();
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.rewind();
         
         // check if this buffer is compressed
