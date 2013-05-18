@@ -222,24 +222,6 @@ public class ByteBufferIO implements DataInput, DataOutput {
     }
     // DataInput end
     
-    // DataInput extensions start
-    public void read(ByteBuffer b) throws IOException {
-        try {
-            b.put(buf);
-        } catch (BufferOverflowException ex) {
-            throw new IOException(ex);
-        }
-    }
-    
-    public void read(ByteBufferIO bio) throws IOException {
-        read(bio.getBuffer());
-    }
-    
-    public long readUnsignedInt() throws IOException {
-        return readInt() & 0xffffffff;
-    }
-    // DataInput extensions end
-    
     // DataOutput start
     @Override
     public void write(int b) throws IOException {
@@ -358,6 +340,24 @@ public class ByteBufferIO implements DataInput, DataOutput {
         write(s.getBytes("UTF-8"));
     }
     // DataOutput end
+    
+    // DataInput extensions start
+    public void read(ByteBuffer b) throws IOException {
+        try {
+            b.put(buf);
+        } catch (BufferOverflowException ex) {
+            throw new IOException(ex);
+        }
+    }
+    
+    public void read(ByteBufferIO bio) throws IOException {
+        read(bio.getBuffer());
+    }
+    
+    public long readUnsignedInt() throws IOException {
+        return readInt() & 0xffffffffL;
+    }
+    // DataInput extensions end
 
     // DataOutput extensions start
     public void write(ByteBuffer b) throws IOException {
