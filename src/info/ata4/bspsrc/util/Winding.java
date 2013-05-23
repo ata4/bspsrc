@@ -772,94 +772,117 @@ public class Winding implements List<Vector3f> {
         return total * 0.5f;
     }
     
+    @Override
     public int size() {
         return verts.size();
     }
 
+    @Override
     public boolean isEmpty() {
         return verts.isEmpty();
     }
 
+    @Override
     public boolean contains(Object o) {
         return verts.contains(o);
     }
 
+    @Override
     public Iterator<Vector3f> iterator() {
         return verts.iterator();
     }
 
+    @Override
     public Object[] toArray() {
         return verts.toArray();
     }
 
+    @Override
     public <T> T[] toArray(T[] a) {
         return verts.toArray(a);
     }
 
+    @Override
     public boolean add(Vector3f e) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean remove(Object o) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean containsAll(Collection<?> c) {
         return verts.containsAll(c);
     }
 
+    @Override
     public boolean addAll(Collection<? extends Vector3f> c) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean addAll(int index, Collection<? extends Vector3f> c) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean removeAll(Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean retainAll(Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void clear() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Vector3f get(int index) {
         return verts.get(index);
     }
 
+    @Override
     public Vector3f set(int index, Vector3f element) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void add(int index, Vector3f element) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Vector3f remove(int index) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public int indexOf(Object o) {
         return verts.indexOf(o);
     }
 
+    @Override
     public int lastIndexOf(Object o) {
         return verts.lastIndexOf(o);
     }
 
+    @Override
     public ListIterator<Vector3f> listIterator() {
         return verts.listIterator();
     }
 
+    @Override
     public ListIterator<Vector3f> listIterator(int index) {
         return verts.listIterator(index);
     }
 
+    @Override
     public List<Vector3f> subList(int fromIndex, int toIndex) {
         return verts.subList(fromIndex, toIndex);
     }

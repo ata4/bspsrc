@@ -37,6 +37,7 @@ public class ProgressCellRenderer extends JProgressBar
         setStringPainted(true);
     }
 
+    @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int col) {
         if (value instanceof Integer) {
