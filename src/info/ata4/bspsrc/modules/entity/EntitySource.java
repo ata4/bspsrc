@@ -168,9 +168,15 @@ public class EntitySource extends ModuleDecompile {
                     continue;
                 }
             }
+            
+            // re-use hammerid if possible, otherwise generate a new UID
+            int entID = getHammerID(ent);
+            if (entID == -1) {
+                entID = idtracker.getUID();
+            }
 
             writer.start("entity");
-            writer.put("id", idtracker.getUID());
+            writer.put("id", entID);
 
             // get areaportal numbers
             int portalNum = -1;
@@ -230,6 +236,11 @@ public class EntitySource extends ModuleDecompile {
 
                 // skip model for brush entities
                 if (key.equals("model") && modelNum != -2) {
+                    continue;
+                }
+                
+                // skip hammerid
+                if (key.equals("hammerid")) {
                     continue;
                 }
 
@@ -787,6 +798,7 @@ public class EntitySource extends ModuleDecompile {
                 // remove values that are unknown to Hammer
                 ent.removeValue("world_mins");
                 ent.removeValue("world_maxs");
+                ent.removeValue("hammerid");
 
                 // rebuild mapversion
                 if (!ent.hasKey("mapversion")) {
@@ -852,11 +864,32 @@ public class EntitySource extends ModuleDecompile {
                 createCamera(ent);
             }
             
-            // remove hammerid, unless debug is enabled
-            if (!config.isDebug()) {
-                ent.removeValue("hammerid");
+            // add hammerid to UID blacklist to make sure they're not generated
+            // for anything else
+            int hammerid = getHammerID(ent);
+            if (hammerid != -1) {
+                idtracker.getUIDBlackList().add(hammerid);
             }
         }
+    }
+    
+    private int getHammerID(Entity ent) {
+        String keyName = "hammerid";
+        
+        if (!ent.hasKey(keyName)) {
+            return -1;
+        }
+        
+        String hammeridStr = ent.getValue(keyName);
+        int hammerid = -1;
+        
+        try {
+            hammerid = Integer.parseInt(ent.getValue("hammerid"));
+        } catch (NumberFormatException ex) {
+            L.log(Level.WARNING, "Invalid hammerid format {0}", hammeridStr);
+        }
+        
+        return hammerid;
     }
 
     private void fixLightEntity(Entity ent) {
