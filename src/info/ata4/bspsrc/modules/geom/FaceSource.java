@@ -54,16 +54,11 @@ public class FaceSource extends ModuleDecompile {
     private final TextureSource texsrc;
     private final IDTracker idtracker;
     
-    // set of face indices that are undersized
-    private Set<Integer> undersizedFaces = new HashSet<Integer>();
-    
-    // brush side ID mapping arrays
-    private Map<Integer, Integer> faceToVMF = new HashMap<Integer, Integer>();
-    private Map<Integer, Integer> origFaceToVMF = new HashMap<Integer, Integer>();
-    private Map<Short, Integer> dispinfoToVMF = new HashMap<Short, Integer>();
-
     // mapped original faces
     public Map<Integer, Set<Integer>> origFaceToSplitFace = new HashMap<Integer, Set<Integer>>();
+    
+    // set of face indices that are undersized
+    private Set<Integer> undersizedFaces = new HashSet<Integer>();
     
     // current offset in multiblend lump
     private int multiblendOffset;
@@ -89,46 +84,6 @@ public class FaceSource extends ModuleDecompile {
                 }
             }
         }
-    }
-    
-    /**
-     * Returns the brush side VMF ID for the corresponding face index.
-     * The face must have been previously written via {@link #writeFace writeFace}.
-     * It automatically looks up the original face if the split face wasn't found.
-     * 
-     * @param iface face index
-     * @return brush side ID or -1 if the index isn't mapped yet
-     */
-    public int getVMFBrushSideIDForFace(int iface) {
-        if (faceToVMF.containsKey(iface)) {
-            return faceToVMF.get(iface);
-        } else {
-            // try origface
-            int ioface = bsp.faces.get(iface).origFace;
-            if (origFaceToVMF.containsKey(ioface)) {
-                return origFaceToVMF.get(ioface);
-            }
-        }
-        
-        // not found
-        return -1;
-    }
-    
-    /**
-     * Returns the brush side VMF ID for the corresponding dispInfo index.
-     * The displacement must have been previously written via
-     * {@link #writeDisplacement writeDisplacement}.
-     * 
-     * @param idispinfo dispinfo index
-     * @return brush side ID or -1 if the index isn't mapped yet
-     */
-    public int getVMFBrushSideIDForDispInfo(short idispinfo) {
-        if (dispinfoToVMF.containsKey(idispinfo)) {
-            return dispinfoToVMF.get(idispinfo);
-        }
-        
-        // not found
-        return -1;
     }
     
     /**
@@ -347,9 +302,9 @@ public class FaceSource extends ModuleDecompile {
         
         // map face index to brush side ID
         if (orig) {
-            origFaceToVMF.put(iface, sideID);
+            idtracker.setOrigFaceUID(iface, sideID);
         } else {
-            faceToVMF.put(iface, sideID);
+            idtracker.setFaceUID(iface, sideID);
         }
         
         // create texture
@@ -376,7 +331,7 @@ public class FaceSource extends ModuleDecompile {
         // write displacement?
         if (disp && config.writeDisp) {
             // map face index to brush side ID
-            dispinfoToVMF.put(face.dispInfo, sideID);
+            idtracker.setDispInfoUID(face.dispInfo, sideID);
             // write dispinfo section
             writeDisplacement(face.dispInfo);
         }
