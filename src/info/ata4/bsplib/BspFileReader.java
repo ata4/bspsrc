@@ -166,7 +166,13 @@ public class BspFileReader {
         if (appID == SourceAppID.VAMPIRE_BLOODLINES) {
             struct = DFaceVTMB.class;
         } else if (appID == SourceAppID.VINDICTUS) {
-            struct = DFaceVin.class;
+            LumpType lt = orig ? LumpType.LUMP_ORIGINALFACES : LumpType.LUMP_FACES;
+            int facesver = getLump(lt).getVersion();
+            if (facesver == 2) {
+                struct = DFaceVinV2.class;
+            } else {
+                struct = DFaceVinV1.class;
+            }
         } else {
             switch (bspFile.getVersion()) {
                 case 17:
@@ -279,8 +285,7 @@ public class BspFileReader {
             
             Class<? extends DStaticProp> structClass = null;
             
-            // special cases where the lump version doesn't specify the correct
-            // data structure
+            // special cases where derivative lump structures are used
             switch (appID) {
                 case SourceAppID.THE_SHIP:
                     structClass = DStaticPropShip.class;
