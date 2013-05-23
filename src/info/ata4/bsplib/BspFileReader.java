@@ -33,6 +33,7 @@ import org.apache.commons.io.IOUtils;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class BspFileReader {
+    
     private static final Logger L = Logger.getLogger(BspFileReader.class.getName());
 
     // BSP headers and data
@@ -236,6 +237,7 @@ public class BspFileReader {
         }
 
         LumpIO lio = sprpLump.getLumpIO();
+        int sprpver = sprpLump.getVersion();
 
         try {
             final int padsize = 128;
@@ -265,11 +267,16 @@ public class BspFileReader {
             for (int i = 0; i < propleaves; i++) {
                 bsp.staticPropLeaf.add(lio.readUnsignedShort());
             }
-
+            
+            // extra data for Vindictus
+            if (appID == SourceAppID.VINDICTUS && sprpver == 6) {
+                int psextra = lio.readInt();
+                lio.skipBytes(psextra * 16);
+            }
+            
             // StaticPropLump_t
             final int propstatics = lio.readInt();
             
-            int sprpver = sprpLump.getVersion();
             Class<? extends DStaticProp> structClass = null;
             
             // special cases where the lump version doesn't specify the correct
@@ -294,6 +301,9 @@ public class BspFileReader {
                 case SourceAppID.DEAR_ESTHER:
                     structClass = DStaticPropDE.class;
                     break;
+                    
+                case SourceAppID.VINDICTUS:
+                    structClass = DStaticPropV5.class;
             }
 
             // get structure class for the static prop lump version if it's not
