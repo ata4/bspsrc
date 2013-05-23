@@ -25,9 +25,9 @@ import org.apache.commons.io.IOUtils;
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class CompileParameters extends ModuleRead {
+public class BspCompileParams extends ModuleRead {
     
-    private static final Logger L = Logger.getLogger(CompileParameters.class.getName());
+    private static final Logger L = Logger.getLogger(BspCompileParams.class.getName());
     
     private List<String> vbspParams = new ArrayList<String>();
     private List<String> vvisParams = new ArrayList<String>();
@@ -36,7 +36,7 @@ public class CompileParameters extends ModuleRead {
     private boolean vvisRun = false;
     private boolean vradRun = false;
 
-    public CompileParameters(BspFileReader reader) {
+    public BspCompileParams(BspFileReader reader) {
         super(reader);
         
         reader.loadFlags();

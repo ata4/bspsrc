@@ -17,9 +17,10 @@ import info.ata4.bsplib.struct.DModel;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.VmfWriter;
-import info.ata4.bspsrc.modules.BspDecompiler;
 import info.ata4.bspsrc.modules.BspProtection;
+import info.ata4.bspsrc.modules.IDTracker;
 import info.ata4.bspsrc.modules.ModuleDecompile;
+import info.ata4.bspsrc.modules.VmfMetadata;
 import info.ata4.bspsrc.modules.texture.Texture;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.util.BspTreeStats;
@@ -43,13 +44,12 @@ public class BrushSource extends ModuleDecompile {
     // logger
     private static final Logger L = Logger.getLogger(BrushSource.class.getName());
     
-    // parent module
-    private final BspDecompiler parent;
-    
     // sub-modules
     private final BspSourceConfig config;
     private final TextureSource texsrc;
     private final BspProtection bspprot;
+    private final VmfMetadata vmfmeta;
+    private final IDTracker idtracker;
     
     // additional model data
     private List<DBrushModel> models = new ArrayList<DBrushModel>();
@@ -62,12 +62,14 @@ public class BrushSource extends ModuleDecompile {
     private Map<Integer, Integer> brushIndexToID = new HashMap<Integer, Integer>();
 
     public BrushSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
-            BspDecompiler parent, TextureSource texsrc, BspProtection bspprot) {
+            TextureSource texsrc, BspProtection bspprot, VmfMetadata vmfmeta,
+            IDTracker idtracker) {
         super(reader, writer);
         this.config = config;
-        this.parent = parent;
         this.texsrc = texsrc;
         this.bspprot = bspprot;
+        this.vmfmeta = vmfmeta;
+        this.idtracker = idtracker;
 
         assignBrushes();
     }
@@ -169,7 +171,7 @@ public class BrushSource extends ModuleDecompile {
     public boolean writeBrush(int ibrush, Vector3f origin, Vector3f angles) {
         DBrush brush = bsp.brushes.get(ibrush);
         
-        int brushID = parent.nextBrushID();
+        int brushID = idtracker.getUID();
         
         // map brush index to ID
         brushIndexToID.put(ibrush, brushID);
@@ -286,7 +288,7 @@ public class BrushSource extends ModuleDecompile {
 
         // add visgroup metadata if this is a protector detail brush
         if (!brush.isDetail() && bspprot.isProtectedBrush(brush)) {
-            parent.writeMetaVisgroup("VMEX protector brushes");
+            vmfmeta.writeMetaVisgroup("VMEX protector brushes");
         }
 
         writer.end("solid");
@@ -325,7 +327,7 @@ public class BrushSource extends ModuleDecompile {
             origMaterial = texsrc.fixToolTextures(texture, ibrush, ibrushside);
         }
         
-        int sideID = parent.nextSideID();
+        int sideID = idtracker.getUID();
         
         // add side id to cubemap side list
         if (texture.getData() != null) {

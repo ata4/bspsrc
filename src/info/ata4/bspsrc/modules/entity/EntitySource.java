@@ -18,9 +18,10 @@ import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.*;
-import info.ata4.bspsrc.modules.BspDecompiler;
 import info.ata4.bspsrc.modules.BspProtection;
+import info.ata4.bspsrc.modules.IDTracker;
 import info.ata4.bspsrc.modules.ModuleDecompile;
+import info.ata4.bspsrc.modules.VmfMetadata;
 import info.ata4.bspsrc.modules.geom.BrushMode;
 import info.ata4.bspsrc.modules.geom.BrushSource;
 import info.ata4.bspsrc.modules.geom.FaceSource;
@@ -46,9 +47,6 @@ public class EntitySource extends ModuleDecompile {
     private static final Logger L = Logger.getLogger(EntitySource.class.getName());
 
     private static final Pattern INSTANCE_PREFIX = Pattern.compile("^([^-]+)-");
-
-    // parent module
-    private final BspDecompiler parent;
     
     // sub-modules
     private final BspSourceConfig config;
@@ -56,6 +54,8 @@ public class EntitySource extends ModuleDecompile {
     private final FaceSource facesrc;
     private final TextureSource texsrc;
     private final BspProtection bspprot;
+    private final VmfMetadata vmfmeta;
+    private final IDTracker idtracker;
 
     // list of areaportal brush ids
     private Set<Integer> apBrushes = new HashSet<Integer>();
@@ -69,15 +69,16 @@ public class EntitySource extends ModuleDecompile {
     private boolean mergeFuncDetail = true;
 
     public EntitySource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
-            BspDecompiler parent, BrushSource brushsrc, FaceSource facesrc,
-            TextureSource texsrc, BspProtection bspprot) {
+            BrushSource brushsrc, FaceSource facesrc, TextureSource texsrc,
+            BspProtection bspprot, VmfMetadata vmfmeta, IDTracker idtracker) {
         super(reader, writer);
-        this.parent = parent;
         this.config = config;
         this.brushsrc = brushsrc;
         this.facesrc = facesrc;
         this.texsrc = texsrc;
         this.bspprot = bspprot;
+        this.vmfmeta = vmfmeta;
+        this.idtracker = idtracker;
         
         processEntities();
     }
@@ -169,7 +170,7 @@ public class EntitySource extends ModuleDecompile {
             }
 
             writer.start("entity");
-            writer.put("id", parent.nextBrushID());
+            writer.put("id", idtracker.getUID());
 
             // get areaportal numbers
             int portalNum = -1;
@@ -314,7 +315,7 @@ public class EntitySource extends ModuleDecompile {
             
             // write visgroup metadata if filled
             if (!visgroups.isEmpty()) {
-                parent.writeMetaVisgroups(visgroups);
+                vmfmeta.writeMetaVisgroups(visgroups);
             }
 
             writer.end("entity");
@@ -331,7 +332,7 @@ public class EntitySource extends ModuleDecompile {
             List<Integer> protBrushIDs = new ArrayList<Integer>();
             
             writer.start("entity");
-            writer.put("id", parent.nextBrushID());
+            writer.put("id", idtracker.getUID());
             writer.put("classname", "func_detail");
 
             for (int i = 0; i < bsp.brushes.size(); i++) {
@@ -356,9 +357,9 @@ public class EntitySource extends ModuleDecompile {
             // write protector brushes separately
             if (!protBrushIDs.isEmpty()) {
                 writer.start("entity");
-                writer.put("id", parent.nextBrushID());
+                writer.put("id", idtracker.getUID());
                 writer.put("classname", "func_detail");
-                parent.writeMetaVisgroup("VMEX protector brushes");
+                vmfmeta.writeMetaVisgroup("VMEX protector brushes");
                 
                 for (int brushId : protBrushIDs) {
                     brushsrc.writeBrush(brushId);
@@ -376,13 +377,13 @@ public class EntitySource extends ModuleDecompile {
                 }
 
                 writer.start("entity");
-                writer.put("id", parent.nextBrushID());
+                writer.put("id", idtracker.getUID());
                 writer.put("classname", "func_detail");
                 brushsrc.writeBrush(i);
 
                 // write visgroup metadata if this is a protector brush
                 if (bspprot.isProtectedBrush(brush)) {
-                    parent.writeMetaVisgroup("VMEX protector brushes");
+                    vmfmeta.writeMetaVisgroup("VMEX protector brushes");
                 }
 
                 writer.end("entity");
@@ -416,7 +417,7 @@ public class EntitySource extends ModuleDecompile {
 
             // write VMF
             writer.start("entity");
-            writer.put("id", parent.nextBrushID());
+            writer.put("id", idtracker.getUID());
             writer.put("classname", "info_overlay");
             writer.put("material", texsrc.getTextureName(o.texinfo));
             writer.put("StartU", o.u[0]);
@@ -511,7 +512,7 @@ public class EntitySource extends ModuleDecompile {
             DStaticPropV4 pst4 = (DStaticPropV4) pst;
  
             writer.start("entity");
-            writer.put("id", parent.nextBrushID());
+            writer.put("id", idtracker.getUID());
             writer.put("classname", "prop_static");
             writer.put("origin", pst4.origin);
             writer.put("angles", pst4.angles);
@@ -589,7 +590,7 @@ public class EntitySource extends ModuleDecompile {
         // write lighting origins
         for (Vector3f origin : lightingOrigins.keySet()) {
             writer.start("entity");
-            writer.put("id", parent.nextBrushID());
+            writer.put("id", idtracker.getUID());
             writer.put("classname", "info_lighting");
             writer.put("targetname", lightingOrigins.get(origin));
             writer.put("origin", origin);
@@ -607,7 +608,7 @@ public class EntitySource extends ModuleDecompile {
             DCubemapSample cm = bsp.cubemaps.get(i);
 
             writer.start("entity");
-            writer.put("id", parent.nextBrushID());
+            writer.put("id", idtracker.getUID());
             writer.put("classname", "env_cubemap");
             writer.put("origin", new Vector3f(cm.origin[0], cm.origin[1], cm.origin[2]));
             writer.put("cubemapsize", cm.size);
@@ -909,6 +910,6 @@ public class EntitySource extends ModuleDecompile {
         // move 64 units backwards to facing direction
         pos = look.sub(pos).normalize().scalar(-64).add(pos);
 
-        parent.getCameras().add(new Camera(pos, look));
+        vmfmeta.getCameras().add(new Camera(pos, look));
     }
 }

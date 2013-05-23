@@ -141,7 +141,6 @@ public class BspSource implements Runnable {
         try {
             // create and configure decompiler, then start decompiling
             BspDecompiler decompiler = new BspDecompiler(reader, writer, config);
-            decompiler.setComment("Decompiled by BSPSource v" + VERSION + " from " + bspFile.getName());
             decompiler.start();
         } finally {
             // "Cave Johnson, we're done here."

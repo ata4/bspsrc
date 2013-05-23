@@ -14,14 +14,20 @@ import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.*;
-import info.ata4.bspsrc.modules.BspDecompiler;
+import info.ata4.bspsrc.modules.IDTracker;
 import info.ata4.bspsrc.modules.ModuleDecompile;
 import info.ata4.bspsrc.modules.texture.Texture;
 import info.ata4.bspsrc.modules.texture.TextureAxis;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.modules.texture.ToolTexture;
 import info.ata4.bspsrc.util.Winding;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,13 +48,11 @@ public class FaceSource extends ModuleDecompile {
     
     // epsilon for area comparison slop, in mu^2
     private static final float AREA_EPS = 1.0f;
-    
-    // parent module
-    private final BspDecompiler parent;
 
     // sub-modules
     private final BspSourceConfig config;
     private final TextureSource texsrc;
+    private final IDTracker idtracker;
     
     // set of face indices that are undersized
     private Set<Integer> undersizedFaces = new HashSet<Integer>();
@@ -65,11 +69,12 @@ public class FaceSource extends ModuleDecompile {
     private int multiblendOffset;
 
     public FaceSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
-            BspDecompiler parent, TextureSource texsrc) {
+            TextureSource texsrc, IDTracker idtracker) {
         super(reader, writer);
-        this.parent = parent;
+        
         this.config = config;
         this.texsrc = texsrc;
+        this.idtracker = idtracker;
         
         if (bsp.origFaces.isEmpty()) {
             // fix invalid origFace indices when no original faces are available
@@ -322,7 +327,7 @@ public class FaceSource extends ModuleDecompile {
         }
 
         writer.start("solid");
-        writer.put("id", parent.nextBrushID());
+        writer.put("id", idtracker.getUID());
         
         // write metadata for debugging
         if (config.isDebug()) {
@@ -338,7 +343,7 @@ public class FaceSource extends ModuleDecompile {
             writer.end("bspsrc_debug");
         }
         
-        int sideID = parent.nextSideID();
+        int sideID = idtracker.getUID();
         
         // map face index to brush side ID
         if (orig) {
@@ -557,9 +562,9 @@ public class FaceSource extends ModuleDecompile {
         }
         
         writer.start("solid");
-        writer.put("id", parent.nextBrushID());
+        writer.put("id", idtracker.getUID());
         
-        int sideID = parent.nextSideID();
+        int sideID = idtracker.getUID();
         
         Texture texture = texsrc.getTexture(frontMaterial, normal);
         
@@ -597,7 +602,7 @@ public class FaceSource extends ModuleDecompile {
      */
     private void writeBackSide(Texture texture, Vector3f e1, Vector3f e2, Vector3f e3) {
         writer.start("side");
-        writer.put("id", parent.nextSideID());
+        writer.put("id", idtracker.getUID());
         writer.put("plane", e1, e3, e2);
         writer.put("smoothing_groups", 0);
         writer.put(texture);
