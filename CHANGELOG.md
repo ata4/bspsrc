@@ -1,5 +1,10 @@
 ## Changelog
 
+### 1.3.11 - 23.05.2013
+* Added support for newer Vindictus maps.
+* Added support for Tactical Intervention map.
+* Changed VMF ID mapping system: the hammerid value is now used for entities to restore their original VMF ID.
+
 ### 1.3.10 - 12.03.2013
 * Fixed an exception when decompiling overlays in the ORIGFACE_PLUS brush mode.
 * Disabled toolsinvisible tool texture detection that replaces correct textures as well.
