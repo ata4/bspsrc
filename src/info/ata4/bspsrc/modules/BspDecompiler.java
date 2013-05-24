@@ -41,8 +41,7 @@ public class BspDecompiler extends ModuleDecompile {
     private final FaceSource facesrc;
     private final EntitySource entsrc;
     private final BspProtection bspprot;
-    private final VmfMetadata vmfmeta;
-    private final IDTracker idtracker;
+    private final VmfMeta vmfmeta;
 
     public BspDecompiler(BspFileReader reader, VmfWriter writer, BspSourceConfig config) {
         super(reader, writer);
@@ -51,15 +50,13 @@ public class BspDecompiler extends ModuleDecompile {
         
         this.config = config;
         
-        idtracker = new IDTracker(reader);
         texsrc = new TextureSource(reader);
         bspprot = new BspProtection(reader, texsrc);
-        vmfmeta = new VmfMetadata(reader, writer, idtracker);
-        brushsrc = new BrushSource(reader, writer, config, texsrc, bspprot,
-                vmfmeta, idtracker);
-        facesrc = new FaceSource(reader, writer, config, texsrc, idtracker);
+        vmfmeta = new VmfMeta(reader, writer);
+        brushsrc = new BrushSource(reader, writer, config, texsrc, bspprot, vmfmeta);
+        facesrc = new FaceSource(reader, writer, config, texsrc, vmfmeta);
         entsrc = new EntitySource(reader, writer, config, brushsrc, facesrc,
-                texsrc, bspprot, vmfmeta, idtracker);
+                texsrc, bspprot, vmfmeta);
     }
     
     /**

@@ -19,9 +19,8 @@ import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.*;
 import info.ata4.bspsrc.modules.BspProtection;
-import info.ata4.bspsrc.modules.IDTracker;
 import info.ata4.bspsrc.modules.ModuleDecompile;
-import info.ata4.bspsrc.modules.VmfMetadata;
+import info.ata4.bspsrc.modules.VmfMeta;
 import info.ata4.bspsrc.modules.geom.BrushMode;
 import info.ata4.bspsrc.modules.geom.BrushSource;
 import info.ata4.bspsrc.modules.geom.FaceSource;
@@ -54,8 +53,7 @@ public class EntitySource extends ModuleDecompile {
     private final FaceSource facesrc;
     private final TextureSource texsrc;
     private final BspProtection bspprot;
-    private final VmfMetadata vmfmeta;
-    private final IDTracker idtracker;
+    private final VmfMeta vmfmeta;
 
     // list of areaportal brush ids
     private Set<Integer> apBrushes = new HashSet<Integer>();
@@ -70,7 +68,7 @@ public class EntitySource extends ModuleDecompile {
 
     public EntitySource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
             BrushSource brushsrc, FaceSource facesrc, TextureSource texsrc,
-            BspProtection bspprot, VmfMetadata vmfmeta, IDTracker idtracker) {
+            BspProtection bspprot, VmfMeta vmfmeta) {
         super(reader, writer);
         this.config = config;
         this.brushsrc = brushsrc;
@@ -78,7 +76,6 @@ public class EntitySource extends ModuleDecompile {
         this.texsrc = texsrc;
         this.bspprot = bspprot;
         this.vmfmeta = vmfmeta;
-        this.idtracker = idtracker;
         
         processEntities();
     }
@@ -172,7 +169,7 @@ public class EntitySource extends ModuleDecompile {
             // re-use hammerid if possible, otherwise generate a new UID
             int entID = getHammerID(ent);
             if (entID == -1) {
-                entID = idtracker.getUID();
+                entID = vmfmeta.getUID();
             }
 
             writer.start("entity");
@@ -343,7 +340,7 @@ public class EntitySource extends ModuleDecompile {
             List<Integer> protBrushIDs = new ArrayList<Integer>();
             
             writer.start("entity");
-            writer.put("id", idtracker.getUID());
+            writer.put("id", vmfmeta.getUID());
             writer.put("classname", "func_detail");
 
             for (int i = 0; i < bsp.brushes.size(); i++) {
@@ -368,7 +365,7 @@ public class EntitySource extends ModuleDecompile {
             // write protector brushes separately
             if (!protBrushIDs.isEmpty()) {
                 writer.start("entity");
-                writer.put("id", idtracker.getUID());
+                writer.put("id", vmfmeta.getUID());
                 writer.put("classname", "func_detail");
                 vmfmeta.writeMetaVisgroup("VMEX protector brushes");
                 
@@ -388,7 +385,7 @@ public class EntitySource extends ModuleDecompile {
                 }
 
                 writer.start("entity");
-                writer.put("id", idtracker.getUID());
+                writer.put("id", vmfmeta.getUID());
                 writer.put("classname", "func_detail");
                 brushsrc.writeBrush(i);
 
@@ -428,7 +425,7 @@ public class EntitySource extends ModuleDecompile {
 
             // write VMF
             writer.start("entity");
-            writer.put("id", idtracker.getUID());
+            writer.put("id", vmfmeta.getUID());
             writer.put("classname", "info_overlay");
             writer.put("material", texsrc.getTextureName(o.texinfo));
             writer.put("StartU", o.u[0]);
@@ -485,7 +482,7 @@ public class EntitySource extends ModuleDecompile {
             } else {
                 for (int j = 0; j < faceCount; j++) {
                     int iface = o.ofaces[j];
-                    int faceId = idtracker.getFaceUID(iface);
+                    int faceId = vmfmeta.getFaceUID(iface);
                     
                     if (faceId != -1) {
                         sides.add(faceId);
@@ -523,7 +520,7 @@ public class EntitySource extends ModuleDecompile {
             DStaticPropV4 pst4 = (DStaticPropV4) pst;
  
             writer.start("entity");
-            writer.put("id", idtracker.getUID());
+            writer.put("id", vmfmeta.getUID());
             writer.put("classname", "prop_static");
             writer.put("origin", pst4.origin);
             writer.put("angles", pst4.angles);
@@ -601,7 +598,7 @@ public class EntitySource extends ModuleDecompile {
         // write lighting origins
         for (Vector3f origin : lightingOrigins.keySet()) {
             writer.start("entity");
-            writer.put("id", idtracker.getUID());
+            writer.put("id", vmfmeta.getUID());
             writer.put("classname", "info_lighting");
             writer.put("targetname", lightingOrigins.get(origin));
             writer.put("origin", origin);
@@ -619,7 +616,7 @@ public class EntitySource extends ModuleDecompile {
             DCubemapSample cm = bsp.cubemaps.get(i);
 
             writer.start("entity");
-            writer.put("id", idtracker.getUID());
+            writer.put("id", vmfmeta.getUID());
             writer.put("classname", "env_cubemap");
             writer.put("origin", new Vector3f(cm.origin[0], cm.origin[1], cm.origin[2]));
             writer.put("cubemapsize", cm.size);
@@ -735,7 +732,7 @@ public class EntitySource extends ModuleDecompile {
         
         // use sideid of displacement, if existing
         if (origFace.dispInfo != -1) {
-            int side = idtracker.getDispInfoUID(origFace.dispInfo);
+            int side = vmfmeta.getDispInfoUID(origFace.dispInfo);
             if (side != -1) {
                 L.log(Level.FINER, "O: {0} D: {1} id: {2}",
                         new Object[]{ioverlay, origFace.dispInfo, side});
@@ -868,7 +865,7 @@ public class EntitySource extends ModuleDecompile {
             // for anything else
             int hammerid = getHammerID(ent);
             if (hammerid != -1) {
-                idtracker.getUIDBlackList().add(hammerid);
+                vmfmeta.getUIDBlackList().add(hammerid);
             }
         }
     }

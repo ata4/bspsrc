@@ -13,9 +13,10 @@ package info.ata4.bspsrc.modules.geom;
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.bspsrc.*;
-import info.ata4.bspsrc.modules.IDTracker;
+import info.ata4.bspsrc.BspSourceConfig;
+import info.ata4.bspsrc.VmfWriter;
 import info.ata4.bspsrc.modules.ModuleDecompile;
+import info.ata4.bspsrc.modules.VmfMeta;
 import info.ata4.bspsrc.modules.texture.Texture;
 import info.ata4.bspsrc.modules.texture.TextureAxis;
 import info.ata4.bspsrc.modules.texture.TextureSource;
@@ -52,7 +53,7 @@ public class FaceSource extends ModuleDecompile {
     // sub-modules
     private final BspSourceConfig config;
     private final TextureSource texsrc;
-    private final IDTracker idtracker;
+    private final VmfMeta vmfmeta;
     
     // mapped original faces
     public Map<Integer, Set<Integer>> origFaceToSplitFace = new HashMap<Integer, Set<Integer>>();
@@ -64,12 +65,12 @@ public class FaceSource extends ModuleDecompile {
     private int multiblendOffset;
 
     public FaceSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
-            TextureSource texsrc, IDTracker idtracker) {
+            TextureSource texsrc, VmfMeta vmfmeta) {
         super(reader, writer);
         
         this.config = config;
         this.texsrc = texsrc;
-        this.idtracker = idtracker;
+        this.vmfmeta = vmfmeta;
         
         if (bsp.origFaces.isEmpty()) {
             // fix invalid origFace indices when no original faces are available
@@ -282,7 +283,7 @@ public class FaceSource extends ModuleDecompile {
         }
 
         writer.start("solid");
-        writer.put("id", idtracker.getUID());
+        writer.put("id", vmfmeta.getUID());
         
         // write metadata for debugging
         if (config.isDebug()) {
@@ -298,13 +299,13 @@ public class FaceSource extends ModuleDecompile {
             writer.end("bspsrc_debug");
         }
         
-        int sideID = idtracker.getUID();
+        int sideID = vmfmeta.getUID();
         
         // map face index to brush side ID
         if (orig) {
-            idtracker.setOrigFaceUID(iface, sideID);
+            vmfmeta.setOrigFaceUID(iface, sideID);
         } else {
-            idtracker.setFaceUID(iface, sideID);
+            vmfmeta.setFaceUID(iface, sideID);
         }
         
         // create texture
@@ -331,7 +332,7 @@ public class FaceSource extends ModuleDecompile {
         // write displacement?
         if (disp && config.writeDisp) {
             // map face index to brush side ID
-            idtracker.setDispInfoUID(face.dispInfo, sideID);
+            vmfmeta.setDispInfoUID(face.dispInfo, sideID);
             // write dispinfo section
             writeDisplacement(face.dispInfo);
         }
@@ -517,9 +518,9 @@ public class FaceSource extends ModuleDecompile {
         }
         
         writer.start("solid");
-        writer.put("id", idtracker.getUID());
+        writer.put("id", vmfmeta.getUID());
         
-        int sideID = idtracker.getUID();
+        int sideID = vmfmeta.getUID();
         
         Texture texture = texsrc.getTexture(frontMaterial, normal);
         
@@ -557,7 +558,7 @@ public class FaceSource extends ModuleDecompile {
      */
     private void writeBackSide(Texture texture, Vector3f e1, Vector3f e2, Vector3f e3) {
         writer.start("side");
-        writer.put("id", idtracker.getUID());
+        writer.put("id", vmfmeta.getUID());
         writer.put("plane", e1, e3, e2);
         writer.put("smoothing_groups", 0);
         writer.put(texture);
