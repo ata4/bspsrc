@@ -23,7 +23,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * VMF metadata control class.
+ * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class VmfMeta extends ModuleDecompile {
