@@ -122,6 +122,6 @@ try {
 Dependencies
 ------------
 
-* [apache-commons-io-2.0.1](http://commons.apache.org/io/)
-* [apache-commons-compress-1.1](http://commons.apache.org/compress/)
+* [apache-commons-io-2.4](http://commons.apache.org/io/)
+* [apache-commons-compress-1.5](http://commons.apache.org/compress/)
 * [apache-commons-lang3-3.1](http://commons.apache.org/cli/)
