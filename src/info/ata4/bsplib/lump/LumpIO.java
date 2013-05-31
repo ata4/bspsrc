@@ -77,34 +77,9 @@ public class LumpIO extends ByteBufferIO {
      * @throws IOException on reading errors
      */
     public String readString(int length) throws IOException {
-        if (length <= 0) {
-            throw new IllegalArgumentException("Invalid length");
-        }
-        
-        StringBuilder sb = new StringBuilder(length);
         int startPos = position();
-
-        while (hasRemaining()) {
-            // stop on string end
-            if (sb.length() >= length) {
-                break;
-            }
-
-            byte c = readByte();
-
-            // stop on NUL
-            if (c == 0) {
-                break;
-            }
-
-            sb.append((char) c);
-        }
-
-        // skip padding, - 1 because of the first NUL that has already been read
-        int remaining = length - sb.length() - 1;
-        if (remaining > 0) {
-            skipBytes(remaining);
-        }
+        
+        String string = readString("ASCII", length, true);
 
         // check buffer position
         int bytesRead = position() - startPos;
@@ -113,7 +88,7 @@ public class LumpIO extends ByteBufferIO {
                     + length + ", got " + bytesRead);
         }
 
-        return sb.toString();
+        return string;
     }
     
    /**

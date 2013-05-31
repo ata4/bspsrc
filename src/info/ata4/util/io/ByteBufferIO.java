@@ -359,6 +359,32 @@ public class ByteBufferIO implements DataInput, DataOutput {
     public long readUnsignedInt() throws IOException {
         return readInt() & 0xffffffffL;
     }
+    
+    public String readString(String charset, int limit, boolean padded) throws IOException {
+        if (limit <= 0) {
+            throw new IllegalArgumentException("Invalid limit");
+        }
+        
+        byte[] raw = new byte[limit];
+        int length = 0;
+        for (byte b; length < raw.length && (b = readByte()) != 0; length++) {
+            raw[length] = b;
+        }
+        
+        if (padded) {
+            skipBytes(limit - length - 1);
+        }
+        
+        return new String(raw, 0, length, charset);
+    }
+    
+    public String readString(String charset, int limit) throws IOException {
+        return readString(charset, limit, false);
+    }
+    
+    public String readString() throws IOException {
+        return readString("ASCII", 256, false);
+    }
     // DataInput extensions end
 
     // DataOutput extensions start
