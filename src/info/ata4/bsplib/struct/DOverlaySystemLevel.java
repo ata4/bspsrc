@@ -9,7 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import java.io.IOException;
 
 /**
@@ -29,7 +30,7 @@ public class DOverlaySystemLevel implements DStruct {
     }
 
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         minCPULevel = lio.readUnsignedByte();
         maxCPULevel = lio.readUnsignedByte();
         minGPULevel = lio.readUnsignedByte();
@@ -37,7 +38,7 @@ public class DOverlaySystemLevel implements DStruct {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeByte(minCPULevel);
         lio.writeByte(maxCPULevel);
         lio.writeByte(minGPULevel);

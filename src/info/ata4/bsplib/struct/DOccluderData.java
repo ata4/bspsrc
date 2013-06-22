@@ -10,7 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.bsplib.vector.Vector3f;
 import java.io.IOException;
 
@@ -33,7 +34,7 @@ public class DOccluderData implements DStruct {
     }
 
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         flags = lio.readInt();
         firstpoly = lio.readInt();
         polycount = lio.readInt();
@@ -42,7 +43,7 @@ public class DOccluderData implements DStruct {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeInt(flags);
         lio.writeInt(firstpoly);
         lio.writeInt(polycount);

@@ -242,7 +242,7 @@ public class BspFileReader {
             return;
         }
 
-        LumpIO lio = sprpLump.getLumpIO();
+        LumpInput lio = sprpLump.getLumpInput();
         int sprpver = sprpLump.getVersion();
 
         try {
@@ -431,7 +431,7 @@ public class BspFileReader {
         byte[] stringData;
 
         Lump lump = getLump(LumpType.LUMP_TEXDATA_STRING_DATA);
-        LumpIO lio = lump.getLumpIO();
+        LumpInput lio = lump.getLumpInput();
 
         try {
             final int tdsds = lump.getLength();
@@ -446,7 +446,7 @@ public class BspFileReader {
         L.log(Level.FINE, "Loading {0}", LumpType.LUMP_TEXDATA_STRING_TABLE);
 
         lump = getLump(LumpType.LUMP_TEXDATA_STRING_TABLE);
-        lio = lump.getLumpIO();
+        lio = lump.getLumpInput();
 
         try {
             final int size = 4;
@@ -616,7 +616,7 @@ public class BspFileReader {
         L.log(Level.FINE, "Loading {0}", LumpType.LUMP_OCCLUSION);
 
         Lump lump = getLump(LumpType.LUMP_OCCLUSION);
-        LumpIO lio = lump.getLumpIO();
+        LumpInput lio = lump.getLumpInput();
 
         try {
             // load occluder data
@@ -679,7 +679,7 @@ public class BspFileReader {
             return;
         }
 
-        LumpIO li = lump.getLumpIO();
+        LumpInput li = lump.getLumpInput();
 
         try {
             bsp.mapFlags = EnumConverter.fromInteger(LevelFlag.class, li.readInt());
@@ -731,7 +731,7 @@ public class BspFileReader {
         
         L.log(Level.FINE, "Loading {0}", lumpType);
         
-        LumpIO lio = lump.getLumpIO();
+        LumpInput lio = lump.getLumpInput();
         
         try {
             final int structSize = struct.newInstance().getSize();            
@@ -771,7 +771,7 @@ public class BspFileReader {
         L.log(Level.FINE, "Loading {0}", lumpType);
 
         Lump lump = getLump(lumpType);
-        LumpIO lio = lump.getLumpIO();
+        LumpInput lio = lump.getLumpInput();
 
         try {
             final int size = unsignedShort ? 2 : 4;

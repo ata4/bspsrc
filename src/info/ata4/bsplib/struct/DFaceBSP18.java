@@ -9,7 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import java.io.IOException;
 
 /**
@@ -27,7 +28,7 @@ public class DFaceBSP18 extends DFace {
     }
     
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         for (int i = 0; i < MAXLIGHTMAPS; i++) {
             avgLightColor[i] = lio.readInt();
         }
@@ -54,7 +55,7 @@ public class DFaceBSP18 extends DFace {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         for (int i = 0; i < MAXLIGHTMAPS; i++) {
            lio.writeInt(avgLightColor[i]);
         }

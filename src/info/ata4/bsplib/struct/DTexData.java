@@ -10,7 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.bsplib.vector.Vector3f;
 import java.io.IOException;
 
@@ -31,7 +32,7 @@ public class DTexData implements DStruct {
     }
 
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         reflectivity = lio.readVector3f();
         texname = lio.readInt();
         width = lio.readInt();
@@ -41,7 +42,7 @@ public class DTexData implements DStruct {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeVector3f(reflectivity);
         lio.writeInt(texname);
         lio.writeInt(width);

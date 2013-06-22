@@ -9,7 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import java.io.IOException;
 
 /**
@@ -21,7 +22,7 @@ public class DBrushSideV2 extends DBrushSide {
     public boolean thin;
     
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         pnum = lio.readUnsignedShort();
         texinfo = lio.readShort();
         dispinfo = lio.readShort();
@@ -30,7 +31,7 @@ public class DBrushSideV2 extends DBrushSide {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeShort(pnum);
         lio.writeShort(texinfo);
         lio.writeShort(dispinfo);

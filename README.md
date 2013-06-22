@@ -122,6 +122,7 @@ try {
 Dependencies
 ------------
 
+* [ioutils](https://github.com/ata4/ioutils)
 * [apache-commons-io-2.4](http://commons.apache.org/io/)
 * [apache-commons-compress-1.5](http://commons.apache.org/compress/)
 * [apache-commons-lang3-3.1](http://commons.apache.org/cli/)

@@ -9,7 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import java.io.IOException;
 
 /**
@@ -27,7 +28,7 @@ public class DFaceVinV2 extends DFaceVinV1 {
     }
     
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         pnum = lio.readInt();
         side = lio.readByte();
         onnode = lio.readByte();
@@ -52,7 +53,7 @@ public class DFaceVinV2 extends DFaceVinV1 {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeInt(pnum);
         lio.writeByte(side);
         lio.writeByte(onnode);

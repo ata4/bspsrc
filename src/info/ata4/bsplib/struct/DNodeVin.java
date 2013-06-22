@@ -10,7 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import java.io.IOException;
 
 /**
@@ -26,7 +27,7 @@ public class DNodeVin extends DNode {
     }
 
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         planenum = lio.readInt();
         children[0] = lio.readInt();
         children[1] = lio.readInt();
@@ -42,7 +43,7 @@ public class DNodeVin extends DNode {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeInt(planenum);
         lio.writeInt(children[0]);
         lio.writeInt(children[1]);

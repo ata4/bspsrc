@@ -9,7 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import java.io.IOException;
 
 /**
@@ -25,7 +26,7 @@ public class DOverlayVin extends DOverlay {
     }
 
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         id = lio.readInt();
         texinfo = (short) lio.readInt();
         faceCountAndRenderOrder = lio.readInt();
@@ -48,7 +49,7 @@ public class DOverlayVin extends DOverlay {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeInt(id);
         lio.writeInt(texinfo);
         lio.writeInt(faceCountAndRenderOrder);

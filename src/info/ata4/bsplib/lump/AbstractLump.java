@@ -85,10 +85,21 @@ public abstract class AbstractLump {
         setCompressed(LzmaBuffer.isCompressed(buf));
     }
     
+    public LumpInput getLumpInput() {
+        return new LumpInput(this);
+    }
+    
     public InputStream getInputStream() {
         ByteBuffer buf = getBuffer();
         buf.rewind();
         return new ByteBufferInputStream(buf);
+    }
+    
+    public LumpOutput getLumpOutput(int newCapacity) {
+        if (newCapacity > 0) {
+            checkWriteBuffer(newCapacity);
+        }
+        return new LumpOutput(this);
     }
     
     public OutputStream getOutputStream(int newCapacity) {
@@ -100,17 +111,6 @@ public abstract class AbstractLump {
     
     public OutputStream getOutputStream() {
         return getOutputStream(getBuffer().limit());
-    }
-    
-    public LumpIO getLumpIO(int newCapacity) {
-        if (newCapacity > 0) {
-            checkWriteBuffer(newCapacity);
-        }
-        return new LumpIO(this);
-    }
-
-    public LumpIO getLumpIO() {
-        return getLumpIO(0);
     }
     
     public void setVersion(int vers) {

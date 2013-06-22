@@ -10,7 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import java.io.IOException;
 
 /**
@@ -26,7 +27,7 @@ public class DLeafVin extends DLeaf {
     }
 
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         contents = lio.readInt();
         cluster = (short) lio.readInt();
         areaFlags = (short) lio.readInt();
@@ -44,7 +45,7 @@ public class DLeafVin extends DLeaf {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeInt(contents);
         lio.writeInt(cluster);
         lio.writeInt(areaFlags);

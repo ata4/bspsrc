@@ -9,7 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.util.EnumConverter;
 import java.io.IOException;
 
@@ -28,7 +29,7 @@ public class DTexInfoDM extends DTexInfo {
     }
     
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 4; k++) {
                 textureVecsTexels[j][k] = lio.readFloat();
@@ -45,7 +46,7 @@ public class DTexInfoDM extends DTexInfo {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 4; k++) {
                 lio.writeFloat(textureVecsTexels[j][k]);

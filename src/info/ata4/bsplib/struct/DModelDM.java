@@ -9,7 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import java.io.IOException;
 
 /**
@@ -27,7 +28,7 @@ public class DModelDM extends DModel {
     }
 
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         mins = lio.readVector3f();
         maxs = lio.readVector3f();
         origin = lio.readVector3f();
@@ -38,7 +39,7 @@ public class DModelDM extends DModel {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeVector3f(mins);
         lio.writeVector3f(maxs);
         lio.writeVector3f(origin);

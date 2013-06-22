@@ -381,7 +381,7 @@ public class BspFile {
         
         try {
             Lump l = getLump(LumpType.LUMP_GAME_LUMP);
-            LumpIO lio = l.getLumpIO();
+            LumpInput lio = l.getLumpInput();
 
             // hack for Vindictus
             if (version == 20 && bo == ByteOrder.LITTLE_ENDIAN
@@ -493,7 +493,7 @@ public class BspFile {
         
         try {
             Lump l = getLump(LumpType.LUMP_GAME_LUMP);
-            LumpIO lio = l.getLumpIO(size);
+            LumpOutput lio = l.getLumpOutput(size);
             lio.writeInt(gameLumps.size());
 
             for (GameLump gl : gameLumps) {
@@ -583,7 +583,7 @@ public class BspFile {
      * @return true if the game lump header probably wasn't read correctly
      * @throws IOException 
      */
-    private boolean checkInvalidHeaders(LumpIO lio, boolean vin) throws IOException {
+    private boolean checkInvalidHeaders(LumpInput lio, boolean vin) throws IOException {
         int glumps = lio.readInt();
         
         for (int i = 0; i < glumps; i++) {
@@ -620,6 +620,7 @@ public class BspFile {
         List<Lump> lumpsSorted = getLumps();
 
         Collections.sort(lumpsSorted, new Comparator<Lump>() {
+            @Override
             public int compare(Lump l1, Lump l2) {
                 if (l1.getOffset() == l2.getOffset()) {
                     return 0;

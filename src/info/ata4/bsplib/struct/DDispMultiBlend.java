@@ -10,7 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bsplib.vector.Vector4f;
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class DDispMultiBlend implements DStruct {
     }
 
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         multiblend = lio.readVector4f();
         alphablend = lio.readVector4f();
         
@@ -48,7 +49,7 @@ public class DDispMultiBlend implements DStruct {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeVector4f(multiblend);
         lio.writeVector4f(alphablend);
         

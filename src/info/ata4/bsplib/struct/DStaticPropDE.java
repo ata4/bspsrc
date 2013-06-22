@@ -9,7 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.util.EnumConverter;
 import java.io.IOException;
 
@@ -26,7 +27,7 @@ public class DStaticPropDE extends DStaticPropV8 {
     }
 
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         origin = lio.readVector3f();
         angles = lio.readVector3f();
         propType = lio.readUnsignedShort();
@@ -57,7 +58,7 @@ public class DStaticPropDE extends DStaticPropV8 {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         throw new UnsupportedOperationException();
     }
 }

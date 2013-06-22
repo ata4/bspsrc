@@ -1,5 +1,5 @@
 /*
- ** 2013 May 14
+ ** 2013 Juni 22
  **
  ** The author disclaims copyright to this source code.  In place of
  ** a legal notice, here is a blessing:
@@ -12,86 +12,20 @@ package info.ata4.bsplib.lump;
 import info.ata4.bsplib.struct.Color32;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bsplib.vector.Vector4f;
-import info.ata4.util.io.ByteBufferIO;
+import info.ata4.util.io.ByteBufferOutput;
 import java.io.IOException;
 
 /**
- * Lump data input/output class.
- * 
+ *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class LumpIO extends ByteBufferIO {
+public class LumpOutput extends ByteBufferOutput {
 
-    public LumpIO(AbstractLump lump) {
+    public LumpOutput(AbstractLump lump) {
         super(lump.getBuffer());
     }
     
-    /**
-     * Checks the byte buffer for remaining bytes. Should always be called when
-     * no remaining bytes are expected.
-     *
-     * @throws IOException if remaining bytes are found
-     */
-    public void checkRemaining() throws IOException {
-        if (hasRemaining()) {          
-            throw new IOException(remaining()
-                    + " bytes remaining");
-        }
-    }
-
-    /**
-     * Reads a 4 byte RGBA value
-     *
-     * @return Color32
-     * @throws IOException on reading errors
-     */
-    public Color32 readColor32() throws IOException {
-        return new Color32(readInt());
-    }
-
-    /**
-     * Reads a 12 byte 3-float vector
-     *
-     * @return vector
-     * @throws IOException on reading errors
-     */
-    public Vector3f readVector3f() throws IOException {
-        return new Vector3f(readFloat(), readFloat(), readFloat());
-    }
-    
-    /**
-     * Reads a 16 byte 4-float vector
-     *
-     * @return vector
-     * @throws IOException on reading errors
-     */
-    public Vector4f readVector4f() throws IOException {
-        return new Vector4f(readFloat(), readFloat(), readFloat(), readFloat());
-    }
-    
-    /**
-     * Reads a fixed size NUL-padded string
-     *
-     * @param length total length of the string including NUL padding
-     * @return String, without padding
-     * @throws IOException on reading errors
-     */
-    public String readString(int length) throws IOException {
-        int startPos = position();
-        
-        String string = readString("ASCII", length, true);
-
-        // check buffer position
-        int bytesRead = position() - startPos;
-        if (bytesRead != length) {
-            throw new IOException("String reading error: expected length "
-                    + length + ", got " + bytesRead);
-        }
-
-        return string;
-    }
-    
-   /**
+  /**
      * Writes a 4 byte RGBA value
      *
      * @return Color32
@@ -150,5 +84,4 @@ public class LumpIO extends ByteBufferIO {
         write(stringBytes);
         write(paddingBytes);
     }
-    
 }

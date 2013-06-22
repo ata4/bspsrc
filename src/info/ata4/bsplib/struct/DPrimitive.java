@@ -9,7 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import java.io.IOException;
 
 /**
@@ -30,7 +31,7 @@ public class DPrimitive implements DStruct {
     }
 
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         type = lio.readUnsignedShort();
         firstIndex = lio.readUnsignedShort();
         indexCount = lio.readUnsignedShort();
@@ -39,7 +40,7 @@ public class DPrimitive implements DStruct {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeShort(type);
         lio.writeShort(firstIndex);
         lio.writeShort(indexCount);

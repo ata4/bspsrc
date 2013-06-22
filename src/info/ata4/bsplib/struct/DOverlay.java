@@ -10,7 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.bsplib.vector.Vector3f;
 import java.io.IOException;
 
@@ -49,7 +50,7 @@ public class DOverlay implements DStruct {
     }
 
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         id = lio.readInt();
         texinfo = lio.readShort();
         faceCountAndRenderOrder = lio.readUnsignedShort();
@@ -71,7 +72,7 @@ public class DOverlay implements DStruct {
         basisNormal = lio.readVector3f();
     }
 
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeInt(id);
         lio.writeShort(texinfo);
         lio.writeShort(faceCountAndRenderOrder);

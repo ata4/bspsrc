@@ -10,7 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import java.io.IOException;
 
 /**
@@ -37,7 +38,7 @@ public class DLeaf implements DStruct {
     }
 
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         contents = lio.readInt();
         cluster = lio.readShort();
         areaFlags = lio.readShort();
@@ -55,7 +56,7 @@ public class DLeaf implements DStruct {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeInt(contents);
         lio.writeShort(cluster);
         lio.writeShort(areaFlags);

@@ -9,7 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpIO;
+import info.ata4.bsplib.lump.LumpInput;
+import info.ata4.bsplib.lump.LumpOutput;
 import java.io.IOException;
 
 /**
@@ -29,7 +30,7 @@ public class DDispInfoBSP23 extends DDispInfo {
     }
     
     @Override
-    public void read(LumpIO lio) throws IOException {
+    public void read(LumpInput lio) throws IOException {
         startPos = lio.readVector3f();
         dispVertStart = lio.readInt();
         dispTriStart = lio.readInt();
@@ -50,7 +51,7 @@ public class DDispInfoBSP23 extends DDispInfo {
     }
 
     @Override
-    public void write(LumpIO lio) throws IOException {
+    public void write(LumpOutput lio) throws IOException {
         lio.writeVector3f(startPos);
         lio.writeInt(dispVertStart);
         lio.writeInt(dispTriStart);
