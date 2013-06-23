@@ -72,7 +72,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        LogUtils.configure("debug");
+        LogUtils.configure();
         
         // set the system look and feel
         try {
@@ -83,6 +83,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
         // create and display the form
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new BspInfoFrame().setVisible(true);
             }

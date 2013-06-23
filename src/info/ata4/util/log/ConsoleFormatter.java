@@ -39,16 +39,6 @@ public class ConsoleFormatter extends Formatter {
         
         LEVEL_PREFIX = Collections.unmodifiableMap(levelPrefix);
     }
-    
-    private static boolean printStackTrace = false;
-
-    public static boolean isPrintStackTrace() {
-        return printStackTrace;
-    }
-
-    public static void setPrintStackTrace(boolean aPrintStackTrace) {
-        printStackTrace = aPrintStackTrace;
-    }
 
     @Override
     public String format(LogRecord record) {
@@ -69,21 +59,12 @@ public class ConsoleFormatter extends Formatter {
         // print stack trace if given
         Throwable thrown = record.getThrown();
         if (thrown != null) {
-            if (printStackTrace) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                thrown.printStackTrace(pw);
-                pw.close();
-                sb.append(", caused by ");
-                sb.append(sw.toString());
-            } else {
-                sb.append(": ");
-                sb.append(thrown.getClass().getName());
-                if (thrown.getMessage() != null) {
-                    sb.append(": ");
-                    sb.append(thrown.getMessage());
-                }
-            }
+            sb.append(", caused by ");
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            thrown.printStackTrace(pw);
+            pw.close();
+            sb.append(sw.toString());
         }
         
         sb.append("\n");

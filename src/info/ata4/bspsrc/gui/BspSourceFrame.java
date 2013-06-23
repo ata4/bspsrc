@@ -51,7 +51,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        LogUtils.configure("normal");
+        LogUtils.configure();
         
         // set the system look and feel
         try {
@@ -62,6 +62,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
 
         // create and display the form
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new BspSourceFrame().setVisible(true);
             }

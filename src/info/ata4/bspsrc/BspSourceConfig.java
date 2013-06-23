@@ -63,8 +63,7 @@ public final class BspSourceConfig implements Serializable {
     private Set<BspFileEntry> files = new HashSet<BspFileEntry>();
     
     private void updateLogger(boolean debug) {
-        LogUtils.configure(debug ? "debug" : "normal");
-        ConsoleFormatter.setPrintStackTrace(debug);
+        LogUtils.configure(debug ? Level.ALL : Level.INFO);
         if (debug) {
             L.fine("Debug mode on, verbosity set to maximum");
         }

@@ -9,10 +9,11 @@
  */
 package info.ata4.util.log;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
-import org.apache.commons.io.IOUtils;
 
 /**
  * Logging utility class.
@@ -24,11 +25,23 @@ public class LogUtils {
     private LogUtils() {
     }
     
-    public static void configure(String config) {
-        InputStream is = null;
+    public static void configure() {
+        configure(Level.INFO);
+    }
+    
+    public static void configure(Level level) {
+        configure("info.ata4", level);
+    }
+    
+    public static void configure(String pkg, Level level) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("handlers = ").append(ConsoleHandler.class.getName()).append("\n");
+        sb.append(".level = ").append(Level.INFO).append("\n");
+        sb.append(pkg).append(".level = ").append(level.getName()).append("\n");
+ 
+        InputStream is = new ByteArrayInputStream(sb.toString().getBytes());
         
         try {
-            is = LogUtils.class.getResourceAsStream(config + ".properties");
             LogManager.getLogManager().readConfiguration(is);
         } catch (IOException ex) {
             // don't use the logging system here, maybe it went to hell!
@@ -40,8 +53,6 @@ public class LogUtils {
                 // okay, this is just silly...
                 System.err.println("Can't restore logger configuration: " + ex2);
             }
-        } finally {
-            IOUtils.closeQuietly(is);
         }
     }
 }
