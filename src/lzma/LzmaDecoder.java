@@ -12,15 +12,15 @@ public class LzmaDecoder {
     class LenDecoder {
 
         private short[] m_Choice = new short[2];
-        private BitTreeDecoder[] m_LowCoder = new BitTreeDecoder[Base.kNumPosStatesMax];
-        private BitTreeDecoder[] m_MidCoder = new BitTreeDecoder[Base.kNumPosStatesMax];
-        private BitTreeDecoder m_HighCoder = new BitTreeDecoder(Base.kNumHighLenBits);
+        private BitTreeDecoder[] m_LowCoder = new BitTreeDecoder[LzmaState.kNumPosStatesMax];
+        private BitTreeDecoder[] m_MidCoder = new BitTreeDecoder[LzmaState.kNumPosStatesMax];
+        private BitTreeDecoder m_HighCoder = new BitTreeDecoder(LzmaState.kNumHighLenBits);
         private int m_NumPosStates = 0;
 
         public void create(int numPosStates) {
             for (; m_NumPosStates < numPosStates; m_NumPosStates++) {
-                m_LowCoder[m_NumPosStates] = new BitTreeDecoder(Base.kNumLowLenBits);
-                m_MidCoder[m_NumPosStates] = new BitTreeDecoder(Base.kNumMidLenBits);
+                m_LowCoder[m_NumPosStates] = new BitTreeDecoder(LzmaState.kNumLowLenBits);
+                m_MidCoder[m_NumPosStates] = new BitTreeDecoder(LzmaState.kNumMidLenBits);
             }
         }
 
@@ -37,11 +37,11 @@ public class LzmaDecoder {
             if (rangeDecoder.decodeBit(m_Choice, 0) == 0) {
                 return m_LowCoder[posState].decode(rangeDecoder);
             }
-            int symbol = Base.kNumLowLenSymbols;
+            int symbol = LzmaState.kNumLowLenSymbols;
             if (rangeDecoder.decodeBit(m_Choice, 1) == 0) {
                 symbol += m_MidCoder[posState].decode(rangeDecoder);
             } else {
-                symbol += Base.kNumMidLenSymbols + m_HighCoder.decode(rangeDecoder);
+                symbol += LzmaState.kNumMidLenSymbols + m_HighCoder.decode(rangeDecoder);
             }
             return symbol;
         }
@@ -115,15 +115,15 @@ public class LzmaDecoder {
     
     private OutWindow m_OutWindow = new OutWindow();
     private RangeDecoder m_RangeDecoder = new RangeDecoder();
-    private short[] m_IsMatchDecoders = new short[Base.kNumStates << Base.kNumPosStatesBitsMax];
-    private short[] m_IsRepDecoders = new short[Base.kNumStates];
-    private short[] m_IsRepG0Decoders = new short[Base.kNumStates];
-    private short[] m_IsRepG1Decoders = new short[Base.kNumStates];
-    private short[] m_IsRepG2Decoders = new short[Base.kNumStates];
-    private short[] m_IsRep0LongDecoders = new short[Base.kNumStates << Base.kNumPosStatesBitsMax];
-    private BitTreeDecoder[] m_PosSlotDecoder = new BitTreeDecoder[Base.kNumLenToPosStates];
-    private short[] m_PosDecoders = new short[Base.kNumFullDistances - Base.kEndPosModelIndex];
-    private BitTreeDecoder m_PosAlignDecoder = new BitTreeDecoder(Base.kNumAlignBits);
+    private short[] m_IsMatchDecoders = new short[LzmaState.kNumStates << LzmaState.kNumPosStatesBitsMax];
+    private short[] m_IsRepDecoders = new short[LzmaState.kNumStates];
+    private short[] m_IsRepG0Decoders = new short[LzmaState.kNumStates];
+    private short[] m_IsRepG1Decoders = new short[LzmaState.kNumStates];
+    private short[] m_IsRepG2Decoders = new short[LzmaState.kNumStates];
+    private short[] m_IsRep0LongDecoders = new short[LzmaState.kNumStates << LzmaState.kNumPosStatesBitsMax];
+    private BitTreeDecoder[] m_PosSlotDecoder = new BitTreeDecoder[LzmaState.kNumLenToPosStates];
+    private short[] m_PosDecoders = new short[LzmaState.kNumFullDistances - LzmaState.kEndPosModelIndex];
+    private BitTreeDecoder m_PosAlignDecoder = new BitTreeDecoder(LzmaState.kNumAlignBits);
     private LenDecoder m_LenDecoder = new LenDecoder();
     private LenDecoder m_RepLenDecoder = new LenDecoder();
     private LiteralDecoder m_LiteralDecoder = new LiteralDecoder();
@@ -132,8 +132,8 @@ public class LzmaDecoder {
     private int m_PosStateMask;
 
     public LzmaDecoder() {
-        for (int i = 0; i < Base.kNumLenToPosStates; i++) {
-            m_PosSlotDecoder[i] = new BitTreeDecoder(Base.kNumPosSlotBits);
+        for (int i = 0; i < LzmaState.kNumLenToPosStates; i++) {
+            m_PosSlotDecoder[i] = new BitTreeDecoder(LzmaState.kNumPosSlotBits);
         }
     }
 
@@ -150,7 +150,7 @@ public class LzmaDecoder {
     }
 
     boolean setLcLpPb(int lc, int lp, int pb) {
-        if (lc > Base.kNumLitContextBitsMax || lp > 4 || pb > Base.kNumPosStatesBitsMax) {
+        if (lc > LzmaState.kNumLitContextBitsMax || lp > 4 || pb > LzmaState.kNumPosStatesBitsMax) {
             return false;
         }
         m_LiteralDecoder.create(lp, lc);
@@ -174,7 +174,7 @@ public class LzmaDecoder {
 
         m_LiteralDecoder.init();
         int i;
-        for (i = 0; i < Base.kNumLenToPosStates; i++) {
+        for (i = 0; i < LzmaState.kNumLenToPosStates; i++) {
             m_PosSlotDecoder[i].init();
         }
         m_LenDecoder.init();
@@ -189,30 +189,30 @@ public class LzmaDecoder {
         m_OutWindow.setStream(outStream);
         init();
 
-        int state = Base.stateInit();
+        int state = LzmaState.stateInit();
         int rep0 = 0, rep1 = 0, rep2 = 0, rep3 = 0;
 
         long nowPos64 = 0;
         byte prevByte = 0;
         while (outSize < 0 || nowPos64 < outSize) {
             int posState = (int) nowPos64 & m_PosStateMask;
-            if (m_RangeDecoder.decodeBit(m_IsMatchDecoders, (state << Base.kNumPosStatesBitsMax) + posState) == 0) {
+            if (m_RangeDecoder.decodeBit(m_IsMatchDecoders, (state << LzmaState.kNumPosStatesBitsMax) + posState) == 0) {
                 LiteralDecoder.Decoder2 decoder2 = m_LiteralDecoder.getDecoder((int) nowPos64, prevByte);
-                if (!Base.stateIsCharState(state)) {
+                if (!LzmaState.stateIsCharState(state)) {
                     prevByte = decoder2.decodeWithMatchByte(m_RangeDecoder, m_OutWindow.getByte(rep0));
                 } else {
                     prevByte = decoder2.decodeNormal(m_RangeDecoder);
                 }
                 m_OutWindow.putByte(prevByte);
-                state = Base.stateUpdateChar(state);
+                state = LzmaState.stateUpdateChar(state);
                 nowPos64++;
             } else {
                 int len;
                 if (m_RangeDecoder.decodeBit(m_IsRepDecoders, state) == 1) {
                     len = 0;
                     if (m_RangeDecoder.decodeBit(m_IsRepG0Decoders, state) == 0) {
-                        if (m_RangeDecoder.decodeBit(m_IsRep0LongDecoders, (state << Base.kNumPosStatesBitsMax) + posState) == 0) {
-                            state = Base.stateUpdateShortRep(state);
+                        if (m_RangeDecoder.decodeBit(m_IsRep0LongDecoders, (state << LzmaState.kNumPosStatesBitsMax) + posState) == 0) {
+                            state = LzmaState.stateUpdateShortRep(state);
                             len = 1;
                         }
                     } else {
@@ -232,25 +232,25 @@ public class LzmaDecoder {
                         rep0 = distance;
                     }
                     if (len == 0) {
-                        len = m_RepLenDecoder.decode(m_RangeDecoder, posState) + Base.kMatchMinLen;
-                        state = Base.stateUpdateRep(state);
+                        len = m_RepLenDecoder.decode(m_RangeDecoder, posState) + LzmaState.kMatchMinLen;
+                        state = LzmaState.stateUpdateRep(state);
                     }
                 } else {
                     rep3 = rep2;
                     rep2 = rep1;
                     rep1 = rep0;
-                    len = Base.kMatchMinLen + m_LenDecoder.decode(m_RangeDecoder, posState);
-                    state = Base.stateUpdateMatch(state);
-                    int posSlot = m_PosSlotDecoder[Base.getLenToPosState(len)].decode(m_RangeDecoder);
-                    if (posSlot >= Base.kStartPosModelIndex) {
+                    len = LzmaState.kMatchMinLen + m_LenDecoder.decode(m_RangeDecoder, posState);
+                    state = LzmaState.stateUpdateMatch(state);
+                    int posSlot = m_PosSlotDecoder[LzmaState.getLenToPosState(len)].decode(m_RangeDecoder);
+                    if (posSlot >= LzmaState.kStartPosModelIndex) {
                         int numDirectBits = (posSlot >> 1) - 1;
                         rep0 = ((2 | (posSlot & 1)) << numDirectBits);
-                        if (posSlot < Base.kEndPosModelIndex) {
+                        if (posSlot < LzmaState.kEndPosModelIndex) {
                             rep0 += BitTreeDecoder.reverseDecode(m_PosDecoders,
                                     rep0 - posSlot - 1, m_RangeDecoder, numDirectBits);
                         } else {
                             rep0 += (m_RangeDecoder.decodeDirectBits(
-                                    numDirectBits - Base.kNumAlignBits) << Base.kNumAlignBits);
+                                    numDirectBits - LzmaState.kNumAlignBits) << LzmaState.kNumAlignBits);
                             rep0 += m_PosAlignDecoder.reverseDecode(m_RangeDecoder);
                             if (rep0 < 0) {
                                 if (rep0 == -1) {

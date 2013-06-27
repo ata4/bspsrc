@@ -1,7 +1,7 @@
 // Base.java
 package lzma;
 
-public class Base {
+public class LzmaState {
 
     public static final int kNumRepDistances = 4;
     public static final int kNumStates = 12;
