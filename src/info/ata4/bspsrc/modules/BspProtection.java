@@ -18,7 +18,7 @@ import info.ata4.bsplib.struct.DPlane;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.modules.texture.ToolTexture;
-import info.ata4.bspsrc.util.Winding;
+import info.ata4.bspsrc.util.WindingFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -376,7 +376,7 @@ public class BspProtection extends ModuleRead {
 
         // get limits for all brush side windings
         for (int i = 0; i < brush.numside; i++) {
-            Vector3f[] bounds = Winding.fromSide(bsp, brush, i).getBounds();
+            Vector3f[] bounds = WindingFactory.fromSide(bsp, brush, i).getBounds();
             min = bounds[0].min(min);
             max = bounds[1].max(max);
         }

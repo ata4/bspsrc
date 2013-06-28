@@ -20,6 +20,7 @@ import info.ata4.bspsrc.modules.geom.BrushSource;
 import info.ata4.bspsrc.modules.geom.FaceSource;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.util.Winding;
+import info.ata4.bspsrc.util.WindingFactory;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,7 +47,7 @@ public class BspDecompiler extends ModuleDecompile {
     public BspDecompiler(BspFileReader reader, VmfWriter writer, BspSourceConfig config) {
         super(reader, writer);
 
-        Winding.clearCache();
+        WindingFactory.clearCache();
         
         this.config = config;
         

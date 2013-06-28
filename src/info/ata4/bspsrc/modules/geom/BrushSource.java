@@ -24,6 +24,7 @@ import info.ata4.bspsrc.modules.texture.Texture;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.util.BspTreeStats;
 import info.ata4.bspsrc.util.Winding;
+import info.ata4.bspsrc.util.WindingFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -185,7 +186,7 @@ public class BrushSource extends ModuleDecompile {
             }
 
             try {
-                Winding wind = Winding.fromSide(bsp, brush, brushSide).removeDegenerated();
+                Winding wind = WindingFactory.fromSide(bsp, brush, brushSide).removeDegenerated();
                 
                 // skip sides with no vertices
                 if (wind.isEmpty()) {

@@ -22,6 +22,7 @@ import info.ata4.bspsrc.modules.texture.TextureAxis;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.modules.texture.ToolTexture;
 import info.ata4.bspsrc.util.Winding;
+import info.ata4.bspsrc.util.WindingFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -247,7 +248,7 @@ public class FaceSource extends ModuleDecompile {
             return;
         }
 
-        Winding wind = Winding.fromFace(bsp, face);
+        Winding wind = WindingFactory.fromFace(bsp, face);
         
         // translate to origin
         if (origin != null) {
@@ -459,7 +460,7 @@ public class FaceSource extends ModuleDecompile {
     }
     
     public void writeAreaportal(DAreaportal ap) {
-        Winding wind = Winding.fromAreaportal(bsp, ap);
+        Winding wind = WindingFactory.fromAreaportal(bsp, ap);
         // TODO: extrude polygon in the correct direction, currently it seems to be random?
         writePolygon(wind, ToolTexture.AREAPORTAL, true);
     }
@@ -475,7 +476,7 @@ public class FaceSource extends ModuleDecompile {
     public void writeOccluder(DOccluderData od) {
         for (int i = 0; i < od.polycount; i++) {
             DOccluderPolyData opd = bsp.occluderPolyDatas.get(od.firstpoly + i);
-            Winding wind = Winding.fromOccluder(bsp, opd);
+            Winding wind = WindingFactory.fromOccluder(bsp, opd);
             // extrude by 8 units instead of one, the skip sides are ignored anyway
             writePolygon(wind, ToolTexture.OCCLUDER, ToolTexture.SKIP, true, 8);
         }
@@ -818,7 +819,7 @@ public class FaceSource extends ModuleDecompile {
             
             // recalculate face area when required
             if (origFace.area == 0) {
-                Winding wind = Winding.fromFace(bsp, origFace);
+                Winding wind = WindingFactory.fromFace(bsp, origFace);
                 origFace.area = wind.getArea();
             }
 

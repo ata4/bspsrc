@@ -27,6 +27,7 @@ import info.ata4.bspsrc.modules.geom.FaceSource;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.util.SourceFormat;
 import info.ata4.bspsrc.util.Winding;
+import info.ata4.bspsrc.util.WindingFactory;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -676,7 +677,7 @@ public class EntitySource extends ModuleDecompile {
         }
 
         // create areaportal winding
-        Winding wp = Winding.fromAreaportal(bsp, ap);
+        Winding wp = WindingFactory.fromAreaportal(bsp, ap);
 
         for (int i = 0; i < bsp.brushes.size(); i++) {
             DBrush brush = bsp.brushes.get(i);
@@ -694,7 +695,7 @@ public class EntitySource extends ModuleDecompile {
             // compare each brush side with areaportal face
             for (int j = 0; j < brush.numside; j++) {
                 // create brush side winding
-                Winding w = Winding.fromSide(bsp, brush, j);
+                Winding w = WindingFactory.fromSide(bsp, brush, j);
 
                 // compare windings
                 if (w.matches(wp)) {
@@ -743,7 +744,7 @@ public class EntitySource extends ModuleDecompile {
         }
         
         // create winding from original face
-        Winding wof = Winding.fromFace(bsp, origFace);
+        Winding wof = WindingFactory.fromFace(bsp, origFace);
 
         for (int i = 0; i < bsp.brushes.size(); i++) {
             DBrush brush = bsp.brushes.get(i);
@@ -760,7 +761,7 @@ public class EntitySource extends ModuleDecompile {
                 DBrushSide bs = bsp.brushSides.get(ibs);
 
                 // create winding from brush side
-                Winding w = Winding.fromSide(bsp, brush, j);
+                Winding w = WindingFactory.fromSide(bsp, brush, j);
 
                 // check for valid face: same plane, same texinfo, same geometry
                 if (origFace.pnum != bs.pnum || origFace.texinfo != bs.texinfo
