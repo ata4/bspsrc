@@ -22,9 +22,9 @@ import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bsplib.struct.BspData;
 import info.ata4.bspsrc.BspSource;
 import info.ata4.bspsrc.modules.BspChecksum;
+import info.ata4.bspsrc.modules.BspCompileParams;
 import info.ata4.bspsrc.modules.BspDependencies;
 import info.ata4.bspsrc.modules.BspProtection;
-import info.ata4.bspsrc.modules.BspCompileParams;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.util.gui.FileDrop;
 import info.ata4.util.gui.FileExtensionFilter;
@@ -180,6 +180,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         setTitle(NAME + " " + VERSION + " - " + file.getName());
 
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 // clear form fields
                 reset();
