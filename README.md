@@ -10,7 +10,7 @@ support for newer Source engine games.
 Downloads
 ---------
 
-[Download BSPSource 1.3.11.](http://ata4.info/downloads/apps/bspsource/bspsrc_1.3.11.zip) All other versons are available for download [here](http://ata4.info/downloads/apps/bspsource/).
+The latest version is available in the "release" tab. Older versons are available for download [here](http://ata4.info/downloads/apps/bspsource/).
 
 Improvements and changes compared to VMEX 0.98g
 -----------------------------------------------
