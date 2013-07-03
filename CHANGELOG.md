@@ -1,7 +1,8 @@
 ## Changelog
 
 ### 1.3.12 - 03.07.2013
-* Some code cleanup and minor bug fixes
+* Some code cleanup.
+* Fixed Dark Messiah map detection sometimes breaking decompilation of generic Source engine maps.
 
 ### 1.3.11 - 23.05.2013
 * Added support for newer Vindictus maps.
