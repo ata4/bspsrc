@@ -1,5 +1,8 @@
 ## Changelog
 
+### 1.3.12 - 03.07.2013
+* Some code cleanup and minor bug fixes
+
 ### 1.3.11 - 23.05.2013
 * Added support for newer Vindictus maps.
 * Added support for Tactical Intervention map.
