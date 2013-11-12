@@ -240,7 +240,7 @@ public class TextureSource extends ModuleRead {
      * - chop "maps/mapname/[maps/mapname/]" from start of names
      * - chop "_n_n_n or _n_n_n_depth_n from ends of names
      */
-    public void fixCubemapTextures() {
+    public void fixTexturePaths() {
         for (int i = 0; i < bsp.texnames.size(); i++) {
             String textname = bsp.texnames.get(i);
             
@@ -299,7 +299,7 @@ public class TextureSource extends ModuleRead {
      * @param ibrushside brush side index
      * @return previous material name or null if the material wasn't changed
      */
-    public String fixToolTextures(Texture texture, int ibrush, int ibrushside) {
+    public String fixToolTexture(Texture texture, int ibrush, int ibrushside) {
         String oldTex = texture.getMaterial();
         String newTex = getToolTexture(ibrush, ibrushside);
         

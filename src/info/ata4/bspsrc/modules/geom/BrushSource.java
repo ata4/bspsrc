@@ -321,7 +321,7 @@ public class BrushSource extends ModuleDecompile {
         if (!config.faceTexture.equals("")) {
             texture.setMaterial(config.faceTexture);
         } else if (config.fixToolTextures) {
-            origMaterial = texsrc.fixToolTextures(texture, ibrush, ibrushside);
+            origMaterial = texsrc.fixToolTexture(texture, ibrush, ibrushside);
         }
         
         int sideID = vmfmeta.getUID();

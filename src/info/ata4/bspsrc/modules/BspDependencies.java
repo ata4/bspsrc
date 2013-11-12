@@ -35,7 +35,7 @@ public class BspDependencies extends ModuleRead {
         
         // make texture names canonical first
         TextureSource texsrc = new TextureSource(reader);
-        texsrc.fixCubemapTextures();
+        texsrc.fixTexturePaths();
 
         // add all texnames
         for (String texname : bsp.texnames) {
