@@ -39,7 +39,7 @@ public class TextureSource extends ModuleRead {
     private static final Pattern originPattern = Pattern.compile("_(-?\\d+)_(-?\\d+)_(-?\\d+)?$"); // cubemap position
     private static final Pattern wvtPatchPattern = Pattern.compile("_wvt_patch$"); // world vertex patch
     private static final Pattern waterPatchPattern = Pattern.compile("_depth_(-?\\d+)$"); // water texture patch
-    private static final Pattern mapPattern = Pattern.compile("^(maps/[^/]+/)+");
+    private static final Pattern mapPattern = Pattern.compile("^maps/[^/]+/");
     
     private static final Set<SurfaceFlag> SURFFLAGS_NODRAW = EnumSet.of(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT);
     
