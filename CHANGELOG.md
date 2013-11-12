@@ -1,7 +1,7 @@
 ## Changelog
 
 ### 1.3.13 - 12.11.2013
-* Fixed Tactical Intervention map detection on some BSP v21 games that are not detected otherwise.
+* Fixed incorrect Tactical Intervention game detection for some BSP v21 maps.
 * Fixed too aggressive texture path correction.
 * Fixed some BSPInfo form issues on non-Windows platforms.
 
