@@ -65,7 +65,7 @@ public class BspDecompiler extends ModuleDecompile {
     public void start() {
         // fix texture names
         if (config.fixCubemapTextures) {
-            texsrc.fixCubemapTextures();
+            texsrc.fixTexturePaths();
         }
         
         // check for protection and warn if the map has been protected

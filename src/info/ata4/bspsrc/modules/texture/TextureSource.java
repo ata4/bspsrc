@@ -240,48 +240,54 @@ public class TextureSource extends ModuleRead {
      * - chop "maps/mapname/[maps/mapname/]" from start of names
      * - chop "_n_n_n or _n_n_n_depth_n from ends of names
      */
-    public void fixCubemapTextures() {
+    public void fixTexturePaths() {
         for (int i = 0; i < bsp.texnames.size(); i++) {
             String textname = bsp.texnames.get(i);
+            boolean modified = false;
             
-            // search for "maps/<mapname>" prefix
-            Matcher matcher = mapPattern.matcher(textname);
-            if (matcher.find()) {
-                // remove it
-                textname = matcher.replaceFirst("");
-                
+            // look for pattern matches
+            Matcher mapMatcher = mapPattern.matcher(textname);
+            Matcher wvtPatchMatcher = wvtPatchPattern.matcher(textname);
+            Matcher waterPatchMatcher = waterPatchPattern.matcher(textname);
+            Matcher originMatcher = originPattern.matcher(textname);
+            
+            // fix map textures only
+            if (mapMatcher.find()) {
+                // remove maps prefix
+                textname = mapMatcher.replaceFirst("");
+
                 // search for "_wvt_patch" suffix
-                matcher = wvtPatchPattern.matcher(textname);
-                if (matcher.find()) {
+                if (wvtPatchMatcher.find()) {
                     // remove it
-                    textname = matcher.replaceFirst("");
+                    textname = wvtPatchMatcher.replaceFirst("");
+                    modified = true;
                 }
                 
                 // search for "_depth_xxx" suffix
-                matcher = waterPatchPattern.matcher(textname);
-                if (matcher.find()) {
+                if (waterPatchMatcher.find()) {
                     // remove it
-                    textname = matcher.replaceFirst("");
+                    textname = waterPatchMatcher.replaceFirst("");
+                    modified = true;
                 }
 
                 // search for origin coordinates
-                matcher = originPattern.matcher(textname);
-                if (matcher.find()) {
+                if (originMatcher.find()) {
                     // get origin
-                    int cx = Integer.valueOf(matcher.group(1));
-                    int cy = Integer.valueOf(matcher.group(2));
-                    int cz = Integer.valueOf(matcher.group(3));
+                    int cx = Integer.valueOf(originMatcher.group(1));
+                    int cy = Integer.valueOf(originMatcher.group(2));
+                    int cz = Integer.valueOf(originMatcher.group(3));
                     
                     setCubemapForTexname(i, cx, cy, cz);
                     
                     // remove origin coordinates
-                    textname = matcher.replaceFirst("");
+                    textname = originMatcher.replaceFirst("");
+                    modified = true;
                 }
             }
 
-            if (!textname.equals(bsp.texnames.get(i))) {
+            if (modified) {
+                // log differences
                 if (L.isLoggable(Level.FINEST)) {
-                    // display differences
                     L.log(Level.FINEST, "{0} -> {1}", new Object[] {bsp.texnames.get(i), textname});
                 }
 
@@ -299,7 +305,7 @@ public class TextureSource extends ModuleRead {
      * @param ibrushside brush side index
      * @return previous material name or null if the material wasn't changed
      */
-    public String fixToolTextures(Texture texture, int ibrush, int ibrushside) {
+    public String fixToolTexture(Texture texture, int ibrush, int ibrushside) {
         String oldTex = texture.getMaterial();
         String newTex = getToolTexture(ibrush, ibrushside);
         
