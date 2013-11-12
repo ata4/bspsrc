@@ -1,5 +1,10 @@
 ## Changelog
 
+### 1.3.13 - 12.11.2013
+* Fixed Tactical Intervention map detection on some BSP v21 games that are not detected otherwise.
+* Fixed too aggressive texture path correction.
+* Fixed some BSPInfo form issues on non-Windows platforms.
+
 ### 1.3.12 - 03.07.2013
 * Some code cleanup.
 * Fixed Dark Messiah map detection sometimes breaking decompilation of generic Source engine maps.
