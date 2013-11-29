@@ -104,15 +104,15 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="panelHeaders" max="32767" attributes="0"/>
                           <Component id="panelGame" alignment="0" max="32767" attributes="0"/>
+                          <Component id="panelChecksums" max="32767" attributes="0"/>
                           <Component id="panelCompileParams" alignment="0" max="32767" attributes="0"/>
-                          <Component id="panelChecksums" alignment="0" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="35" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -241,7 +241,7 @@
                                           <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
                                           <Component id="labelEndian" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                          <Component id="textFieldEndian" pref="54" max="32767" attributes="0"/>
+                                          <Component id="textFieldEndian" max="32767" attributes="0"/>
                                       </Group>
                                       <Component id="textFieldComment" max="32767" attributes="0"/>
                                   </Group>
@@ -392,8 +392,8 @@
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="labelMapCRC" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="textFieldMapCRC" max="32767" attributes="0"/>
-                          <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                          <Component id="textFieldMapCRC" min="-2" pref="66" max="-2" attributes="0"/>
+                          <EmptySpace pref="37" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
