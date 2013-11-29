@@ -1,5 +1,8 @@
 ## Changelog
 
+### 1.3.14 - 29.11.2013
+* Added support for Contagion maps.
+
 ### 1.3.13 - 12.11.2013
 * Fixed incorrect Tactical Intervention game detection for some BSP v21 maps.
 * Fixed too aggressive texture path correction.
