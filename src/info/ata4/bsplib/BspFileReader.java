@@ -364,15 +364,27 @@ public class BspFileReader {
         }
         
         Class struct = DDispInfo.class;
+        int bspv = bspFile.getVersion();
         
-        if (appID == SourceAppID.VINDICTUS) {
-            struct = DDispInfoVin.class;
-        } else if (bspFile.getVersion() == 17 && appID == SourceAppID.HALF_LIFE_2) {
-            struct = DDispInfoBSP17.class;
-        } else if (bspFile.getVersion() == 22) {
-            struct = DDispInfoBSP22.class;
-        } else if (bspFile.getVersion() >= 23) {
-            struct = DDispInfoBSP23.class;
+        // the lump version is useless most of the time, use the AppID instead
+        switch (appID) {
+            case SourceAppID.VINDICTUS:
+                struct = DDispInfoVin.class;
+                break;
+                
+            case SourceAppID.HALF_LIFE_2:
+                if (bspv == 17) {
+                    struct = DDispInfoBSP17.class;
+                }
+                break;
+                
+            case SourceAppID.DOTA_2_BETA:
+                if (bspv == 22) {
+                    struct = DDispInfoBSP22.class;
+                } else if (bspv >= 23) {
+                    struct = DDispInfoBSP23.class;
+                }
+                break;
         }
         
         bsp.dispinfos = loadLump(LumpType.LUMP_DISPINFO, struct);

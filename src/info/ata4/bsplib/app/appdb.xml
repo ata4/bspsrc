@@ -348,6 +348,7 @@
     </app>
     <app name="Dota 2" id="570">
         <version min="22" max="23" />
+        <files><![CDATA[^(dota|tutorial)_]]></files>
         <entities>
             dota_displacement_visibility
             dota_item_rune_spawner
@@ -1161,6 +1162,42 @@
         <entities>
             de_env_wind
             de_func_smokevolume
+        </entities>
+    </app>
+    <app name="Contagion" id="238430">
+        <version min="27" />
+        <files><![CDATA[^(ch|ce|cx)_$]]></files>
+        <entities>
+            extraction_area
+            info_extractiongoal
+            info_extractiontarget
+            info_goal_zombies
+            info_gps
+            info_player_survivor
+            info_player_zombie
+            info_random_ammo
+            info_random_weapon
+            info_survivor_position
+            item_ammo_1911
+            item_ammo_9mm
+            item_ammo_barricade
+            item_ammo_rifle
+            item_ammo_shotgun
+            prop_barricade
+            trigger_win
+            trigger_zombie_spawns
+            weapon_1911
+            weapon_ar15
+            weapon_boltcutter
+            weapon_extinguisher
+            weapon_fireaxe
+            weapon_inoculator
+            weapon_key
+            weapon_mossberg
+            weapon_mp5k
+            weapon_nailgun
+            weapon_sig
+            weapon_sledgehammer
         </entities>
     </app>
 </apps>

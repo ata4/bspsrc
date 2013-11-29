@@ -121,12 +121,16 @@ public class BspFile {
 
         L.log(Level.FINER, "Version: {0}", version);
 
-        // Dark Messiah maps use 14 00 04 00 as version.
-        // The actual BSP version is probably stored in the first two bytes...
         if (version == 0x40014) {
+            // Dark Messiah maps use 14 00 04 00 as version.
+            // The actual BSP version is probably stored in the first two bytes...
             L.finer("Found Dark Messiah header");
             app = SourceAppDB.getInstance().fromID(SourceAppID.DARK_MESSIAH);
             version &= 0xff;
+        } else if (version == 27) {
+            // Contagion maps use version 27, ignore VERSION_MAX in this case 
+            L.finer("Found Contagion header");
+            app = SourceAppDB.getInstance().fromID(SourceAppID.CONTAGION);
         } else if (version > VERSION_MAX || version < VERSION_MIN) {
             throw new BspException("Unsupported version: " + version);
         }
@@ -135,6 +139,11 @@ public class BspFile {
         if (version == 21 && bb.getInt(8) == 0) {
             L.finer("Found Left 4 Dead 2 header");
             app = SourceAppDB.getInstance().fromID(SourceAppID.LEFT_4_DEAD_2);
+        }
+        
+        // extra int for Contagion
+        if (app.getAppID() == SourceAppID.CONTAGION) {
+            bb.getInt(); // always 0?
         }
 
         loadLumps(bb);
@@ -257,7 +266,7 @@ public class BspFile {
 
         for (int i = 0; i < HEADER_LUMPS; i++) {
             int vers, ofs, len, fourCC;
-
+            
             // L4D2 maps use a different order
             if (app.getAppID() == SourceAppID.LEFT_4_DEAD_2) {
                 vers = bb.getInt();

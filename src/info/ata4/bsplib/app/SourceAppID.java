@@ -16,6 +16,9 @@ package info.ata4.bsplib.app;
  */
 public class SourceAppID {
     
+    private SourceAppID() {
+    }
+    
     public static final int UNKNOWN = 0;
     public static final int VINDICTUS = -100;
     public static final int HALF_LIFE_2 = 220;
@@ -27,4 +30,5 @@ public class SourceAppID {
     public static final int BLOODY_GOOD_TIME = 2450;
     public static final int DEAR_ESTHER = 203810;
     public static final int DOTA_2_BETA = 570;
+    public static final int CONTAGION = 238430;
 }
