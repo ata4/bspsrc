@@ -1200,4 +1200,18 @@
             weapon_sledgehammer
         </entities>
     </app>
+    <app name="SiN Episodes: Emergence" id="1300">
+        <version min="19" />
+        <files><![CDATA[^arena_$]]></files>
+        <entities>
+            env_poison_gas
+            item_healthvial
+            npc_druglab_grunt_pistol
+            npc_druglab_jetpack
+            npc_druglab_worker
+            npc_enemyfinder
+            npc_grenade_frag
+            prop_u4_barrel
+        </entities>
+    </app>
 </apps>
