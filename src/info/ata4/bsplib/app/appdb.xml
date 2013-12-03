@@ -1327,4 +1327,14 @@
             prop_u4_barrel
         </entities>
     </app>
+    <app name="Blade Symphony" id="225600">
+        <version min="21" />
+        <files><![CDATA[^(duel|ffa|free|tut)_$]]></files>
+        <entities>
+            berimbau_duel
+            berimbau_spawn
+            berimbau_spectator_camera
+            func_reflective_glass
+        </entities>
+    </app>
 </apps>
