@@ -121,9 +121,11 @@
         <entities>
             func_bomb_target
             func_buyzone
+            func_footstep_control
             func_hostage_rescue
             hostage_entity
             info_player_counterterrorist
+            info_player_logo
             info_player_terrorist
         </entities>
     </app>
@@ -137,6 +139,8 @@
             dod_control_point
             dod_control_point_master
             dod_scoring
+            func_team_wall
+            func_teamblocker
             info_doddetect
             info_player_allies
             info_player_axis
@@ -169,6 +173,7 @@
         <files><![CDATA[^(testchmb_a|escape)_]]></files>
         <entities>
             env_portal_credits
+            func_noportal_volume
             func_portal_bumper
             func_portal_detector
             func_portal_orientation
@@ -176,6 +181,8 @@
             npc_portal_turret_floor
             npc_rocket_turret
             npc_security_camera
+            point_bonusmaps_accessor
+            point_energy_ball_launcher
             prop_glados_core
             prop_portal
             prop_portal_stats_display
@@ -206,23 +213,41 @@
         <version min="20" />
         <files><![CDATA[^(arena|cp|ctf|pl(r?)|t[cr]|koth|sd|mvm)_]]></files>
         <entities>
+            bot_action_point
+            bot_generator
+            bot_hint_engineer_nest
             bot_hint_sentrygun
             bot_hint_teleporter_exit
+            bot_roster
             dispenser_touch_trigger
             fa_dodgeball_rocket_relay
             fa_dodgeball_spawner
+            entity_spawn_manager
+            entity_spawn_point
             filter_activator_tfteam
+            filter_tf_bot_has_tag
             filter_tf_damaged_by_weapon_in_slot
             func_capturezone
             func_flagdetectionzone
+            func_nav_avoid
+            func_nav_prefer
+            func_nav_prerequisite
             func_nobuild
             func_nogrenades
+            func_regenerate
             func_respawnflag
             func_respawnroom
             func_respawnroomvisualizer
+            func_suggested_build
             func_tfbot_hint
             func_upgradestation
+            game_forcerespawn
+            game_intro_viewpoint
+            game_round_win
             game_text_tf
+            halloween_zapper
+            info_observer_point
+            info_player_teamspawn
             item_ammopack_full
             item_ammopack_medium
             item_ammopack_small
@@ -234,6 +259,7 @@
             obj_dispenser
             obj_sentrygun
             obj_teleporter
+            point_populator_interface
             team_control_point
             team_control_point_master
             team_control_point_round
@@ -248,9 +274,17 @@
             tf_logic_medieval
             tf_logic_multiple_escort
             tf_logic_training_mode
+            tf_point_nav_interface
+            tf_spell_pickup
+            tf_zombie_spawner
             training_annotation
+            training_prop_dynamic
+            trigger_add_tf_player_condition
             trigger_capture_area
             trigger_ignite_arrows
+            trigger_stun
+            trigger_timer_door
+            wheel_of_doom
         </entities>
     </app>
     <!-- The Orange Box end -->
@@ -260,22 +294,44 @@
         <entities>
             env_outtro_stats
             env_player_blocker
+            env_rock_launcher
             env_tonemap_controller_ghost
             env_tonemap_controller_infected
+            env_weaponfire
             filter_activator_infected_class
+            func_button_timed
+            func_elevator
+            func_nav_avoidance_obstacle
+            func_nav_blocker
+            func_nav_stairs_toggle
+            func_orator
             func_playerinfected_clip
+            func_ragdoll_fader
+            func_spawn_volume
+            info_director
+            info_elevator_floor
             info_goal_infected_chase
             info_map_parameters_versus
             info_survivor_position
             info_survivor_rescue
             info_zombie_spawn
+            logic_versus_random
+            point_deathfall_camera
+            point_viewcontrol_multiplayer
             point_viewcontrol_survivor
             prop_car_alarm
             prop_car_glass
             prop_door_rotating_checkpoint
+            prop_fuel_barrel
+            prop_glowing_object
             prop_health_cabinet
             prop_minigun
+            prop_mounted_machine_gun
+            trigger_auto_crouch
+            trigger_escape
             trigger_finale
+            trigger_finale_dlc3
+            trigger_hurt_ghost
             weapon_ammo_spawn
             weapon_autoshotgun_spawn
             weapon_first_aid_kit_spawn
@@ -293,28 +349,67 @@
         <version min="21" />
         <files><![CDATA[^c\d{1,2}m\d{1,2}_]]></files>
         <entities>
+            ambient_music
             commentary_zombie_spawner
             env_airstrike_indoors
             env_outtro_stats
+            env_player_blocker
+            env_rock_launcher
             env_tonemap_controller_ghost
             env_tonemap_controller_infected
+            env_weaponfire
             filter_activator_infected_class
+            filter_health
+            filter_melee_damage
+            func_block_charge
+            func_button_timed
+            func_elevator
+            func_extinguisher
+            func_nav_attribute_region
+            func_nav_avoidance_obstacle
+            func_nav_blocker
+            func_nav_connection_blocker
+            func_orator
             func_playerinfected_clip
+            func_ragdoll_fader
             game_scavenge_progress_display
             info_ambient_mob
             info_ambient_mob_end
             info_ambient_mob_start
+            info_director
+            info_elevator_floor
             info_goal_infected_chase
+            info_item_position
+            info_l4d1_survivor_spawn
             info_map_parameters_versus
+            info_remarkable
             info_survivor_position
             info_survivor_rescue
             info_zombie_border
             info_zombie_spawn
+            logic_director_query
+            logic_game_event
+            logic_versus_random
+            point_deathfall_camera
+            point_prop_use_target
+            point_viewcontrol_multiplayer
             point_viewcontrol_survivor
+            prop_car_alarm
+            prop_car_glass
             prop_door_rotating_checkpoint
+            prop_fuel_barrel
             prop_health_cabinet
+            prop_minigun
+            prop_minigun_l4d1
             prop_mounted_machine_gun
+            prop_wall_breakable
+            trigger_active_weapon_detect
+            trigger_auto_crouch
+            trigger_escape
+            trigger_finale
             trigger_hurt_ghost
+            trigger_upgrade_laser_sight
+            upgrade_spawn
             weapon_adrenaline_spawn
             weapon_ammo_spawn
             weapon_autoshotgun_spawn
@@ -334,6 +429,7 @@
             weapon_pumpshotgun_spawn
             weapon_rifle_ak47_spawn
             weapon_rifle_desert_spawn
+            weapon_rifle_m60_spawn
             weapon_rifle_spawn
             weapon_scavenge_item_spawn
             weapon_shotgun_chrome_spawn
@@ -341,6 +437,7 @@
             weapon_smg_silenced_spawn
             weapon_smg_spawn
             weapon_sniper_military_spawn
+            weapon_spawn
             weapon_upgradepack_explosive_spawn
             weapon_upgradepack_incendiary_spawn
             weapon_vomitjar_spawn
@@ -350,8 +447,11 @@
         <version min="22" max="23" />
         <files><![CDATA[^(dota|tutorial)_]]></files>
         <entities>
+            ambient_creatures
+            ambient_creatures_zone
             dota_displacement_visibility
             dota_item_rune_spawner
+            dota_minimap_boundary
             dota_prop_customtexture
             dota_world_particle_system
             ent_dota_dire_candybucket
@@ -362,16 +462,19 @@
             ent_dota_radiant_candybucket
             ent_dota_shop
             ent_dota_tree
+            ent_fow_blocker_node
             ent_sugar_rush
             info_courier_spawn_dire
             info_courier_spawn_radiant
             info_player_start_badguys
             info_player_start_goodguys
+            info_roquelaire_perch
             npc_dota_barracks
             npc_dota_building
             npc_dota_fort
             npc_dota_neutral_spawner
             npc_dota_roshan_spawner
+            npc_dota_scripted_spawner
             npc_dota_spawner
             npc_dota_spawner_bad_bot
             npc_dota_spawner_bad_mid
@@ -380,6 +483,13 @@
             npc_dota_spawner_good_mid
             npc_dota_spawner_good_top
             npc_dota_tower
+            prop_player_cosmetic
+            trigger_boss_attackable
+            trigger_hero
+            trigger_no_wards
+            trigger_shop
+            tutorial_npc_blocker
+            world_bounds
         </entities>
     </app>
     <app name="Portal 2" id="620">
@@ -391,6 +501,7 @@
             env_portal_credits
             env_portal_laser
             env_portal_path_track
+            env_sprite_clientside
             exploding_futbol_catcher
             filter_player_held
             func_noportal_volume
@@ -404,10 +515,10 @@
             info_coop_spawn
             info_landmark_entry
             info_landmark_exit
-            info_lighting_relative
             info_paint_sprayer
             info_placement_helper
             info_player_ping_detector
+            info_target_instructor_hint
             info_target_personality_sphere
             linked_portal_door
             logic_coop_manager
@@ -460,7 +571,9 @@
             trigger_portal_cleanser
             vgui_level_placard_display
             vgui_mp_lobby_display
+            vgui_movie_display
             vgui_neurotoxin_countdown
+            vgui_screen
             weapon_portalgun
         </entities>
     </app>
@@ -581,23 +694,20 @@
         <version min="21" />
         <files><![CDATA[^[de|cs]_]]></files>
         <entities>
+            flashbang_projectile
             func_bomb_target
             func_buyzone
             func_hostage_rescue
+            func_no_defuse
             hostage_entity
+            info_deathmatch_spawn
+            info_hostage_spawn
             info_player_counterterrorist
             info_player_terrorist
+            planted_c4_training
         </entities>
     </app>
     <!-- Third-party Source engine games and mods -->
-    <!--
-    <app name="SiN Episodes: Emergence" id="1800">
-        <version min="20" />
-        <files></files>
-        <entities>
-        </entities>
-    </app>
-    -->
     <app name="Dark Messiah of Might &amp; Magic" id="2100">
         <version min="20" />
         <files><![CDATA[^l\d{2}_]]></files>
@@ -671,7 +781,9 @@
     <app name="Bloody Good Time" id="2450">
         <version min="20" />
         <entities>
+            info_player_spawn
             npc_securityguard
+            player_overlay_render_location
             pm_bonus_star_spawner
             pm_interact_icon_sprite
             pm_interaction
@@ -1010,6 +1122,7 @@
             camera_satellite
             env_dispenser
             env_introcredits
+            env_leech_controller
             env_mortar_controller
             env_mortar_launcher
             env_particle_beam
