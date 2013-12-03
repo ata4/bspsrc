@@ -1334,7 +1334,6 @@
             berimbau_duel
             berimbau_spawn
             berimbau_spectator_camera
-            func_reflective_glass
         </entities>
     </app>
 </apps>
