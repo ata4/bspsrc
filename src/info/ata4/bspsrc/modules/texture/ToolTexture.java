@@ -16,6 +16,9 @@ package info.ata4.bspsrc.modules.texture;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public final class ToolTexture {
+    
+    private ToolTexture() {
+    }
 
     public static final String EMPTY = null;
     public static final String NODRAW = "tools/toolsnodraw";
