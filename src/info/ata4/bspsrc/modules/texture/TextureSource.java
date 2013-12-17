@@ -44,7 +44,7 @@ public class TextureSource extends ModuleRead {
     private static final Set<SurfaceFlag> SURFFLAGS_NODRAW = EnumSet.of(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT);
     
     private Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<Integer, Set<Integer>>();
-    private int[] texnameToCubemap;
+    private List<Integer> texnameToCubemap = new ArrayList<Integer>();
     
     public TextureSource(BspFileReader reader) {
         super(reader);
@@ -53,8 +53,7 @@ public class TextureSource extends ModuleRead {
         reader.loadTexData();
         reader.loadCubemaps();
         
-        texnameToCubemap = new int[bsp.texnames.size()];
-        Arrays.fill(texnameToCubemap, -1);
+        texnameToCubemap = new ArrayList<Integer>(bsp.texnames.size());
     }
 
     /**
@@ -389,7 +388,7 @@ public class TextureSource extends ModuleRead {
                 }
 
                 // set cubemap index used by this texdata/texname
-                texnameToCubemap[itexname] = i;
+                texnameToCubemap.set(itexname, i);
                 return;
             }
         }
@@ -399,8 +398,7 @@ public class TextureSource extends ModuleRead {
     }
     
     public void addBrushSideID(int itexname, int side) {
-        int icubemap = texnameToCubemap[itexname];
-        
+        int icubemap = texnameToCubemap.get(itexname);
         if (icubemap == -1) {
             // not environment mapped
             return;
@@ -410,7 +408,8 @@ public class TextureSource extends ModuleRead {
         
         // create new side list if required
         if (sides == null) {
-            cubemapToSideList.put(icubemap, sides = new HashSet<Integer>());
+            sides = new HashSet<Integer>();
+            cubemapToSideList.put(icubemap, sides);
         }
         
         sides.add(side);
