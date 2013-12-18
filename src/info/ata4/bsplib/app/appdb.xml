@@ -317,7 +317,6 @@
             info_zombie_spawn
             logic_versus_random
             point_deathfall_camera
-            point_viewcontrol_multiplayer
             point_viewcontrol_survivor
             prop_car_alarm
             prop_car_glass
@@ -392,7 +391,6 @@
             logic_versus_random
             point_deathfall_camera
             point_prop_use_target
-            point_viewcontrol_multiplayer
             point_viewcontrol_survivor
             prop_car_alarm
             prop_car_glass
@@ -1262,7 +1260,6 @@
             info_vip_wp
             point_intro_camera
             point_planning_stage_camera
-            point_viewcontrol_multiplayer
             prop_fire_extinguisher
             prop_rappelpoint
             ti_trigger_once
