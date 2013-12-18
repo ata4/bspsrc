@@ -53,7 +53,8 @@ public class TextureSource extends ModuleRead {
         reader.loadTexData();
         reader.loadCubemaps();
         
-        texnameToCubemap = new ArrayList<Integer>(bsp.texnames.size());
+        int texnames = bsp.texnames.size();
+        texnameToCubemap = new ArrayList<Integer>(texnames);
     }
 
     /**
@@ -398,8 +399,8 @@ public class TextureSource extends ModuleRead {
     }
     
     public void addBrushSideID(int itexname, int side) {
-        int icubemap = texnameToCubemap.get(itexname);
-        if (icubemap == -1) {
+        Integer icubemap = texnameToCubemap.get(itexname);
+        if (icubemap == null) {
             // not environment mapped
             return;
         }
