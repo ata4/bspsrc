@@ -44,7 +44,7 @@ public class TextureSource extends ModuleRead {
     private static final Set<SurfaceFlag> SURFFLAGS_NODRAW = EnumSet.of(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT);
     
     private Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<Integer, Set<Integer>>();
-    private List<Integer> texnameToCubemap = new ArrayList<Integer>();
+    private Map<Integer, Integer> texnameToCubemap = new HashMap<Integer, Integer>();
     
     public TextureSource(BspFileReader reader) {
         super(reader);
@@ -53,8 +53,7 @@ public class TextureSource extends ModuleRead {
         reader.loadTexData();
         reader.loadCubemaps();
         
-        int texnames = bsp.texnames.size();
-        texnameToCubemap = new ArrayList<Integer>(texnames);
+        texnameToCubemap = new HashMap<Integer, Integer>();
     }
 
     /**
@@ -389,7 +388,7 @@ public class TextureSource extends ModuleRead {
                 }
 
                 // set cubemap index used by this texdata/texname
-                texnameToCubemap.set(itexname, i);
+                texnameToCubemap.put(itexname, i);
                 return;
             }
         }
