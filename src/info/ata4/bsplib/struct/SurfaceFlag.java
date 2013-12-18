@@ -17,21 +17,21 @@ package info.ata4.bsplib.struct;
  */
 public enum SurfaceFlag {
 
-    SURF_LIGHT,
-    SURF_SKY2D,
-    SURF_SKY,
-    SURF_WARP,
-    SURF_TRANS,
-    SURF_NOPORTAL,
-    SURF_TRIGGER,
-    SURF_NODRAW,
-    SURF_HINT,
-    SURF_SKIP,
-    SURF_NOLIGHT,
-    SURF_BUMPLIGHT,
-    SURF_NOSHADOWS,
-    SURF_NODECALS,
-    SURF_NOCHOP,
-    SURF_HITBOX;
+    SURF_LIGHT,     // value will hold the light strength
+    SURF_SKY2D,     // draw skybox instead of texture
+    SURF_SKY,       // draw skybox with 3D elements instead of texture
+    SURF_WARP,      // turbulent water warp
+    SURF_TRANS,     // sort face as a translucent primitive
+    SURF_NOPORTAL,  // the surface can not have a portal placed on it (Portal series only?)
+    SURF_TRIGGER,   // xbox hack to work around elimination of trigger surfaces
+    SURF_NODRAW,    // don't bother referencing the texture
+    SURF_HINT,      // treat surface as primary BSP splitter
+    SURF_SKIP,      // completely ignore surface, allowing non-closed brushes
+    SURF_NOLIGHT,   // non-lit texture, don't calculate light
+    SURF_BUMPLIGHT, // calculate three lightmaps for the surface for bumpmapping
+    SURF_NOSHADOWS, // don't receive shadows
+    SURF_NODECALS,  // don't receive decals
+    SURF_NOCHOP,    // don't subdivide patches on this surface 
+    SURF_HITBOX;    // surface is part of a hitbox
 
 }
