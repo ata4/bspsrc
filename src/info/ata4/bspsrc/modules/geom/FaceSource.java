@@ -313,7 +313,7 @@ public class FaceSource extends ModuleDecompile {
         Texture texture = texsrc.getTexture(face.texinfo, origin, angles, normal);
 
         // set face texture string
-        if (!config.faceTexture.equals("")) {
+        if (!config.faceTexture.isEmpty()) {
             texture.setMaterial(config.faceTexture);
         }
 
@@ -341,7 +341,7 @@ public class FaceSource extends ModuleDecompile {
         writer.end("side");
 
         // set back face texture string
-        if (!config.backfaceTexture.equals("")) {
+        if (!config.backfaceTexture.isEmpty()) {
             texture.setMaterial(config.backfaceTexture);
         }
 

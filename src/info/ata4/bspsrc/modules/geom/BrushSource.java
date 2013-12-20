@@ -315,13 +315,15 @@ public class BrushSource extends ModuleDecompile {
         Vector3f normal = ev12.cross(ev13).normalize();
         
         Texture texture = texsrc.getTexture(brushSide.texinfo, origin, angles, normal);
-        String origMaterial = null;
+        String origMaterial = texture.getMaterial();
+        
+        if (config.fixToolTextures) {
+            texsrc.fixToolTexture(texture, ibrush, ibrushside);
+        }
         
         // set face texture string
-        if (!config.faceTexture.equals("")) {
+        if (!config.faceTexture.isEmpty()) {
             texture.setMaterial(config.faceTexture);
-        } else if (config.fixToolTextures) {
-            origMaterial = texsrc.fixToolTexture(texture, ibrush, ibrushside);
         }
         
         int sideID = vmfmeta.getUID();
@@ -344,7 +346,7 @@ public class BrushSource extends ModuleDecompile {
             writer.put("normal", normal);
             writer.put("winding", wind.toString());
             
-            if (origMaterial != null) {
+            if (!texture.getMaterial().equals(origMaterial)) {
                 writer.put("original_material", origMaterial);
             }
             

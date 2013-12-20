@@ -11,7 +11,6 @@
 package info.ata4.bspsrc.modules.texture;
 
 import info.ata4.bsplib.BspFileReader;
-import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.modules.ModuleRead;
@@ -41,8 +40,12 @@ public class TextureSource extends ModuleRead {
     private static final Pattern waterPatchPattern = Pattern.compile("_depth_(-?\\d+)$"); // water texture patch
     private static final Pattern mapPattern = Pattern.compile("^maps/[^/]+/");
     
-    private static final Set<SurfaceFlag> SURFFLAGS_NODRAW = EnumSet.of(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT);
+    // surface/brush flags
+    private static EnumSet<SurfaceFlag> SURF_FLAGS_CLIP = EnumSet.of(SurfaceFlag.SURF_NOLIGHT, SurfaceFlag.SURF_NODRAW);
+    private static EnumSet<SurfaceFlag> SURF_FLAGS_AREAPORTAL = EnumSet.of(SurfaceFlag.SURF_NOLIGHT);
+    private static EnumSet<BrushFlag> BRUSH_FLAGS_AREAPORTAL = EnumSet.of(BrushFlag.CONTENTS_AREAPORTAL);
     
+    // ID mappings
     private Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<Integer, Set<Integer>>();
     private Map<Integer, Integer> texnameToCubemap = new HashMap<Integer, Integer>();
     
@@ -52,8 +55,6 @@ public class TextureSource extends ModuleRead {
         reader.loadTexInfo();
         reader.loadTexData();
         reader.loadCubemaps();
-        
-        texnameToCubemap = new HashMap<Integer, Integer>();
     }
 
     /**
@@ -298,40 +299,38 @@ public class TextureSource extends ModuleRead {
      * @param ibrushside brush side index
      * @return previous material name or null if the material wasn't changed
      */
-    public String fixToolTexture(Texture texture, int ibrush, int ibrushside) {
-        String oldTex = texture.getMaterial();
-        String newTex = getToolTexture(ibrush, ibrushside);
+    public void fixToolTexture(Texture texture, int ibrush, int ibrushside) {
+        String currentTex = texture.getMaterial();
+        String newTex = getToolTextureFix(ibrush, ibrushside);
         
-        if (newTex != null && !newTex.equalsIgnoreCase(oldTex)) {
-            if (L.isLoggable(Level.FINEST)) {
-                // display differences
-                L.log(Level.FINEST, "{0} -> {1}", new Object[] {oldTex, texture.getMaterial()});
-            }
-            
+        if (newTex != null && !newTex.equalsIgnoreCase(currentTex)) {
+            L.log(Level.FINEST, "{0} -> {1}", new Object[] {currentTex, texture.getMaterial()});
             texture.setMaterial(newTex);
-            return oldTex;
         }
-        
-        return null;
     }
 
-    private String getToolTexture(int ibrush, int ibrushside) {
+    public String getToolTextureFix(int ibrush, int ibrushside) {
         DBrush brush = bsp.brushes.get(ibrush);
         DBrushSide brushSide = bsp.brushSides.get(ibrushside);
         
-        Set<SurfaceFlag> surfFlags = EnumSet.noneOf(SurfaceFlag.class);
+        Set<SurfaceFlag> surfFlags;
         
-        if (brushSide.texinfo != -1) {
+        if (brushSide.texinfo == DTexInfo.TEXINFO_NODE) {
+            surfFlags = EnumSet.noneOf(SurfaceFlag.class);
+        } else {
             surfFlags = bsp.texinfos.get(brushSide.texinfo).flags;
         }
         
-        if (brush.isDetail()) {
-            // Clip
+        Set<BrushFlag> brushFlags = brush.contents;
+        
+        // fix clip textures
+        if (brush.isDetail() && surfFlags.equals(SURF_FLAGS_CLIP)) {
+            // clip
             if (brush.isPlayerClip() && brush.isNpcClip()) {
                 return ToolTexture.CLIP;
             }
             
-            // Player clip
+            // player clip
             if (brush.isPlayerClip()) {
                 return ToolTexture.PLAYERCLIP;
             }
@@ -340,39 +339,17 @@ public class TextureSource extends ModuleRead {
             if (brush.isNpcClip()) {
                 return ToolTexture.NPCCLIP;
             }
-
-            // block light
-            if (brush.isOpaque()) {
-                return ToolTexture.BLOCKLIGHT;
-            }
-
+            
             // block line of sight
             if (brush.isBlockLos()) {
                 return ToolTexture.BLOCKLOS;
             }
-            
-            return null;
         }
         
-        if (bspFile.getSourceApp().getAppID() == SourceAppID.VAMPIRE_BLOODLINES) {
-            // too many crucial game-specific tool textures, stop here
-            return null;
-        }
-        
-        // nodraw
-        if (!brush.isPlayerClip() && !brush.isNpcClip() && surfFlags.equals(SURFFLAGS_NODRAW)) {
-            return ToolTexture.NODRAW;
-        }
-
-        // areaportal
-        if (brush.isAreaportal()) {
+        // fix areaportal textures
+        if (brushFlags.equals(BRUSH_FLAGS_AREAPORTAL) && surfFlags.equals(SURF_FLAGS_AREAPORTAL)) {
             return ToolTexture.AREAPORTAL;
         }
-
-        // invisible
-//        if (brush.isGrate() && brush.isTranslucent()) {
-//            return ToolTexture.INVIS;
-//        }
         
         return null;
     }
