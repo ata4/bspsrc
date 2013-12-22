@@ -19,6 +19,7 @@ import info.ata4.bspsrc.modules.ModuleDecompile;
 import info.ata4.bspsrc.modules.VmfMeta;
 import info.ata4.bspsrc.modules.texture.Texture;
 import info.ata4.bspsrc.modules.texture.TextureAxis;
+import info.ata4.bspsrc.modules.texture.TextureBuilder;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.modules.texture.ToolTexture;
 import info.ata4.bspsrc.util.Winding;
@@ -309,12 +310,20 @@ public class FaceSource extends ModuleDecompile {
             vmfmeta.setFaceUID(iface, sideID);
         }
         
-        // create texture
-        Texture texture = texsrc.getTexture(face.texinfo, origin, angles, normal);
+        // build texture
+        TextureBuilder tb = texsrc.getTextureBuilder();
+        
+        tb.setOrigin(origin);
+        tb.setAngles(angles);
+        tb.setNormal(normal);
+        
+        tb.setTexinfoIndex(face.texinfo);
+        
+        Texture texture = tb.build();
 
         // set face texture string
         if (!config.faceTexture.isEmpty()) {
-            texture.setMaterial(config.faceTexture);
+            texture.setOverrideTexture(config.faceTexture);
         }
 
         // add side id to cubemap side list
@@ -342,7 +351,7 @@ public class FaceSource extends ModuleDecompile {
 
         // set back face texture string
         if (!config.backfaceTexture.isEmpty()) {
-            texture.setMaterial(config.backfaceTexture);
+            texture.setOverrideTexture(config.backfaceTexture);
         }
 
         // write prismatic back faces for displacements, pyramidal otherwise
@@ -523,7 +532,12 @@ public class FaceSource extends ModuleDecompile {
         
         int sideID = vmfmeta.getUID();
         
-        Texture texture = texsrc.getTexture(frontMaterial, normal);
+        // build texture
+        TextureBuilder tb = texsrc.getTextureBuilder();
+        tb.setNormal(normal);
+        
+        Texture texture = tb.build();
+        texture.setOriginalTexture(frontMaterial);
         
         writer.start("side");
         writer.put("id", sideID);
@@ -531,7 +545,7 @@ public class FaceSource extends ModuleDecompile {
         writer.put(texture);
         writer.end("side");
         
-        texture.setMaterial(backMaterial);
+        texture.setOriginalTexture(backMaterial);
         
         if (prism) {
             writePrismBack(wind, texture, depth);

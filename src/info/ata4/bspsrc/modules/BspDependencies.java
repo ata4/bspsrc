@@ -32,37 +32,32 @@ public class BspDependencies extends ModuleRead {
 
     public Set<String> getMaterials() {
         Set<String> materials = new TreeSet<String>();
-        
-        // make texture names canonical first
         TextureSource texsrc = new TextureSource(reader);
-        texsrc.fixTexturePaths();
 
         // add all texnames
-        for (String texname : bsp.texnames) {
-            texname = texname.toLowerCase();
-            texname = texname.replace('\\', '/');
-            materials.add("materials/" + texname.toLowerCase() + ".vmt");
+        for (String texname : texsrc.getFixedTextureNames()) {
+            materials.add("materials/" + texname + ".vmt");
         }
         
         // add all entity materials
         for (Entity ent : bsp.entities) {
             try {
                 for (String value : ent.getValues()) {
+
                     if (value.startsWith("materials/")
                             || value.endsWith(".vtf")
                             || value.endsWith(".vmt")) {
-                        value = value.toLowerCase();
-                        value = value.replace('\\', '/');
-                        
-                        if (!value.startsWith("materials/")) {
-                            value = "materials/" + value;
+                        String texture = texsrc.canonizeTextureName(value);
+                    
+                        if (!texture.startsWith("materials/")) {
+                            texture = "materials/" + texture;
                         }
                         
-                        if (!value.endsWith(".vtf") && !value.endsWith(".vmt")) {
-                            value = value + ".vmt";
+                        if (!texture.endsWith(".vtf") && !texture.endsWith(".vmt")) {
+                            texture += ".vmt";
                         }
                         
-                        materials.add(value);
+                        materials.add(texture);
                     }
                 }
             } catch (NullPointerException ex) {

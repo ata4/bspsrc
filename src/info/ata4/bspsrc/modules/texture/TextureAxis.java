@@ -13,7 +13,7 @@ package info.ata4.bspsrc.modules.texture;
 import info.ata4.bsplib.vector.Vector3f;
 
 /**
- * A data structure for U/V texture axes.
+ * A data structure for UV texture coordinates.
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */

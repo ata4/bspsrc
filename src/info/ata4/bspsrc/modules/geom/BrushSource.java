@@ -21,6 +21,7 @@ import info.ata4.bspsrc.modules.BspProtection;
 import info.ata4.bspsrc.modules.ModuleDecompile;
 import info.ata4.bspsrc.modules.VmfMeta;
 import info.ata4.bspsrc.modules.texture.Texture;
+import info.ata4.bspsrc.modules.texture.TextureBuilder;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.util.BspTreeStats;
 import info.ata4.bspsrc.util.Winding;
@@ -314,16 +315,22 @@ public class BrushSource extends ModuleDecompile {
         Vector3f ev13 = e3.sub(e1);
         Vector3f normal = ev12.cross(ev13).normalize();
         
-        Texture texture = texsrc.getTexture(brushSide.texinfo, origin, angles, normal);
-        String origMaterial = texture.getMaterial();
+        // build texture
+        TextureBuilder tb = texsrc.getTextureBuilder();
         
-        if (config.fixToolTextures) {
-            texsrc.fixToolTexture(texture, ibrush, ibrushside);
-        }
+        tb.setOrigin(origin);
+        tb.setAngles(angles);
+        tb.setNormal(normal);
         
-        // set face texture string
+        tb.setTexinfoIndex(brushSide.texinfo);
+        tb.setBrushIndex(ibrush);
+        tb.setBrushSideIndex(ibrushside);
+        
+        Texture texture = tb.build();
+        
+        // set custom face texture string
         if (!config.faceTexture.isEmpty()) {
-            texture.setMaterial(config.faceTexture);
+            texture.setOverrideTexture(config.faceTexture);
         }
         
         int sideID = vmfmeta.getUID();
@@ -346,8 +353,8 @@ public class BrushSource extends ModuleDecompile {
             writer.put("normal", normal);
             writer.put("winding", wind.toString());
             
-            if (!texture.getMaterial().equals(origMaterial)) {
-                writer.put("original_material", origMaterial);
+            if (texture.getOverrideTexture() != null) {
+                writer.put("original_material", texture.getOriginalTexture());
             }
             
             if (brushSide.texinfo != -1) {
