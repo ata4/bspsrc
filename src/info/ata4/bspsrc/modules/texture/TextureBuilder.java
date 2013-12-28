@@ -113,7 +113,7 @@ public class TextureBuilder {
     }
 
     private String fixToolTexture() {
-        if (ibrush == -1 && ibrushside == -1) {
+        if (ibrush == -1 || ibrushside == -1) {
             return null;
         }
         
@@ -171,22 +171,24 @@ public class TextureBuilder {
         }
 
         Vector3f texNorm = texture.getVAxis().axis.cross(texture.getUAxis().axis);
-        if (Math.abs(normal.dot(texNorm)) < EPS_PERP) {
-            // z is z-direction unit vector
-            Vector3f udir = new Vector3f(0, 0, 1);
-
-            // if angle of normal to z axis is less than ~25 degrees
-            if (Math.abs(udir.dot(normal)) > Math.sin(45)) {
-                // use x unit-vector as basis
-                udir = new Vector3f(1, 0, 0);
-            }
-
-            Vector3f tv1 = udir.cross(normal).normalize(); // 1st tex vector
-            Vector3f tv2 = tv1.cross(normal).normalize();  // 2nd tex vector
-
-            texture.setUAxis(new TextureAxis(tv1));
-            texture.setVAxis(new TextureAxis(tv2));
+        if (Math.abs(normal.dot(texNorm)) >= EPS_PERP) {
+            return;
         }
+        
+        // z is z-direction unit vector
+        Vector3f udir = new Vector3f(0, 0, 1);
+
+        // if angle of normal to z axis is less than ~25 degrees
+        if (Math.abs(udir.dot(normal)) > Math.sin(45)) {
+            // use x unit-vector as basis
+            udir = new Vector3f(1, 0, 0);
+        }
+
+        Vector3f tv1 = udir.cross(normal).normalize(); // 1st tex vector
+        Vector3f tv2 = tv1.cross(normal).normalize();  // 2nd tex vector
+
+        texture.setUAxis(new TextureAxis(tv1));
+        texture.setVAxis(new TextureAxis(tv2));
     }
 
     private void buildLightmapScale() {
