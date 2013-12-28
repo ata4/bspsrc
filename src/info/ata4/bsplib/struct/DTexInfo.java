@@ -37,14 +37,14 @@ public class DTexInfo implements DStruct {
 
     @Override
     public void read(LumpInput lio) throws IOException {
-        for (int j = 0; j < 2; j++) {
-            for (int k = 0; k < 4; k++) {
-                textureVecsTexels[j][k] = lio.readFloat();
+        for (int i = 0; i < textureVecsTexels.length; i++) {
+            for (int j = 0; j < textureVecsTexels[i].length; j++) {
+                textureVecsTexels[i][j] = lio.readFloat();
             }
         }
-        for (int j = 0; j < 2; j++) {
-            for (int k = 0; k < 4; k++) {
-                lightmapVecsLuxels[j][k] = lio.readFloat();
+        for (int i = 0; i < lightmapVecsLuxels.length; i++) {
+            for (int j = 0; j < lightmapVecsLuxels[i].length; j++) {
+                lightmapVecsLuxels[i][j] = lio.readFloat();
             }
         }
         flags = EnumConverter.fromInteger(SurfaceFlag.class, lio.readInt());
@@ -53,14 +53,14 @@ public class DTexInfo implements DStruct {
 
     @Override
     public void write(LumpOutput lio) throws IOException {
-        for (int j = 0; j < 2; j++) {
-            for (int k = 0; k < 4; k++) {
-                lio.writeFloat(textureVecsTexels[j][k]);
+        for (int i = 0; i < textureVecsTexels.length; i++) {
+            for (int j = 0; j < textureVecsTexels[i].length; j++) {
+                lio.writeFloat(textureVecsTexels[i][j]);
             }
         }
-        for (int j = 0; j < 2; j++) {
-            for (int k = 0; k < 4; k++) {
-                lio.writeFloat(lightmapVecsLuxels[j][k]);
+        for (int i = 0; i < lightmapVecsLuxels.length; i++) {
+            for (int j = 0; j < lightmapVecsLuxels[i].length; j++) {
+                lio.writeFloat(lightmapVecsLuxels[i][j]);
             }
         }
         lio.writeInt(EnumConverter.toInteger(flags));

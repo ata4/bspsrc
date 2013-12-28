@@ -328,10 +328,10 @@ public class BspFileReader {
             for (int i = 0; i < propstatics; i++) {
                 DStaticProp sp = structClass.newInstance();
                 
-                int pos = lio.position();
+                long pos = lio.tell();
                 sp.read(lio);
                 int size = sp.getSize();
-                if (lio.position() - pos != size) {
+                if (lio.tell() - pos != size) {
                     throw new IOException("Bytes read: " + pos + "; expected: " + size);
                 }
                 
@@ -754,9 +754,9 @@ public class BspFileReader {
             for (int i = 0; i < packetCount; i++) {
                 E packet = struct.newInstance();
                 
-                int pos = lio.position();
+                long pos = lio.tell();
                 packet.read(lio);
-                if (lio.position() - pos != packet.getSize()) {
+                if (lio.tell() - pos != packet.getSize()) {
                     throw new IOException("Bytes read: " + pos + "; expected: " + packet.getSize());
                 }
                 

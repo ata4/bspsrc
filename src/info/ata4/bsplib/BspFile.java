@@ -529,10 +529,10 @@ public class BspFile {
                 }
 
                 // write buffer data
-                int tmpPos = lio.position();
-                lio.position(ofs);
+                long tmpPos = lio.tell();
+                lio.seek(ofs);
                 lio.write(gl.getBuffer());
-                lio.position(tmpPos);
+                lio.seek(tmpPos);
             }
         } catch (IOException ex) {
             L.log(Level.SEVERE, "Couldn''t save game lumps", ex);
@@ -600,14 +600,14 @@ public class BspFile {
 
             // check for unusual chars that indicate a reading error
             if (!glName.matches("^[a-zA-Z0-9]{4}$")) {
-                lio.position(0);
+                lio.seek(0);
                 return true;
             }
 
             lio.skipBytes(vin ? 16 : 12);
         }
 
-        lio.position(0);
+        lio.seek(0);
         return false;
     }
     
