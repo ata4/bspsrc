@@ -16,7 +16,7 @@ import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.io.LzmaBuffer;
 import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.util.StringMacroUtils;
-import info.ata4.util.io.NIOFileUtils;
+import info.ata4.util.io.ByteBufferUtils;
 import info.ata4.util.io.XORUtils;
 import java.io.File;
 import java.io.IOException;
@@ -170,7 +170,7 @@ public class BspFile {
         
         L.log(Level.FINE, "Saving headers to {0}", file.getName());
         
-        ByteBuffer bb = NIOFileUtils.openReadWrite(file, 0, size);
+        ByteBuffer bb = ByteBufferUtils.openReadWrite(file.toPath(), 0, size);
         
         bb.order(bo);
         bb.putInt(BSP_ID);
@@ -194,9 +194,9 @@ public class BspFile {
         ByteBuffer bb;
         
         if (memMapping) {
-            bb = NIOFileUtils.openReadOnly(file);
+            bb = ByteBufferUtils.openReadOnly(file.toPath());
         } else {
-            bb = NIOFileUtils.load(file);
+            bb = ByteBufferUtils.load(file.toPath());
         }
         
         // make sure we have enough room for reading
@@ -245,7 +245,7 @@ public class BspFile {
             
             // fully reload the map into memory if that isn't the case already
             if (memMapping || bb.isReadOnly()) {
-                bb = NIOFileUtils.load(file);
+                bb = ByteBufferUtils.load(file.toPath());
             }
             
             // then decrypt it

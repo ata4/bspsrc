@@ -11,7 +11,7 @@
 package info.ata4.bsplib.lump;
 
 import info.ata4.bsplib.BspFile;
-import info.ata4.util.io.NIOFileUtils;
+import info.ata4.util.io.ByteBufferUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -56,7 +56,7 @@ public class LumpFile {
         
         L.log(Level.FINE, "Loading lump header from {0}", file.getName());
         
-        ByteBuffer bb = NIOFileUtils.openReadOnly(file);
+        ByteBuffer bb = ByteBufferUtils.openReadOnly(file.toPath());
         bb.order(bo);
 
         // make sure we have enough room for reading
@@ -108,7 +108,7 @@ public class LumpFile {
         
         int size = HEADER_SIZE + lump.getLength();
         
-        ByteBuffer bb = NIOFileUtils.openReadWrite(file, 0, size);
+        ByteBuffer bb = ByteBufferUtils.openReadWrite(file.toPath(), 0, size);
         
         bb.order(lump.getBuffer().order());
         
