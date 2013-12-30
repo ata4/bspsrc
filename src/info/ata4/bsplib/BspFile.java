@@ -425,10 +425,10 @@ public class BspFile {
                 if (flags == 1) {
                     // game lump is compressed, use next entry offset to determine
                     // compressed size
-                    lio.seek(12);
+                    lio.seek(lio.tell() + 12);
                     int nextOfs = lio.readInt();
                     len = nextOfs - ofs;
-                    lio.seek(-12);
+                    lio.seek(lio.tell() - 12);
                 } else {
                     len = lio.readInt();
                 }
