@@ -57,10 +57,10 @@ public class EntitySource extends ModuleDecompile {
     private final VmfMeta vmfmeta;
 
     // list of areaportal brush ids
-    private Set<Integer> apBrushes = new HashSet<Integer>();
+    private Set<Integer> apBrushes = new HashSet<>();
 
     // overlay target names
-    private Map<Integer, String> overlayNames = new HashMap<Integer, String>();
+    private Map<Integer, String> overlayNames = new HashMap<>();
 
     // settings
     private int maxCubemapSides = 8;
@@ -106,7 +106,7 @@ public class EntitySource extends ModuleDecompile {
         // only cause errors
         boolean fixRot = config.fixEntityRot && instances;
         
-        List<String> visgroups = new ArrayList<String>();
+        List<String> visgroups = new ArrayList<>();
 
         for (Entity ent : bsp.entities) {
             visgroups.clear();
@@ -338,7 +338,7 @@ public class EntitySource extends ModuleDecompile {
         L.info("Writing func_details");
 
         if (mergeFuncDetail) {
-            List<Integer> protBrushIDs = new ArrayList<Integer>();
+            List<Integer> protBrushIDs = new ArrayList<>();
             
             writer.start("entity");
             writer.put("id", vmfmeta.getUID());
@@ -461,11 +461,11 @@ public class EntitySource extends ModuleDecompile {
 
             writer.put("RenderOrder", o.getRenderOrder());
             
-            Set<Integer> sides = new HashSet<Integer>();
+            Set<Integer> sides = new HashSet<>();
             int faceCount = o.getFaceCount();
             
             if (config.brushMode == BrushMode.BRUSHPLANES) {
-                Set<Integer> origFaces = new HashSet<Integer>();
+                Set<Integer> origFaces = new HashSet<>();
                  
                 // collect original faces for this overlay
                 for (int j = 0; j < faceCount; j++) {
@@ -515,7 +515,7 @@ public class EntitySource extends ModuleDecompile {
     public void writeStaticProps() {
         L.info("Writing prop_statics");
 
-        Map<Vector3f, String> lightingOrigins = new LinkedHashMap<Vector3f, String>();
+        Map<Vector3f, String> lightingOrigins = new LinkedHashMap<>();
         
         for (DStaticProp pst : bsp.staticProps) {
             DStaticPropV4 pst4 = (DStaticPropV4) pst;

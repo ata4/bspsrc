@@ -13,7 +13,6 @@ package info.ata4.bspsrc;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bspsrc.modules.geom.BrushMode;
 import info.ata4.bspsrc.util.SourceFormat;
-import info.ata4.util.log.ConsoleFormatter;
 import info.ata4.util.log.LogUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -60,7 +59,7 @@ public final class BspSourceConfig implements Serializable {
     public float backfaceDepth = 1;
     
     private boolean debug = false;
-    private Set<BspFileEntry> files = new HashSet<BspFileEntry>();
+    private Set<BspFileEntry> files = new HashSet<>();
     
     private void updateLogger(boolean debug) {
         LogUtils.configure(debug ? Level.ALL : Level.INFO);

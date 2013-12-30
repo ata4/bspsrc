@@ -31,7 +31,7 @@ public class EntityTableModel extends ListTableModel {
         
         Set<String> classes = bspReader.getEntityClassSet();
         List<Entity> entities = bspReader.getData().entities;
-        List<String> entityStrings = new ArrayList<String>();
+        List<String> entityStrings = new ArrayList<>();
         
         // create non-unique list of all entity classes
         for (Entity ent : entities) {
@@ -40,7 +40,7 @@ public class EntityTableModel extends ListTableModel {
 
         // create rows and count occurrences of all unique entity classes
         for (String cls : classes) {
-            List<Object> row = new ArrayList<Object>();
+            List<Object> row = new ArrayList<>();
             row.add(cls);
             row.add(Collections.frequency(entityStrings, cls));
             addRow(row);

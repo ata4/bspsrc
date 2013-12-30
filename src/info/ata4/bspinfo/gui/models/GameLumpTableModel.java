@@ -40,7 +40,7 @@ public class GameLumpTableModel extends ListTableModel {
         }
   
         for (GameLump l : lumps) {
-            List<Object> row = new ArrayList<Object>();
+            List<Object> row = new ArrayList<>();
             row.add(l.getName());
             row.add(l.getLength());
             row.add(Math.round(l.getLength() / lumpSize * 100f));

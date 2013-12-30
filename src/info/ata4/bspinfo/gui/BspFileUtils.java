@@ -29,6 +29,9 @@ public class BspFileUtils {
     
     private static final Logger L = Logger.getLogger(BspFileUtils.class.getName());
     
+    private BspFileUtils() {
+    }
+    
     static void extractLump(BspFile bspFile, File destDir, LumpType type) throws IOException {
         FileUtils.forceMkdir(destDir);
 

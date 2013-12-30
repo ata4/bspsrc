@@ -41,7 +41,7 @@ public class LumpTableModel extends ListTableModel {
         }
   
         for (Lump l : lumps) {
-            List<Object> row = new ArrayList<Object>();
+            List<Object> row = new ArrayList<>();
             row.add(l.getIndex());
             row.add(l.getName());
             row.add(l.getLength());

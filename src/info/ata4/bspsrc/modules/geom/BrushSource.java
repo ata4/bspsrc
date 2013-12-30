@@ -52,14 +52,14 @@ public class BrushSource extends ModuleDecompile {
     private final VmfMeta vmfmeta;
 
     // additional model data
-    private List<DBrushModel> models = new ArrayList<DBrushModel>();
+    private List<DBrushModel> models = new ArrayList<>();
     
     // amount of world brushes
     private int worldbrushes = 0;
     
     // brush side ID mappings
-    private Map<Integer, Integer> brushSideToID = new HashMap<Integer, Integer>();
-    private Map<Integer, Integer> brushIndexToID = new HashMap<Integer, Integer>();
+    private Map<Integer, Integer> brushSideToID = new HashMap<>();
+    private Map<Integer, Integer> brushIndexToID = new HashMap<>();
 
     public BrushSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
             TextureSource texsrc, BspProtection bspprot, VmfMeta vmfmeta) {
@@ -174,7 +174,7 @@ public class BrushSource extends ModuleDecompile {
         // map brush index to ID
         brushIndexToID.put(ibrush, brushID);
 
-        Map<Integer, Winding> validBrushSides = new HashMap<Integer, Winding>();
+        Map<Integer, Winding> validBrushSides = new HashMap<>();
 
         // check and preprocess the brush sides before writing the brush
         for (int i = 0; i < brush.numside; i++) {
@@ -404,7 +404,7 @@ public class BrushSource extends ModuleDecompile {
     }
     
     private class BrushSideException extends Exception {
-        public BrushSideException(String message) {
+        BrushSideException(String message) {
             super(message);
         }
     }

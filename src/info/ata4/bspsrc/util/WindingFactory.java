@@ -29,11 +29,11 @@ import java.util.Map;
  */
 public class WindingFactory {
     
-    private static Map<DFace, Winding> faceCache = new HashMap<DFace, Winding>();
-    private static Map<Integer, Winding> brushSideCache = new HashMap<Integer, Winding>();
-    private static Map<DAreaportal, Winding> areaportalCache = new HashMap<DAreaportal, Winding>();
-    private static Map<DOccluderPolyData, Winding> occluderCache = new HashMap<DOccluderPolyData, Winding>();
-    private static Map<DPlane, Winding> planeCache = new HashMap<DPlane, Winding>();
+    private static Map<DFace, Winding> faceCache = new HashMap<>();
+    private static Map<Integer, Winding> brushSideCache = new HashMap<>();
+    private static Map<DAreaportal, Winding> areaportalCache = new HashMap<>();
+    private static Map<DOccluderPolyData, Winding> occluderCache = new HashMap<>();
+    private static Map<DPlane, Winding> planeCache = new HashMap<>();
     
     private WindingFactory() {
     }
@@ -59,7 +59,7 @@ public class WindingFactory {
             return faceCache.get(face);
         }
         
-        List<Vector3f> verts = new ArrayList<Vector3f>();
+        List<Vector3f> verts = new ArrayList<>();
         
         for (int i = 0; i < face.numedge; i++) {
             int v;
@@ -163,7 +163,7 @@ public class WindingFactory {
             return areaportalCache.get(ap);
         }
         
-        List<Vector3f> verts = new ArrayList<Vector3f>();
+        List<Vector3f> verts = new ArrayList<>();
         
         for (int i = 0; i < ap.clipPortalVerts; i++) {
             int pvi = ap.firstClipPortalVert + i;
@@ -189,7 +189,7 @@ public class WindingFactory {
             return occluderCache.get(opd);
         }
         
-        List<Vector3f> verts = new ArrayList<Vector3f>();
+        List<Vector3f> verts = new ArrayList<>();
 
         for (int k = 0; k < opd.vertexcount; k++) {
             int pvi = bsp.occluderVerts.get(opd.firstvertexindex + k);
@@ -265,7 +265,7 @@ public class WindingFactory {
         vup = vup.scalar(Winding.MAX_LEN);
         vrt = vrt.scalar(Winding.MAX_LEN);
         
-        List<Vector3f> verts = new ArrayList<Vector3f>();
+        List<Vector3f> verts = new ArrayList<>();
 
         // move diagonally away from org to create the corner verts
         verts.add(org.sub(vrt).add(vup)); // left up

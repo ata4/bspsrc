@@ -18,7 +18,7 @@ public class ListTableModel extends RowTableModel<List> {
      *
      */
     protected static List<String> newList(int size) {
-        ArrayList<String> list = new ArrayList<String>(size);
+        ArrayList<String> list = new ArrayList<>(size);
 
         for (int i = 0; i < size; i++) {
             list.add(null);
@@ -67,7 +67,7 @@ public class ListTableModel extends RowTableModel<List> {
         super(newList(columns));
         setRowClass(List.class);
 
-        List<List> data = new ArrayList<List>(rows);
+        List<List> data = new ArrayList<>(rows);
 
         for (int i = 0; i < rows; i++) {
             data.add(new ArrayList(columns));
@@ -113,6 +113,7 @@ public class ListTableModel extends RowTableModel<List> {
      * @exception IndexOutOfBoundsException if an invalid row or column was
      * given
      */
+    @Override
     public Object getValueAt(int row, int column) {
         List rowData = getRow(row);
         return rowData.get(column);
@@ -211,7 +212,7 @@ public class ListTableModel extends RowTableModel<List> {
      * @param rowArray each item in the Array is a separate row of data
      */
     public void insertRows(int row, Object[][] rowArray) {
-        List<List> data = new ArrayList<List>(rowArray.length);
+        List<List> data = new ArrayList<>(rowArray.length);
 
         for (int i = 0; i < rowArray.length; i++) {
             data.add(copyToList(rowArray[i]));
@@ -225,7 +226,7 @@ public class ListTableModel extends RowTableModel<List> {
      * model
      */
     private List copyToList(Object[] rowData) {
-        List<Object> row = new ArrayList<Object>(rowData.length);
+        List<Object> row = new ArrayList<>(rowData.length);
         row.addAll(Arrays.asList(rowData));
         return row;
     }
@@ -248,7 +249,7 @@ public class ListTableModel extends RowTableModel<List> {
 
         //  Create empty model using the column names
 
-        ArrayList<String> columnNames = new ArrayList<String>();
+        ArrayList<String> columnNames = new ArrayList<>();
 
         for (int i = 1; i <= columns; i++) {
             String columnName = metaData.getColumnName(i);
@@ -276,10 +277,10 @@ public class ListTableModel extends RowTableModel<List> {
 
         //  Get row data
 
-        ArrayList<List> data = new ArrayList<List>();
+        ArrayList<List> data = new ArrayList<>();
 
         while (resultSet.next()) {
-            ArrayList<Object> row = new ArrayList<Object>(columns);
+            ArrayList<Object> row = new ArrayList<>(columns);
 
             for (int i = 1; i <= columns; i++) {
                 Object o = resultSet.getObject(i);

@@ -1321,7 +1321,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         // set waiting cursor
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
         TableModel model = tableEmbedded.getModel();
         RowSorter sorter = tableEmbedded.getRowSorter();
 

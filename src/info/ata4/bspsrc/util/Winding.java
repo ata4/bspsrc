@@ -209,7 +209,7 @@ public class Winding implements List<Vector3f> {
             return this;
         }
         
-        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
+        ArrayList<Vector3f> vertsNew = new ArrayList<>();
         
         final int size = verts.size();
 
@@ -236,7 +236,7 @@ public class Winding implements List<Vector3f> {
             return this;
         }
         
-        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
+        ArrayList<Vector3f> vertsNew = new ArrayList<>();
         
         final int size = verts.size();
 
@@ -264,7 +264,7 @@ public class Winding implements List<Vector3f> {
             return this;
         }
 
-        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
+        ArrayList<Vector3f> vertsNew = new ArrayList<>();
         
         for (Vector3f vert : verts) {
             vertsNew.add(vert.rotate(angles));
@@ -278,7 +278,7 @@ public class Winding implements List<Vector3f> {
             return this;
         }
         
-        ArrayList<Vector3f> vertsNew = new ArrayList<Vector3f>();
+        ArrayList<Vector3f> vertsNew = new ArrayList<>();
         
         for (Vector3f vert : verts) {
             vertsNew.add(vert.add(offset));
@@ -292,7 +292,7 @@ public class Winding implements List<Vector3f> {
             return this;
         }
         
-        List<Vector3f> vertsNew = new ArrayList<Vector3f>();
+        List<Vector3f> vertsNew = new ArrayList<>();
         
         final int size = verts.size();
         

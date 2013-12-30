@@ -19,7 +19,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.io.IOUtils;
 
 /**
  *
@@ -38,24 +37,16 @@ public class EmbeddedTableModel extends ListTableModel {
     public EmbeddedTableModel(BspFile bspFile) {
         this();
         
-        ZipArchiveInputStream zis = null;
-        int files = 0;
-
-        try {
-            zis = bspFile.getPakFile().getArchiveInputStream();
-
-            try {
-                for (ZipArchiveEntry ze; (ze = zis.getNextZipEntry()) != null; files++) {
-                    List<Object> row = new ArrayList<Object>();
-                    row.add(ze.getName());
-                    row.add(ze.getSize());
-                    addRow(row);
-                }
-            } catch (IOException ex) {
-                L.log(Level.WARNING, "Can't read pak");
+        try (ZipArchiveInputStream zis = bspFile.getPakFile().getArchiveInputStream()) {
+            ZipArchiveEntry ze;
+            while ((ze = zis.getNextZipEntry()) != null) {
+                List<Object> row = new ArrayList<>();
+                row.add(ze.getName());
+                row.add(ze.getSize());
+                addRow(row);
             }
-        } finally {
-            IOUtils.closeQuietly(zis);
+        } catch (IOException ex) {
+            L.log(Level.WARNING, "Can't read pak");
         }
     }
 

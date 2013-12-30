@@ -28,7 +28,7 @@ public class ConsoleFormatter extends Formatter {
     private static final Map<Level, String> LEVEL_PREFIX;
     
     static {
-        Map<Level, String> levelPrefix = new HashMap<Level, String>();
+        Map<Level, String> levelPrefix = new HashMap<>();
         levelPrefix.put(Level.CONFIG,  "[config]");
         levelPrefix.put(Level.FINE,    "[debug]");
         levelPrefix.put(Level.FINER,   "[debug]");

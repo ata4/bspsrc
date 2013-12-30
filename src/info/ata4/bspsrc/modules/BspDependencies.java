@@ -31,7 +31,7 @@ public class BspDependencies extends ModuleRead {
     }
 
     public Set<String> getMaterials() {
-        Set<String> materials = new TreeSet<String>();
+        Set<String> materials = new TreeSet<>();
         TextureSource texsrc = new TextureSource(reader);
 
         // add all texnames
@@ -70,7 +70,7 @@ public class BspDependencies extends ModuleRead {
     public Set<String> getModels() {
         reader.loadStaticProps();
         
-        TreeSet<String> models = new TreeSet<String>();
+        TreeSet<String> models = new TreeSet<>();
         
         // add entity models
         for (Entity ent : bsp.entities) {
@@ -91,7 +91,7 @@ public class BspDependencies extends ModuleRead {
     }
     
     public Set<String> getSoundFiles() {
-        Set<String> soundFiles = new TreeSet<String>();
+        Set<String> soundFiles = new TreeSet<>();
         
         for (Entity ent : bsp.entities) {
             for (Map.Entry<String, String> kv : ent.getEntrySet()) {
@@ -116,7 +116,7 @@ public class BspDependencies extends ModuleRead {
     
  
     public Set<String> getSoundScripts() {
-        Set<String> soundScripts = new TreeSet<String>();
+        Set<String> soundScripts = new TreeSet<>();
 
         for (Entity ent : bsp.entities) {
             for (Map.Entry<String, String> kv : ent.getEntrySet()) {
@@ -148,7 +148,7 @@ public class BspDependencies extends ModuleRead {
     }
 
     public Set<String> getSoundscapes() {
-        Set<String> soundScapes = new TreeSet<String>();
+        Set<String> soundScapes = new TreeSet<>();
 
         for (Entity ent : bsp.entities) {
             if (ent.getClassName().equals("env_soundscape")) {
@@ -160,7 +160,7 @@ public class BspDependencies extends ModuleRead {
     }
     
     public Set<String> getParticles() {
-        Set<String> particles = new TreeSet<String>();
+        Set<String> particles = new TreeSet<>();
         
         for (Entity ent : bsp.entities) {
             try {

@@ -40,9 +40,9 @@ public class TextureSource extends ModuleRead {
     private static final Pattern mapPattern = Pattern.compile("^maps/[^/]+/");
     
     // ID mappings
-    private Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<Integer, Set<Integer>>();
-    private Map<Integer, Integer> texnameToCubemap = new HashMap<Integer, Integer>();
-    public List<String> texnamesFixed = new ArrayList<String>();
+    private Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<>();
+    private Map<Integer, Integer> texnameToCubemap = new HashMap<>();
+    public List<String> texnamesFixed = new ArrayList<>();
     
     // settings
     public boolean useFixedTexnames;

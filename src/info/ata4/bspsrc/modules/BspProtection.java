@@ -70,8 +70,8 @@ public class BspProtection extends ModuleRead {
     private boolean modifedTexinfo;
     
     // lists of protecting elements
-    private List<DBrush> protBrushes = new ArrayList<DBrush>();
-    private List<Entity> protEntities = new ArrayList<Entity>();
+    private List<DBrush> protBrushes = new ArrayList<>();
+    private List<Entity> protEntities = new ArrayList<>();
     
     public BspProtection(BspFileReader reader, TextureSource texsrc) {
         super(reader);
@@ -141,7 +141,7 @@ public class BspProtection extends ModuleRead {
      * @return list of method strings
      */
     public List<String> getProtectionMethods() {
-        List<String> methods = new ArrayList<String>();
+        List<String> methods = new ArrayList<>();
         
         if (hasEntityFlag()) {
             methods.add("VMEX entity flag (no_decomp)");
@@ -176,7 +176,7 @@ public class BspProtection extends ModuleRead {
      * @return list of protector brushes
      */
     public List<DBrush> getProtectedBrushes() {
-        List<DBrush> list = new ArrayList<DBrush>();
+        List<DBrush> list = new ArrayList<>();
         list.addAll(protBrushes);
         return list;
     }
@@ -197,7 +197,7 @@ public class BspProtection extends ModuleRead {
      * @return list of protector entities
      */
     public List<Entity> getProtectedEntities() {
-        List<Entity> list = new ArrayList<Entity>();
+        List<Entity> list = new ArrayList<>();
         list.addAll(protEntities);
         return list;
     }
@@ -342,11 +342,8 @@ public class BspProtection extends ModuleRead {
             return;
         }
 
-        ZipArchiveInputStream zis = bspFile.getPakFile().getArchiveInputStream();
-
-        try {
+        try (ZipArchiveInputStream zis = bspFile.getPakFile().getArchiveInputStream()) {
             ZipArchiveEntry ze;
-
             while ((ze = zis.getNextZipEntry()) != null) {
                 if (ze.getName().equals(BSPPROTECT_FILE)) {
                     L.fine("Found encrypted entities!");
@@ -359,8 +356,6 @@ public class BspProtection extends ModuleRead {
 
             // pakfile broken or missing?
             encryptedEnt = false;
-        } finally {
-            IOUtils.closeQuietly(zis);
         }
     }
 

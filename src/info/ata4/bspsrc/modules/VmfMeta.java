@@ -33,21 +33,21 @@ public class VmfMeta extends ModuleDecompile {
     private static final Logger L = Logger.getLogger(VmfMeta.class.getName());
     
     // UID mappings
-    private Map<Integer, Integer> faceUIDs = new HashMap<Integer, Integer>();
-    private Map<Integer, Integer> origFaceUIDs = new HashMap<Integer, Integer>();
-    private Map<Short, Integer> dispinfoUIDs = new HashMap<Short, Integer>();
+    private Map<Integer, Integer> faceUIDs = new HashMap<>();
+    private Map<Integer, Integer> origFaceUIDs = new HashMap<>();
+    private Map<Short, Integer> dispinfoUIDs = new HashMap<>();
     
     // UID blacklist
-    private Set<Integer> uidbl = new HashSet<Integer>();
+    private Set<Integer> uidbl = new HashSet<>();
     
     // VMF unique ID
     private int uid = 0;
     
     // visgroup list
-    private List<String> visgroups = new ArrayList<String>();
+    private List<String> visgroups = new ArrayList<>();
     
     // camera list
-    private List<Camera> cameras = new ArrayList<Camera>();
+    private List<Camera> cameras = new ArrayList<>();
 
     private Entity worldspawn;
     private String comment;

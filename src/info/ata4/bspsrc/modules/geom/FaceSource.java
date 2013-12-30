@@ -58,10 +58,10 @@ public class FaceSource extends ModuleDecompile {
     private final VmfMeta vmfmeta;
     
     // mapped original faces
-    public Map<Integer, Set<Integer>> origFaceToSplitFace = new HashMap<Integer, Set<Integer>>();
+    public Map<Integer, Set<Integer>> origFaceToSplitFace = new HashMap<>();
     
     // set of face indices that are undersized
-    private Set<Integer> undersizedFaces = new HashSet<Integer>();
+    private Set<Integer> undersizedFaces = new HashSet<>();
     
     // current offset in multiblend lump
     private int multiblendOffset;
@@ -111,7 +111,7 @@ public class FaceSource extends ModuleDecompile {
         L.info("Writing original faces");
         
         // set of face indices that are already written
-        Set<Integer> writtenFaces = new HashSet<Integer>();
+        Set<Integer> writtenFaces = new HashSet<>();
 
         DModel model = bsp.models.get(0); // Model 0 = world brushes
 
@@ -146,7 +146,7 @@ public class FaceSource extends ModuleDecompile {
         createFaceMapping();
         
         // set of face indices that are already written
-        Set<Integer> writtenFaces = new HashSet<Integer>();
+        Set<Integer> writtenFaces = new HashSet<>();
         
         L.info("Writing original faces where possible");
 
@@ -588,15 +588,15 @@ public class FaceSource extends ModuleDecompile {
     public void writeDisplacement(int idispinfo) {
         DDispInfo di = bsp.dispinfos.get(idispinfo);
         
-        Map<String, String> normalMap = new LinkedHashMap<String, String>();
-        Map<String, String> distanceMap = new LinkedHashMap<String, String>();
-        Map<String, String> alphaMap = new LinkedHashMap<String, String>();
-        Map<String, String> triangleTagMap = new LinkedHashMap<String, String>();
+        Map<String, String> normalMap = new LinkedHashMap<>();
+        Map<String, String> distanceMap = new LinkedHashMap<>();
+        Map<String, String> alphaMap = new LinkedHashMap<>();
+        Map<String, String> triangleTagMap = new LinkedHashMap<>();
         
-        Map<String, String> multiBlendMap = new LinkedHashMap<String, String>();
-        Map<String, String> alphaBlendMap = new LinkedHashMap<String, String>();
+        Map<String, String> multiBlendMap = new LinkedHashMap<>();
+        Map<String, String> alphaBlendMap = new LinkedHashMap<>();
 
-        List<Map<String, String>> multiBlendColorMaps = new ArrayList<Map<String, String>>(DDispMultiBlend.MAX_MULTIBLEND_CHANNELS);
+        List<Map<String, String>> multiBlendColorMaps = new ArrayList<>(DDispMultiBlend.MAX_MULTIBLEND_CHANNELS);
         for (int i = 0; i < DDispMultiBlend.MAX_MULTIBLEND_CHANNELS; i++) {
             multiBlendColorMaps.add(new LinkedHashMap<String, String>());
         }
@@ -606,7 +606,7 @@ public class FaceSource extends ModuleDecompile {
         StringBuilder alphaSb = new StringBuilder();
         StringBuilder multiblendSb = new StringBuilder();
         StringBuilder alphablendSb = new StringBuilder();
-        List<StringBuilder> multiblendColorSbs = new ArrayList<StringBuilder>(DDispMultiBlend.MAX_MULTIBLEND_CHANNELS);
+        List<StringBuilder> multiblendColorSbs = new ArrayList<>(DDispMultiBlend.MAX_MULTIBLEND_CHANNELS);
         for (int i = 0; i < DDispMultiBlend.MAX_MULTIBLEND_CHANNELS; i++) {
             multiblendColorSbs.add(new StringBuilder());
         }
@@ -818,7 +818,8 @@ public class FaceSource extends ModuleDecompile {
             if (origFaceToSplitFace.containsKey(o)) {
                 faceSet = origFaceToSplitFace.get(o);
             } else {
-                origFaceToSplitFace.put(o, faceSet = new HashSet<Integer>());
+                faceSet = new HashSet<>();
+                origFaceToSplitFace.put(o, faceSet);
             }
 
             //  add this face to the set

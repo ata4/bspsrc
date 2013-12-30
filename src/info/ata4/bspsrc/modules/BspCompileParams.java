@@ -14,12 +14,12 @@ import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bsplib.struct.LevelFlag;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.io.IOUtils;
 
 /**
  *
@@ -29,9 +29,9 @@ public class BspCompileParams extends ModuleRead {
     
     private static final Logger L = Logger.getLogger(BspCompileParams.class.getName());
     
-    private List<String> vbspParams = new ArrayList<String>();
-    private List<String> vvisParams = new ArrayList<String>();
-    private List<String> vradParams = new ArrayList<String>();
+    private List<String> vbspParams = new ArrayList<>();
+    private List<String> vvisParams = new ArrayList<>();
+    private List<String> vradParams = new ArrayList<>();
     
     private boolean vvisRun = false;
     private boolean vradRun = false;
@@ -44,11 +44,8 @@ public class BspCompileParams extends ModuleRead {
         boolean stale = false;
         boolean hasVhv = false;
 
-        ZipArchiveInputStream zis = bspFile.getPakFile().getArchiveInputStream();
-
-        try {
+        try (ZipArchiveInputStream zis = bspFile.getPakFile().getArchiveInputStream()) {
             ZipArchiveEntry ze;
-            
             while ((ze = zis.getNextZipEntry()) != null) {
                 // check for stale.txt, which marks possibly screwed up maps
                 if (ze.getName().equals("stale.txt")) {
@@ -67,8 +64,6 @@ public class BspCompileParams extends ModuleRead {
             }
         } catch (IOException ex) {
             L.log(Level.WARNING, "Couldn''t read pakfile", ex);
-        } finally {
-            IOUtils.closeQuietly(zis);
         }
 
         // both parameters produce marked files, there's probably no way to
@@ -110,15 +105,15 @@ public class BspCompileParams extends ModuleRead {
     }
 
     public List<String> getVbspParams() {
-        return vbspParams;
+        return Collections.unmodifiableList(vbspParams);
     }
 
     public List<String> getVvisParams() {
-        return vvisParams;
+        return Collections.unmodifiableList(vvisParams);
     }
 
     public List<String> getVradParams() {
-        return vradParams;
+        return Collections.unmodifiableList(vradParams);
     }
 
     public boolean isVvisRun() {

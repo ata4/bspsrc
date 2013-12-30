@@ -33,7 +33,7 @@ public class VmfWriter implements Closeable {
     private static final Logger L = Logger.getLogger(VmfWriter.class.getName());
 
     private final PrintWriter pw;
-    private final Stack<String> section = new Stack<String>();
+    private final Stack<String> section = new Stack<>();
 
     public VmfWriter(File file) throws FileNotFoundException, UnsupportedEncodingException {
         pw = new PrintWriter(file, "US-ASCII");

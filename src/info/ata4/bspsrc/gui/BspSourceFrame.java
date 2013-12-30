@@ -45,7 +45,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
     private BspSourceConfig config;
     private BspSourceLogFrame logFrame;
     private FileDrop fdrop;
-    private DefaultListModel<BspFileEntry> listFilesModel = new DefaultListModel<BspFileEntry>();
+    private DefaultListModel<BspFileEntry> listFilesModel = new DefaultListModel<>();
     
     /**
      * @param args the command line arguments
@@ -99,11 +99,11 @@ public class BspSourceFrame extends javax.swing.JFrame {
     }
 
     public ComboBoxModel getFaceTextureModel() {
-        return new DefaultComboBoxModel<EnumToolTexture>(EnumToolTexture.values());
+        return new DefaultComboBoxModel<>(EnumToolTexture.values());
     }
     
     public ComboBoxModel getAppIDModel() {
-        DefaultComboBoxModel<SourceApp> cbmodel = new DefaultComboBoxModel<SourceApp>();
+        DefaultComboBoxModel<SourceApp> cbmodel = new DefaultComboBoxModel<>();
         cbmodel.addElement(new SourceApp("Automatic", 0));
         
         List<SourceApp> apps = SourceAppDB.getInstance().getAppList();
@@ -116,11 +116,11 @@ public class BspSourceFrame extends javax.swing.JFrame {
     }
     
     public ComboBoxModel getBrushModeModel() {
-        return new DefaultComboBoxModel<BrushMode>(BrushMode.values());
+        return new DefaultComboBoxModel<>(BrushMode.values());
     }
     
     public ComboBoxModel getSourceFormatModel() {
-        return new DefaultComboBoxModel<SourceFormat>(SourceFormat.values());
+        return new DefaultComboBoxModel<>(SourceFormat.values());
     }
     
     public ListModel getFilesModel() {

@@ -39,14 +39,10 @@ public class BspChecksum extends ModuleRead {
             if (lump.getType() == LumpType.LUMP_ENTITIES) {
                 continue;
             }
-            
-            InputStream in = null;
-            try {
-                in = new CheckedInputStream(lump.getInputStream(), crc);
+
+            try (InputStream in = new CheckedInputStream(lump.getInputStream(), crc)) {
                 // copy to /dev/null, we need the checksum only
                 IOUtils.copy(in, new NullOutputStream());
-            } finally {
-                IOUtils.closeQuietly(in);
             }
         }
         

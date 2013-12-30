@@ -255,6 +255,7 @@ public class FileDrop {
         if (supportsDnD()) {   // Make a drop listener
             dropListener = new DropTargetListener() {
 
+                @Override
                 public void dragEnter(DropTargetDragEvent evt) {
                     log(out, "FileDrop: dragEnter event.");
 
@@ -421,7 +422,7 @@ public class FileDrop {
 
     private static File[] createFileArray(BufferedReader bReader, PrintStream out) {
         try {
-            List<File> list = new ArrayList<File>();
+            List<File> list = new ArrayList<>();
             String line;
             while ((line = bReader.readLine()) != null) {
                 try {
