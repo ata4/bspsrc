@@ -71,6 +71,7 @@ public final class Vector3f extends VectorXf {
      * @param index component index
      * @return component value
      */
+    @Override
     public float get(int index) {
         switch (index) {
             case 0:
@@ -91,6 +92,7 @@ public final class Vector3f extends VectorXf {
      * @param value new component value
      * @return vector with new value
      */
+    @Override
     public Vector3f set(int index, float value) {
         switch (index) {
             case 0:

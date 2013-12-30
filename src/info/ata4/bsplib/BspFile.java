@@ -63,10 +63,10 @@ public class BspFile {
     private String name;
 
     // lump table
-    private List<Lump> lumps = new ArrayList<Lump>(HEADER_LUMPS);
+    private List<Lump> lumps = new ArrayList<>(HEADER_LUMPS);
     
     // game lump data
-    private List<GameLump> gameLumps = new ArrayList<GameLump>();
+    private List<GameLump> gameLumps = new ArrayList<>();
 
     // fields from dheader_t
     private int version;
@@ -617,7 +617,7 @@ public class BspFile {
      * @return lump array
      */
     public List<Lump> getLumps() {
-        return new ArrayList<Lump>(lumps);
+        return Collections.unmodifiableList(lumps);
     }
 
     /**
@@ -660,7 +660,7 @@ public class BspFile {
      * @return game lump list
      */
     public List<GameLump> getGameLumps() {
-        return new ArrayList<GameLump>(gameLumps);
+        return Collections.unmodifiableList(gameLumps);
     }
 
     /**

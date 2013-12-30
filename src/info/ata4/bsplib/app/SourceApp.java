@@ -34,7 +34,7 @@ public class SourceApp {
     private int versionMax = -1;
     private String filePattern;
     private Pattern filePatternCompiled;
-    private Set<String> entities = new HashSet<String>();
+    private Set<String> entities = new HashSet<>();
     private float pointsEntities = 20;
     private float pointsFilePattern = 3;
     

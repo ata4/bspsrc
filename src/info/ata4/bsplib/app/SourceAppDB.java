@@ -27,8 +27,8 @@ public class SourceAppDB {
     private static final Logger L = Logger.getLogger(SourceAppDB.class.getName());
     private static SourceAppDB instance;
     
-    private List<SourceApp> appList = new ArrayList<SourceApp>();
-    private Map<Integer, SourceApp> appMap = new HashMap<Integer, SourceApp>();
+    private List<SourceApp> appList = new ArrayList<>();
+    private Map<Integer, SourceApp> appMap = new HashMap<>();
     private float score;
     
     public static SourceAppDB getInstance() {
@@ -40,38 +40,28 @@ public class SourceAppDB {
     }
 
     private SourceAppDB() {
-        load(getClass().getResourceAsStream("appdb.xml"));
-    }
-
-    private SourceAppDB(InputStream is) {
-        load(is);
-    }
-    
-    private void load(InputStream is) {
         SAXParserFactory spf = SAXParserFactory.newInstance();
-        
-        try {
+
+        try (InputStream is = getClass().getResourceAsStream("appdb.xml")) {
             SAXParser sp = spf.newSAXParser();
             SourceAppHandler handler = new SourceAppHandler();
             sp.parse(is, handler);
             appList = handler.getAppList();
-            
+
             // generate ID map for validation and faster access
             for (SourceApp app : appList) {
                 Integer appID = app.getAppID();
-                
+
                 // warn if we have more than one app for an ID
                 if (appMap.containsKey(appID)) {
                     L.log(Level.WARNING, "Duplicate App ID {0} for \"{1}\" and \"{2}\"",
                             new Object[]{appID, appMap.get(appID), app});
                 }
-                
+
                 appMap.put(appID, app);
             }
         } catch (Exception ex) {
             L.log(Level.SEVERE, "Can't load Source application database", ex);
-        } finally {
-            IOUtils.closeQuietly(is);
         }
     }
     
@@ -153,6 +143,6 @@ public class SourceAppDB {
      * @return list of Source apps
      */
     public List<SourceApp> getAppList() {
-        return new ArrayList<SourceApp>(appList);
+        return Collections.unmodifiableList(appList);
     }
 }

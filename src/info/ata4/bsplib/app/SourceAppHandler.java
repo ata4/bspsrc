@@ -11,6 +11,7 @@ package info.ata4.bsplib.app;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import org.apache.commons.io.LineIterator;
@@ -27,7 +28,7 @@ public class SourceAppHandler extends DefaultHandler {
     
     private static final Logger L = Logger.getLogger(SourceAppHandler.class.getName());
     
-    private List<SourceApp> appList = new ArrayList<SourceApp>();
+    private List<SourceApp> appList = new ArrayList<>();
     private SourceApp currentApp;
     private String currentElement;
     private StringBuilder entitiesBuf = new StringBuilder(4096);
@@ -60,28 +61,31 @@ public class SourceAppHandler extends DefaultHandler {
             return;
         }
         
-        if (qName.equals("version")) {
-            String minVers = attributes.getValue("min");
-            String maxVers = attributes.getValue("max");
-            
-            if (minVers != null) {
-                currentApp.setVersionMin(Integer.valueOf(minVers));
-            }
-            if (maxVers != null) {
-                currentApp.setVersionMax(Integer.valueOf(maxVers));
-            }
-        } else if (qName.equals("entities")) {
-            String points = attributes.getValue("points");
-            
-            if (points != null) {
-                currentApp.setPointsEntities(Float.valueOf(points));
-            }
-        } else if (qName.equals("files")) {
-            String points = attributes.getValue("points");
-            
-            if (points != null) {
-                currentApp.setPointsFilePattern(Float.valueOf(points));
-            }
+        switch (qName) {
+            case "version":
+                String minVers = attributes.getValue("min");
+                String maxVers = attributes.getValue("max");
+                if (minVers != null) {
+                    currentApp.setVersionMin(Integer.valueOf(minVers));
+                }
+                if (maxVers != null) {
+                    currentApp.setVersionMax(Integer.valueOf(maxVers));
+                }
+                break;
+
+            case "entities":
+                String pointsEntities = attributes.getValue("points");
+                if (pointsEntities != null) {
+                    currentApp.setPointsEntities(Float.valueOf(pointsEntities));
+                }
+                break;
+
+            case "files":
+                String pointsFiles = attributes.getValue("points");
+                if (pointsFiles != null) {
+                    currentApp.setPointsFilePattern(Float.valueOf(pointsFiles));
+                }
+                break;
         }
     }
     
@@ -116,18 +120,21 @@ public class SourceAppHandler extends DefaultHandler {
         if (currentApp == null) {
             return;
         }
-        
-        if (currentElement.equals("entities")) {
-            entitiesBuf.append(ch, start, length);
-        } else if (currentElement.equals("files")) {
-            String content = new String(ch, start, length);
-            if (!content.trim().isEmpty()) {
-                currentApp.setFilePattern(content);
-            }
+        switch (currentElement) {
+            case "entities":
+                entitiesBuf.append(ch, start, length);
+                break;
+
+            case "files":
+                String content = new String(ch, start, length);
+                if (!content.trim().isEmpty()) {
+                    currentApp.setFilePattern(content);
+                }
+                break;
         }
     }
 
     public List<SourceApp> getAppList() {
-        return appList;
+        return Collections.unmodifiableList(appList);
     }
 }

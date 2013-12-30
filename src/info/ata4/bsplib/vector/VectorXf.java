@@ -117,6 +117,7 @@ public abstract class VectorXf implements Iterable<Float> {
         return sb.toString();
     }
 
+    @Override
     public Iterator<Float> iterator() {
         return new ValueIterator();
     }
@@ -128,14 +129,17 @@ public abstract class VectorXf implements Iterable<Float> {
         
         private int index;
         
+        @Override
         public boolean hasNext() {
             return index < size;
         }
 
+        @Override
         public Float next() {
             return get(index++);
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException("Can't remove immutable vector component");
         }

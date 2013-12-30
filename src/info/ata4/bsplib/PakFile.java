@@ -49,12 +49,9 @@ public class PakFile {
     public void unpack(File dest, boolean direct) throws IOException {
         if (direct) {
             L.log(Level.INFO, "Extracting pakfile to {0}", dest);
-            InputStream is = pakLump.getInputStream();
-            
-            try {
+
+            try (InputStream is = pakLump.getInputStream()) {
                 FileUtils.copyInputStreamToFile(is, dest);
-            } finally {
-                IOUtils.closeQuietly(is);
             }
         } else {
             unpack(dest, null);
@@ -62,15 +59,13 @@ public class PakFile {
     }
     
     public void unpack(File dest, List<String> names) throws IOException {
-        ZipArchiveInputStream zis = getArchiveInputStream();
-        ZipArchiveEntry ze;
-
-        try {
-            FileUtils.forceMkdir(dest);
-            
+        FileUtils.forceMkdir(dest);
+        
+        try (ZipArchiveInputStream zis = getArchiveInputStream()) {
+            ZipArchiveEntry ze;
             while ((ze = zis.getNextZipEntry()) != null) {
                 String zipName = ze.getName();
-                
+
                 if (names != null && !names.contains(zipName)) {
                     continue;
                 }
@@ -92,8 +87,6 @@ public class PakFile {
                 InputStream cszis = new CloseShieldInputStream(zis);
                 FileUtils.copyInputStreamToFile(cszis, entryFile);
             }
-        } finally {
-            IOUtils.closeQuietly(zis);
         }
     }
 }

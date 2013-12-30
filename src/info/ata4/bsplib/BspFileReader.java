@@ -20,6 +20,7 @@ import info.ata4.bsplib.struct.*;
 import info.ata4.util.EnumConverter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -42,7 +43,7 @@ public class BspFileReader {
     private int appID;
 
     // statistical stuff
-    private Set<String> entityClasses = new TreeSet<String>();
+    private Set<String> entityClasses = new TreeSet<>();
 
     public BspFileReader(BspFile bspFile) throws IOException {
         this.bspFile = bspFile;
@@ -238,7 +239,7 @@ public class BspFileReader {
 
         if (sprpLump == null) {
             // static prop lump not available
-            bsp.staticProps = new ArrayList<DStaticProp>();
+            bsp.staticProps = new ArrayList<>();
             return;
         }
 
@@ -251,7 +252,7 @@ public class BspFileReader {
             
             L.log(Level.FINE, "Static prop names: {0}", psnames);
             
-            bsp.staticPropName = new ArrayList<String>(psnames);
+            bsp.staticPropName = new ArrayList<>(psnames);
 
             for (int i = 0; i < psnames; i++) {
                 bsp.staticPropName.add(lio.readString(padsize));
@@ -268,7 +269,7 @@ public class BspFileReader {
             
             L.log(Level.FINE, "Static prop leaves: {0}", propleaves);
             
-            bsp.staticPropLeaf = new ArrayList<Integer>(propleaves);
+            bsp.staticPropLeaf = new ArrayList<>(propleaves);
             
             for (int i = 0; i < propleaves; i++) {
                 bsp.staticPropLeaf.add(lio.readUnsignedShort());
@@ -323,7 +324,7 @@ public class BspFileReader {
                 }
             }
             
-            bsp.staticProps = new ArrayList<DStaticProp>(propstatics);
+            bsp.staticProps = new ArrayList<>(propstatics);
             
             for (int i = 0; i < propstatics; i++) {
                 DStaticProp sp = structClass.newInstance();
@@ -464,7 +465,7 @@ public class BspFileReader {
             final int size = 4;
             final int tdsts = lump.getLength() / size;
 
-            bsp.texnames = new ArrayList<String>(tdsts);
+            bsp.texnames = new ArrayList<>(tdsts);
 
             tdst:
             for (int i = 0; i < tdsts; i++) {
@@ -497,13 +498,11 @@ public class BspFileReader {
         L.log(Level.FINE, "Loading {0}", LumpType.LUMP_ENTITIES);
         
         Lump lump = getLump(LumpType.LUMP_ENTITIES);
-        EntityInputStream entReader = null;
-        
-        try {            
-            entReader = new EntityInputStream(lump.getInputStream());
+
+        try (EntityInputStream entReader = new EntityInputStream(lump.getInputStream())) {         
             // allow escaped quotes for VTBM
             entReader.setAllowEscSeq(bspFile.getVersion() == 17);            
-            bsp.entities = new ArrayList<Entity>();
+            bsp.entities = new ArrayList<>();
             
             entityClasses.clear();
             Entity ent;
@@ -511,21 +510,19 @@ public class BspFileReader {
                 bsp.entities.add(ent);
                 entityClasses.add(ent.getClassName());
             }
+
+            // detect appID with heuristics to handle special BSP formats if it's
+            // still unknown or undefined at this point
+            if (appID == SourceAppID.UNKNOWN) {
+                SourceAppDB appDB = SourceAppDB.getInstance();
+                SourceApp app = appDB.find(bspFile.getName(), bspFile.getVersion(), entityClasses);
+                bspFile.setSourceApp(app);
+                appID = app.getAppID();
+            }
         } catch (IOException ex) {
             L.log(Level.SEVERE, "Couldn''t read entity lump", ex);
-        } finally {
-            IOUtils.closeQuietly(entReader);
         }
         
-        // detect appID with heuristics to handle special BSP formats if it's
-        // still unknown or undefined at this point
-        if (entReader != null && appID == SourceAppID.UNKNOWN) {
-            SourceAppDB appDB = SourceAppDB.getInstance();
-            SourceApp app = appDB.find(bspFile.getName(), bspFile.getVersion(), entityClasses);
-            bspFile.setSourceApp(app);
-            appID = app.getAppID();
-        }
-
         L.log(Level.FINE, "Entities: {0}", bsp.entities.size());
     }
 
@@ -633,7 +630,7 @@ public class BspFileReader {
         try {
             // load occluder data
             final int occluders = lump.getLength() == 0 ? 0 : lio.readInt();
-            bsp.occluderDatas = new ArrayList<DOccluderData>(occluders);
+            bsp.occluderDatas = new ArrayList<>(occluders);
 
             for (int i = 0; i < occluders; i++) {
                 DOccluderData od;
@@ -652,7 +649,7 @@ public class BspFileReader {
 
             // load occluder polys
             final int occluderPolys = lump.getLength() == 0 ? 0 : lio.readInt();
-            bsp.occluderPolyDatas = new ArrayList<DOccluderPolyData>(occluderPolys);
+            bsp.occluderPolyDatas = new ArrayList<>(occluderPolys);
 
             for (int i = 0; i < occluderPolys; i++) {
                 DOccluderPolyData opd = new DOccluderPolyData();
@@ -664,7 +661,7 @@ public class BspFileReader {
 
             // load occluder vertices
             final int occluderVertices = lump.getLength() == 0 ? 0 : lio.readInt();
-            bsp.occluderVerts = new ArrayList<Integer>(occluderVertices);
+            bsp.occluderVerts = new ArrayList<>(occluderVertices);
 
             for (int i = 0; i < occluderVertices; i++) {
                 bsp.occluderVerts.add(lio.readInt());
@@ -731,14 +728,14 @@ public class BspFileReader {
     private <E extends DStruct> List<E> loadLump(LumpType lumpType, Class<E> struct) {
         // don't try to read lumps that aren't supported
         if (!bspFile.canReadLump(lumpType)) {
-            return new ArrayList<E>(0);
+            return Collections.EMPTY_LIST;
         }
 
         Lump lump = getLump(lumpType);
         
         // don't try to read empty lumps
         if (lump.getLength() == 0) {
-            return new ArrayList<E>(0);
+            return Collections.EMPTY_LIST;
         }
         
         L.log(Level.FINE, "Loading {0}", lumpType);
@@ -749,7 +746,7 @@ public class BspFileReader {
             final int structSize = struct.newInstance().getSize();            
             final int packetCount = lump.getLength() / structSize;
             
-            List<E> packets = new ArrayList<E>(packetCount);
+            List<E> packets = new ArrayList<>(packetCount);
 
             for (int i = 0; i < packetCount; i++) {
                 E packet = struct.newInstance();
@@ -789,7 +786,7 @@ public class BspFileReader {
             final int size = unsignedShort ? 2 : 4;
             final int arraySize = lump.getLength() / size;
 
-            List<Integer> list = new ArrayList<Integer>(arraySize);
+            List<Integer> list = new ArrayList<>(arraySize);
 
             for (int i = 0; i < arraySize; i++) {
                 if (unsignedShort) {
@@ -836,7 +833,7 @@ public class BspFileReader {
      * @return set of entity class names, null if {@link #loadEntities} hasn't been called yet
      */
     public Set<String> getEntityClassSet() {
-        return entityClasses;
+        return Collections.unmodifiableSet(entityClasses);
     }
 
     public BspFile getBspFile() {

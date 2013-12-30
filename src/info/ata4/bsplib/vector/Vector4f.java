@@ -69,6 +69,7 @@ public final class Vector4f extends VectorXf {
      * @param index component number
      * @return component value
      */
+    @Override
     public float get(int index) {
         switch (index) {
             case 0:
@@ -91,6 +92,7 @@ public final class Vector4f extends VectorXf {
      * @param value new component value
      * @return vector with new value
      */
+    @Override
     public Vector4f set(int index, float value) {
         switch (index) {
             case 0:

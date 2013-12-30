@@ -29,8 +29,8 @@ public class Entity {
 
     private static final Logger L = Logger.getLogger(Entity.class.getName());
     
-    private Map<String, String> keyValue = new LinkedHashMap<String, String>();
-    private List<KeyValue> keyValueIO = new ArrayList<KeyValue>();
+    private Map<String, String> keyValue = new LinkedHashMap<>();
+    private List<KeyValue> keyValueIO = new ArrayList<>();
     private String className;
 
     /**

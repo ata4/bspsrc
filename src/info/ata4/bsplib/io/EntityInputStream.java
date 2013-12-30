@@ -40,7 +40,7 @@ public class EntityInputStream extends CountingInputStream {
         boolean esc = false;
         StringBuilder sb = new StringBuilder(512);
 
-        List<KeyValue> keyValues = new ArrayList<KeyValue>();
+        List<KeyValue> keyValues = new ArrayList<>();
         String key = null;
 
         try {
