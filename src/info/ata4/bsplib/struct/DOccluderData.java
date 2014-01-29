@@ -10,9 +10,9 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -34,20 +34,20 @@ public class DOccluderData implements DStruct {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        flags = lio.readInt();
-        firstpoly = lio.readInt();
-        polycount = lio.readInt();
-        mins = lio.readVector3f();
-        maxs = lio.readVector3f();
+    public void read(DataInputReader in) throws IOException {
+        flags = in.readInt();
+        firstpoly = in.readInt();
+        polycount = in.readInt();
+        mins = Vector3f.read(in);
+        maxs = Vector3f.read(in);
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeInt(flags);
-        lio.writeInt(firstpoly);
-        lio.writeInt(polycount);
-        lio.writeVector3f(mins);
-        lio.writeVector3f(maxs);
+    public void write(DataOutputWriter out) throws IOException {
+        out.writeInt(flags);
+        out.writeInt(firstpoly);
+        out.writeInt(polycount);
+        Vector3f.write(out, mins);
+        Vector3f.write(out, maxs);
     }
 }

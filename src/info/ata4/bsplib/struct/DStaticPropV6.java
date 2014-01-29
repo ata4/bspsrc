@@ -9,8 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -28,16 +28,16 @@ public class DStaticPropV6 extends DStaticPropV5 {
     }
     
     @Override
-    public void read(LumpInput lio) throws IOException {
-        super.read(lio);
-        minDXLevel = lio.readUnsignedShort();
-        maxDXLevel = lio.readUnsignedShort();
+    public void read(DataInputReader in) throws IOException {
+        super.read(in);
+        minDXLevel = in.readUnsignedShort();
+        maxDXLevel = in.readUnsignedShort();
     }
     
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        super.write(lio);
-        lio.writeShort(minDXLevel);
-        lio.writeShort(maxDXLevel);
+    public void write(DataOutputWriter out) throws IOException {
+        super.write(out);
+        out.writeShort(minDXLevel);
+        out.writeShort(maxDXLevel);
     }
 }

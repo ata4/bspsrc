@@ -10,9 +10,9 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -50,44 +50,45 @@ public class DOverlay implements DStruct {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        id = lio.readInt();
-        texinfo = lio.readShort();
-        faceCountAndRenderOrder = lio.readUnsignedShort();
+    public void read(DataInputReader in) throws IOException {
+        id = in.readInt();
+        texinfo = in.readShort();
+        faceCountAndRenderOrder = in.readUnsignedShort();
 
         for (int j = 0; j < OVERLAY_BSP_FACE_COUNT; j++) {
-            ofaces[j] = lio.readInt();
+            ofaces[j] = in.readInt();
         }
 
-        u[0] = lio.readFloat();
-        u[1] = lio.readFloat();
-        v[0] = lio.readFloat();
-        v[1] = lio.readFloat();
+        u[0] = in.readFloat();
+        u[1] = in.readFloat();
+        v[0] = in.readFloat();
+        v[1] = in.readFloat();
 
         for (int j = 0; j < 4; j++) {
-            uvpoints[j] = lio.readVector3f();
+            uvpoints[j] = Vector3f.read(in);
         }
 
-        origin = lio.readVector3f();
-        basisNormal = lio.readVector3f();
+        origin = Vector3f.read(in);
+        basisNormal = Vector3f.read(in);
     }
 
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeInt(id);
-        lio.writeShort(texinfo);
-        lio.writeShort(faceCountAndRenderOrder);
+    @Override
+    public void write(DataOutputWriter out) throws IOException {
+        out.writeInt(id);
+        out.writeShort(texinfo);
+        out.writeShort(faceCountAndRenderOrder);
         
         for (int j = 0; j < OVERLAY_BSP_FACE_COUNT; j++) {
-            lio.writeInt(ofaces[j]);
+            out.writeInt(ofaces[j]);
         }
         
-        lio.writeFloat(u[0]);
-        lio.writeFloat(u[1]);
-        lio.writeFloat(v[0]);
-        lio.writeFloat(v[1]);
+        out.writeFloat(u[0]);
+        out.writeFloat(u[1]);
+        out.writeFloat(v[0]);
+        out.writeFloat(v[1]);
         
         for (int j = 0; j < 4; j++) {
-            lio.writeVector3f(origin);
+            Vector3f.write(out, origin);
         }
     }
 }

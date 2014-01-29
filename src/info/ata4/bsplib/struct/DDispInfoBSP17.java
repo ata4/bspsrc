@@ -9,8 +9,9 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -32,38 +33,38 @@ public class DDispInfoBSP17 extends DDispInfo {
     }
     
     @Override
-    public void read(LumpInput lio) throws IOException {
-        startPos = lio.readVector3f();
-        dispVertStart = lio.readInt();
-        power = lio.readInt();
-        minTess = lio.readInt();
-        smoothingAngle = lio.readFloat();
-        contents = lio.readInt();
-        mapFace = lio.readUnsignedShort();
-        lightmapAlphaStart = lio.readInt();
-        lightmapSamplePositionStart = lio.readInt();
-        lio.readFully(neighbors);
+    public void read(DataInputReader in) throws IOException {
+        startPos = Vector3f.read(in);
+        dispVertStart = in.readInt();
+        power = in.readInt();
+        minTess = in.readInt();
+        smoothingAngle = in.readFloat();
+        contents = in.readInt();
+        mapFace = in.readUnsignedShort();
+        lightmapAlphaStart = in.readInt();
+        lightmapSamplePositionStart = in.readInt();
+        in.readFully(neighbors);
         
         for (int i = 0; i < allowedVerts.length; i++) {
-            allowedVerts[i] = lio.readInt();
+            allowedVerts[i] = in.readInt();
         }
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeVector3f(startPos);
-        lio.writeInt(dispVertStart);
-        lio.writeInt(power);
-        lio.writeInt(minTess);
-        lio.writeFloat(smoothingAngle);
-        lio.writeInt(contents);
-        lio.writeShort(mapFace);
-        lio.writeInt(lightmapAlphaStart);
-        lio.writeInt(lightmapSamplePositionStart);
-        lio.write(neighbors);
+    public void write(DataOutputWriter out) throws IOException {
+        Vector3f.write(out, startPos);
+        out.writeInt(dispVertStart);
+        out.writeInt(power);
+        out.writeInt(minTess);
+        out.writeFloat(smoothingAngle);
+        out.writeInt(contents);
+        out.writeShort(mapFace);
+        out.writeInt(lightmapAlphaStart);
+        out.writeInt(lightmapSamplePositionStart);
+        out.write(neighbors);
         
         for (int i = 0; i < allowedVerts.length; i++) {
-            lio.writeInt(allowedVerts[i]);
+            out.writeInt(allowedVerts[i]);
         }
     }
 }

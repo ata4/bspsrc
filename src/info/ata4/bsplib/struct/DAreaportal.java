@@ -10,8 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -33,20 +33,20 @@ public class DAreaportal implements DStruct {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        portalKey = lio.readShort();
-        otherportal = lio.readShort();
-        firstClipPortalVert = lio.readShort();
-        clipPortalVerts = lio.readShort();
-        planenum = lio.readInt();
+    public void read(DataInputReader in) throws IOException {
+        portalKey = in.readShort();
+        otherportal = in.readShort();
+        firstClipPortalVert = in.readShort();
+        clipPortalVerts = in.readShort();
+        planenum = in.readInt();
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeShort(portalKey);
-        lio.writeShort(otherportal);
-        lio.writeShort(firstClipPortalVert);
-        lio.writeShort(clipPortalVerts);
-        lio.writeInt(planenum);
+    public void write(DataOutputWriter out) throws IOException {
+        out.writeShort(portalKey);
+        out.writeShort(otherportal);
+        out.writeShort(firstClipPortalVert);
+        out.writeShort(clipPortalVerts);
+        out.writeInt(planenum);
     }
 }

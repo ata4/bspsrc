@@ -9,8 +9,9 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import static info.ata4.bsplib.struct.DStaticPropShip.*;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -24,18 +25,18 @@ public class DStaticPropBGT extends DStaticPropV6 {
     
     @Override
     public int getSize() {
-        return super.getSize() + DStaticPropShip.TARGETNAME_LEN;
+        return super.getSize() + TARGETNAME_LEN;
     }
     
     @Override
-    public void read(LumpInput lio) throws IOException {
-        super.read(lio);
-        targetname = lio.readString(DStaticPropShip.TARGETNAME_LEN);
+    public void read(DataInputReader in) throws IOException {
+        super.read(in);
+        targetname = in.readStringPadded(TARGETNAME_LEN);
     }
     
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        super.write(lio);
-        lio.writeString(targetname, DStaticPropShip.TARGETNAME_LEN);
+    public void write(DataOutputWriter out) throws IOException {
+        super.write(out);
+        out.writeStringPadded(targetname, TARGETNAME_LEN);
     }
 }

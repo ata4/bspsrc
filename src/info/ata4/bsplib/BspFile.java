@@ -16,8 +16,11 @@ import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.io.LzmaBuffer;
 import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.util.StringMacroUtils;
-import info.ata4.util.io.ByteBufferUtils;
-import info.ata4.util.io.XORUtils;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
+import static info.ata4.io.SeekOrigin.*;
+import info.ata4.io.util.ByteBufferUtils;
+import info.ata4.io.util.XORUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -28,7 +31,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.io.EndianUtils;
 import org.apache.commons.io.FilenameUtils;
 
@@ -312,7 +314,8 @@ public class BspFile {
             }
 
             Lump l = new Lump(i, ltype);
-            l.setBuffer(bb, ofs, len);
+            l.setBuffer(ByteBufferUtils.getSlice(bb, ofs, len));
+            l.setOffset(ofs);
             l.setParentFile(file);
             l.setFourCC(fourCC);
             l.setVersion(vers);
@@ -389,56 +392,56 @@ public class BspFile {
         L.fine("Loading game lumps");
         
         try {
-            Lump l = getLump(LumpType.LUMP_GAME_LUMP);
-            LumpInput lio = l.getLumpInput();
-
+            Lump lump = getLump(LumpType.LUMP_GAME_LUMP);
+            DataInputReader in = new DataInputReader(lump.getBuffer());
+            
             // hack for Vindictus
             if (version == 20 && bo == ByteOrder.LITTLE_ENDIAN
-                    && checkInvalidHeaders(lio, false)
-                    && !checkInvalidHeaders(lio, true)) {
+                    && checkInvalidHeaders(in, false)
+                    && !checkInvalidHeaders(in, true)) {
                 L.finer("Found Vindictus game lump header");
                 app = SourceAppDB.getInstance().fromID(SourceAppID.VINDICTUS);
             }
             
-            int glumps = lio.readInt();
+            int glumps = in.readInt();
             
             for (int i = 0; i < glumps; i++) {
                 int ofs, len, flags, vers, fourCC;
 
                 if (app.getAppID() == SourceAppID.DARK_MESSIAH) {
-                    lio.readInt(); // unknown
+                    in.readInt(); // unknown
                 }
 
-                fourCC = lio.readInt();
+                fourCC = in.readInt();
                 
                 // Vindictus uses integers rather than unsigned shorts
                 if (app.getAppID() == SourceAppID.VINDICTUS) {
-                    flags = lio.readInt();
-                    vers = lio.readInt();
+                    flags = in.readInt();
+                    vers = in.readInt();
                 } else {
-                    flags = lio.readUnsignedShort();
-                    vers = lio.readUnsignedShort();
+                    flags = in.readUnsignedShort();
+                    vers = in.readUnsignedShort();
                 }
 
-                ofs = lio.readInt();
+                ofs = in.readInt();
 
                 if (flags == 1) {
                     // game lump is compressed, use next entry offset to determine
                     // compressed size
-                    lio.seek(lio.tell() + 12);
-                    int nextOfs = lio.readInt();
+                    in.seek(12, CURRENT);
+                    int nextOfs = in.readInt();
                     len = nextOfs - ofs;
-                    lio.seek(lio.tell() - 12);
+                    in.seek(-12, CURRENT);
                 } else {
-                    len = lio.readInt();
+                    len = in.readInt();
                 }
 
                 // Offset is relative to the beginning of the BSP file,
                 // not to the game lump.
                 // FIXME: this isn't the case for the console version of Portal 2,
                 // is there a better way to detect this?
-                if (ofs - l.getOffset() > 0) {
-                    ofs -= l.getOffset();
+                if (ofs - lump.getOffset() > 0) {
+                    ofs -= lump.getOffset();
                 }
                 
                 String glName = StringMacroUtils.unmakeID(fourCC);
@@ -449,9 +452,9 @@ public class BspFile {
                 }
 
                 // fix invalid offsets
-                if (ofs > l.getLength()) {
+                if (ofs > lump.getLength()) {
                     int ofsOld = ofs;
-                    ofs = l.getLength();
+                    ofs = lump.getLength();
                     len = 0;
                     L.log(Level.WARNING, "Invalid game lump offset {0} in {1}, assuming {2}",
                             new Object[]{ofsOld, glName, ofs});
@@ -464,9 +467,9 @@ public class BspFile {
                 }
 
                 // fix invalid lengths
-                if (ofs + len > l.getLength()) {
+                if (ofs + len > lump.getLength()) {
                     int lenOld = len;
-                    len = l.getLength() - ofs;
+                    len = lump.getLength() - ofs;
                     L.log(Level.WARNING, "Invalid game lump length {0} in {1}, assuming {2}",
                             new Object[]{lenOld, glName, len});
                 } else if (len < 0) {
@@ -477,7 +480,8 @@ public class BspFile {
                 }
 
                 GameLump gl = new GameLump();
-                gl.setBuffer(l.getBuffer(), ofs, len);
+                gl.setBuffer(ByteBufferUtils.getSlice(lump.getBuffer(), ofs, len));
+                gl.setOffset(ofs);
                 gl.setFourCC(fourCC);
                 gl.setFlags(flags);
                 gl.setVersion(vers);
@@ -501,22 +505,26 @@ public class BspFile {
         }
         
         try {
+            ByteBuffer bb = ByteBuffer.allocateDirect(size);
+            
             Lump l = getLump(LumpType.LUMP_GAME_LUMP);
-            LumpOutput lio = l.getLumpOutput(size);
-            lio.writeInt(gameLumps.size());
+            l.setBuffer(bb);
+            
+            DataOutputWriter out = new DataOutputWriter(bb);
+            out.writeInt(gameLumps.size());
 
             for (GameLump gl : gameLumps) {
                 // write header
-                lio.writeInt(gl.getFourCC());
+                out.writeInt(gl.getFourCC());
                 if (app.getAppID() == SourceAppID.VINDICTUS) {
-                    lio.writeInt(gl.getFlags());
-                    lio.writeInt(gl.getVersion());
+                    out.writeInt(gl.getFlags());
+                    out.writeInt(gl.getVersion());
                 } else {
-                    lio.writeShort(gl.getFlags());
-                    lio.writeShort(gl.getVersion());
+                    out.writeShort(gl.getFlags());
+                    out.writeShort(gl.getVersion());
                 }
-                lio.writeInt(gl.getOffset());
-                lio.writeInt(gl.getLength());
+                out.writeInt(gl.getOffset());
+                out.writeInt(gl.getLength());
 
                 int ofs = gl.getOffset();
 
@@ -529,10 +537,10 @@ public class BspFile {
                 }
 
                 // write buffer data
-                long tmpPos = lio.tell();
-                lio.seek(ofs);
-                lio.write(gl.getBuffer());
-                lio.seek(tmpPos);
+                int tmpPos = bb.position();
+                bb.position(ofs);
+                bb.put(gl.getBuffer());
+                bb.position(tmpPos);
             }
         } catch (IOException ex) {
             L.log(Level.SEVERE, "Couldn''t save game lumps", ex);
@@ -587,27 +595,27 @@ public class BspFile {
     /**
      * Heuristic detection of Vindictus game lump headers.
      * 
-     * @param lio LumpDataInput for the game lump.
+     * @param in DataInputReader for the game lump.
      * @param vin if true, test with Vindictus struct
      * @return true if the game lump header probably wasn't read correctly
      * @throws IOException 
      */
-    private boolean checkInvalidHeaders(LumpInput lio, boolean vin) throws IOException {
-        int glumps = lio.readInt();
+    private boolean checkInvalidHeaders(DataInputReader in, boolean vin) throws IOException {
+        int glumps = in.readInt();
         
         for (int i = 0; i < glumps; i++) {
-            String glName = StringMacroUtils.unmakeID(lio.readInt());
+            String glName = StringMacroUtils.unmakeID(in.readInt());
 
             // check for unusual chars that indicate a reading error
             if (!glName.matches("^[a-zA-Z0-9]{4}$")) {
-                lio.seek(0);
+                in.seek(0);
                 return true;
             }
 
-            lio.skipBytes(vin ? 16 : 12);
+            in.skipBytes(vin ? 16 : 12);
         }
 
-        lio.seek(0);
+        in.seek(0);
         return false;
     }
     
@@ -767,19 +775,6 @@ public class BspFile {
      */
     public PakFile getPakFile() {
         return new PakFile(this);
-    }
-    
-    /**
-     * Creates a ZipArchiveInputStream instance for the uncompressed pakfile.
-     *
-     * @return the pakfile's ZipArchiveInputStream
-     * @throws IOException
-     * 
-     * @deprecated use getPakFile().getArchiveInputStream() instead
-     */
-    @Deprecated
-    public ZipArchiveInputStream getPakfileInputStream() {
-        return getPakFile().getArchiveInputStream();
     }
 
     /**

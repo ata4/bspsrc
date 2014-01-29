@@ -9,8 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -27,15 +27,15 @@ public class DStaticPropV9 extends DStaticPropV8 {
     }
     
     @Override
-    public void read(LumpInput lio) throws IOException {
-        super.read(lio);
-        disableX360 = lio.readBoolean();
-        lio.skipBytes(3); // non-zero garbage?
+    public void read(DataInputReader in) throws IOException {
+        super.read(in);
+        disableX360 = in.readBoolean();
+        in.skipBytes(3); // non-zero garbage?
     }
     
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        super.write(lio);
-        lio.writeInt(disableX360 ? 1 : 0);
+    public void write(DataOutputWriter out) throws IOException {
+        super.write(out);
+        out.writeInt(disableX360 ? 1 : 0);
     }
 }

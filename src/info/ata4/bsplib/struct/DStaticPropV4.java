@@ -9,10 +9,10 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.util.EnumConverter;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 import java.util.Set;
 
@@ -41,33 +41,33 @@ public class DStaticPropV4 implements DStaticProp {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        origin = lio.readVector3f();
-        angles = lio.readVector3f();
-        propType = lio.readUnsignedShort();
-        firstLeaf = lio.readUnsignedShort();
-        leafCount = lio.readUnsignedShort();
-        solid = lio.readUnsignedByte();
-        flags = EnumConverter.fromInteger(StaticPropFlag.class, lio.readUnsignedByte());
-        skin = lio.readInt();
-        fademin = lio.readFloat();
-        fademax = lio.readFloat();
-        lightingOrigin = lio.readVector3f();
+    public void read(DataInputReader in) throws IOException {
+        origin = Vector3f.read(in);
+        angles = Vector3f.read(in);
+        propType = in.readUnsignedShort();
+        firstLeaf = in.readUnsignedShort();
+        leafCount = in.readUnsignedShort();
+        solid = in.readUnsignedByte();
+        flags = EnumConverter.fromInteger(StaticPropFlag.class, in.readUnsignedByte());
+        skin = in.readInt();
+        fademin = in.readFloat();
+        fademax = in.readFloat();
+        lightingOrigin = Vector3f.read(in);
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeVector3f(origin);
-        lio.writeVector3f(angles);
-        lio.writeShort(propType);
-        lio.writeShort(firstLeaf);
-        lio.writeShort(leafCount);
-        lio.writeByte(solid);
-        lio.writeByte(EnumConverter.toInteger(flags));
-        lio.writeInt(skin);
-        lio.writeFloat(fademin);
-        lio.writeFloat(fademax);
-        lio.writeVector3f(lightingOrigin);
+    public void write(DataOutputWriter out) throws IOException {
+        Vector3f.write(out, origin);
+        Vector3f.write(out, angles);
+        out.writeShort(propType);
+        out.writeShort(firstLeaf);
+        out.writeShort(leafCount);
+        out.writeByte(solid);
+        out.writeByte(EnumConverter.toInteger(flags));
+        out.writeInt(skin);
+        out.writeFloat(fademin);
+        out.writeFloat(fademax);
+        Vector3f.write(out, lightingOrigin);
     }
     
     public boolean usesLightingOrigin() {

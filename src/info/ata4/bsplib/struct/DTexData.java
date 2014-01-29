@@ -10,9 +10,9 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -32,22 +32,22 @@ public class DTexData implements DStruct {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        reflectivity = lio.readVector3f();
-        texname = lio.readInt();
-        width = lio.readInt();
-        height = lio.readInt();
-        viewWidth = lio.readInt();
-        viewHeight = lio.readInt();
+    public void read(DataInputReader in) throws IOException {
+        reflectivity = Vector3f.read(in);
+        texname = in.readInt();
+        width = in.readInt();
+        height = in.readInt();
+        viewWidth = in.readInt();
+        viewHeight = in.readInt();
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeVector3f(reflectivity);
-        lio.writeInt(texname);
-        lio.writeInt(width);
-        lio.writeInt(height);
-        lio.writeInt(viewWidth);
-        lio.writeInt(viewHeight);
+    public void write(DataOutputWriter out) throws IOException {
+        Vector3f.write(out, reflectivity);
+        out.writeInt(texname);
+        out.writeInt(width);
+        out.writeInt(height);
+        out.writeInt(viewWidth);
+        out.writeInt(viewHeight);
     }
 }

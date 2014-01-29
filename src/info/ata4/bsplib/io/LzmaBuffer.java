@@ -11,8 +11,8 @@
 package info.ata4.bsplib.io;
 
 import info.ata4.bsplib.util.StringMacroUtils;
-import info.ata4.util.io.ByteBufferInputStream;
-import info.ata4.util.io.ByteBufferOutputStream;
+import info.ata4.io.ByteBufferInputStream;
+import info.ata4.io.ByteBufferOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;

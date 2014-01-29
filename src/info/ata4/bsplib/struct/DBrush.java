@@ -10,9 +10,9 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.util.EnumConverter;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 import java.util.Set;
 
@@ -77,16 +77,16 @@ public class DBrush implements DStruct {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        fstside = lio.readInt();
-        numside = lio.readInt();
-        contents = EnumConverter.fromInteger(BrushFlag.class, lio.readInt());
+    public void read(DataInputReader in) throws IOException {
+        fstside = in.readInt();
+        numside = in.readInt();
+        contents = EnumConverter.fromInteger(BrushFlag.class, in.readInt());
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeInt(fstside);
-        lio.writeInt(numside);
-        lio.writeInt(EnumConverter.toInteger(contents));
+    public void write(DataOutputWriter out) throws IOException {
+        out.writeInt(fstside);
+        out.writeInt(numside);
+        out.writeInt(EnumConverter.toInteger(contents));
     }
 }

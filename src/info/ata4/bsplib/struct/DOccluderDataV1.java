@@ -9,8 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -27,13 +27,13 @@ public class DOccluderDataV1 extends DOccluderData {
     }
     
     @Override
-    public void read(LumpInput lio) throws IOException {
-        super.read(lio);
-        area = lio.readInt();
+    public void read(DataInputReader in) throws IOException {
+        super.read(in);
+        area = in.readInt();
     }
     
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeInt(area);
+    public void write(DataOutputWriter out) throws IOException {
+        out.writeInt(area);
     }
 }

@@ -10,12 +10,31 @@
 
 package info.ata4.bsplib.vector;
 
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
+import java.io.IOException;
+
 /**
  * An immutable fluent interface four-dimensional vector class for float values.
  *
  * @author Sandern
  */
 public final class Vector4f extends VectorXf {
+    
+    public static Vector4f read(DataInputReader in) throws IOException {
+        float x = in.readFloat();
+        float y = in.readFloat();
+        float z = in.readFloat();
+        float w = in.readFloat();
+        return new Vector4f(x, y, z, w);
+    }
+
+    public static void write(DataOutputWriter out, Vector4f vec) throws IOException {
+        out.writeFloat(vec.x);
+        out.writeFloat(vec.y);
+        out.writeFloat(vec.z);
+        out.writeFloat(vec.w);
+    }
 
     // frequently used pre-defined vectors
     public static final Vector4f NULL = new Vector4f(0, 0, 0, 0);

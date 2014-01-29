@@ -11,8 +11,8 @@
 package info.ata4.bsplib.lump;
 
 import info.ata4.bsplib.io.LzmaBuffer;
-import info.ata4.util.io.ByteBufferInputStream;
-import info.ata4.util.io.ByteBufferOutputStream;
+import info.ata4.io.ByteBufferInputStream;
+import info.ata4.io.ByteBufferOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -55,9 +55,7 @@ public abstract class AbstractLump {
     }
 
     /**
-     * Returns the buffer for this lump. The returned buffer is usually
-     * read-only, use {@link getDataOutput()} or {@link getOutputStream()} for
-     * write access.
+     * Returns the buffer for this lump.
      * 
      * @return byte buffer of this lump
      */
@@ -65,28 +63,11 @@ public abstract class AbstractLump {
         return buffer;
     }
     
-    public void setBuffer(ByteBuffer buf, int offset, int length) {
-        // create sub-buffer from parent buffer
-        int oldPos = buf.position();
-        buf.position(offset);
-        ByteBuffer childBuffer = buf.slice();
-        childBuffer.limit(length);
-        childBuffer.order(buf.order());
-        buf.position(oldPos);
-
-        setBuffer(childBuffer);
-        
-        this.offset = offset;
-    }
-    
     public void setBuffer(ByteBuffer buf) {
         buffer = buf;
         buffer.rewind();
-        setCompressed(LzmaBuffer.isCompressed(buf));
-    }
-    
-    public LumpInput getLumpInput() {
-        return new LumpInput(this);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        setCompressed(LzmaBuffer.isCompressed(buffer));
     }
     
     public InputStream getInputStream() {
@@ -95,22 +76,10 @@ public abstract class AbstractLump {
         return new ByteBufferInputStream(buf);
     }
     
-    public LumpOutput getLumpOutput(int newCapacity) {
-        if (newCapacity > 0) {
-            checkWriteBuffer(newCapacity);
-        }
-        return new LumpOutput(this);
-    }
-    
-    public OutputStream getOutputStream(int newCapacity) {
-        checkWriteBuffer(newCapacity);
+    public OutputStream getOutputStream() {
         ByteBuffer buf = getBuffer();
         buf.rewind();
         return new ByteBufferOutputStream(buf);
-    }
-    
-    public OutputStream getOutputStream() {
-        return getOutputStream(getBuffer().limit());
     }
     
     public void setVersion(int vers) {
@@ -163,23 +132,6 @@ public abstract class AbstractLump {
     
     protected void setCompressed(boolean compressed) {
         this.compressed = compressed;
-    }
-    
-    /**
-     * Re-allocates the buffer if the current one is read-only or with a 
-     * different capacity than given. All data in the current lump buffer will
-     * be lost. If the lump was compressed before, it will be uncompressed
-     * afterwards.
-     * 
-     * @param newCapacity desired new capacity
-     */
-    protected void checkWriteBuffer(int newCapacity) {
-        if (buffer.isReadOnly() || buffer.capacity() != newCapacity) {
-            ByteOrder bo = buffer.order();
-            buffer = ByteBuffer.allocateDirect(newCapacity);
-            buffer.order(bo);
-            setCompressed(false);
-        }
     }
 
     public abstract String getName();

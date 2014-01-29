@@ -9,8 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -28,14 +28,14 @@ public class DOverlayFade implements DStruct {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        fadeDistMinSq = lio.readFloat();
-        fadeDistMaxSq = lio.readFloat();
+    public void read(DataInputReader in) throws IOException {
+        fadeDistMinSq = in.readFloat();
+        fadeDistMaxSq = in.readFloat();
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeFloat(fadeDistMinSq);
-        lio.writeFloat(fadeDistMaxSq);
+    public void write(DataOutputWriter out) throws IOException {
+        out.writeFloat(fadeDistMinSq);
+        out.writeFloat(fadeDistMaxSq);
     }
 }

@@ -10,8 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -47,48 +47,48 @@ public class DFace implements DStruct {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        pnum = lio.readUnsignedShort();
-        side = lio.readByte();
-        onnode = lio.readByte();
-        fstedge = lio.readInt();
-        numedge = lio.readShort();
-        texinfo = lio.readShort();
-        dispInfo = lio.readShort();
-        surfaceFogVolumeID = lio.readUnsignedShort();
-        lio.readFully(styles);
-        lightofs = lio.readInt();
-        area = lio.readFloat();
-        lightmapTextureMinsInLuxels[0] = lio.readInt();
-        lightmapTextureMinsInLuxels[1] = lio.readInt();
-        lightmapTextureSizeInLuxels[0] = lio.readInt();
-        lightmapTextureSizeInLuxels[1] = lio.readInt();
-        origFace = lio.readInt();
-        firstPrimID = lio.readUnsignedShort();
-        numPrims = lio.readUnsignedShort();
-        smoothingGroups = lio.readInt();
+    public void read(DataInputReader in) throws IOException {
+        pnum = in.readUnsignedShort();
+        side = in.readByte();
+        onnode = in.readByte();
+        fstedge = in.readInt();
+        numedge = in.readShort();
+        texinfo = in.readShort();
+        dispInfo = in.readShort();
+        surfaceFogVolumeID = in.readUnsignedShort();
+        in.readFully(styles);
+        lightofs = in.readInt();
+        area = in.readFloat();
+        lightmapTextureMinsInLuxels[0] = in.readInt();
+        lightmapTextureMinsInLuxels[1] = in.readInt();
+        lightmapTextureSizeInLuxels[0] = in.readInt();
+        lightmapTextureSizeInLuxels[1] = in.readInt();
+        origFace = in.readInt();
+        firstPrimID = in.readUnsignedShort();
+        numPrims = in.readUnsignedShort();
+        smoothingGroups = in.readInt();
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeShort(pnum);
-        lio.writeByte(side);
-        lio.writeByte(onnode);
-        lio.writeInt(fstedge);
-        lio.writeShort(numedge);
-        lio.writeShort(texinfo);
-        lio.writeShort(dispInfo);
-        lio.writeShort(surfaceFogVolumeID);
-        lio.write(styles);
-        lio.writeInt(lightofs);
-        lio.writeFloat(area);
-        lio.writeInt(lightmapTextureMinsInLuxels[0]);
-        lio.writeInt(lightmapTextureMinsInLuxels[1]);
-        lio.writeInt(lightmapTextureSizeInLuxels[0]);
-        lio.writeInt(lightmapTextureSizeInLuxels[1]);
-        lio.writeInt(origFace);
-        lio.writeShort(firstPrimID);
-        lio.writeShort(numPrims);
-        lio.writeInt(smoothingGroups);
+    public void write(DataOutputWriter out) throws IOException {
+        out.writeShort(pnum);
+        out.writeByte(side);
+        out.writeByte(onnode);
+        out.writeInt(fstedge);
+        out.writeShort(numedge);
+        out.writeShort(texinfo);
+        out.writeShort(dispInfo);
+        out.writeShort(surfaceFogVolumeID);
+        out.write(styles);
+        out.writeInt(lightofs);
+        out.writeFloat(area);
+        out.writeInt(lightmapTextureMinsInLuxels[0]);
+        out.writeInt(lightmapTextureMinsInLuxels[1]);
+        out.writeInt(lightmapTextureSizeInLuxels[0]);
+        out.writeInt(lightmapTextureSizeInLuxels[1]);
+        out.writeInt(origFace);
+        out.writeShort(firstPrimID);
+        out.writeShort(numPrims);
+        out.writeInt(smoothingGroups);
     }
 }

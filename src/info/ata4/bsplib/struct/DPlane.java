@@ -10,9 +10,9 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -37,16 +37,16 @@ public class DPlane implements DStruct {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        normal = lio.readVector3f();
-        dist = lio.readFloat();
-        type = lio.readInt();
+    public void read(DataInputReader in) throws IOException {
+        normal = Vector3f.read(in);
+        dist = in.readFloat();
+        type = in.readInt();
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeVector3f(normal);
-        lio.writeFloat(dist);
-        lio.writeInt(type);
+    public void write(DataOutputWriter out) throws IOException {
+        Vector3f.write(out, normal);
+        out.writeFloat(dist);
+        out.writeInt(type);
     }
 }

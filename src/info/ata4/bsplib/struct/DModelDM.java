@@ -9,8 +9,9 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -28,24 +29,24 @@ public class DModelDM extends DModel {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        mins = lio.readVector3f();
-        maxs = lio.readVector3f();
-        origin = lio.readVector3f();
-        unknown = lio.readInt();
-        headnode = lio.readInt();
-        fstface = lio.readInt();
-        numface = lio.readInt();
+    public void read(DataInputReader in) throws IOException {
+        mins = Vector3f.read(in);
+        maxs = Vector3f.read(in);
+        origin = Vector3f.read(in);
+        unknown = in.readInt();
+        headnode = in.readInt();
+        fstface = in.readInt();
+        numface = in.readInt();
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeVector3f(mins);
-        lio.writeVector3f(maxs);
-        lio.writeVector3f(origin);
-        lio.writeInt(unknown);
-        lio.writeInt(headnode);
-        lio.writeInt(fstface);
-        lio.writeInt(numface);
+    public void write(DataOutputWriter out) throws IOException {
+        Vector3f.write(out, mins);
+        Vector3f.write(out, maxs);
+        Vector3f.write(out, origin);
+        out.writeInt(unknown);
+        out.writeInt(headnode);
+        out.writeInt(fstface);
+        out.writeInt(numface);
     }
 }

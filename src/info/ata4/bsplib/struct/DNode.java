@@ -10,8 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -35,36 +35,36 @@ public class DNode implements DStruct {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        planenum = lio.readInt();
-        children[0] = lio.readInt();
-        children[1] = lio.readInt();
-        mins[0] = lio.readShort();
-        mins[1] = lio.readShort();
-        mins[2] = lio.readShort();
-        maxs[0] = lio.readShort();
-        maxs[1] = lio.readShort();
-        maxs[2] = lio.readShort();
-        fstface = lio.readUnsignedShort();
-        numface = lio.readUnsignedShort();
-        area = lio.readShort();
-        lio.readShort(); // paddding
+    public void read(DataInputReader in) throws IOException {
+        planenum = in.readInt();
+        children[0] = in.readInt();
+        children[1] = in.readInt();
+        mins[0] = in.readShort();
+        mins[1] = in.readShort();
+        mins[2] = in.readShort();
+        maxs[0] = in.readShort();
+        maxs[1] = in.readShort();
+        maxs[2] = in.readShort();
+        fstface = in.readUnsignedShort();
+        numface = in.readUnsignedShort();
+        area = in.readShort();
+        in.readShort(); // paddding
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeInt(planenum);
-        lio.writeInt(children[0]);
-        lio.writeInt(children[1]);
-        lio.writeShort(mins[0]);
-        lio.writeShort(mins[1]);
-        lio.writeShort(mins[2]);
-        lio.writeShort(maxs[0]);
-        lio.writeShort(maxs[1]);
-        lio.writeShort(maxs[2]);
-        lio.writeShort(fstface);
-        lio.writeShort(numface);
-        lio.writeShort(area);
-        lio.writeShort(0); // paddding
+    public void write(DataOutputWriter out) throws IOException {
+        out.writeInt(planenum);
+        out.writeInt(children[0]);
+        out.writeInt(children[1]);
+        out.writeShort(mins[0]);
+        out.writeShort(mins[1]);
+        out.writeShort(mins[2]);
+        out.writeShort(maxs[0]);
+        out.writeShort(maxs[1]);
+        out.writeShort(maxs[2]);
+        out.writeShort(fstface);
+        out.writeShort(numface);
+        out.writeShort(area);
+        out.writeShort(0); // paddding
     }
 }

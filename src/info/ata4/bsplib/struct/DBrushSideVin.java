@@ -9,8 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -26,18 +26,18 @@ public class DBrushSideVin extends DBrushSide {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        pnum = lio.readInt();
-        texinfo = (short) lio.readInt();
-        dispinfo = (short) lio.readInt();
-        bevel = (short) lio.readInt() == 1;
+    public void read(DataInputReader in) throws IOException {
+        pnum = in.readInt();
+        texinfo = (short) in.readInt();
+        dispinfo = (short) in.readInt();
+        bevel = (short) in.readInt() == 1;
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeInt(pnum);
-        lio.writeInt(texinfo);
-        lio.writeInt(dispinfo);
-        lio.writeInt(bevel ? 1 : 0);
+    public void write(DataOutputWriter out) throws IOException {
+        out.writeInt(pnum);
+        out.writeInt(texinfo);
+        out.writeInt(dispinfo);
+        out.writeInt(bevel ? 1 : 0);
     }
 }

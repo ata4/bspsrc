@@ -9,9 +9,9 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -28,13 +28,13 @@ public class DVertex implements DStruct {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        point = lio.readVector3f();
+    public void read(DataInputReader in) throws IOException {
+        point = Vector3f.read(in);
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeVector3f(point);
+    public void write(DataOutputWriter out) throws IOException {
+        Vector3f.write(out, point);
     }
     
 }

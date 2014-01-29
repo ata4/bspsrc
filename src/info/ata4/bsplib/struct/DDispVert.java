@@ -10,9 +10,9 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -32,16 +32,16 @@ public class DDispVert implements DStruct {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        vector = lio.readVector3f();
-        dist = lio.readFloat();
-        alpha = lio.readFloat();
+    public void read(DataInputReader in) throws IOException {
+        vector = Vector3f.read(in);
+        dist = in.readFloat();
+        alpha = in.readFloat();
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeVector3f(vector);
-        lio.writeFloat(dist);
-        lio.writeFloat(alpha);
+    public void write(DataOutputWriter out) throws IOException {
+        Vector3f.write(out, vector);
+        out.writeFloat(dist);
+        out.writeFloat(alpha);
     }
 }

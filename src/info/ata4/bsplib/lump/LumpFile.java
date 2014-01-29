@@ -11,7 +11,7 @@
 package info.ata4.bsplib.lump;
 
 import info.ata4.bsplib.BspFile;
-import info.ata4.util.io.ByteBufferUtils;
+import info.ata4.io.util.ByteBufferUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -91,7 +91,8 @@ public class LumpFile {
 
         // lump data
         lump = new Lump(lumpIndex, LumpType.get(lumpIndex, bspVersion));
-        lump.setBuffer(bb, lumpOffset, lumpSize);
+        lump.setBuffer(ByteBufferUtils.getSlice(bb, lumpOffset, lumpSize));
+        lump.setOffset(lumpOffset);
         lump.setParentFile(file);
     }
     

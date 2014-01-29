@@ -10,8 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -31,16 +31,16 @@ public class DOccluderPolyData implements DStruct {
     }
 
     @Override
-    public void read(LumpInput lio) throws IOException {
-        firstvertexindex = lio.readInt();
-        vertexcount = lio.readInt();
-        planenum = lio.readInt();
+    public void read(DataInputReader in) throws IOException {
+        firstvertexindex = in.readInt();
+        vertexcount = in.readInt();
+        planenum = in.readInt();
     }
 
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        lio.writeInt(firstvertexindex);
-        lio.writeInt(vertexcount);
-        lio.writeInt(planenum);
+    public void write(DataOutputWriter out) throws IOException {
+        out.writeInt(firstvertexindex);
+        out.writeInt(vertexcount);
+        out.writeInt(planenum);
     }
 }

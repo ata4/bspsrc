@@ -9,8 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.lump.LumpInput;
-import info.ata4.bsplib.lump.LumpOutput;
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
@@ -27,14 +27,14 @@ public class DStaticPropV5 extends DStaticPropV4 {
     }
     
     @Override
-    public void read(LumpInput lio) throws IOException {
-        super.read(lio);
-        forcedFadeScale = lio.readFloat();
+    public void read(DataInputReader in) throws IOException {
+        super.read(in);
+        forcedFadeScale = in.readFloat();
     }
     
     @Override
-    public void write(LumpOutput lio) throws IOException {
-        super.write(lio);
-        lio.writeFloat(forcedFadeScale);
+    public void write(DataOutputWriter out) throws IOException {
+        super.write(out);
+        out.writeFloat(forcedFadeScale);
     }
 }

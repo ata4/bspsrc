@@ -10,6 +10,10 @@
 
 package info.ata4.bsplib.vector;
 
+import info.ata4.io.DataInputReader;
+import info.ata4.io.DataOutputWriter;
+import java.io.IOException;
+
 /**
  * An immutable fluent interface three-dimensional vector class for float values.
  * 
@@ -20,6 +24,19 @@ package info.ata4.bsplib.vector;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public final class Vector3f extends VectorXf {
+    
+    public static Vector3f read(DataInputReader in) throws IOException {
+        float x = in.readFloat();
+        float y = in.readFloat();
+        float z = in.readFloat();
+        return new Vector3f(x, y, z);
+    }
+
+    public static void write(DataOutputWriter out, Vector3f vec) throws IOException {
+        out.writeFloat(vec.x);
+        out.writeFloat(vec.y);
+        out.writeFloat(vec.z);
+    }
 
     // frequently used pre-defined vectors
     public static final Vector3f NULL = new Vector3f(0, 0, 0);
