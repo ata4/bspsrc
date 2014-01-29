@@ -16,8 +16,9 @@ import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bspsrc.*;
 import info.ata4.bspsrc.modules.geom.BrushMode;
 import info.ata4.bspsrc.util.SourceFormat;
-import info.ata4.util.log.LogUtils;
+import info.ata4.log.LogUtils;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -113,7 +114,7 @@ public class BspSourceCli {
         BspSourceConfig config = new BspSourceConfig();
         
         // basic options
-        Option helpOpt, versionOpt, debugOpt, outputOpt, recursiveOpt;
+        Option helpOpt, versionOpt, debugOpt, outputOpt, recursiveOpt, fileListOpt;
         optsMain.addOption(helpOpt = new Option("h", "Print this help."));
         optsMain.addOption(versionOpt = new Option("v", "Print version info."));
         optsMain.addOption(debugOpt = new Option("d", "Enable debug mode. Increases verbosity and adds additional data to the VMF file."));
@@ -124,6 +125,12 @@ public class BspSourceCli {
             .withDescription("Override output path for VMF file(s). Treated as directory if multiple BSP files are provided. \ndefault: <mappath>/<mapname>_d.vmf")
             .withType(String.class)
             .create('o'));
+        optsMain.addOption(fileListOpt = OptionBuilder
+            .hasArg()
+            .withArgName("file")
+            .withDescription("Use a text files with paths as input BSP file list.")
+            .withType(String.class)
+            .create('l'));
 
         // entity options
         Option nbentsOpt, npentsOpt, npropsOpt, noverlOpt, ncubemOpt, ndetailsOpt, nareapOpt, nocclOpt, nrotfixOpt;
@@ -213,6 +220,7 @@ public class BspSourceCli {
         CommandLine cl = null;
         File outputFile = null;
         boolean recursive = false;
+        Set<BspFileEntry> files = config.getFileSet();
 
         try {
             // parse the command line arguments
@@ -241,6 +249,22 @@ public class BspSourceCli {
             }
             
             recursive = cl.hasOption(recursiveOpt.getOpt());
+            
+            if (cl.hasOption(fileListOpt.getOpt())) {
+                try {
+                    List<String> filePaths = FileUtils.readLines(new File(cl.getOptionValue(fileListOpt.getOpt())));
+                    for (String filePath : filePaths) {
+                        BspFileEntry entry = new BspFileEntry(new File(filePath));
+                        // override destination directory?
+                        if (outputFile != null) {
+                            entry.setVmfFile(new File(outputFile, entry.getVmfFile().getName()));
+                        }
+                        files.add(entry);
+                    }
+                } catch (IOException ex) {
+                    throw new RuntimeException("Can't read file list", ex);
+                }
+            }
             
             // entity options
             config.writePointEntities = !cl.hasOption(npentsOpt.getOpt());
@@ -323,18 +347,14 @@ public class BspSourceCli {
                 }
             }
         } catch (Exception ex) {
-            L.severe(ex.getMessage());
+            L.log(Level.SEVERE, "Internal CLI error", ex);
             System.exit(0);
         }
         
         // get non-recognized arguments, these are the BSP input files
         String[] argsLeft = cl.getArgs();
-        Set<BspFileEntry> files = config.getFileSet();
-        
-        if (argsLeft.length == 0) {
-            L.severe("No BSP file(s) specified");
-            System.exit(1);
-        } else if (argsLeft.length == 1 && outputFile != null) {
+
+        if (argsLeft.length == 1 && outputFile != null) {
             // set VMF file for one BSP
             BspFileEntry entry = new BspFileEntry(new File(argsLeft[0]));
             entry.setVmfFile(outputFile);
@@ -367,6 +387,11 @@ public class BspSourceCli {
                     files.add(entry);
                 }
             }
+        }
+        
+        if (files.isEmpty()) {
+            L.severe("No BSP file(s) specified");
+            System.exit(1);
         }
         
         return config;

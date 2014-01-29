@@ -13,7 +13,7 @@ package info.ata4.bspsrc;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bspsrc.modules.geom.BrushMode;
 import info.ata4.bspsrc.util.SourceFormat;
-import info.ata4.util.log.LogUtils;
+import info.ata4.log.LogUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
