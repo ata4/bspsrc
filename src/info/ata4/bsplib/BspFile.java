@@ -393,7 +393,7 @@ public class BspFile {
         
         try {
             Lump lump = getLump(LumpType.LUMP_GAME_LUMP);
-            DataInputReader in = new DataInputReader(lump.getBuffer());
+            DataInputReader in = DataInputReader.newReader(lump.getBuffer());
             
             // hack for Vindictus
             if (version == 20 && bo == ByteOrder.LITTLE_ENDIAN
@@ -510,7 +510,7 @@ public class BspFile {
             Lump l = getLump(LumpType.LUMP_GAME_LUMP);
             l.setBuffer(bb);
             
-            DataOutputWriter out = new DataOutputWriter(bb);
+            DataOutputWriter out = DataOutputWriter.newWriter(bb);
             out.writeInt(gameLumps.size());
 
             for (GameLump gl : gameLumps) {
@@ -608,14 +608,14 @@ public class BspFile {
 
             // check for unusual chars that indicate a reading error
             if (!glName.matches("^[a-zA-Z0-9]{4}$")) {
-                in.seek(0);
+                in.position(0);
                 return true;
             }
 
             in.skipBytes(vin ? 16 : 12);
         }
 
-        in.seek(0);
+        in.position(0);
         return false;
     }
     

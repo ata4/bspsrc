@@ -243,7 +243,7 @@ public class BspFileReader {
             return;
         }
 
-        DataInputReader in = new DataInputReader(sprpLump.getBuffer());
+        DataInputReader in = DataInputReader.newReader(sprpLump.getBuffer());
         int sprpver = sprpLump.getVersion();
 
         try {
@@ -329,10 +329,10 @@ public class BspFileReader {
             for (int i = 0; i < propstatics; i++) {
                 DStaticProp sp = structClass.newInstance();
                 
-                long pos = in.tell();
+                long pos = in.position();
                 sp.read(in);
                 int size = sp.getSize();
-                if (in.tell() - pos != size) {
+                if (in.position() - pos != size) {
                     throw new IOException("Bytes read: " + pos + "; expected: " + size);
                 }
                 
@@ -444,7 +444,7 @@ public class BspFileReader {
         byte[] stringData;
 
         Lump lump = getLump(LumpType.LUMP_TEXDATA_STRING_DATA);
-        DataInputReader in = new DataInputReader(lump.getBuffer());
+        DataInputReader in = DataInputReader.newReader(lump.getBuffer());
 
         try {
             final int tdsds = lump.getLength();
@@ -459,7 +459,7 @@ public class BspFileReader {
         L.log(Level.FINE, "Loading {0}", LumpType.LUMP_TEXDATA_STRING_TABLE);
 
         lump = getLump(LumpType.LUMP_TEXDATA_STRING_TABLE);
-        in = new DataInputReader(lump.getBuffer());
+        in = DataInputReader.newReader(lump.getBuffer());
 
         try {
             final int size = 4;
@@ -625,7 +625,7 @@ public class BspFileReader {
         L.log(Level.FINE, "Loading {0}", LumpType.LUMP_OCCLUSION);
 
         Lump lump = getLump(LumpType.LUMP_OCCLUSION);
-        DataInputReader in = new DataInputReader(lump.getBuffer());
+        DataInputReader in = DataInputReader.newReader(lump.getBuffer());
 
         try {
             // load occluder data
@@ -688,7 +688,7 @@ public class BspFileReader {
             return;
         }
 
-        DataInputReader in = new DataInputReader(lump.getBuffer());
+        DataInputReader in = DataInputReader.newReader(lump.getBuffer());
 
         try {
             bsp.mapFlags = EnumConverter.fromInteger(LevelFlag.class, in.readInt());
@@ -740,7 +740,7 @@ public class BspFileReader {
         
         L.log(Level.FINE, "Loading {0}", lumpType);
         
-        DataInputReader in = new DataInputReader(lump.getBuffer());
+        DataInputReader in = DataInputReader.newReader(lump.getBuffer());
         
         try {
             final int structSize = struct.newInstance().getSize();            
@@ -751,9 +751,9 @@ public class BspFileReader {
             for (int i = 0; i < packetCount; i++) {
                 E packet = struct.newInstance();
                 
-                long pos = in.tell();
+                long pos = in.position();
                 packet.read(in);
-                if (in.tell() - pos != packet.getSize()) {
+                if (in.position() - pos != packet.getSize()) {
                     throw new IOException("Bytes read: " + pos + "; expected: " + packet.getSize());
                 }
                 
@@ -780,7 +780,7 @@ public class BspFileReader {
         L.log(Level.FINE, "Loading {0}", lumpType);
 
         Lump lump = getLump(lumpType);
-        DataInputReader in = new DataInputReader(lump.getBuffer());
+        DataInputReader in = DataInputReader.newReader(lump.getBuffer());
 
         try {
             final int size = unsignedShort ? 2 : 4;
