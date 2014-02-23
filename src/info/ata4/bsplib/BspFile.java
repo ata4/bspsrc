@@ -19,7 +19,7 @@ import info.ata4.bsplib.util.StringMacroUtils;
 import info.ata4.io.DataInputReader;
 import info.ata4.io.DataOutputWriter;
 import static info.ata4.io.SeekOrigin.*;
-import info.ata4.io.util.ByteBufferUtils;
+import info.ata4.io.buffer.ByteBufferUtils;
 import info.ata4.io.util.XORUtils;
 import java.io.File;
 import java.io.IOException;

@@ -11,7 +11,7 @@
 package info.ata4.bsplib.lump;
 
 import info.ata4.bsplib.BspFile;
-import info.ata4.io.util.ByteBufferUtils;
+import info.ata4.io.buffer.ByteBufferUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
