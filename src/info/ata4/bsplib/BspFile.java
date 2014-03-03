@@ -150,17 +150,21 @@ public class BspFile {
         
         if (app.getAppID() == TITANFALL) {
             mapRev = bb.getInt();
+            L.log(Level.FINER, "Map revision: {0}", mapRev);
+            
             bb.getInt(); // always 127?
         }
 
         loadLumps(bb);
         loadGameLumps();
-
-        if (app.getAppID() != TITANFALL) {
+        
+        if (app.getAppID() == TITANFALL) {
+            loadTitanfallLumpFiles();
+            loadTitanfallEntityFiles();
+        } else {
             mapRev = bb.getInt();
+            L.log(Level.FINER, "Map revision: {0}", mapRev);
         }
-
-        L.log(Level.FINER, "Map revision: {0}", mapRev);
     }
     
     /**
@@ -411,6 +415,78 @@ public class BspFile {
                 L.log(Level.WARNING, "Unable to load lump file " + lumpFile.getFileName(), ex);
             }
         }
+    }
+    
+    private void loadTitanfallLumpFiles() {
+        L.fine("Loading Titanfall lump files");
+        
+        for (int i = 0; i < HEADER_LUMPS_TF; i++) {
+            Path lumpFile = file.resolveSibling(String.format("%s.bsp.%04x.bsp_lump", name, i));
+            
+            if (!Files.exists(lumpFile)) {
+                continue;
+            }
+            
+            Lump l = lumps.get(i);
+            
+            try {
+                ByteBuffer bb = ByteBufferUtils.openReadOnly(lumpFile);
+                bb.order(bo);
+                
+                l.setBuffer(bb);
+                l.setParentFile(lumpFile);
+            } catch (IOException ex) {
+                L.log(Level.WARNING, "Unable to load lump file " + lumpFile.getFileName(), ex);
+            }
+        }
+    }
+    
+    private void loadTitanfallEntityFiles() {
+        // Titanfall maps use multiple .ent files. For compatibility, simply
+        // concatenate all entity files to one large entity lump
+        
+        L.fine("Loading Titanfall entity files");
+        
+        Lump entlump = getLump(LumpType.LUMP_ENTITIES);
+        ByteBuffer bbEnt = entlump.getBuffer();
+        bbEnt.rewind();
+        bbEnt.limit(bbEnt.capacity() - 1);
+
+        List<ByteBuffer> bbList = new ArrayList<>();
+        bbList.add(bbEnt);
+        bbList.add(loadTitanfallEntityFile("env"));
+        bbList.add(loadTitanfallEntityFile("fx"));
+        bbList.add(loadTitanfallEntityFile("script"));
+        bbList.add(loadTitanfallEntityFile("snd"));
+        bbList.add(loadTitanfallEntityFile("spawn"));
+        bbList.add(ByteBuffer.wrap(new byte[] {0})); // terminator
+        
+        ByteBuffer bbEntNew = ByteBufferUtils.concat(bbList);
+        entlump.setBuffer(bbEntNew);
+    }
+    
+    private ByteBuffer loadTitanfallEntityFile(String entname) {
+        Path entFile = file.resolveSibling(String.format("%s_%s.ent", name, entname));
+        
+        ByteBuffer bb = ByteBuffer.allocate(0);
+
+        try {
+            if (Files.exists(entFile) && Files.size(entFile) > 12) {
+                bb = ByteBufferUtils.load(entFile);
+
+                // skip "ENTITIESXX\n"
+                bb.position(11);
+
+                // skip "\0"
+                bb.limit(bb.capacity() - 1);
+
+                bb = bb.slice();
+            }
+        } catch (IOException ex) {
+            L.log(Level.WARNING, "Unable to load entity file " + entFile.getFileName(), ex);
+        }
+
+        return bb;
     }
     
     private void loadGameLumps() {
