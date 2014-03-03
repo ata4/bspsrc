@@ -12,7 +12,7 @@ package info.ata4.bsplib;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppDB;
-import info.ata4.bsplib.app.SourceAppID;
+import static info.ata4.bsplib.app.SourceAppID.*;
 import info.ata4.bsplib.io.LzmaBuffer;
 import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.util.StringMacroUtils;
@@ -129,12 +129,12 @@ public class BspFile {
             // Dark Messiah maps use 14 00 04 00 as version.
             // The actual BSP version is probably stored in the first two bytes...
             L.finer("Found Dark Messiah header");
-            app = SourceAppDB.getInstance().fromID(SourceAppID.DARK_MESSIAH);
+            app = SourceAppDB.getInstance().fromID(DARK_MESSIAH);
             version &= 0xff;
         } else if (version == 27) {
             // Contagion maps use version 27, ignore VERSION_MAX in this case 
             L.finer("Found Contagion header");
-            app = SourceAppDB.getInstance().fromID(SourceAppID.CONTAGION);
+            app = SourceAppDB.getInstance().fromID(CONTAGION);
         } else if (version > VERSION_MAX || version < VERSION_MIN) {
             throw new BspException("Unsupported version: " + version);
         }
@@ -142,11 +142,11 @@ public class BspFile {
         // hack for L4D2 BSPs
         if (version == 21 && bb.getInt(8) == 0) {
             L.finer("Found Left 4 Dead 2 header");
-            app = SourceAppDB.getInstance().fromID(SourceAppID.LEFT_4_DEAD_2);
+            app = SourceAppDB.getInstance().fromID(LEFT_4_DEAD_2);
         }
         
         // extra int for Contagion
-        if (app.getAppID() == SourceAppID.CONTAGION) {
+        if (app.getAppID() == CONTAGION) {
             bb.getInt(); // always 0?
         }
 
@@ -274,7 +274,7 @@ public class BspFile {
             int vers, ofs, len, fourCC;
             
             // L4D2 maps use a different order
-            if (app.getAppID() == SourceAppID.LEFT_4_DEAD_2) {
+            if (app.getAppID() == LEFT_4_DEAD_2) {
                 vers = bb.getInt();
                 ofs = bb.getInt();
                 len = bb.getInt();
@@ -337,7 +337,7 @@ public class BspFile {
         
         for (Lump l : lumps) {
             // write header
-            if (app.getAppID() == SourceAppID.LEFT_4_DEAD_2) {
+            if (app.getAppID() == LEFT_4_DEAD_2) {
                 bb.putInt(l.getVersion());
                 bb.putInt(l.getOffset());
                 bb.putInt(l.getLength());
@@ -405,7 +405,7 @@ public class BspFile {
                     && checkInvalidHeaders(in, false)
                     && !checkInvalidHeaders(in, true)) {
                 L.finer("Found Vindictus game lump header");
-                app = SourceAppDB.getInstance().fromID(SourceAppID.VINDICTUS);
+                app = SourceAppDB.getInstance().fromID(VINDICTUS);
             }
             
             int glumps = in.readInt();
@@ -413,14 +413,14 @@ public class BspFile {
             for (int i = 0; i < glumps; i++) {
                 int ofs, len, flags, vers, fourCC;
 
-                if (app.getAppID() == SourceAppID.DARK_MESSIAH) {
+                if (app.getAppID() == DARK_MESSIAH) {
                     in.readInt(); // unknown
                 }
 
                 fourCC = in.readInt();
                 
                 // Vindictus uses integers rather than unsigned shorts
-                if (app.getAppID() == SourceAppID.VINDICTUS) {
+                if (app.getAppID() == VINDICTUS) {
                     flags = in.readInt();
                     vers = in.readInt();
                 } else {
@@ -521,7 +521,7 @@ public class BspFile {
             for (GameLump gl : gameLumps) {
                 // write header
                 out.writeInt(gl.getFourCC());
-                if (app.getAppID() == SourceAppID.VINDICTUS) {
+                if (app.getAppID() == VINDICTUS) {
                     out.writeInt(gl.getFlags());
                     out.writeInt(gl.getVersion());
                 } else {

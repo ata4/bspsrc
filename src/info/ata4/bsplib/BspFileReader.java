@@ -12,7 +12,7 @@ package info.ata4.bsplib;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppDB;
-import info.ata4.bsplib.app.SourceAppID;
+import static info.ata4.bsplib.app.SourceAppID.*;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.io.EntityInputStream;
 import info.ata4.bsplib.lump.*;
@@ -116,9 +116,9 @@ public class BspFileReader {
         
         Class struct = DBrushSide.class;
 
-        if (appID == SourceAppID.VINDICTUS) {
+        if (appID == VINDICTUS) {
             struct = DBrushSideVin.class;
-        } else if (bspFile.getVersion() >= 21 && appID != SourceAppID.LEFT_4_DEAD_2) {
+        } else if (bspFile.getVersion() >= 21 && appID != LEFT_4_DEAD_2) {
             // newer BSP files have a slightly different struct that is still reported
             // as version 0
             struct = DBrushSideV2.class;
@@ -150,7 +150,7 @@ public class BspFileReader {
 
         Class struct = DEdge.class;
 
-        if (appID == SourceAppID.VINDICTUS) {
+        if (appID == VINDICTUS) {
             struct = DEdgeVin.class;
         }
 
@@ -164,9 +164,9 @@ public class BspFileReader {
         
         Class struct = DFace.class;
         
-        if (appID == SourceAppID.VAMPIRE_BLOODLINES) {
+        if (appID == VAMPIRE_BLOODLINES) {
             struct = DFaceVTMB.class;
-        } else if (appID == SourceAppID.VINDICTUS) {
+        } else if (appID == VINDICTUS) {
             LumpType lt = orig ? LumpType.LUMP_ORIGINALFACES : LumpType.LUMP_FACES;
             int facesver = getLump(lt).getVersion();
             if (facesver == 2) {
@@ -213,7 +213,7 @@ public class BspFileReader {
         
         Class struct = DModel.class;
 
-        if (appID == SourceAppID.DARK_MESSIAH) {
+        if (appID == DARK_MESSIAH) {
             struct = DModelDM.class;
         }
 
@@ -259,7 +259,7 @@ public class BspFileReader {
             }
 
             // model path strings in Zeno Clash
-            if (appID == SourceAppID.ZENO_CLASH) {
+            if (appID == ZENO_CLASH) {
                 int psextra = in.readInt();
                 in.skipBytes(psextra * padsize);
             }
@@ -276,7 +276,7 @@ public class BspFileReader {
             }
             
             // extra data for Vindictus
-            if (appID == SourceAppID.VINDICTUS && sprpver == 6) {
+            if (appID == VINDICTUS && sprpver == 6) {
                 int psextra = in.readInt();
                 in.skipBytes(psextra * 16);
             }
@@ -288,27 +288,27 @@ public class BspFileReader {
             
             // special cases where derivative lump structures are used
             switch (appID) {
-                case SourceAppID.THE_SHIP:
+                case THE_SHIP:
                     structClass = DStaticPropShip.class;
                     break;
                     
-                case SourceAppID.BLOODY_GOOD_TIME:
+                case BLOODY_GOOD_TIME:
                     structClass = DStaticPropBGT.class;
                     break;
                     
-                case SourceAppID.ZENO_CLASH:
+                case ZENO_CLASH:
                     structClass = DStaticPropZC.class;
                     break;
                     
-                case SourceAppID.DARK_MESSIAH:
+                case DARK_MESSIAH:
                     structClass = DStaticPropDM.class;
                     break;
                     
-                case SourceAppID.DEAR_ESTHER:
+                case DEAR_ESTHER:
                     structClass = DStaticPropDE.class;
                     break;
                     
-                case SourceAppID.VINDICTUS:
+                case VINDICTUS:
                     structClass = DStaticPropV5.class;
             }
 
@@ -369,17 +369,17 @@ public class BspFileReader {
         
         // the lump version is useless most of the time, use the AppID instead
         switch (appID) {
-            case SourceAppID.VINDICTUS:
+            case VINDICTUS:
                 struct = DDispInfoVin.class;
                 break;
                 
-            case SourceAppID.HALF_LIFE_2:
+            case HALF_LIFE_2:
                 if (bspv == 17) {
                     struct = DDispInfoBSP17.class;
                 }
                 break;
                 
-            case SourceAppID.DOTA_2_BETA:
+            case DOTA_2_BETA:
                 if (bspv == 22) {
                     struct = DDispInfoBSP22.class;
                 } else if (bspv >= 23) {
@@ -422,7 +422,7 @@ public class BspFileReader {
         
         Class struct = DTexInfo.class;
 
-        if (appID == SourceAppID.DARK_MESSIAH) {
+        if (appID == DARK_MESSIAH) {
             struct = DTexInfoDM.class;
         }
 
@@ -513,7 +513,7 @@ public class BspFileReader {
 
             // detect appID with heuristics to handle special BSP formats if it's
             // still unknown or undefined at this point
-            if (appID == SourceAppID.UNKNOWN) {
+            if (appID == UNKNOWN) {
                 SourceAppDB appDB = SourceAppDB.getInstance();
                 SourceApp app = appDB.find(bspFile.getName(), bspFile.getVersion(), entityClasses);
                 bspFile.setSourceApp(app);
@@ -533,7 +533,7 @@ public class BspFileReader {
         
         Class struct = DNode.class;
         
-        if (appID == SourceAppID.VINDICTUS) {
+        if (appID == VINDICTUS) {
             // use special struct for Vindictus
             struct = DNodeVin.class;
         }
@@ -548,7 +548,7 @@ public class BspFileReader {
         
         Class struct = DLeafV1.class;
         
-        if (appID == SourceAppID.VINDICTUS) {
+        if (appID == VINDICTUS) {
             // use special struct for Vindictus
             struct = DLeafVin.class;
         } else if (getLump(LumpType.LUMP_LEAFS).getVersion() == 0
@@ -566,7 +566,7 @@ public class BspFileReader {
             return;
         }
         
-        bsp.leafFaces = loadIntegerLump(LumpType.LUMP_LEAFFACES, appID != SourceAppID.VINDICTUS);
+        bsp.leafFaces = loadIntegerLump(LumpType.LUMP_LEAFFACES, appID != VINDICTUS);
     }
 
     public void loadLeafBrushes() {
@@ -574,7 +574,7 @@ public class BspFileReader {
             return;
         }
         
-        bsp.leafBrushes = loadIntegerLump(LumpType.LUMP_LEAFBRUSHES, appID != SourceAppID.VINDICTUS);
+        bsp.leafBrushes = loadIntegerLump(LumpType.LUMP_LEAFBRUSHES, appID != VINDICTUS);
     }
 
     public void loadOverlays() {
@@ -584,9 +584,9 @@ public class BspFileReader {
         
         Class struct = DOverlay.class;
         
-        if (appID == SourceAppID.VINDICTUS) {
+        if (appID == VINDICTUS) {
             struct = DOverlayVin.class;
-        } else if (appID == SourceAppID.DOTA_2_BETA) {
+        } else if (appID == DOTA_2_BETA) {
             struct = DOverlayDota2.class;
         }
         
@@ -610,7 +610,7 @@ public class BspFileReader {
         
         Class struct = DAreaportal.class;
         
-        if (appID == SourceAppID.VINDICTUS) {
+        if (appID == VINDICTUS) {
             struct = DAreaportalVin.class;
         }
         
