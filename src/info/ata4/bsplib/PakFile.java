@@ -11,17 +11,15 @@ package info.ata4.bsplib;
 
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpType;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.CloseShieldInputStream;
 
 /**
  * Class to read BSP-embedded zip files (pakiles).
@@ -42,28 +40,27 @@ public class PakFile {
         return new ZipArchiveInputStream(pakLump.getInputStream(), "Cp437", false);
     }
     
-    public void unpack(File dest) throws IOException {
+    public void unpack(Path dest) throws IOException {
         unpack(dest, false);
     }
 
-    public void unpack(File dest, boolean direct) throws IOException {
+    public void unpack(Path dest, boolean direct) throws IOException {
         if (direct) {
             L.log(Level.INFO, "Extracting pakfile to {0}", dest);
 
             try (InputStream is = pakLump.getInputStream()) {
-                FileUtils.copyInputStreamToFile(is, dest);
+                Files.copy(is, dest);
             }
         } else {
             unpack(dest, null);
         }
     }
     
-    public void unpack(File dest, List<String> names) throws IOException {
-        FileUtils.forceMkdir(dest);
+    public void unpack(Path dest, List<String> names) throws IOException {
+        Files.createDirectories(dest);
         
         try (ZipArchiveInputStream zis = getArchiveInputStream()) {
-            ZipArchiveEntry ze;
-            while ((ze = zis.getNextZipEntry()) != null) {
+            for (ZipArchiveEntry ze; (ze = zis.getNextZipEntry()) != null;) {
                 String zipName = ze.getName();
 
                 if (names != null && !names.contains(zipName)) {
@@ -74,18 +71,17 @@ public class PakFile {
                 // whatever reason...
                 zipName = zipName.replace(':', '_');
 
-                File entryFile = new File(dest, zipName);
-
+                Path entryFile = dest.resolve(zipName);
+                
                 // don't overwrite any files
-                if (entryFile.exists()) {
+                if (Files.exists(entryFile)) {
                     L.log(Level.INFO, "Skipped {0}", ze.getName());
                     continue;
                 }
 
                 L.log(Level.INFO, "Extracting {0}", ze.getName());
 
-                InputStream cszis = new CloseShieldInputStream(zis);
-                FileUtils.copyInputStreamToFile(cszis, entryFile);
+                Files.copy(zis, entryFile);
             }
         }
     }

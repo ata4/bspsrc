@@ -10,7 +10,7 @@
 
 package info.ata4.bsplib.lump;
 
-import java.io.File;
+import java.nio.file.Path;
 
 /**
  * Default lump type for lumps inside a BSP file.
@@ -25,7 +25,7 @@ public class Lump extends AbstractLump {
 
     private final LumpType type;
     private final int index;
-    private File parentFile;
+    private Path parentFile;
 
     public Lump(int index, LumpType type) {
         this.index = index;
@@ -36,11 +36,11 @@ public class Lump extends AbstractLump {
         this(type.getIndex(), type);
     }
 
-    public void setParentFile(File parentFile) {
+    public void setParentFile(Path parentFile) {
         this.parentFile = parentFile;
     }
 
-    public File getParentFile() {
+    public Path getParentFile() {
         return parentFile;
     }
 

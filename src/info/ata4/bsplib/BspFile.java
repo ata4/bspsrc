@@ -21,10 +21,11 @@ import info.ata4.io.DataOutputWriter;
 import static info.ata4.io.SeekOrigin.*;
 import info.ata4.io.buffer.ByteBufferUtils;
 import info.ata4.io.util.XORUtils;
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -57,9 +58,10 @@ public class BspFile {
     // lump limits
     public static final int HEADER_LUMPS = 64;
     public static final int HEADER_SIZE = 1036;
+    public static final int MAX_LUMPFILES = 128;
 
     // BSP source file
-    private File file;
+    private Path file;
     
     // BSP name, usually the file name without ".bsp"
     private String name;
@@ -79,19 +81,19 @@ public class BspFile {
     public BspFile() {
     }
     
-    public BspFile(File file, boolean memMapping) throws IOException {
+    public BspFile(Path file, boolean memMapping) throws IOException {
         loadImpl(file, memMapping);
     }
     
-    public BspFile(File file) throws IOException {
+    public BspFile(Path file) throws IOException {
         loadImpl(file);
     }
     
-    private void loadImpl(File file) throws IOException {
+    private void loadImpl(Path file) throws IOException {
         load(file);
     }
     
-    private void loadImpl(File file, boolean memMapping) throws IOException {
+    private void loadImpl(Path file, boolean memMapping) throws IOException {
         load(file, memMapping);
     }
     
@@ -105,11 +107,11 @@ public class BspFile {
      *            restrictions of the JVM.
      * @throws IOException if the file can't be opened or read
      */
-    public void load(File file, boolean memMapping) throws IOException {
+    public void load(Path file, boolean memMapping) throws IOException {
         this.file = file;
-        this.name = FilenameUtils.getBaseName(file.getPath());
+        this.name = FilenameUtils.removeExtension(file.getFileName().toString());
         
-        L.log(Level.FINE, "Loading headers from {0}", file.getName());
+        L.log(Level.FINE, "Loading headers from {0}", name);
         
         ByteBuffer bb = createBuffer(memMapping);
         
@@ -163,16 +165,18 @@ public class BspFile {
      * @param file BSP file to open
      * @throws IOException if the file can't be opened or read
      */
-    public void load(File file) throws IOException {
+    public void load(Path file) throws IOException {
         load(file, true);
     }
     
-    public void save(File file) throws IOException {
+    public void save(Path file) throws IOException {
+        this.file = file;
+        this.name = file.getFileName().toString();
+        
+        L.log(Level.FINE, "Saving headers to {0}", name);
+        
         int size = fixLumpOffsets();
-        
-        L.log(Level.FINE, "Saving headers to {0}", file.getName());
-        
-        ByteBuffer bb = ByteBufferUtils.openReadWrite(file.toPath(), 0, size);
+        ByteBuffer bb = ByteBufferUtils.openReadWrite(file, 0, size);
         
         bb.order(bo);
         bb.putInt(BSP_ID);
@@ -196,9 +200,9 @@ public class BspFile {
         ByteBuffer bb;
         
         if (memMapping) {
-            bb = ByteBufferUtils.openReadOnly(file.toPath());
+            bb = ByteBufferUtils.openReadOnly(file);
         } else {
-            bb = ByteBufferUtils.load(file.toPath());
+            bb = ByteBufferUtils.load(file);
         }
         
         // make sure we have enough room for reading
@@ -247,7 +251,7 @@ public class BspFile {
             
             // fully reload the map into memory if that isn't the case already
             if (memMapping || bb.isReadOnly()) {
-                bb = ByteBufferUtils.load(file.toPath());
+                bb = ByteBufferUtils.load(file);
             }
             
             // then decrypt it
@@ -362,12 +366,13 @@ public class BspFile {
     public void loadLumpFiles() {
         L.fine("Loading lump files");
 
-        File parentFile = file.getAbsoluteFile().getParentFile();
-        File[] lumpFiles = parentFile.listFiles(new LumpFileFilter(file));
-
-        // load all found lump files
-        for (File lumpFile : lumpFiles) {
-            L.log(Level.INFO, "Loading {0}", lumpFile);
+        for (int i = 0; i < MAX_LUMPFILES; i++) {
+            Path lumpFile = file.resolveSibling(String.format("%s_l_%d.lmp", name, i));
+            
+            if (!Files.exists(lumpFile)) {
+                break;
+            }
+            
             try {
                 // load lump from file
                 LumpFile lumpFileExt = new LumpFile(version);
@@ -383,7 +388,7 @@ public class BspFile {
                     loadGameLumps();
                 }
             } catch (IOException ex) {
-                L.log(Level.WARNING, "Unable to load lump file " + lumpFile.getName(), ex);
+                L.log(Level.WARNING, "Unable to load lump file " + lumpFile.getFileName(), ex);
             }
         }
     }
@@ -793,20 +798,16 @@ public class BspFile {
      *
      * @return new lump file
      */
-    public File getNextLumpFile() {
-        File parentFile = file.getAbsoluteFile().getParentFile();
-
-        LumpFileFilter filter = new LumpFileFilter(file);
-        parentFile.listFiles(filter);
+    public Path getNextLumpFile() {
+        for (int i = 0; i < MAX_LUMPFILES; i++) {
+            Path lumpFile = file.resolveSibling(String.format("%s_l_%d.lmp", name, i));
+            
+            if (!Files.exists(lumpFile)) {
+                return lumpFile;
+            }
+        }
         
-        // get highest index
-        int lumpIndex = filter.getHighestLumpIndex() + 1;
-        
-        String lumpFile = getName() + "_l_" + lumpIndex + ".lmp";
-
-        L.log(Level.FINE, "Next lump file: {0}", lumpFile);
-
-        return new File(parentFile, lumpFile);
+        return null;
     }
     
     /**
@@ -833,7 +834,7 @@ public class BspFile {
      * 
      * @return file
      */
-    public File getFile() {
+    public Path getFile() {
         return file;
     }
 

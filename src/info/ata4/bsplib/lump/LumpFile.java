@@ -12,10 +12,10 @@ package info.ata4.bsplib.lump;
 
 import info.ata4.bsplib.BspFile;
 import info.ata4.io.buffer.ByteBufferUtils;
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,7 +34,7 @@ public class LumpFile {
     private Lump lump;
     
     // .lmp source file
-    private File file;
+    private Path file;
 
     // required to create the lump object
     private int bspVersion;
@@ -51,12 +51,12 @@ public class LumpFile {
         this.bspVersion = bspVersion;
     }
 
-    public void load(File file, ByteOrder bo) throws IOException {
+    public void load(Path file, ByteOrder bo) throws IOException {
         this.file = file;
         
-        L.log(Level.FINE, "Loading lump header from {0}", file.getName());
+        L.log(Level.FINE, "Loading lump header from {0}", file.getFileName());
         
-        ByteBuffer bb = ByteBufferUtils.openReadOnly(file.toPath());
+        ByteBuffer bb = ByteBufferUtils.openReadOnly(file);
         bb.order(bo);
 
         // make sure we have enough room for reading
@@ -96,20 +96,20 @@ public class LumpFile {
         lump.setParentFile(file);
     }
     
-    public void load(File file) throws IOException {
+    public void load(Path file) throws IOException {
         load(file, ByteOrder.LITTLE_ENDIAN);
     }
     
-    public void save(File file) throws IOException {
+    public void save(Path file) throws IOException {
         if (lump == null) {
             throw new NullPointerException("Lump is undefined");
         }
         
-        L.log(Level.FINE, "Saving lump header to {0}", file.getName());
+        L.log(Level.FINE, "Saving lump header to {0}", file.getFileName());
         
         int size = HEADER_SIZE + lump.getLength();
         
-        ByteBuffer bb = ByteBufferUtils.openReadWrite(file.toPath(), 0, size);
+        ByteBuffer bb = ByteBufferUtils.openReadWrite(file, 0, size);
         
         bb.order(lump.getBuffer().order());
         
@@ -120,7 +120,7 @@ public class LumpFile {
         bb.putInt(lump.getLength());
         bb.putInt(mapRev);
         
-        L.log(Level.FINE, "Saving lump data to {0}", file.getName());
+        L.log(Level.FINE, "Saving lump data to {0}", file.getFileName());
         
         // lump data
         bb.put(lump.getBuffer());
@@ -134,7 +134,7 @@ public class LumpFile {
         this.lump = lump;
     }
 
-    public File getFile() {
+    public Path getFile() {
         return file;
     }
 
