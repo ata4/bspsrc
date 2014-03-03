@@ -31,4 +31,5 @@ public class SourceAppID {
     public static final int DEAR_ESTHER = 203810;
     public static final int DOTA_2_BETA = 570;
     public static final int CONTAGION = 238430;
+    public static final int TITANFALL = -400;
 }

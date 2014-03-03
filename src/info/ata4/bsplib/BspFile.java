@@ -45,18 +45,18 @@ public class BspFile {
     // logger
     private static final Logger L = Logger.getLogger(BspFile.class.getName());
 
-    // big-endian "VBSP"
+    // big-endian Valve ident
     public static final int BSP_ID = StringMacroUtils.makeID("VBSP");
+    
+    // big-endian Titanfall ident
+    public static final int BSP_ID_TF = StringMacroUtils.makeID("rBSP");
     
     // endianness
     private ByteOrder bo;
-    
-    // version limits
-    public static final int VERSION_MIN = 17;
-    public static final int VERSION_MAX = 23;
 
     // lump limits
     public static final int HEADER_LUMPS = 64;
+    public static final int HEADER_LUMPS_TF = 128;
     public static final int HEADER_SIZE = 1036;
     public static final int MAX_LUMPFILES = 128;
 
@@ -135,8 +135,6 @@ public class BspFile {
             // Contagion maps use version 27, ignore VERSION_MAX in this case 
             L.finer("Found Contagion header");
             app = SourceAppDB.getInstance().fromID(CONTAGION);
-        } else if (version > VERSION_MAX || version < VERSION_MIN) {
-            throw new BspException("Unsupported version: " + version);
         }
 
         // hack for L4D2 BSPs
@@ -149,11 +147,18 @@ public class BspFile {
         if (app.getAppID() == CONTAGION) {
             bb.getInt(); // always 0?
         }
+        
+        if (app.getAppID() == TITANFALL) {
+            mapRev = bb.getInt();
+            bb.getInt(); // always 127?
+        }
 
         loadLumps(bb);
         loadGameLumps();
 
-        mapRev = bb.getInt();
+        if (app.getAppID() != TITANFALL) {
+            mapRev = bb.getInt();
+        }
 
         L.log(Level.FINER, "Map revision: {0}", mapRev);
     }
@@ -225,6 +230,12 @@ public class BspFile {
             // ordinary little-endian ident
             bo = ByteOrder.LITTLE_ENDIAN;
             return bb;
+        } else if (ident == BSP_ID_TF) {
+            // Titanfall little-endian ident
+            L.finer("Found Titanfall header");
+            app = SourceAppDB.getInstance().fromID(TITANFALL);
+            bo = ByteOrder.LITTLE_ENDIAN;
+            return bb;
         }
 
         if (ident == 0x1E) {
@@ -269,8 +280,17 @@ public class BspFile {
 
     private void loadLumps(ByteBuffer bb) {
         L.fine("Loading lumps");
+        
+        int numLumps;
+        
+        // Titanfall has more lumps
+        if (app.getAppID() == TITANFALL) {
+            numLumps = HEADER_LUMPS_TF;
+        } else {
+            numLumps = HEADER_LUMPS;
+        }
 
-        for (int i = 0; i < HEADER_LUMPS; i++) {
+        for (int i = 0; i < numLumps; i++) {
             int vers, ofs, len, fourCC;
             
             // L4D2 maps use a different order
@@ -853,14 +873,8 @@ public class BspFile {
      * version!
      *
      * @param version new BSP version
-     * @throws BspException if the version is outside the allowed range of
-     *                      VERSION_MIN to VERSION_MIN.
      */
     public void setVersion(int version) throws BspException {
-        if (version > VERSION_MAX || version < VERSION_MIN) {
-            throw new BspException("Unsupported version");
-        }
-        
         this.version = version;
     }
 

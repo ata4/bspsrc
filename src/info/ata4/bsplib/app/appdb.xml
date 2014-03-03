@@ -1333,4 +1333,21 @@
             berimbau_spectator_camera
         </entities>
     </app>
+    <app name="Titanfall" id="-400">
+        <version min="29" />
+        <files><![CDATA[^mp_$]]></files>
+        <entities>
+            env_dropzone
+            func_window_hint
+            info_lightprobe
+            info_replacement_titan_spawn
+            info_spawnpoint_flag
+            npc_turret_mega
+            prop_exfil_panel
+            script_marvin_job
+            trigger_capture_point
+            trigger_indoor_area
+            trigger_out_of_bounds
+        </entities>
+    </app>
 </apps>
