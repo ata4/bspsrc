@@ -50,6 +50,6 @@ public class BspChecksum extends ModuleRead {
     }
     
     public long getFileCRC() throws IOException {
-        return FileUtils.checksumCRC32(bspFile.getFile());
+        return FileUtils.checksumCRC32(bspFile.getFile().toFile());
     }
 }

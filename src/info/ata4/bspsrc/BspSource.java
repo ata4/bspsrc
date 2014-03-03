@@ -93,7 +93,7 @@ public class BspSource implements Runnable {
         try {
             BspFile bsp = new BspFile();
             bsp.setSourceApp(config.defaultApp);
-            bsp.load(bspFile);
+            bsp.load(bspFile.toPath());
             
             if (config.loadLumpFiles) {
                 bsp.loadLumpFiles();
@@ -102,7 +102,7 @@ public class BspSource implements Runnable {
             // extract embedded files
             if (config.unpackEmbedded) {
                 try {
-                    bsp.getPakFile().unpack(entry.getPakDir());
+                    bsp.getPakFile().unpack(entry.getPakDir().toPath());
                 } catch (IOException ex) {
                     L.log(Level.WARNING, "Can't extract embedded files", ex);
                 }

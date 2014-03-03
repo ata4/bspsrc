@@ -152,7 +152,7 @@ public class TextureSource extends ModuleRead {
         
         // create new side list if required
         if (sides == null) {
-            sides = new HashSet<Integer>();
+            sides = new HashSet<>();
             cubemapToSideList.put(icubemap, sides);
         }
         

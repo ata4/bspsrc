@@ -191,7 +191,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 try {
                     // load BSP file
                     bspFile = new BspFile();
-                    bspFile.load(currentFile);
+                    bspFile.load(currentFile.toPath());
                     
                     boolean compressed = bspFile.isCompressed();
                     
@@ -1331,7 +1331,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         }
 
         try {
-            bspFile.getPakFile().unpack(dest, names);
+            bspFile.getPakFile().unpack(dest.toPath(), names);
 
             JOptionPane.showMessageDialog(this, "Successfully extracted " + names.size() + " embedded files.");
         } catch (IOException ex) {
@@ -1355,7 +1355,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
         try {
-            bspFile.getPakFile().unpack(dest, false);
+            bspFile.getPakFile().unpack(dest.toPath(), false);
             JOptionPane.showMessageDialog(this, "Successfully extracted all embedded files.");
         } catch (IOException ex) {
             L.log(Level.WARNING, "Couldn't extract embedded files", ex);
@@ -1378,7 +1378,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         
         try {
-            bspFile.getPakFile().unpack(dest, true);
+            bspFile.getPakFile().unpack(dest.toPath(), true);
             JOptionPane.showMessageDialog(this, "Successfully extracted embedded Zip file.");
         } catch (IOException ex) {
             L.log(Level.WARNING, "Couldn't extract embedded Zip file", ex);
