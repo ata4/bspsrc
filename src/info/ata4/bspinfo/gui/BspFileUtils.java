@@ -38,10 +38,6 @@ public class BspFileUtils {
         List<Lump> lumps = bspFile.getLumps();
 
         for (Lump lump : lumps) {
-            if (lump.getType() == LumpType.LUMP_UNKNOWN) {
-                continue;
-            }
-            
             if (type != null && lump.getType() != type) {
                 continue;
             }
