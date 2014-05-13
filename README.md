@@ -42,12 +42,3 @@ Limitations and known bugs
 	* [func_viscluster](http://developer.valvesoftware.com/wiki/func_viscluster)
 	* [info_no_dynamic_shadow](http://developer.valvesoftware.com/wiki/info_no_dynamic_shadow)
 * Areaportal and occluder entities are somewhat difficult to decompile and sometimes have missing brushes or wrong textures.
-
-Dependencies
-------------
-
-* [jbsplib](https://github.com/ata4/jbsplib)
-* [apache-commons-io-2.4](http://commons.apache.org/io/)
-* [apache-commons-compress-1.5](http://commons.apache.org/compress/)
-* [apache-commons-cli-1.2](http://commons.apache.org/cli/)
-* [apache-commons-lang3-3.1](http://commons.apache.org/cli/)
