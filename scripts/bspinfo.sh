@@ -1,2 +1,3 @@
 #!/bin/sh
-java -cp bspsrc.jar info.ata4.bspinfo.gui.BspInfoFrame $*
+BASEDIR=$(dirname "$0")
+java -cp "$BASEDIR/bspsrc.jar" info.ata4.bspinfo.gui.BspInfoFrame $*
