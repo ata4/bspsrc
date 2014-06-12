@@ -1,0 +1,3 @@
+[submodule "lib/jbsplib"]
+	path = lib/jbsplib
+	url = git@github.com:ata4/jbsplib.git
