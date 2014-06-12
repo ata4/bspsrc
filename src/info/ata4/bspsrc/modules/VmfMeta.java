@@ -13,6 +13,7 @@ import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bspsrc.VmfWriter;
 import info.ata4.bspsrc.modules.entity.Camera;
+import info.ata4.log.LogUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,7 +31,7 @@ import java.util.logging.Logger;
 public class VmfMeta extends ModuleDecompile {
     
     // logger
-    private static final Logger L = Logger.getLogger(VmfMeta.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     
     // UID mappings
     private Map<Integer, Integer> faceUIDs = new HashMap<>();

@@ -28,6 +28,7 @@ import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.util.SourceFormat;
 import info.ata4.bspsrc.util.Winding;
 import info.ata4.bspsrc.util.WindingFactory;
+import info.ata4.log.LogUtils;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,7 +45,7 @@ import java.util.regex.Pattern;
 public class EntitySource extends ModuleDecompile {
 
     // logger
-    private static final Logger L = Logger.getLogger(EntitySource.class.getName());
+    private static final Logger L = LogUtils.getLogger();
 
     private static final Pattern INSTANCE_PREFIX = Pattern.compile("^([^-]+)-");
     

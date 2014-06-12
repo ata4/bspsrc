@@ -12,6 +12,7 @@ package info.ata4.bspsrc.modules.texture;
 
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bspsrc.modules.ModuleRead;
+import info.ata4.log.LogUtils;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,7 +32,7 @@ import org.apache.commons.io.FilenameUtils;
 public class TextureSource extends ModuleRead {
     
     // logger
-    private static final Logger L = Logger.getLogger(TextureSource.class.getName());
+    private static final Logger L = LogUtils.getLogger();
 
     // regex patterns for texture name fixing
     private static final Pattern originPattern = Pattern.compile("_(-?\\d+)_(-?\\d+)_(-?\\d+)?$"); // cubemap position

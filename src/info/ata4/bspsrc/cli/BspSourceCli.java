@@ -34,7 +34,7 @@ import org.apache.commons.io.FileUtils;
  */
 public class BspSourceCli {
 
-    private static final Logger L = Logger.getLogger(BspSourceCli.class.getName());
+    private static final Logger L = LogUtils.getLogger();
 
     private Options optsMain = new Options();
     private Options optsEntity = new Options();

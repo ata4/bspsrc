@@ -24,6 +24,7 @@ import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.modules.texture.ToolTexture;
 import info.ata4.bspsrc.util.Winding;
 import info.ata4.bspsrc.util.WindingFactory;
+import info.ata4.log.LogUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,7 +45,7 @@ import java.util.logging.Logger;
 public class FaceSource extends ModuleDecompile {
 
     // logger
-    private static final Logger L = Logger.getLogger(FaceSource.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     
     //BSP=VMF 6=9  2=1  0=0
     private static final byte[] TRICONV = {0, 0, 1, 0, 0, 0, 9};

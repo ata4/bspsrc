@@ -17,6 +17,7 @@ import info.ata4.bsplib.struct.DTexData;
 import info.ata4.bsplib.struct.DTexInfo;
 import info.ata4.bsplib.struct.SurfaceFlag;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.log.LogUtils;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -29,7 +30,7 @@ import java.util.logging.Logger;
  */
 public class TextureBuilder {
     
-    private static final Logger L = Logger.getLogger(TextureBuilder.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     private static final float EPS_PERP = 0.02f;
     
     // surface/brush flags

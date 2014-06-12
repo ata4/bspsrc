@@ -1,5 +1,6 @@
 package info.ata4.util.gui.components;
 
+import info.ata4.log.LogUtils;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
@@ -13,7 +14,7 @@ import javax.swing.JLabel;
 
 public class URILabel extends JLabel {
 
-    private static final Logger L = Logger.getLogger(URILabel.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     private URI uri;
 
     public URILabel() {

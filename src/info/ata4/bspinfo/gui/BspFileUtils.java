@@ -13,6 +13,7 @@ import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.lump.GameLump;
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpType;
+import info.ata4.log.LogUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +28,7 @@ import org.apache.commons.io.FileUtils;
  */
 public class BspFileUtils {
     
-    private static final Logger L = Logger.getLogger(BspFileUtils.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     
     private BspFileUtils() {
     }

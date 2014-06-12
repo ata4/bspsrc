@@ -15,6 +15,7 @@ import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.modules.texture.Texture;
 import info.ata4.bspsrc.modules.texture.TextureAxis;
+import info.ata4.log.LogUtils;
 import java.io.*;
 import java.util.Collections;
 import java.util.EmptyStackException;
@@ -30,7 +31,7 @@ import java.util.logging.Logger;
  */
 public class VmfWriter implements Closeable {
 
-    private static final Logger L = Logger.getLogger(VmfWriter.class.getName());
+    private static final Logger L = LogUtils.getLogger();
 
     private final PrintWriter pw;
     private final Stack<String> section = new Stack<>();

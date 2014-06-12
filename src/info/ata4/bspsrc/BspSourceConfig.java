@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 public final class BspSourceConfig implements Serializable {
 
     // logger
-    private static final Logger L = Logger.getLogger(BspSourceConfig.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     
     public SourceApp defaultApp = SourceApp.UNKNOWN;
     public BrushMode brushMode = BrushMode.BRUSHPLANES;

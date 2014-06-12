@@ -19,6 +19,7 @@ import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.modules.texture.ToolTexture;
 import info.ata4.bspsrc.util.WindingFactory;
+import info.ata4.log.LogUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class BspProtection extends ModuleRead {
     private static final Vector3f PB3 = new Vector3f(9, 1, 4);
 
     // logger
-    private static final Logger L = Logger.getLogger(BspProtection.class.getName());
+    private static final Logger L = LogUtils.getLogger();
 
     // sub-modules
     private final TextureSource texsrc;

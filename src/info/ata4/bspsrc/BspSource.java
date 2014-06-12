@@ -13,6 +13,7 @@ package info.ata4.bspsrc;
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bspsrc.modules.BspDecompiler;
+import info.ata4.log.LogUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
@@ -33,7 +34,7 @@ import org.apache.commons.io.output.NullOutputStream;
  */
 public class BspSource implements Runnable {
     
-    private static final Logger L = Logger.getLogger(BspSource.class.getName());
+    private static final Logger L = LogUtils.getLogger();
 
     public static final String VERSION = "1.3.15";
     

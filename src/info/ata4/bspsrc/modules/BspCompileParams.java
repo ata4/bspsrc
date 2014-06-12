@@ -12,6 +12,7 @@ package info.ata4.bspsrc.modules;
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bsplib.struct.LevelFlag;
+import info.ata4.log.LogUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +28,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
  */
 public class BspCompileParams extends ModuleRead {
     
-    private static final Logger L = Logger.getLogger(BspCompileParams.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     
     private List<String> vbspParams = new ArrayList<>();
     private List<String> vvisParams = new ArrayList<>();

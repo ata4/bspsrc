@@ -40,7 +40,7 @@ import javax.swing.filechooser.FileFilter;
  */
 public class BspSourceFrame extends javax.swing.JFrame {
     
-    private static final Logger L = Logger.getLogger(BspSourceFrame.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     
     private BspSourceConfig config;
     private BspSourceLogFrame logFrame;

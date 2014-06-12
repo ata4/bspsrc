@@ -20,6 +20,7 @@ import info.ata4.bspsrc.modules.geom.BrushSource;
 import info.ata4.bspsrc.modules.geom.FaceSource;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.util.WindingFactory;
+import info.ata4.log.LogUtils;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +33,7 @@ import java.util.logging.Logger;
 public class BspDecompiler extends ModuleDecompile {
 
     // logger
-    private static final Logger L = Logger.getLogger(BspDecompiler.class.getName());
+    private static final Logger L = LogUtils.getLogger();
 
     // sub-modules
     private final BspSourceConfig config;

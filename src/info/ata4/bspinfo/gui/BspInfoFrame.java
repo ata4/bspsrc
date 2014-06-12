@@ -58,7 +58,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class BspInfoFrame extends javax.swing.JFrame {
 
-    private static final Logger L = Logger.getLogger(BspInfoFrame.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     
     public static final String NAME = "BSPInfo";
     public static final String VERSION = BspSource.VERSION;

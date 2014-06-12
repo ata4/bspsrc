@@ -10,6 +10,7 @@
 package info.ata4.bspinfo.gui.models;
 
 import info.ata4.bsplib.BspFile;
+import info.ata4.log.LogUtils;
 import info.ata4.util.gui.ListTableModel;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
  */
 public class EmbeddedTableModel extends ListTableModel {
     
-    private static final Logger L = Logger.getLogger(EmbeddedTableModel.class.getName());
+    private static final Logger L = LogUtils.getLogger();
 
     public EmbeddedTableModel() {
         super(3);
