@@ -35,10 +35,10 @@ public class TextureSource extends ModuleRead {
     private static final Logger L = LogUtils.getLogger();
 
     // regex patterns for texture name fixing
-    private static final Pattern originPattern = Pattern.compile("_(-?\\d+)_(-?\\d+)_(-?\\d+)?$"); // cubemap position
-    private static final Pattern wvtPatchPattern = Pattern.compile("_wvt_patch$"); // world vertex patch
-    private static final Pattern waterPatchPattern = Pattern.compile("_depth_(-?\\d+)$"); // water texture patch
-    private static final Pattern mapPattern = Pattern.compile("^maps/[^/]+/");
+    private final Pattern originPattern = Pattern.compile("_(-?\\d+)_(-?\\d+)_(-?\\d+)?$"); // cubemap position
+    private final Pattern wvtPatchPattern = Pattern.compile("_wvt_patch$"); // world vertex patch
+    private final Pattern waterPatchPattern = Pattern.compile("_depth_(-?\\d+)$"); // water texture patch
+    private final Pattern mapPattern;
     
     // ID mappings
     private Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<>();
@@ -50,6 +50,8 @@ public class TextureSource extends ModuleRead {
     
     public TextureSource(BspFileReader reader) {
         super(reader);
+        
+        mapPattern = Pattern.compile("^maps/" + reader.getBspFile().getName() + "/");
         
         reader.loadTexInfo();
         reader.loadTexData();
