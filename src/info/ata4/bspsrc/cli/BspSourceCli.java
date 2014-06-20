@@ -115,7 +115,7 @@ public class BspSourceCli {
         
         // basic options
         Option helpOpt, versionOpt, debugOpt, outputOpt, recursiveOpt, fileListOpt;
-        optsMain.addOption(helpOpt = new Option("h", "Print this help."));
+        optsMain.addOption(helpOpt = new Option("h", "help", false, "Print this help."));
         optsMain.addOption(versionOpt = new Option("v", "Print version info."));
         optsMain.addOption(debugOpt = new Option("d", "Enable debug mode. Increases verbosity and adds additional data to the VMF file."));
         optsMain.addOption(recursiveOpt = new Option("r", "Decompile all files found in the given directory."));
