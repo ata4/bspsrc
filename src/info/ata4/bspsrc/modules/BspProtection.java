@@ -18,6 +18,7 @@ import info.ata4.bsplib.struct.DPlane;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.modules.texture.ToolTexture;
+import info.ata4.bspsrc.util.AABB;
 import info.ata4.bspsrc.util.WindingFactory;
 import info.ata4.log.LogUtils;
 import java.io.IOException;
@@ -27,7 +28,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.io.IOUtils;
 
 /**
  * A module to check if the map has been protected by the mapper with at least
@@ -367,17 +367,12 @@ public class BspProtection extends ModuleRead {
      * @return vector with sizes of the bounding box
      */
     private Vector3f getBrushSize(DBrush brush) {
-        Vector3f min = Vector3f.MAX_VALUE;
-        Vector3f max = Vector3f.MIN_VALUE;
-
-        // get limits for all brush side windings
+        // add bounds of all brush sides
+        AABB bounds = new AABB();
         for (int i = 0; i < brush.numside; i++) {
-            Vector3f[] bounds = WindingFactory.fromSide(bsp, brush, i).getBounds();
-            min = bounds[0].min(min);
-            max = bounds[1].max(max);
+            bounds.include(WindingFactory.fromSide(bsp, brush, i).getBounds());
         }
-
-        return max.sub(min);
+        return bounds.getSize();
     }
 
     /**

@@ -398,7 +398,7 @@ public class Winding implements List<Vector3f> {
         return true;
     }
     
-    public Vector3f[] getBounds() {
+    public AABB getBounds() {
         Vector3f mins = Vector3f.MAX_VALUE;
         Vector3f maxs = Vector3f.MIN_VALUE;
         
@@ -407,15 +407,9 @@ public class Winding implements List<Vector3f> {
             maxs = maxs.max(vert);
         }
         
-        return new Vector3f[] {mins, maxs};
-    }
-    
-    public Vector3f getSize() {
-        Vector3f[] bounds = getBounds();
-        return bounds[1].sub(bounds[0]);
+        return new AABB(mins, maxs);
     }
         
-    
     /**
      * Returns the center point (barycenter) of this winding.
      * 
