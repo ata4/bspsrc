@@ -70,7 +70,7 @@ public class EntitySource extends ModuleDecompile {
     // settings
     private int maxCubemapSides = 8;
     private int maxOverlaySides = 64;
-    private boolean detailMerge = false;
+    private boolean detailMerge = true;
     private float detailMergeThresh = 1;
 
     public EntitySource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
