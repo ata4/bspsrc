@@ -44,6 +44,11 @@ public final class BspSourceConfig implements Serializable {
     public boolean nullOutput = false;
     public boolean skipProt = false;
     public boolean unpackEmbedded = false;
+    public float backfaceDepth = 1;
+    public int maxCubemapSides = 8;
+    public int maxOverlaySides = 64;
+    public boolean detailMerge = true;
+    public float detailMergeThresh = 1;
     public boolean writeAreaportals = true;
     public boolean writeBrushEntities = true;
     public boolean writeCameras = true;
@@ -56,7 +61,6 @@ public final class BspSourceConfig implements Serializable {
     public boolean writeStaticProps = true;
     public boolean writeVisgroups = true;
     public boolean writeWorldBrushes = true;
-    public float backfaceDepth = 1;
     
     private boolean debug = false;
     private Set<BspFileEntry> files = new HashSet<>();

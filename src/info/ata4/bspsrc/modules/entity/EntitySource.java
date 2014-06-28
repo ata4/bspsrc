@@ -31,7 +31,16 @@ import info.ata4.bspsrc.util.SourceFormat;
 import info.ata4.bspsrc.util.Winding;
 import info.ata4.bspsrc.util.WindingFactory;
 import info.ata4.log.LogUtils;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -62,16 +71,10 @@ public class EntitySource extends ModuleDecompile {
     private final VmfMeta vmfmeta;
 
     // list of areaportal brush ids
-    private Set<Integer> apBrushes = new HashSet<>();
+    private final Set<Integer> apBrushes = new HashSet<>();
 
     // overlay target names
-    private Map<Integer, String> overlayNames = new HashMap<>();
-
-    // settings
-    private int maxCubemapSides = 8;
-    private int maxOverlaySides = 64;
-    private boolean detailMerge = true;
-    private float detailMergeThresh = 1;
+    private final Map<Integer, String> overlayNames = new HashMap<>();
 
     public EntitySource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
             BrushSource brushsrc, FaceSource facesrc, TextureSource texsrc,
@@ -343,10 +346,11 @@ public class EntitySource extends ModuleDecompile {
     public void writeDetails() {
         L.info("Writing func_details");
         
-        if (detailMerge) {
+        if (config.detailMerge) {
             Deque<Pair<DBrush, AABB>> detailBrushes = new ArrayDeque<>();
             Map<DBrush, Integer> detailBrushIndices = new HashMap<>();
-            Vector3f vex = new Vector3f(detailMergeThresh, detailMergeThresh, detailMergeThresh);
+            Vector3f vex = new Vector3f(config.detailMergeThresh,
+                    config.detailMergeThresh, config.detailMergeThresh);
             
             for (int i = 0; i < bsp.brushes.size(); i++) {
                 DBrush brush = bsp.brushes.get(i);
@@ -684,13 +688,13 @@ public class EntitySource extends ModuleDecompile {
             if (sideList != null) {
                 int cmSides = sideList.size();
 
-                if (cmSides > maxCubemapSides) {
+                if (cmSides > config.maxCubemapSides) {
                     L.log(Level.FINER, "Cubemap {0} has too many sides: {1}",
                             new Object[]{i, sideList});
                 }
 
                 // write list of brush sides that use this cubemap
-                if (cmSides > 0 && cmSides < maxCubemapSides) {
+                if (cmSides > 0 && cmSides < config.maxCubemapSides) {
                     StringBuilder sb = new StringBuilder();
 
                     for (int sideId : sideList) {
@@ -779,7 +783,7 @@ public class EntitySource extends ModuleDecompile {
         }
         
         // don't add more if we already hit the maximum
-        if (sides.size() >= maxOverlaySides) {
+        if (sides.size() >= config.maxOverlaySides) {
             return;
         }
         
@@ -831,7 +835,7 @@ public class EntitySource extends ModuleDecompile {
                 sides.add(side);
                 
                 // make sure we won't have too many brush sides for that overlay
-                if (sides.size() >= maxOverlaySides) {
+                if (sides.size() >= config.maxOverlaySides) {
                     L.log(Level.WARNING, "Too many brush sides for overlay {0}", ioverlay);
                     break;
                 }
