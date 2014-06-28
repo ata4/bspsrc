@@ -10,7 +10,6 @@
 
 package info.ata4.bspsrc.cli;
 
-import info.ata4.bsplib.BspLib;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bspsrc.*;
@@ -84,7 +83,6 @@ public class BspSourceCli {
      */
     private void printVersion() {
         System.out.println("BSPSource " + BspSource.VERSION);
-        System.out.println("BSPLib " + BspLib.VERSION);
         System.out.println();
         System.out.println("Based on VMEX v0.98g by Rof <rof@mellish.org.uk>");
         System.out.println("Extended and modified by Nico Bergemann <barracuda415@yahoo.de>");
