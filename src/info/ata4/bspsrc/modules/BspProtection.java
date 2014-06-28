@@ -19,6 +19,7 @@ import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.modules.texture.ToolTexture;
 import info.ata4.bspsrc.util.AABB;
+import info.ata4.bspsrc.modules.geom.BrushUtils;
 import info.ata4.bspsrc.util.WindingFactory;
 import info.ata4.log.LogUtils;
 import java.io.IOException;
@@ -228,7 +229,7 @@ public class BspProtection extends ModuleRead {
             }
 
             // get brush dimensions
-            Vector3f bsize = getBrushSize(b);
+            Vector3f bsize = BrushUtils.getBounds(bsp, b).getSize();
             
             // check brush dimensions with prefab constants
             if (PB1.sub(bsize).length() < EPS_SIZE) {
@@ -358,21 +359,6 @@ public class BspProtection extends ModuleRead {
             // pakfile broken or missing?
             encryptedEnt = false;
         }
-    }
-
-    /**
-     * Returns the x, y and z extents of a brush, as a vector.
-     *
-     * @param brush a brush
-     * @return vector with sizes of the bounding box
-     */
-    private Vector3f getBrushSize(DBrush brush) {
-        // add bounds of all brush sides
-        AABB bounds = new AABB(Vector3f.MAX_VALUE, Vector3f.MIN_VALUE);
-        for (int i = 0; i < brush.numside; i++) {
-            bounds.include(WindingFactory.fromSide(bsp, brush, i).getBounds());
-        }
-        return bounds.getSize();
     }
 
     /**

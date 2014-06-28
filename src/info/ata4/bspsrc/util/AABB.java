@@ -27,7 +27,7 @@ public class AABB {
     }
     
     public AABB() {
-        this(Vector3f.NULL, Vector3f.NULL);
+        this(Vector3f.MAX_VALUE, Vector3f.MIN_VALUE);
     }
     
     public Vector3f getMin() {
@@ -51,17 +51,23 @@ public class AABB {
     }
     
     public boolean intersectsWith(AABB that) {
-        if (this.max.x <= that.min.x || this.max.y <= that.min.y || this.max.z <= that.min.z) {
-            return false;
-        }
-        if (this.min.x >= that.max.x || this.min.y >= that.max.y || this.min.z >= that.max.z) {
-            return false;
-        }
-        return true;
+        return that.max.x > this.min.x && that.min.x < this.max.x &&
+               that.max.y > this.min.y && that.min.y < this.max.y &&
+               that.max.z > this.min.z && that.min.z < this.max.z;
     }
 
     public void include(AABB that) {
-        min = this.min.min(that.min);
-        max = this.max.max(that.max);
+        min = min.min(that.min);
+        max = max.max(that.max);
+    }
+    
+    public void expand(Vector3f v) {
+        min = min.sub(v);
+        max = max.add(v);
+    }
+
+    @Override
+    public String toString() {
+        return min.toString() + " -> " + max.toString();
     }
 }

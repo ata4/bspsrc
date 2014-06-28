@@ -23,8 +23,10 @@ import info.ata4.bspsrc.modules.ModuleDecompile;
 import info.ata4.bspsrc.modules.VmfMeta;
 import info.ata4.bspsrc.modules.geom.BrushMode;
 import info.ata4.bspsrc.modules.geom.BrushSource;
+import info.ata4.bspsrc.modules.geom.BrushUtils;
 import info.ata4.bspsrc.modules.geom.FaceSource;
 import info.ata4.bspsrc.modules.texture.TextureSource;
+import info.ata4.bspsrc.util.AABB;
 import info.ata4.bspsrc.util.SourceFormat;
 import info.ata4.bspsrc.util.Winding;
 import info.ata4.bspsrc.util.WindingFactory;
@@ -34,6 +36,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Decompiling module to write point and brush entities converted from various lumps.
@@ -66,7 +70,8 @@ public class EntitySource extends ModuleDecompile {
     // settings
     private int maxCubemapSides = 8;
     private int maxOverlaySides = 64;
-    private boolean mergeFuncDetail = true;
+    private boolean detailMerge = false;
+    private float detailMergeThresh = 1;
 
     public EntitySource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
             BrushSource brushsrc, FaceSource facesrc, TextureSource texsrc,
@@ -337,18 +342,17 @@ public class EntitySource extends ModuleDecompile {
      */
     public void writeDetails() {
         L.info("Writing func_details");
-
-        if (mergeFuncDetail) {
+        
+        if (detailMerge) {
+            Deque<Pair<DBrush, AABB>> detailBrushes = new ArrayDeque<>();
+            Map<DBrush, Integer> detailBrushIndices = new HashMap<>();
             List<Integer> protBrushIDs = new ArrayList<>();
+            Vector3f vex = new Vector3f(detailMergeThresh, detailMergeThresh, detailMergeThresh);
             
-            writer.start("entity");
-            writer.put("id", vmfmeta.getUID());
-            writer.put("classname", "func_detail");
-
             for (int i = 0; i < bsp.brushes.size(); i++) {
                 DBrush brush = bsp.brushes.get(i);
-
-                // is a detail brush?
+                
+                // skip non-detail/non-solid brushes
                 if (!brush.isSolid() || !brush.isDetail()) {
                     continue;
                 }
@@ -358,11 +362,63 @@ public class EntitySource extends ModuleDecompile {
                     protBrushIDs.add(i);
                     continue;
                 }
-
-                brushsrc.writeBrush(i);
+                
+                // get bounding box of the detail brush
+                AABB bounds = BrushUtils.getBounds(bsp, brush);
+                
+                // expand bb so it can touch the bbs of other brushes
+                bounds.expand(vex);
+                
+                detailBrushes.add(new ImmutablePair<>(brush, bounds));
+                detailBrushIndices.put(brush, i);
             }
+            
+            List<DBrush> detailBrushClump = new ArrayList<>();
 
-            writer.end("entity");
+            while (!detailBrushes.isEmpty()) {
+                // get next detail brush
+                Pair<DBrush, AABB> detailBrush1 = detailBrushes.removeFirst();
+                
+                // add it as the first brush for the clump
+                detailBrushClump.clear();
+                detailBrushClump.add(detailBrush1.getKey());
+                
+                // init bounding box of the clump
+                AABB detailBrushClumpBounds = new AABB();
+                detailBrushClumpBounds.include(detailBrush1.getValue());
+                
+                // find touching detail brushes
+                Iterator<Pair<DBrush, AABB>> detailBrushIter = detailBrushes.iterator();
+                while (detailBrushIter.hasNext()) {
+                    Map.Entry<DBrush, AABB> detailBrush2 = detailBrushIter.next();
+                    // check if the brush intersects with the clump
+                    if (detailBrushClumpBounds.intersectsWith(detailBrush2.getValue())) {
+                        // add brush to clump
+                        detailBrushClump.add(detailBrush2.getKey());
+                        
+                        // expand clumb bounds to the added brush
+                        detailBrushClumpBounds.include(detailBrush2.getValue());
+                        
+                        // don't check the current bush anymore, it is part of a clump now
+                        detailBrushIter.remove();
+                        
+                        // reset iterator and start over to fetch the brushes
+                        // that previously didn't touch this clump
+                        detailBrushIter = detailBrushes.iterator();
+                    }
+                }
+                
+                // write func_detail clump to VMF
+                writer.start("entity");
+                writer.put("id", vmfmeta.getUID());
+                writer.put("classname", "func_detail");
+                
+                for (DBrush brush : detailBrushClump) {
+                    brushsrc.writeBrush(detailBrushIndices.get(brush));
+                }
+                
+                writer.end("entity");
+            }
             
             // write protector brushes separately
             if (!protBrushIDs.isEmpty()) {
@@ -370,11 +426,11 @@ public class EntitySource extends ModuleDecompile {
                 writer.put("id", vmfmeta.getUID());
                 writer.put("classname", "func_detail");
                 vmfmeta.writeMetaVisgroup("VMEX protector brushes");
-                
+
                 for (int brushId : protBrushIDs) {
                     brushsrc.writeBrush(brushId);
                 }
-                
+
                 writer.end("entity");
             }
         } else {
