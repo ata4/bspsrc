@@ -73,6 +73,10 @@ public class PakFile {
 
                 Path entryFile = dest.resolve(zipName);
                 
+                if (Files.notExists(entryFile.getParent())) {
+                    Files.createDirectories(entryFile.getParent());
+                }
+                
                 // don't overwrite any files
                 if (Files.exists(entryFile)) {
                     L.log(Level.INFO, "Skipped {0}", ze.getName());
