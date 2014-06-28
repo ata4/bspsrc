@@ -346,7 +346,6 @@ public class EntitySource extends ModuleDecompile {
         if (detailMerge) {
             Deque<Pair<DBrush, AABB>> detailBrushes = new ArrayDeque<>();
             Map<DBrush, Integer> detailBrushIndices = new HashMap<>();
-            List<Integer> protBrushIDs = new ArrayList<>();
             Vector3f vex = new Vector3f(detailMergeThresh, detailMergeThresh, detailMergeThresh);
             
             for (int i = 0; i < bsp.brushes.size(); i++) {
@@ -357,9 +356,8 @@ public class EntitySource extends ModuleDecompile {
                     continue;
                 }
                 
-                // if protector brush, mark it and write it later
+                // skip VMEX protector brushes
                 if (bspprot.isProtectedBrush(brush)) {
-                    protBrushIDs.add(i);
                     continue;
                 }
                 
@@ -419,41 +417,42 @@ public class EntitySource extends ModuleDecompile {
                 
                 writer.end("entity");
             }
-            
-            // write protector brushes separately
-            if (!protBrushIDs.isEmpty()) {
-                writer.start("entity");
-                writer.put("id", vmfmeta.getUID());
-                writer.put("classname", "func_detail");
-                vmfmeta.writeMetaVisgroup("VMEX protector brushes");
-
-                for (int brushId : protBrushIDs) {
-                    brushsrc.writeBrush(brushId);
-                }
-
-                writer.end("entity");
-            }
         } else {
             for (int i = 0; i < bsp.brushes.size(); i++) {
                 DBrush brush = bsp.brushes.get(i);
 
-                // is a detail brush?
+                // skip non-detail/non-solid brushes
                 if (!brush.isSolid() || !brush.isDetail()) {
                     continue;
                 }
-
+                
+                // skip VMEX protector brushes
+                if (bspprot.isProtectedBrush(brush)) {
+                    continue;
+                }
+                
                 writer.start("entity");
                 writer.put("id", vmfmeta.getUID());
                 writer.put("classname", "func_detail");
                 brushsrc.writeBrush(i);
 
-                // write visgroup metadata if this is a protector brush
-                if (bspprot.isProtectedBrush(brush)) {
-                    vmfmeta.writeMetaVisgroup("VMEX protector brushes");
-                }
-
                 writer.end("entity");
             }
+        }
+        
+        // write protector brushes separately
+        List<DBrush> protBrushes = bspprot.getProtectedBrushes();
+        if (!protBrushes.isEmpty()) {
+            writer.start("entity");
+            writer.put("id", vmfmeta.getUID());
+            writer.put("classname", "func_detail");
+            vmfmeta.writeMetaVisgroup("VMEX protector brushes");
+
+            for (DBrush protBrush : protBrushes) {
+                brushsrc.writeBrush(bsp.brushes.indexOf(protBrush));
+            }
+
+            writer.end("entity");
         }
     }
 
