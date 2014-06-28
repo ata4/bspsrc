@@ -368,7 +368,7 @@ public class BspProtection extends ModuleRead {
      */
     private Vector3f getBrushSize(DBrush brush) {
         // add bounds of all brush sides
-        AABB bounds = new AABB();
+        AABB bounds = new AABB(Vector3f.MAX_VALUE, Vector3f.MIN_VALUE);
         for (int i = 0; i < brush.numside; i++) {
             bounds.include(WindingFactory.fromSide(bsp, brush, i).getBounds());
         }
