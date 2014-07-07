@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 
 /**
@@ -90,6 +89,8 @@ public class BspSource implements Runnable {
         
         // load BSP
         BspFileReader reader;
+        
+        L.log(Level.INFO, "Loading {0}", bspFile);
 
         try {
             BspFile bsp = new BspFile();
@@ -111,8 +112,6 @@ public class BspSource implements Runnable {
             
             reader = new BspFileReader(bsp);
             reader.loadAll();
-            
-            L.log(Level.INFO, "Loaded {0}", bspFile);
         } catch (IOException ex) {
             L.log(Level.SEVERE, "Can't load " + bspFile, ex);
             return;
@@ -123,31 +122,22 @@ public class BspSource implements Runnable {
             L.log(Level.INFO, "Game: {0}", reader.getBspFile().getSourceApp());
         }
         
-        // create VMF
-        VmfWriter writer;
-        
-        try {
-            // write to file or omit output?
-            if (config.nullOutput) {
-                writer = new VmfWriter(new NullOutputStream());
-            } else {
-                writer = new VmfWriter(vmfFile);
-            }
-            L.log(Level.INFO, "Opened {0}", vmfFile);
-        } catch (IOException ex) {
-            L.log(Level.SEVERE, "Can't write " + vmfFile, ex);
-            return;
-        }
-        
-        try {
-            // create and configure decompiler, then start decompiling
+        // create and configure decompiler and start decompiling
+        try (VmfWriter writer = getVmfWriter(vmfFile)) {
             BspDecompiler decompiler = new BspDecompiler(reader, writer, config);
             decompiler.start();
-        } finally {
-            // "Cave Johnson, we're done here."
-            IOUtils.closeQuietly(writer);
-            L.log(Level.INFO, "Closed {0}", vmfFile);
-            L.log(Level.INFO, "Finished {0}", bspFile);
+            L.log(Level.INFO, "Finished decompiling {0}", bspFile);
+        } catch (IOException ex) {
+            L.log(Level.SEVERE, "Can't decompile " + bspFile + " to " + vmfFile, ex);
+        }
+    }
+    
+    private VmfWriter getVmfWriter(File vmfFile) throws IOException {
+        // write to file or omit output?
+        if (config.nullOutput) {
+            return new VmfWriter(new NullOutputStream());
+        } else {
+            return new VmfWriter(vmfFile);
         }
     }
 
