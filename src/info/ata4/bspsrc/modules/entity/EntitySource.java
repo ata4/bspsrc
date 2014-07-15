@@ -33,6 +33,7 @@ import info.ata4.bspsrc.util.WindingFactory;
 import info.ata4.log.LogUtils;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -347,11 +349,12 @@ public class EntitySource extends ModuleDecompile {
         L.info("Writing func_details");
         
         if (config.detailMerge) {
-            Deque<Pair<DBrush, AABB>> detailBrushes = new ArrayDeque<>();
+            Queue<Pair<DBrush, AABB>> detailBrushes = new ArrayDeque<>();
             Map<DBrush, Integer> detailBrushIndices = new HashMap<>();
             Vector3f vex = new Vector3f(config.detailMergeThresh,
                     config.detailMergeThresh, config.detailMergeThresh);
             
+            // add all detail brushes to queue
             for (int i = 0; i < bsp.brushes.size(); i++) {
                 DBrush brush = bsp.brushes.get(i);
                 
@@ -375,48 +378,24 @@ public class EntitySource extends ModuleDecompile {
                 detailBrushIndices.put(brush, i);
             }
             
-            List<DBrush> detailBrushClump = new ArrayList<>();
-
             while (!detailBrushes.isEmpty()) {
                 // get next detail brush
-                Pair<DBrush, AABB> detailBrush1 = detailBrushes.removeFirst();
+                Pair<DBrush, AABB> detailBrush1 = detailBrushes.remove();
                 
                 // add it as the first brush for the clump
-                detailBrushClump.clear();
-                detailBrushClump.add(detailBrush1.getKey());
+                Set<Pair<DBrush, AABB>> detailBrushClump = new HashSet<>();
+                detailBrushClump.add(detailBrush1);
                 
-                // init bounding box of the clump
-                AABB detailBrushClumpBounds = new AABB();
-                detailBrushClumpBounds.include(detailBrush1.getValue());
+                // move all touching brushes from the queue to this clump
+                clumpBrushes(detailBrushes, detailBrushClump, detailBrush1);
                 
-                // find touching detail brushes
-                Iterator<Pair<DBrush, AABB>> detailBrushIter = detailBrushes.iterator();
-                while (detailBrushIter.hasNext()) {
-                    Map.Entry<DBrush, AABB> detailBrush2 = detailBrushIter.next();
-                    // check if the brush intersects with the clump
-                    if (detailBrushClumpBounds.intersectsWith(detailBrush2.getValue())) {
-                        // add brush to clump
-                        detailBrushClump.add(detailBrush2.getKey());
-                        
-                        // expand clumb bounds to the added brush
-                        detailBrushClumpBounds.include(detailBrush2.getValue());
-                        
-                        // don't check the current bush anymore, it is part of a clump now
-                        detailBrushIter.remove();
-                        
-                        // reset iterator and start over to fetch the brushes
-                        // that previously didn't touch this clump
-                        detailBrushIter = detailBrushes.iterator();
-                    }
-                }
-                
-                // write func_detail clump to VMF
+                // write brush clump as func_detail to VMF
                 writer.start("entity");
                 writer.put("id", vmfmeta.getUID());
                 writer.put("classname", "func_detail");
                 
-                for (DBrush brush : detailBrushClump) {
-                    brushsrc.writeBrush(detailBrushIndices.get(brush));
+                for (Pair<DBrush, AABB> pair : detailBrushClump) {
+                    brushsrc.writeBrush(detailBrushIndices.get(pair.getLeft()));
                 }
                 
                 writer.end("entity");
@@ -457,6 +436,36 @@ public class EntitySource extends ModuleDecompile {
             }
 
             writer.end("entity");
+        }
+    }
+    
+    /**
+     * Groups brushes that touch the target brush.
+     * 
+     * @param src global brush collection
+     * @param dst clumped brush collection
+     * @param target search brush
+     */
+    private void clumpBrushes(Collection<Pair<DBrush, AABB>> src, Collection<Pair<DBrush, AABB>> dst, Pair<DBrush, AABB> target) {
+        Iterator<Pair<DBrush, AABB>> iter = src.iterator();
+        while (iter.hasNext()) {
+            // get next brush
+            Pair<DBrush, AABB> other = iter.next();
+            
+            // is it touching the target brush?
+            if (other.getRight().intersectsWith(target.getRight())) {
+                // put it to destination collection
+                dst.add(other);
+                
+                // remove it from source
+                iter.remove();
+                
+                // also move all brushes that touch this brush
+                clumpBrushes(src, dst, other);
+                
+                // recreate iterator, since the collection may have been modified
+                iter = src.iterator();
+            }
         }
     }
 
