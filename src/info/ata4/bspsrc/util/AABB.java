@@ -18,8 +18,8 @@ import info.ata4.bsplib.vector.Vector3f;
  */
 public class AABB {
     
-    private Vector3f min;
-    private Vector3f max;
+    private final Vector3f min;
+    private final Vector3f max;
 
     public AABB(Vector3f mins, Vector3f maxs) {
         this.min = mins;
@@ -34,16 +34,8 @@ public class AABB {
         return min;
     }
 
-    public void setMin(Vector3f min) {
-        this.min = min;
-    }
-
     public Vector3f getMax() {
         return max;
-    }
-
-    public void setMax(Vector3f max) {
-        this.max = max;
     }
     
     public Vector3f getSize() {
@@ -55,15 +47,17 @@ public class AABB {
                that.max.y > this.min.y && that.min.y < this.max.y &&
                that.max.z > this.min.z && that.min.z < this.max.z;
     }
-
-    public void include(AABB that) {
-        min = min.min(that.min);
-        max = max.max(that.max);
+    
+    public AABB include(AABB that) {
+        return new AABB(min.min(that.min), max.max(that.max));
     }
     
-    public void expand(Vector3f v) {
-        min = min.sub(v);
-        max = max.add(v);
+    public AABB expand(Vector3f v) {
+        return new AABB(min.sub(v), max.add(v));
+    }
+    
+    public AABB expand(float e) {
+        return expand(new Vector3f(e, e, e));
     }
 
     @Override

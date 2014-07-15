@@ -351,8 +351,6 @@ public class EntitySource extends ModuleDecompile {
         if (config.detailMerge) {
             Queue<Pair<DBrush, AABB>> detailBrushes = new ArrayDeque<>();
             Map<DBrush, Integer> detailBrushIndices = new HashMap<>();
-            Vector3f vex = new Vector3f(config.detailMergeThresh,
-                    config.detailMergeThresh, config.detailMergeThresh);
             
             // add all detail brushes to queue
             for (int i = 0; i < bsp.brushes.size(); i++) {
@@ -371,9 +369,6 @@ public class EntitySource extends ModuleDecompile {
                 // get bounding box of the detail brush
                 AABB bounds = BrushUtils.getBounds(bsp, brush);
                 
-                // expand bb so it can touch the bbs of other brushes
-                bounds.expand(vex);
-                
                 detailBrushes.add(new ImmutablePair<>(brush, bounds));
                 detailBrushIndices.put(brush, i);
             }
@@ -387,7 +382,7 @@ public class EntitySource extends ModuleDecompile {
                 detailBrushClump.add(detailBrush1);
                 
                 // move all touching brushes from the queue to this clump
-                clumpBrushes(detailBrushes, detailBrushClump, detailBrush1);
+                clumpBrushes(detailBrushes, detailBrushClump, detailBrush1, config.detailMergeThresh);
                 
                 // write brush clump as func_detail to VMF
                 writer.start("entity");
@@ -444,16 +439,20 @@ public class EntitySource extends ModuleDecompile {
      * 
      * @param src global brush collection
      * @param dst clumped brush collection
+     * @param thresh touching threshold
      * @param target search brush
      */
-    private void clumpBrushes(Collection<Pair<DBrush, AABB>> src, Collection<Pair<DBrush, AABB>> dst, Pair<DBrush, AABB> target) {
+    private void clumpBrushes(Collection<Pair<DBrush, AABB>> src, Collection<Pair<DBrush, AABB>> dst, Pair<DBrush, AABB> target, float thresh) {
+        // expand bb so it can touch the bbs of other brushes
+        AABB targetBounds = target.getRight().expand(thresh);
+        
         Iterator<Pair<DBrush, AABB>> iter = src.iterator();
         while (iter.hasNext()) {
             // get next brush
             Pair<DBrush, AABB> other = iter.next();
             
             // is it touching the target brush?
-            if (other.getRight().intersectsWith(target.getRight())) {
+            if (other.getRight().intersectsWith(targetBounds)) {
                 // put it to destination collection
                 dst.add(other);
                 
@@ -461,7 +460,7 @@ public class EntitySource extends ModuleDecompile {
                 iter.remove();
                 
                 // also move all brushes that touch this brush
-                clumpBrushes(src, dst, other);
+                clumpBrushes(src, dst, other, thresh);
                 
                 // recreate iterator, since the collection may have been modified
                 iter = src.iterator();
