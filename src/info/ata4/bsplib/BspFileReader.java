@@ -18,6 +18,7 @@ import info.ata4.bsplib.io.EntityInputStream;
 import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.struct.*;
 import info.ata4.io.DataInputReader;
+import info.ata4.log.LogUtils;
 import info.ata4.util.EnumConverter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,18 +36,19 @@ import java.util.logging.Logger;
  */
 public class BspFileReader {
     
-    private static final Logger L = Logger.getLogger(BspFileReader.class.getName());
+    private static final Logger L = LogUtils.getLogger();
 
     // BSP headers and data
-    private BspFile bspFile;
-    private BspData bsp = new BspData();
+    private final BspFile bspFile;
+    private final BspData bspData;
     private int appID;
 
     // statistical stuff
     private Set<String> entityClasses = new TreeSet<>();
 
-    public BspFileReader(BspFile bspFile) throws IOException {
+    public BspFileReader(BspFile bspFile, BspData bspData) throws IOException {
         this.bspFile = bspFile;
+        this.bspData = bspData;
         this.appID = bspFile.getSourceApp().getAppID();
         
         if (bspFile.getFile() == null) {
@@ -58,6 +60,10 @@ public class BspFileReader {
         if (bspFile.isCompressed()) {
             bspFile.uncompress();
         }
+    }
+    
+    public BspFileReader(BspFile bspFile) throws IOException {
+        this(bspFile, new BspData());
     }
 
     /**
@@ -94,23 +100,23 @@ public class BspFileReader {
     }
 
     public void loadPlanes() {
-        if (bsp.planes != null) {
+        if (bspData.planes != null) {
             return;
         }
         
-        bsp.planes = loadLump(LumpType.LUMP_PLANES, DPlane.class);
+        bspData.planes = loadLump(LumpType.LUMP_PLANES, DPlane.class);
     }
 
     public void loadBrushes() {
-        if (bsp.brushes != null) {
+        if (bspData.brushes != null) {
             return;
         }
         
-        bsp.brushes = loadLump(LumpType.LUMP_BRUSHES, DBrush.class);
+        bspData.brushes = loadLump(LumpType.LUMP_BRUSHES, DBrush.class);
     }
 
     public void loadBrushSides() {
-        if (bsp.brushSides != null) {
+        if (bspData.brushSides != null) {
             return;
         }
         
@@ -124,27 +130,27 @@ public class BspFileReader {
             struct = DBrushSideV2.class;
         }
 
-        bsp.brushSides = loadLump(LumpType.LUMP_BRUSHSIDES, struct);
+        bspData.brushSides = loadLump(LumpType.LUMP_BRUSHSIDES, struct);
     }
 
     public void loadVertices() {
-        if (bsp.verts != null) {
+        if (bspData.verts != null) {
             return;
         }
         
-        bsp.verts = loadLump(LumpType.LUMP_VERTEXES, DVertex.class);
+        bspData.verts = loadLump(LumpType.LUMP_VERTEXES, DVertex.class);
     }
 
     public void loadClipPortalVertices() {
-        if (bsp.clipPortalVerts != null) {
+        if (bspData.clipPortalVerts != null) {
             return;
         }
         
-        bsp.clipPortalVerts = loadLump(LumpType.LUMP_CLIPPORTALVERTS, DVertex.class);
+        bspData.clipPortalVerts = loadLump(LumpType.LUMP_CLIPPORTALVERTS, DVertex.class);
     }
 
     public void loadEdges() {
-        if (bsp.edges != null) {
+        if (bspData.edges != null) {
             return;
         }
 
@@ -154,11 +160,11 @@ public class BspFileReader {
             struct = DEdgeVin.class;
         }
 
-        bsp.edges = loadLump(LumpType.LUMP_EDGES, struct);
+        bspData.edges = loadLump(LumpType.LUMP_EDGES, struct);
     }
 
     private void loadFaces(boolean orig) {
-        if ((orig && bsp.origFaces != null) || (!orig && bsp.faces != null)) {
+        if ((orig && bspData.origFaces != null) || (!orig && bspData.faces != null)) {
             return;
         }
         
@@ -187,13 +193,13 @@ public class BspFileReader {
         }
         
         if (orig) {
-            bsp.origFaces = loadLump(LumpType.LUMP_ORIGINALFACES, struct);
+            bspData.origFaces = loadLump(LumpType.LUMP_ORIGINALFACES, struct);
         } else {
             // use LUMP_FACES_HDR if LUMP_FACES is empty
             if (getLump(LumpType.LUMP_FACES).getLength() == 0) {
-                bsp.faces = loadLump(LumpType.LUMP_FACES_HDR, struct);
+                bspData.faces = loadLump(LumpType.LUMP_FACES_HDR, struct);
             } else {
-                bsp.faces = loadLump(LumpType.LUMP_FACES, struct);
+                bspData.faces = loadLump(LumpType.LUMP_FACES, struct);
             }
         }
     }
@@ -207,7 +213,7 @@ public class BspFileReader {
     }
 
     public void loadModels() {
-        if (bsp.models != null) {
+        if (bspData.models != null) {
             return;
         }
         
@@ -217,19 +223,19 @@ public class BspFileReader {
             struct = DModelDM.class;
         }
 
-        bsp.models = loadLump(LumpType.LUMP_MODELS, struct);
+        bspData.models = loadLump(LumpType.LUMP_MODELS, struct);
     }
 
     public void loadSurfaceEdges() {
-        if (bsp.surfEdges != null) {
+        if (bspData.surfEdges != null) {
             return;
         }
         
-        bsp.surfEdges = loadIntegerLump(LumpType.LUMP_SURFEDGES);
+        bspData.surfEdges = loadIntegerLump(LumpType.LUMP_SURFEDGES);
     }
 
     public void loadStaticProps() {
-        if (bsp.staticProps != null && bsp.staticPropName != null) {
+        if (bspData.staticProps != null && bspData.staticPropName != null) {
             return;
         }
 
@@ -239,7 +245,7 @@ public class BspFileReader {
 
         if (sprpLump == null) {
             // static prop lump not available
-            bsp.staticProps = new ArrayList<>();
+            bspData.staticProps = new ArrayList<>();
             return;
         }
 
@@ -252,10 +258,10 @@ public class BspFileReader {
             
             L.log(Level.FINE, "Static prop names: {0}", psnames);
             
-            bsp.staticPropName = new ArrayList<>(psnames);
+            bspData.staticPropName = new ArrayList<>(psnames);
 
             for (int i = 0; i < psnames; i++) {
-                bsp.staticPropName.add(in.readStringPadded(padsize));
+                bspData.staticPropName.add(in.readStringPadded(padsize));
             }
 
             // model path strings in Zeno Clash
@@ -269,10 +275,10 @@ public class BspFileReader {
             
             L.log(Level.FINE, "Static prop leaves: {0}", propleaves);
             
-            bsp.staticPropLeaf = new ArrayList<>(propleaves);
+            bspData.staticPropLeaf = new ArrayList<>(propleaves);
             
             for (int i = 0; i < propleaves; i++) {
-                bsp.staticPropLeaf.add(in.readUnsignedShort());
+                bspData.staticPropLeaf.add(in.readUnsignedShort());
             }
             
             // extra data for Vindictus
@@ -324,7 +330,7 @@ public class BspFileReader {
                 }
             }
             
-            bsp.staticProps = new ArrayList<>(propstatics);
+            bspData.staticProps = new ArrayList<>(propstatics);
             
             for (int i = 0; i < propstatics; i++) {
                 DStaticProp sp = structClass.newInstance();
@@ -336,7 +342,7 @@ public class BspFileReader {
                     throw new IOException("Bytes read: " + pos + "; expected: " + size);
                 }
                 
-                bsp.staticProps.add(sp);
+                bspData.staticProps.add(sp);
             }
 
             L.log(Level.FINE, "Static props: {0}", propstatics);
@@ -352,15 +358,15 @@ public class BspFileReader {
     }
 
     public void loadCubemaps() {
-        if (bsp.cubemaps != null) {
+        if (bspData.cubemaps != null) {
             return;
         }
         
-        bsp.cubemaps = loadLump(LumpType.LUMP_CUBEMAPS, DCubemapSample.class);
+        bspData.cubemaps = loadLump(LumpType.LUMP_CUBEMAPS, DCubemapSample.class);
     }
 
     public void loadDispInfos() {
-        if (bsp.dispinfos != null) {
+        if (bspData.dispinfos != null) {
             return;
         }
         
@@ -388,35 +394,35 @@ public class BspFileReader {
                 break;
         }
         
-        bsp.dispinfos = loadLump(LumpType.LUMP_DISPINFO, struct);
+        bspData.dispinfos = loadLump(LumpType.LUMP_DISPINFO, struct);
     }
 
     public void loadDispVertices() {
-        if (bsp.dispverts != null) {
+        if (bspData.dispverts != null) {
             return;
         }
         
-        bsp.dispverts = loadLump(LumpType.LUMP_DISP_VERTS, DDispVert.class);
+        bspData.dispverts = loadLump(LumpType.LUMP_DISP_VERTS, DDispVert.class);
     }
 
     public void loadDispTriangleTags() {
-        if (bsp.disptris != null) {
+        if (bspData.disptris != null) {
             return;
         }
         
-        bsp.disptris = loadLump(LumpType.LUMP_DISP_TRIS, DDispTri.class);
+        bspData.disptris = loadLump(LumpType.LUMP_DISP_TRIS, DDispTri.class);
     }
     
     public void loadDispMultiBlend() {
-        if (bsp.dispmultiblend != null) {
+        if (bspData.dispmultiblend != null) {
             return;
         }
     	
-        bsp.dispmultiblend = loadLump(LumpType.LUMP_DISP_MULTIBLEND, DDispMultiBlend.class);
+        bspData.dispmultiblend = loadLump(LumpType.LUMP_DISP_MULTIBLEND, DDispMultiBlend.class);
     }
 
     public void loadTexInfo() {
-        if (bsp.texinfos != null) {
+        if (bspData.texinfos != null) {
             return;
         }
         
@@ -426,15 +432,15 @@ public class BspFileReader {
             struct = DTexInfoDM.class;
         }
 
-        bsp.texinfos = loadLump(LumpType.LUMP_TEXINFO, struct);
+        bspData.texinfos = loadLump(LumpType.LUMP_TEXINFO, struct);
     }
 
     public void loadTexData() {
-        if (bsp.texdatas != null) {
+        if (bspData.texdatas != null) {
             return;
         }
         
-        bsp.texdatas = loadLump(LumpType.LUMP_TEXDATA, DTexData.class);
+        bspData.texdatas = loadLump(LumpType.LUMP_TEXDATA, DTexData.class);
         loadTexDataStrings();  // load associated texdata strings
     }
 
@@ -465,7 +471,7 @@ public class BspFileReader {
             final int size = 4;
             final int tdsts = lump.getLength() / size;
 
-            bsp.texnames = new ArrayList<>(tdsts);
+            bspData.texnames = new ArrayList<>(tdsts);
 
             tdst:
             for (int i = 0; i < tdsts; i++) {
@@ -476,7 +482,7 @@ public class BspFileReader {
                 for (ofsNull = ofs; ofsNull < stringData.length; ofsNull++) {
                     if (stringData[ofsNull] == 0) {
                         // build string from string data array
-                        bsp.texnames.add(new String(stringData, ofs, ofsNull - ofs));
+                        bspData.texnames.add(new String(stringData, ofs, ofsNull - ofs));
                         continue tdst;
                     }
                 }
@@ -491,7 +497,7 @@ public class BspFileReader {
     }
     
     public void loadEntities() {
-        if (bsp.entities != null) {
+        if (bspData.entities != null) {
             return;
         }
         
@@ -502,12 +508,12 @@ public class BspFileReader {
         try (EntityInputStream entReader = new EntityInputStream(lump.getInputStream())) {
             // allow escaped quotes for VTBM
             entReader.setAllowEscSeq(bspFile.getVersion() == 17);            
-            bsp.entities = new ArrayList<>();
+            bspData.entities = new ArrayList<>();
             
             entityClasses.clear();
             Entity ent;
             while ((ent = entReader.readEntity()) != null) {
-                bsp.entities.add(ent);
+                bspData.entities.add(ent);
                 entityClasses.add(ent.getClassName());
             }
 
@@ -523,11 +529,11 @@ public class BspFileReader {
             L.log(Level.SEVERE, "Couldn''t read entity lump", ex);
         }
         
-        L.log(Level.FINE, "Entities: {0}", bsp.entities.size());
+        L.log(Level.FINE, "Entities: {0}", bspData.entities.size());
     }
 
     public void loadNodes() {
-        if (bsp.nodes != null) {
+        if (bspData.nodes != null) {
             return;
         }
         
@@ -538,11 +544,11 @@ public class BspFileReader {
             struct = DNodeVin.class;
         }
         
-        bsp.nodes = loadLump(LumpType.LUMP_NODES, struct);
+        bspData.nodes = loadLump(LumpType.LUMP_NODES, struct);
     }
 
     public void loadLeaves() {
-        if (bsp.leaves != null) {
+        if (bspData.leaves != null) {
             return;
         }
         
@@ -558,27 +564,27 @@ public class BspFileReader {
             struct = DLeafV0.class;
         }
 
-        bsp.leaves = loadLump(LumpType.LUMP_LEAFS, struct);
+        bspData.leaves = loadLump(LumpType.LUMP_LEAFS, struct);
     }
 
     public void loadLeafFaces() {
-        if (bsp.leafFaces != null) {
+        if (bspData.leafFaces != null) {
             return;
         }
         
-        bsp.leafFaces = loadIntegerLump(LumpType.LUMP_LEAFFACES, appID != VINDICTUS);
+        bspData.leafFaces = loadIntegerLump(LumpType.LUMP_LEAFFACES, appID != VINDICTUS);
     }
 
     public void loadLeafBrushes() {
-        if (bsp.leafBrushes != null) {
+        if (bspData.leafBrushes != null) {
             return;
         }
         
-        bsp.leafBrushes = loadIntegerLump(LumpType.LUMP_LEAFBRUSHES, appID != VINDICTUS);
+        bspData.leafBrushes = loadIntegerLump(LumpType.LUMP_LEAFBRUSHES, appID != VINDICTUS);
     }
 
     public void loadOverlays() {
-        if (bsp.overlays != null) {
+        if (bspData.overlays != null) {
             return;
         }
         
@@ -590,21 +596,21 @@ public class BspFileReader {
             struct = DOverlayDota2.class;
         }
         
-        bsp.overlays = loadLump(LumpType.LUMP_OVERLAYS, struct);
+        bspData.overlays = loadLump(LumpType.LUMP_OVERLAYS, struct);
         
         // read fade distances
-        if (bsp.overlayFades == null) {
-            bsp.overlayFades = loadLump(LumpType.LUMP_OVERLAY_FADES, DOverlayFade.class);
+        if (bspData.overlayFades == null) {
+            bspData.overlayFades = loadLump(LumpType.LUMP_OVERLAY_FADES, DOverlayFade.class);
         }
 
         // read CPU/GPU levels
-        if (bsp.overlaySysLevels == null) {
-            bsp.overlaySysLevels = loadLump(LumpType.LUMP_OVERLAY_SYSTEM_LEVELS, DOverlaySystemLevel.class);
+        if (bspData.overlaySysLevels == null) {
+            bspData.overlaySysLevels = loadLump(LumpType.LUMP_OVERLAY_SYSTEM_LEVELS, DOverlaySystemLevel.class);
         }
     }
 
     public void loadAreaportals() {
-        if (bsp.areaportals != null) {
+        if (bspData.areaportals != null) {
             return;
         }
         
@@ -614,11 +620,11 @@ public class BspFileReader {
             struct = DAreaportalVin.class;
         }
         
-        bsp.areaportals = loadLump(LumpType.LUMP_AREAPORTALS, struct);
+        bspData.areaportals = loadLump(LumpType.LUMP_AREAPORTALS, struct);
     }
 
     public void loadOccluders() {
-        if (bsp.occluderDatas != null) {
+        if (bspData.occluderDatas != null) {
             return;
         }
 
@@ -630,7 +636,7 @@ public class BspFileReader {
         try {
             // load occluder data
             final int occluders = lump.getLength() == 0 ? 0 : in.readInt();
-            bsp.occluderDatas = new ArrayList<>(occluders);
+            bspData.occluderDatas = new ArrayList<>(occluders);
 
             for (int i = 0; i < occluders; i++) {
                 DOccluderData od;
@@ -642,29 +648,29 @@ public class BspFileReader {
                 }
 
                 od.read(in);
-                bsp.occluderDatas.add(od);
+                bspData.occluderDatas.add(od);
             }
 
             L.log(Level.FINE, "Occluders: {0}", occluders);
 
             // load occluder polys
             final int occluderPolys = lump.getLength() == 0 ? 0 : in.readInt();
-            bsp.occluderPolyDatas = new ArrayList<>(occluderPolys);
+            bspData.occluderPolyDatas = new ArrayList<>(occluderPolys);
 
             for (int i = 0; i < occluderPolys; i++) {
                 DOccluderPolyData opd = new DOccluderPolyData();
                 opd.read(in);
-                bsp.occluderPolyDatas.add(opd);
+                bspData.occluderPolyDatas.add(opd);
             }
 
             L.log(Level.FINE, "Occluder polygons: {0}", occluderPolys);
 
             // load occluder vertices
             final int occluderVertices = lump.getLength() == 0 ? 0 : in.readInt();
-            bsp.occluderVerts = new ArrayList<>(occluderVertices);
+            bspData.occluderVerts = new ArrayList<>(occluderVertices);
 
             for (int i = 0; i < occluderVertices; i++) {
-                bsp.occluderVerts.add(in.readInt());
+                bspData.occluderVerts.add(in.readInt());
             }
 
             L.log(Level.FINE, "Occluder vertices: {0}", occluderVertices);
@@ -676,7 +682,7 @@ public class BspFileReader {
     }
 
     public void loadFlags() {
-        if (bsp.mapFlags != null) {
+        if (bspData.mapFlags != null) {
             return;
         }
 
@@ -691,9 +697,9 @@ public class BspFileReader {
         DataInputReader in = DataInputReader.newReader(lump.getBuffer());
 
         try {
-            bsp.mapFlags = EnumConverter.fromInteger(LevelFlag.class, in.readInt());
+            bspData.mapFlags = EnumConverter.fromInteger(LevelFlag.class, in.readInt());
 
-            L.log(Level.FINE, "Map flags: {0}", bsp.mapFlags);
+            L.log(Level.FINE, "Map flags: {0}", bspData.mapFlags);
 
             checkRemaining(in);
         } catch (IOException ex) {
@@ -702,27 +708,27 @@ public class BspFileReader {
     }
     
     public void loadPrimitives() {
-        if (bsp.prims != null) {
+        if (bspData.prims != null) {
             return;
         }
         
-        bsp.prims = loadLump(LumpType.LUMP_PRIMITIVES, DPrimitive.class);
+        bspData.prims = loadLump(LumpType.LUMP_PRIMITIVES, DPrimitive.class);
     }
     
     public void loadPrimIndices() {
-        if (bsp.primIndices != null) {
+        if (bspData.primIndices != null) {
             return;
         }
         
-        bsp.primIndices = loadIntegerLump(LumpType.LUMP_PRIMINDICES, true);
+        bspData.primIndices = loadIntegerLump(LumpType.LUMP_PRIMINDICES, true);
     }
     
     public void loadPrimVerts() {
-        if (bsp.primVerts != null) {
+        if (bspData.primVerts != null) {
             return;
         }
         
-        bsp.primVerts = loadLump(LumpType.LUMP_PRIMVERTS, DVertex.class);
+        bspData.primVerts = loadLump(LumpType.LUMP_PRIMVERTS, DVertex.class);
     }
 
     private <E extends DStruct> List<E> loadLump(LumpType lumpType, Class<E> struct) {
@@ -854,6 +860,6 @@ public class BspFileReader {
     }
 
     public BspData getData() {
-        return bsp;
+        return bspData;
     }
 }
