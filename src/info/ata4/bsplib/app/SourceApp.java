@@ -9,6 +9,7 @@
  */
 package info.ata4.bsplib.app;
 
+import info.ata4.log.LogUtils;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
@@ -25,7 +26,7 @@ import java.util.regex.PatternSyntaxException;
  */
 public class SourceApp {
     
-    private static final Logger L = Logger.getLogger(SourceApp.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     public static final SourceApp UNKNOWN = new SourceApp("Unknown", SourceAppID.UNKNOWN);
     
     private final String name;

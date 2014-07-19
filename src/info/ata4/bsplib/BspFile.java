@@ -21,6 +21,7 @@ import info.ata4.io.DataOutputWriter;
 import static info.ata4.io.SeekOrigin.*;
 import info.ata4.io.buffer.ByteBufferUtils;
 import info.ata4.io.util.XORUtils;
+import info.ata4.log.LogUtils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -43,7 +44,7 @@ import org.apache.commons.io.FilenameUtils;
 public class BspFile {
     
     // logger
-    private static final Logger L = Logger.getLogger(BspFile.class.getName());
+    private static final Logger L = LogUtils.getLogger();
 
     // big-endian Valve ident
     public static final int BSP_ID = StringMacroUtils.makeID("VBSP");

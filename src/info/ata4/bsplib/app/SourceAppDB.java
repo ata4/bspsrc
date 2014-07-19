@@ -9,6 +9,7 @@
  */
 package info.ata4.bsplib.app;
 
+import info.ata4.log.LogUtils;
 import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Level;
@@ -23,7 +24,7 @@ import javax.xml.parsers.SAXParserFactory;
  */
 public class SourceAppDB {
     
-    private static final Logger L = Logger.getLogger(SourceAppDB.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     private static SourceAppDB instance;
     
     private List<SourceApp> appList = new ArrayList<>();

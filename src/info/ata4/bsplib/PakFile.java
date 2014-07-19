@@ -11,6 +11,7 @@ package info.ata4.bsplib;
 
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpType;
+import info.ata4.log.LogUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -28,7 +29,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
  */
 public class PakFile {
     
-    private static final Logger L = Logger.getLogger(PakFile.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     
     private final Lump pakLump;
     

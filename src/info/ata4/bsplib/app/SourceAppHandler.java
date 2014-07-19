@@ -9,6 +9,7 @@
  */
 package info.ata4.bsplib.app;
 
+import info.ata4.log.LogUtils;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +27,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class SourceAppHandler extends DefaultHandler {
     
-    private static final Logger L = Logger.getLogger(SourceAppHandler.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     
     private List<SourceApp> appList = new ArrayList<>();
     private SourceApp currentApp;

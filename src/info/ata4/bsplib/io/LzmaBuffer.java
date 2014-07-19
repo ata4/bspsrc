@@ -13,6 +13,7 @@ package info.ata4.bsplib.io;
 import info.ata4.bsplib.util.StringMacroUtils;
 import info.ata4.io.buffer.ByteBufferInputStream;
 import info.ata4.io.buffer.ByteBufferOutputStream;
+import info.ata4.log.LogUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -30,7 +31,7 @@ import org.apache.commons.io.IOUtils;
  */
 public class LzmaBuffer {
     
-    private static final Logger L = Logger.getLogger(LzmaBuffer.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     
     public final static int LZMA_ID = StringMacroUtils.makeID("LZMA");
     public final static int HEADER_SIZE = 17;

@@ -11,6 +11,7 @@
 package info.ata4.bsplib.entity;
 
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.log.LogUtils;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.Map.Entry;
@@ -27,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Entity {
 
-    private static final Logger L = Logger.getLogger(Entity.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     
     private Map<String, String> keyValue = new LinkedHashMap<>();
     private List<KeyValue> keyValueIO = new ArrayList<>();

@@ -11,6 +11,7 @@ package info.ata4.bsplib.io;
 
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.entity.KeyValue;
+import info.ata4.log.LogUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
@@ -27,7 +28,7 @@ import org.apache.commons.io.input.CountingInputStream;
  */
 public class EntityInputStream extends CountingInputStream {
     
-    private static final Logger L = Logger.getLogger(EntityInputStream.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     private boolean allowEsc = false;
     
     public EntityInputStream(InputStream in) {

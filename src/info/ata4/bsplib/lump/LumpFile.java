@@ -12,6 +12,7 @@ package info.ata4.bsplib.lump;
 
 import info.ata4.bsplib.BspFile;
 import info.ata4.io.buffer.ByteBufferUtils;
+import info.ata4.log.LogUtils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -26,7 +27,7 @@ import java.util.logging.Logger;
  */
 public class LumpFile {
 
-    private static final Logger L = Logger.getLogger(LumpFile.class.getName());
+    private static final Logger L = LogUtils.getLogger();
     
     public static final int HEADER_SIZE = 20;
 
