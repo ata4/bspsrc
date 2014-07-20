@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,10 +67,10 @@ public class BspFile {
     private String name;
 
     // lump table
-    private List<Lump> lumps = new ArrayList<>(HEADER_LUMPS);
+    private final List<Lump> lumps = new ArrayList<>(HEADER_LUMPS);
     
     // game lump data
-    private List<GameLump> gameLumps = new ArrayList<>();
+    private final List<GameLump> gameLumps = new ArrayList<>();
 
     // fields from dheader_t
     private int version;
@@ -185,6 +184,9 @@ public class BspFile {
         
         L.log(Level.FINE, "Saving headers to {0}", name);
         
+        // update game lump buffer
+        saveGameLumps();
+        
         int size = fixLumpOffsets();
         ByteBuffer bb = ByteBufferUtils.openReadWrite(file, 0, size);
         
@@ -192,7 +194,6 @@ public class BspFile {
         bb.putInt(BSP_ID);
         bb.putInt(version);
         
-        saveGameLumps();
         saveLumps(bb);
         
         bb.putInt(mapRev);
@@ -360,31 +361,37 @@ public class BspFile {
     private void saveLumps(ByteBuffer bb) {
         L.fine("Saving lumps");
         
-        for (Lump l : lumps) {
+        for (Lump lump : lumps) {
             // write header
             if (app.getAppID() == LEFT_4_DEAD_2) {
-                bb.putInt(l.getVersion());
-                bb.putInt(l.getOffset());
-                bb.putInt(l.getLength());
+                bb.putInt(lump.getVersion());
+                bb.putInt(lump.getOffset());
+                bb.putInt(lump.getLength());
             } else {
-                bb.putInt(l.getOffset());
-                bb.putInt(l.getLength());
-                bb.putInt(l.getVersion());
+                bb.putInt(lump.getOffset());
+                bb.putInt(lump.getLength());
+                bb.putInt(lump.getVersion());
             }
             
-            bb.putInt(l.getFourCC());
+            bb.putInt(lump.getFourCC());
             
-            if (l.getLength() == 0) {
+            if (lump.getLength() == 0) {
                 continue;
             }
             
+            // convert relative game lump offsets to absolute
+            if (lump.getType() == LumpType.LUMP_GAME_LUMP) {
+                fixGameLumpOffsets(lump);
+            }
+            
             // write buffer data
-            ByteBuffer lbb = l.getBuffer();
+            ByteBuffer lbb = lump.getBuffer();
             lbb.rewind();
-            int tmpPos = bb.position();
-            bb.position(l.getOffset());
+            
+            bb.mark();
+            bb.position(lump.getOffset());
             bb.put(lbb);
-            bb.position(tmpPos);
+            bb.reset();
         }
     }
 
@@ -598,24 +605,35 @@ public class BspFile {
     
     private void saveGameLumps() {
         L.fine("Saving game lumps");
+
+        // lumpCount + dgamelump_t[lumpCount]
+        int headerSize = 4;
+        if (app.getAppID() == VINDICTUS) {
+            headerSize += 20 * gameLumps.size();
+        } else {
+            headerSize += 16 * gameLumps.size();
+        }
         
-        int size = getGameLumpHeaderSize();
-        
-        // add game lump sizes
+        // get total game lump data size
+        int dataSize = 0;
         for (GameLump gl : gameLumps) {
-            size += gl.getLength();
+            dataSize += gl.getLength();
         }
         
         try {
-            ByteBuffer bb = ByteBuffer.allocateDirect(size);
-            
-            Lump l = getLump(LumpType.LUMP_GAME_LUMP);
-            l.setBuffer(bb);
+            ByteBuffer bb = ByteBuffer.allocateDirect(headerSize + dataSize);
+            bb.order(bo);
             
             DataOutputWriter out = DataOutputWriter.newWriter(bb);
             out.writeInt(gameLumps.size());
+            
+            // use relative offsets, they're converted to absolute later
+            int offset = headerSize;
 
             for (GameLump gl : gameLumps) {
+                gl.setOffset(offset);
+                offset += gl.getLength();
+                
                 // write header
                 out.writeInt(gl.getFourCC());
                 if (app.getAppID() == VINDICTUS) {
@@ -628,35 +646,19 @@ public class BspFile {
                 out.writeInt(gl.getOffset());
                 out.writeInt(gl.getLength());
 
-                int ofs = gl.getOffset();
-
-                // Offset is relative to the beginning of the BSP file,
-                // not to the game lump.
-                // FIXME: this isn't the case for the console version of Portal 2,
-                // is there a better way to detect this?
-                if (ofs - l.getOffset() > 0) {
-                    ofs -= l.getOffset();
-                }
-
                 // write buffer data
-                int tmpPos = bb.position();
-                bb.position(ofs);
+                bb.mark();
+                bb.position(gl.getOffset());
                 bb.put(gl.getBuffer());
-                bb.position(tmpPos);
+                bb.reset();
             }
+            
+            // update game lump buffer
+            Lump gameLump = getLump(LumpType.LUMP_GAME_LUMP);
+            gameLump.setBuffer(bb);
         } catch (IOException ex) {
             L.log(Level.SEVERE, "Couldn''t save game lumps", ex);
         }
-    }
-    
-    /**
-     * Returns the header size of all currently loaded game lumps.
-     * 
-     * @return game lump header size
-     */
-    private int getGameLumpHeaderSize() {
-        // lumpCount + dgamelump_t[lumpCount]
-        return 4 + 16 * gameLumps.size();
     }
     
     /**
@@ -666,32 +668,37 @@ public class BspFile {
      * @return offset of the last lump, equals the BSP file size
      */
     private int fixLumpOffsets() {
-        List<Lump> lumpsTmp = getLumpsSorted();
-        
         // always start behind the header or terrible things will happen!
         int offset = HEADER_SIZE;
         
-        for (Lump l : lumpsTmp) {
-            if (l.getLength() == 0) {
-                l.setOffset(0); // some maps have offsets for empty lumps
-                continue;
-            }
-            
-            l.setOffset(offset);
-            
-            if (l.getType() == LumpType.LUMP_GAME_LUMP) {
-                l.setOffset(offset);
-                offset += getGameLumpHeaderSize();
-                for (GameLump gl : gameLumps) {
-                    gl.setOffset(offset);
-                    offset += gl.getLength();
-                }
+        for (Lump lump : lumps) {
+            // set offset of empty lumps to 0
+            if (lump.getLength() == 0) {
+                lump.setOffset(0);
             } else {
-                offset += l.getLength();
+                lump.setOffset(offset);
+                offset += lump.getLength();
             }
         }
         
         return offset;
+    }
+    
+    private void fixGameLumpOffsets(Lump lump) {
+        ByteBuffer bb = lump.getBuffer();
+        int glumps = bb.getInt();
+        
+        for (int i = 0; i < glumps; i++) {
+            int index;
+            if (app.getAppID() == VINDICTUS) {
+                index = 20 * i + 16;
+            } else {
+                index = 16 * i + 12;
+            }
+            int ofs = bb.getInt(index);
+            ofs += lump.getOffset();
+            bb.putInt(index, ofs);
+        }
     }
     
     /**
@@ -728,30 +735,6 @@ public class BspFile {
      */
     public List<Lump> getLumps() {
         return Collections.unmodifiableList(lumps);
-    }
-
-    /**
-     * Returns the array for all currently loaded lumps, sorted by their offsets.
-     *
-     * @return lump array
-     */
-    public List<Lump> getLumpsSorted() {
-        List<Lump> lumpsSorted = getLumps();
-
-        Collections.sort(lumpsSorted, new Comparator<Lump>() {
-            @Override
-            public int compare(Lump l1, Lump l2) {
-                if (l1.getOffset() == l2.getOffset()) {
-                    return 0;
-                } else if (l1.getOffset() > l2.getOffset()) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            }
-        });
-
-        return lumpsSorted;
     }
 
     /**
