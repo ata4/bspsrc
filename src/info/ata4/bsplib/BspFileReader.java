@@ -316,6 +316,13 @@ public class BspFileReader {
                     
                 case VINDICTUS:
                     structClass = DStaticPropV5.class;
+                    break;
+                    
+                case TEAM_FORTRESS_2:
+                    if (sprpver == 7) {
+                        structClass = DStaticPropV7TF2.class;
+                    }
+                    break;
             }
 
             // get structure class for the static prop lump version if it's not

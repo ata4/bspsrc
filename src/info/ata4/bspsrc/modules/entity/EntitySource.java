@@ -661,6 +661,22 @@ public class EntitySource extends ModuleDecompile {
                 writer.put("targetname", ((DStaticPropShip) pst).targetname);
             }
             
+            if (pst instanceof DStaticPropV7TF2) {
+                DStaticPropV7TF2 pst7tf2 = (DStaticPropV7TF2) pst;
+                
+                boolean genLightmaps = (pst7tf2.lightmapFlags & 0x100) == 0;
+                writer.put("generatelightmaps", genLightmaps);
+                if (genLightmaps) {
+                    writer.put("lightmapresolutionx", pst7tf2.lightmapResX);
+                    writer.put("lightmapresolutiony", pst7tf2.lightmapResY);
+                }
+                
+                // FIXME: lighting origin coordinates appear to be broken
+                if (pst4.usesLightingOrigin()) {
+                    lightingOrigins.remove(pst4.lightingOrigin);
+                }
+            }
+            
             writer.end("entity");
         }
 
