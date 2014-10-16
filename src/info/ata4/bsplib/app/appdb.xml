@@ -1078,7 +1078,6 @@
         <entities>
             func_brush_projectile_remove
             info_custom_eye_target
-            info_npc_spawn_destination
             info_player_dark_knight
             info_player_paladin
             npc_actor
