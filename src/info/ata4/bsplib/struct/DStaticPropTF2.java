@@ -14,11 +14,11 @@ import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
- * Variant of V7 with lightmap resolution fields found in newer TF2 maps.
+ * Variant of V6 with lightmap resolution fields found in newer TF2 maps.
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class DStaticPropV7TF2 extends DStaticPropV6 {
+public class DStaticPropTF2 extends DStaticPropV6 {
     
     public int lightmapFlags;
     public int lightmapResX;

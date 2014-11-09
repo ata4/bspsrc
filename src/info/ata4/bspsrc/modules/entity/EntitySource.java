@@ -661,8 +661,8 @@ public class EntitySource extends ModuleDecompile {
                 writer.put("targetname", ((DStaticPropShip) pst).targetname);
             }
             
-            if (pst instanceof DStaticPropV7TF2) {
-                DStaticPropV7TF2 pst7tf2 = (DStaticPropV7TF2) pst;
+            if (pst instanceof DStaticPropTF2) {
+                DStaticPropTF2 pst7tf2 = (DStaticPropTF2) pst;
                 
                 boolean genLightmaps = (pst7tf2.lightmapFlags & 0x100) == 0;
                 writer.put("generatelightmaps", genLightmaps);
