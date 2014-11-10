@@ -16,7 +16,13 @@ import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.modules.texture.Texture;
 import info.ata4.bspsrc.modules.texture.TextureAxis;
 import info.ata4.log.LogUtils;
-import java.io.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.EmptyStackException;
 import java.util.Map;
@@ -35,6 +41,7 @@ public class VmfWriter implements Closeable {
 
     private final PrintWriter pw;
     private final Stack<String> section = new Stack<>();
+    private final DecimalFormat decimalFormat = new DecimalFormat("0.#");
 
     public VmfWriter(File file) throws FileNotFoundException, UnsupportedEncodingException {
         pw = new PrintWriter(file, "US-ASCII");
@@ -90,11 +97,11 @@ public class VmfWriter implements Closeable {
     }
     
     public void put(String key, float value) {
-        put(key, String.valueOf(value));
+        put(key, formatFloat(value));
     }
   
     public void put(String key, double value) {
-        put(key, String.valueOf(value));
+        put(key, formatFloat(value));
     }
     
     public void put(String key, boolean value) {
@@ -106,27 +113,27 @@ public class VmfWriter implements Closeable {
     }
 
     public void put(String key, Vector3f v, int p) {
-        put(key, getVectorString(v, p));
+        put(key, formatVector3f(v, p));
     }
 
     public void put(String key, Vector3f v) {
-        put(key, getVectorString(v, 0));
+        put(key, formatVector3f(v, 0));
     }
 
     public void put(String key, Vector3f v1, Vector3f v2, Vector3f v3) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(getVectorString(v1, 1));
+        sb.append(formatVector3f(v1, 1));
         sb.append(' ');
-        sb.append(getVectorString(v2, 1));
+        sb.append(formatVector3f(v2, 1));
         sb.append(' ');
-        sb.append(getVectorString(v3, 1));
+        sb.append(formatVector3f(v3, 1));
 
         put(key, sb.toString());
     }
 
     public void put(String key, TextureAxis axis) {
-        put(key, getAxisString(axis));
+        put(key, formatTextureAxis(axis));
     }
 
     public void put(Map<String, String> stringMap) {
@@ -152,7 +159,7 @@ public class VmfWriter implements Closeable {
         put(keyValue.getKey(), keyValue.getValue());
     }
 
-    private String getVectorString(Vector3f v, int p) {
+    private String formatVector3f(Vector3f v, int p) {
         StringBuilder sb = new StringBuilder();
 
         if (p == 1) {
@@ -165,9 +172,9 @@ public class VmfWriter implements Closeable {
             L.log(Level.WARNING, "Invalid vector: {0}", v);
             sb.append("0 0 0");
         } else {
-            sb.append(v.x).append(' ');
-            sb.append(v.y).append(' ');
-            sb.append(v.z);
+            sb.append(formatFloat(v.x)).append(' ');
+            sb.append(formatFloat(v.y)).append(' ');
+            sb.append(formatFloat(v.z));
         }
 
         if (p == 1) {
@@ -179,7 +186,7 @@ public class VmfWriter implements Closeable {
         return sb.toString();
     }
 
-    private String getAxisString(TextureAxis tx) {
+    private String formatTextureAxis(TextureAxis tx) {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         
@@ -187,16 +194,20 @@ public class VmfWriter implements Closeable {
             L.log(Level.WARNING, "Invalid vector: {0}", tx.axis);
             sb.append("0 0 0 ");
         } else {
-            sb.append(tx.axis.x).append(' ');
-            sb.append(tx.axis.y).append(' ');
-            sb.append(tx.axis.z).append(' ');
+            sb.append(formatFloat(tx.axis.x)).append(' ');
+            sb.append(formatFloat(tx.axis.y)).append(' ');
+            sb.append(formatFloat(tx.axis.z)).append(' ');
         }
         
-        sb.append(tx.shift);
+        sb.append(formatFloat(tx.shift));
         sb.append("] ");
-        sb.append(tx.tw);
+        sb.append(formatFloat(tx.tw));
 
         return sb.toString();
+    }
+    
+    private String formatFloat(double f) {
+        return decimalFormat.format(f);
     }
 
     @Override
