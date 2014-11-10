@@ -319,7 +319,7 @@ public class BspFileReader {
                     break;
                     
                 case TEAM_FORTRESS_2:
-                    if (sprpver != 6) {
+                    if (sprpver > 6) {
                         structClass = DStaticPropTF2.class;
                     }
                     break;
