@@ -11,18 +11,19 @@ package info.ata4.bsplib.struct;
 
 import info.ata4.io.DataInputReader;
 import info.ata4.io.DataOutputWriter;
+import info.ata4.util.EnumConverter;
 import java.io.IOException;
 
 /**
- * Variant of V6 with lightmap resolution fields found in newer TF2 maps.
+ * Variant of V6 with lightmap resolution fields and integer flags found in
+ * newer TF2 maps and Source SDK 2013.
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DStaticPropTF2 extends DStaticPropV6 {
     
-    public int lightmapFlags;
-    public int lightmapResX;
-    public int lightmapResY;
+    public int lightmapResolutionX;
+    public int lightmapResolutionY;
     
     @Override
     public int getSize() {
@@ -32,16 +33,16 @@ public class DStaticPropTF2 extends DStaticPropV6 {
     @Override
     public void read(DataInputReader in) throws IOException {
         super.read(in);
-        lightmapFlags = in.readInt();
-        lightmapResX = in.readUnsignedShort();
-        lightmapResY = in.readUnsignedShort();
+        flags = EnumConverter.fromInteger(StaticPropFlag.class, in.readInt());
+        lightmapResolutionX = in.readUnsignedShort();
+        lightmapResolutionY = in.readUnsignedShort();
     }
     
     @Override
     public void write(DataOutputWriter out) throws IOException {
         super.write(out);
-        out.writeInt(lightmapFlags);
-        out.writeShort(lightmapResX);
-        out.writeShort(lightmapResY);
+        out.writeInt(EnumConverter.toInteger(flags));
+        out.writeShort(lightmapResolutionX);
+        out.writeShort(lightmapResolutionY);
     }
 }

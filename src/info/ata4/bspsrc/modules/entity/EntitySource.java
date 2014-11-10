@@ -34,7 +34,6 @@ import info.ata4.log.LogUtils;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -662,18 +661,13 @@ public class EntitySource extends ModuleDecompile {
             }
             
             if (pst instanceof DStaticPropTF2) {
-                DStaticPropTF2 pst7tf2 = (DStaticPropTF2) pst;
+                DStaticPropTF2 psttf2 = (DStaticPropTF2) pst;
                 
-                boolean genLightmaps = (pst7tf2.lightmapFlags & 0x100) == 0;
+                boolean genLightmaps = !psttf2.hasNoPerTexelLighting();
                 writer.put("generatelightmaps", genLightmaps);
                 if (genLightmaps) {
-                    writer.put("lightmapresolutionx", pst7tf2.lightmapResX);
-                    writer.put("lightmapresolutiony", pst7tf2.lightmapResY);
-                }
-                
-                // FIXME: lighting origin coordinates appear to be broken
-                if (pst4.usesLightingOrigin()) {
-                    lightingOrigins.remove(pst4.lightingOrigin);
+                    writer.put("lightmapresolutionx", psttf2.lightmapResolutionX);
+                    writer.put("lightmapresolutiony", psttf2.lightmapResolutionY);
                 }
             }
             
