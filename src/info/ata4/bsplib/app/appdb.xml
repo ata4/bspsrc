@@ -211,7 +211,7 @@
     </app>
     <app name="Team Fortress 2" id="440">
         <version min="20" />
-        <files><![CDATA[^(arena|cp|ctf|pl(r?)|t[cr]|koth|sd|mvm)_]]></files>
+        <files><![CDATA[^(arena|cp|ctf|pl(r?)|t[cr]|koth|sd|mvm|bc|rd)_]]></files>
         <entities>
             bot_action_point
             bot_generator
