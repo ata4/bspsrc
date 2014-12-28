@@ -23,8 +23,10 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Collections;
 import java.util.EmptyStackException;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 import java.util.logging.Level;
@@ -41,8 +43,8 @@ public class VmfWriter implements Closeable {
 
     private final PrintWriter pw;
     private final Stack<String> section = new Stack<>();
-    private final DecimalFormat decimalFormat = new DecimalFormat("0.#");
-
+    private final DecimalFormat decimalFormat = new DecimalFormat("0.#", new DecimalFormatSymbols(Locale.ENGLISH));
+    
     public VmfWriter(File file) throws FileNotFoundException, UnsupportedEncodingException {
         pw = new PrintWriter(file, "US-ASCII");
     }
