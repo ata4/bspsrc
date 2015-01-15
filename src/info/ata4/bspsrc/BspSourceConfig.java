@@ -61,6 +61,7 @@ public final class BspSourceConfig implements Serializable {
     public boolean writeStaticProps = true;
     public boolean writeVisgroups = true;
     public boolean writeWorldBrushes = true;
+    public boolean writeLadders = true;
     
     private boolean debug = false;
     private Set<BspFileEntry> files = new HashSet<>();

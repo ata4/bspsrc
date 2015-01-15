@@ -160,6 +160,11 @@ public class BrushSource extends ModuleDecompile {
                 continue;
             }
             
+            // skip ladders
+            if (config.writeLadders && brush.isLadder()) {
+                continue;
+            }
+            
             // NOTE: occluder brushes aren't worldbrushes, so they don't need to
             // be handled here
 

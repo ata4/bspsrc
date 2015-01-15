@@ -168,6 +168,10 @@ public class BspDecompiler extends ModuleDecompile {
             if (config.writeCubemaps) {
                 entsrc.writeCubemaps();
             }
+            
+            if (config.writeLadders) {
+                entsrc.writeLadders();
+            }
         }
     }
 }

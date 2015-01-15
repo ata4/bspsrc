@@ -730,6 +730,31 @@ public class EntitySource extends ModuleDecompile {
             writer.end("entity");
         }
     }
+    
+    /**
+     * Writes all func_ladder entities
+     */
+    public void writeLadders() {
+        L.info("Writing func_ladders");
+
+        for (int i = 0; i < bsp.brushes.size(); i++) {
+            DBrush brush = bsp.brushes.get(i);
+
+            // skip non-ladder brushes
+            if (!brush.isLadder()) {
+                continue;
+            }
+            
+            // write brush as func_ladder
+            writer.start("entity");
+            writer.put("id", vmfmeta.getUID());
+            writer.put("classname", "func_ladder");
+
+            brushsrc.writeBrush(i);
+
+            writer.end("entity");
+        }
+    }
 
     private int findAreaportalBrush(int portalnum) {
         // do we have areaportals at all?

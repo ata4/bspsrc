@@ -98,7 +98,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="scrollFiles" pref="139" max="32767" attributes="0"/>
+                          <Component id="scrollFiles" pref="158" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="buttonAdd" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -198,7 +198,7 @@
                           <Component id="checkBoxDisp" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="panelBrushMode" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="22" max="32767" attributes="0"/>
+                      <EmptySpace pref="41" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -386,7 +386,7 @@
                           <Component id="checkBoxCubemap" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="checkBoxOverlay" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="34" max="32767" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -437,6 +437,7 @@
                               <Component id="checkBoxAreaportal" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="checkBoxOccluder" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="checkBoxFixRotation" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="checkBoxLadder" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
@@ -452,8 +453,10 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="checkBoxOccluder" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
+                          <Component id="checkBoxLadder" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="checkBoxFixRotation" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="11" max="32767" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -490,6 +493,14 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxFixRotationActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="checkBoxLadder">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="func_ladder"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxLadderActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>
@@ -554,7 +565,7 @@
                       <Component id="checkBoxFixCubemapTex" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="checkBoxFixToolTex" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="71" max="32767" attributes="0"/>
+                      <EmptySpace pref="90" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -681,7 +692,7 @@
                           <Component id="labelSourceFormat" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="comboBoxSourceFormat" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="57" max="32767" attributes="0"/>
+                      <EmptySpace pref="76" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

@@ -144,6 +144,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         checkBoxFixRotation.setSelected(config.fixEntityRot);
         checkBoxLoadLumpFile.setSelected(config.loadLumpFiles);
         checkBoxOccluder.setSelected(config.writeOccluders);
+        checkBoxLadder.setSelected(config.writeLadders);
         checkBoxOverlay.setSelected(config.writeOverlays);
         checkBoxPropStatic.setSelected(config.writeStaticProps);
         checkBoxVisgroups.setSelected(config.writeVisgroups);
@@ -372,6 +373,24 @@ public class BspSourceFrame extends javax.swing.JFrame {
             }
         }.start();
     }
+    
+    private void initComponentsCustom() {
+        // add version to title
+        setTitle("BSPSource " + BspSource.VERSION);
+
+        // logging frame
+        logFrame = new BspSourceLogFrame();
+
+        // instant awesome, just add icons!
+        try {
+            URL iconUrl = getClass().getResource("resources/icon.png");
+            Image icon = Toolkit.getDefaultToolkit().createImage(iconUrl);
+            setIconImage(icon);
+            logFrame.setIconImage(icon);
+        } catch (Exception ex) {
+            // meh, don't care
+        }
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -409,6 +428,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         checkBoxAreaportal = new javax.swing.JCheckBox();
         checkBoxOccluder = new javax.swing.JCheckBox();
         checkBoxFixRotation = new javax.swing.JCheckBox();
+        checkBoxLadder = new javax.swing.JCheckBox();
         checkBoxEnableEntities = new javax.swing.JCheckBox();
         panelTextures = new javax.swing.JPanel();
         labelFaceTex = new javax.swing.JLabel();
@@ -482,7 +502,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
             .addGroup(panelFilesLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(scrollFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE)
+                    .addComponent(scrollFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
                     .addGroup(panelFilesLayout.createSequentialGroup()
                         .addComponent(buttonAdd)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -597,7 +617,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addGroup(panelWorldBrushesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(checkBoxDisp)
                     .addComponent(panelBrushMode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(41, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("World", panelWorldBrushes);
@@ -646,7 +666,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addComponent(checkBoxCubemap)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkBoxOverlay)
-                .addContainerGap(34, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         panelBrushEnts.setBorder(javax.swing.BorderFactory.createTitledBorder("Brush entities"));
@@ -680,6 +700,13 @@ public class BspSourceFrame extends javax.swing.JFrame {
             }
         });
 
+        checkBoxLadder.setText("func_ladder");
+        checkBoxLadder.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkBoxLadderActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelBrushEntsLayout = new javax.swing.GroupLayout(panelBrushEnts);
         panelBrushEnts.setLayout(panelBrushEntsLayout);
         panelBrushEntsLayout.setHorizontalGroup(
@@ -690,7 +717,8 @@ public class BspSourceFrame extends javax.swing.JFrame {
                     .addComponent(checkBoxDetail)
                     .addComponent(checkBoxAreaportal)
                     .addComponent(checkBoxOccluder)
-                    .addComponent(checkBoxFixRotation))
+                    .addComponent(checkBoxFixRotation)
+                    .addComponent(checkBoxLadder))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelBrushEntsLayout.setVerticalGroup(
@@ -703,8 +731,10 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkBoxOccluder)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(checkBoxLadder)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkBoxFixRotation)
-                .addContainerGap(11, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         checkBoxEnableEntities.setText("Enable");
@@ -810,7 +840,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addComponent(checkBoxFixCubemapTex)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkBoxFixToolTex)
-                .addContainerGap(71, Short.MAX_VALUE))
+                .addContainerGap(90, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("Textures", panelTextures);
@@ -924,7 +954,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addGroup(panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelSourceFormat)
                     .addComponent(comboBoxSourceFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(57, Short.MAX_VALUE))
+                .addContainerGap(76, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("Other", panelOther);
@@ -974,162 +1004,148 @@ public class BspSourceFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void initComponentsCustom() {
-        // add version to title
-        setTitle("BSPSource " + BspSource.VERSION);
+    private void checkBoxLadderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxLadderActionPerformed
+        config.writeLadders = checkBoxLadder.isSelected();
+    }//GEN-LAST:event_checkBoxLadderActionPerformed
 
-        // logging frame
-        logFrame = new BspSourceLogFrame();
+    private void checkBoxEnableEntitiesActionPerformed(java.awt.event.ActionEvent evt) {                                                       
+        config.setWriteEntities(checkBoxEnableEntities.isSelected());
+        setPanelEnabled(panelEntities, checkBoxEnableEntities);
+    }                                                      
 
-        // instant awesome, just add icons!
-        try {
-            URL iconUrl = getClass().getResource("resources/icon.png");
-            Image icon = Toolkit.getDefaultToolkit().createImage(iconUrl);
-            setIconImage(icon);
-            logFrame.setIconImage(icon);
-        } catch (Exception ex) {
-            // meh, don't care
-        }
-    }
-    
-private void checkBoxEnableEntitiesActionPerformed(java.awt.event.ActionEvent evt) {                                                       
-    config.setWriteEntities(checkBoxEnableEntities.isSelected());
-    setPanelEnabled(panelEntities, checkBoxEnableEntities);
-}                                                      
+    private void checkBoxPropStaticActionPerformed(java.awt.event.ActionEvent evt) {                                                   
+        config.writeStaticProps = checkBoxPropStatic.isSelected();
+    }                                                  
 
-private void checkBoxPropStaticActionPerformed(java.awt.event.ActionEvent evt) {                                                   
-    config.writeStaticProps = checkBoxPropStatic.isSelected();
-}                                                  
+    private void checkBoxAreaportalActionPerformed(java.awt.event.ActionEvent evt) {                                                   
+        config.writeAreaportals = checkBoxAreaportal.isSelected();
+    }                                                  
 
-private void checkBoxAreaportalActionPerformed(java.awt.event.ActionEvent evt) {                                                   
-    config.writeAreaportals = checkBoxAreaportal.isSelected();
-}                                                  
+    private void checkBoxOccluderActionPerformed(java.awt.event.ActionEvent evt) {                                                 
+        config.writeOccluders = checkBoxOccluder.isSelected();
+    }                                                
 
-private void checkBoxOccluderActionPerformed(java.awt.event.ActionEvent evt) {                                                 
-    config.writeOccluders = checkBoxOccluder.isSelected();
-}                                                
+    private void checkBoxDetailActionPerformed(java.awt.event.ActionEvent evt) {                                               
+        config.writeDetails = checkBoxDetail.isSelected();
+    }                                              
 
-private void checkBoxDetailActionPerformed(java.awt.event.ActionEvent evt) {                                               
-    config.writeDetails = checkBoxDetail.isSelected();
-}                                              
+    private void checkBoxOverlayActionPerformed(java.awt.event.ActionEvent evt) {                                                
+        config.writeOverlays = checkBoxOverlay.isSelected();
+    }                                               
 
-private void checkBoxOverlayActionPerformed(java.awt.event.ActionEvent evt) {                                                
-    config.writeOverlays = checkBoxOverlay.isSelected();
-}                                               
+    private void checkBoxCubemapActionPerformed(java.awt.event.ActionEvent evt) {                                                
+        config.writeCubemaps = checkBoxCubemap.isSelected();
+    }                                               
 
-private void checkBoxCubemapActionPerformed(java.awt.event.ActionEvent evt) {                                                
-    config.writeCubemaps = checkBoxCubemap.isSelected();
-}                                               
+    private void checkBoxFixRotationActionPerformed(java.awt.event.ActionEvent evt) {                                                    
+        config.fixEntityRot = checkBoxFixRotation.isSelected();
+    }                                                   
 
-private void checkBoxFixRotationActionPerformed(java.awt.event.ActionEvent evt) {                                                    
-    config.fixEntityRot = checkBoxFixRotation.isSelected();
-}                                                   
-
-private void buttonDecompileActionPerformed(java.awt.event.ActionEvent evt) {                                                
-    if (listFilesModel.isEmpty()) {
-        // how the hell has the user bypassed the buttons?
-        return;
-    }
-
-    // don't show file dialog for multiple bsp files
-    if (listFilesModel.size() == 1) {
-        BspFileEntry entry = listFilesModel.firstElement();
-        File vmfFile = saveVmfFileDialog(entry.getVmfFile());
-
-        if (vmfFile == null) {
-            // the user obviously doesn't want to decompile...
+    private void buttonDecompileActionPerformed(java.awt.event.ActionEvent evt) {                                                
+        if (listFilesModel.isEmpty()) {
+            // how the hell has the user bypassed the buttons?
             return;
         }
 
-        entry.setVmfFile(vmfFile);
-        entry.setPakDir(new File(vmfFile.getAbsoluteFile().getParentFile(),
-                entry.getPakDir().getName()));
-    } else {
-        File dstDir = selectDirectoryDialog(null);
-        
-        if (dstDir == null) {
-            // the user obviously doesn't want to decompile...
+        // don't show file dialog for multiple bsp files
+        if (listFilesModel.size() == 1) {
+            BspFileEntry entry = listFilesModel.firstElement();
+            File vmfFile = saveVmfFileDialog(entry.getVmfFile());
+
+            if (vmfFile == null) {
+                // the user obviously doesn't want to decompile...
+                return;
+            }
+
+            entry.setVmfFile(vmfFile);
+            entry.setPakDir(new File(vmfFile.getAbsoluteFile().getParentFile(),
+                    entry.getPakDir().getName()));
+        } else {
+            File dstDir = selectDirectoryDialog(null);
+
+            if (dstDir == null) {
+                // the user obviously doesn't want to decompile...
+                return;
+            }
+
+            // update paths with new destination dir
+            Enumeration<BspFileEntry> entries = listFilesModel.elements();
+            while(entries.hasMoreElements()) {
+                BspFileEntry entry = entries.nextElement();
+                entry.setVmfFile(new File(dstDir, entry.getVmfFile().getName()));
+                entry.setPakDir(new File(dstDir, entry.getPakDir().getName()));
+            }
+        }
+
+        startBspSource();
+    }                                               
+
+    private void buttonDefaultsActionPerformed(java.awt.event.ActionEvent evt) {                                               
+        reset();
+    }                                              
+
+    private void checkBoxDispActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        config.writeDisp = checkBoxDisp.isSelected();
+    }                                            
+
+    private void comboBoxFaceTexActionPerformed(java.awt.event.ActionEvent evt) {                                                
+        EnumToolTexture tex = (EnumToolTexture)comboBoxFaceTex.getSelectedItem();
+        config.faceTexture = tex.texPath;
+    }                                               
+
+    private void comboBoxBackfaceTexActionPerformed(java.awt.event.ActionEvent evt) {                                                    
+        EnumToolTexture tex = (EnumToolTexture)comboBoxBackfaceTex.getSelectedItem();
+        config.backfaceTexture = tex.texPath;
+    }                                                   
+
+    private void checkBoxFixCubemapTexActionPerformed(java.awt.event.ActionEvent evt) {                                                      
+        config.fixCubemapTextures = checkBoxFixCubemapTex.isSelected();
+    }                                                     
+
+    private void checkBoxDebugModeActionPerformed(java.awt.event.ActionEvent evt) {                                                  
+        config.setDebug(checkBoxDebugMode.isSelected());
+    }                                                 
+
+    private void checkBoxLoadLumpFileActionPerformed(java.awt.event.ActionEvent evt) {                                                     
+        config.loadLumpFiles = checkBoxLoadLumpFile.isSelected();
+    }                                                    
+
+    private void buttonRemoveAllActionPerformed(java.awt.event.ActionEvent evt) {                                                
+        listFilesModel.clear();
+        buttonDecompile.setEnabled(false);
+    }                                               
+
+    private void buttonRemoveActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        int[] selected = listFiles.getSelectedIndices();
+        listFiles.clearSelection();
+
+        for (int index : selected) {
+            listFilesModel.remove(index);
+        }
+
+        buttonDecompile.setEnabled(!listFilesModel.isEmpty());
+    }                                            
+
+    private void buttonAddActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        File bspFile = null;
+
+        if (listFilesModel.size() == 1) {
+            bspFile = listFilesModel.firstElement().getBspFile();
+        }
+
+        File[] bspFiles = openBspFileDialog(bspFile);
+
+        if (bspFiles == null) {
+            // selection canceled
             return;
         }
-        
-        // update paths with new destination dir
-        Enumeration<BspFileEntry> entries = listFilesModel.elements();
-        while(entries.hasMoreElements()) {
-            BspFileEntry entry = entries.nextElement();
-            entry.setVmfFile(new File(dstDir, entry.getVmfFile().getName()));
-            entry.setPakDir(new File(dstDir, entry.getPakDir().getName()));
+
+        for (File file : bspFiles) {
+            listFilesModel.addElement(new BspFileEntry(file));
         }
+
+        buttonDecompile.setEnabled(!listFilesModel.isEmpty());
     }
-
-    startBspSource();
-}                                               
-
-private void buttonDefaultsActionPerformed(java.awt.event.ActionEvent evt) {                                               
-    reset();
-}                                              
-
-private void checkBoxDispActionPerformed(java.awt.event.ActionEvent evt) {                                             
-    config.writeDisp = checkBoxDisp.isSelected();
-}                                            
-
-private void comboBoxFaceTexActionPerformed(java.awt.event.ActionEvent evt) {                                                
-    EnumToolTexture tex = (EnumToolTexture)comboBoxFaceTex.getSelectedItem();
-    config.faceTexture = tex.texPath;
-}                                               
-
-private void comboBoxBackfaceTexActionPerformed(java.awt.event.ActionEvent evt) {                                                    
-    EnumToolTexture tex = (EnumToolTexture)comboBoxBackfaceTex.getSelectedItem();
-    config.backfaceTexture = tex.texPath;
-}                                                   
-
-private void checkBoxFixCubemapTexActionPerformed(java.awt.event.ActionEvent evt) {                                                      
-    config.fixCubemapTextures = checkBoxFixCubemapTex.isSelected();
-}                                                     
-
-private void checkBoxDebugModeActionPerformed(java.awt.event.ActionEvent evt) {                                                  
-    config.setDebug(checkBoxDebugMode.isSelected());
-}                                                 
-
-private void checkBoxLoadLumpFileActionPerformed(java.awt.event.ActionEvent evt) {                                                     
-    config.loadLumpFiles = checkBoxLoadLumpFile.isSelected();
-}                                                    
-
-private void buttonRemoveAllActionPerformed(java.awt.event.ActionEvent evt) {                                                
-    listFilesModel.clear();
-    buttonDecompile.setEnabled(false);
-}                                               
-
-private void buttonRemoveActionPerformed(java.awt.event.ActionEvent evt) {                                             
-    int[] selected = listFiles.getSelectedIndices();
-    listFiles.clearSelection();
-
-    for (int index : selected) {
-        listFilesModel.remove(index);
-    }
-
-    buttonDecompile.setEnabled(!listFilesModel.isEmpty());
-}                                            
-
-private void buttonAddActionPerformed(java.awt.event.ActionEvent evt) {                                          
-    File bspFile = null;
-    
-    if (listFilesModel.size() == 1) {
-        bspFile = listFilesModel.firstElement().getBspFile();
-    }
-    
-    File[] bspFiles = openBspFileDialog(bspFile);
-
-    if (bspFiles == null) {
-        // selection canceled
-        return;
-    }
-
-    for (File file : bspFiles) {
-        listFilesModel.addElement(new BspFileEntry(file));
-    }
-    
-    buttonDecompile.setEnabled(!listFilesModel.isEmpty());
-}                                         
 
     private void comboBoxMapFormatActionPerformed(java.awt.event.ActionEvent evt) {                                                  
         config.defaultApp = (SourceApp) comboBoxMapFormat.getSelectedItem();
@@ -1195,6 +1211,7 @@ private void buttonAddActionPerformed(java.awt.event.ActionEvent evt) {
     private javax.swing.JCheckBox checkBoxFixCubemapTex;
     private javax.swing.JCheckBox checkBoxFixRotation;
     private javax.swing.JCheckBox checkBoxFixToolTex;
+    private javax.swing.JCheckBox checkBoxLadder;
     private javax.swing.JCheckBox checkBoxLoadLumpFile;
     private javax.swing.JCheckBox checkBoxOccluder;
     private javax.swing.JCheckBox checkBoxOverlay;
