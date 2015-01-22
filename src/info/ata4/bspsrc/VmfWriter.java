@@ -43,7 +43,7 @@ public class VmfWriter implements Closeable {
 
     private final PrintWriter pw;
     private final Stack<String> section = new Stack<>();
-    private final DecimalFormat decimalFormat = new DecimalFormat("0.#", new DecimalFormatSymbols(Locale.ENGLISH));
+    private final DecimalFormat decimalFormat = new DecimalFormat("0.####", new DecimalFormatSymbols(Locale.ENGLISH));
     
     public VmfWriter(File file) throws FileNotFoundException, UnsupportedEncodingException {
         pw = new PrintWriter(file, "US-ASCII");
