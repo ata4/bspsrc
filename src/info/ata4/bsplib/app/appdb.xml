@@ -1480,4 +1480,20 @@
             trigger_out_of_bounds
         </entities>
     </app>
+    <app name="Synergy" id="17520">
+        <version min="20" />
+        <files><![CDATA[^syn_$]]></files>
+        <entities>
+            info_global_settings
+            info_player_coop
+            info_player_equip
+            info_spawn_manager
+            info_vehicle_spawn
+            info_vehicle_spawn_destination
+            info_vehicle_spawn_test
+            prop_vehicle_mp
+            synergy_noblock
+            trigger_coop
+        </entities>
+    </app>
 </apps>
