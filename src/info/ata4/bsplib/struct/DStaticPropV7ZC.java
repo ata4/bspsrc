@@ -14,27 +14,28 @@ import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
- *
+ * DStaticProp V7 variant for Zeno Clash.
+ * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class DStaticPropDM extends DStaticPropV6 {
+public class DStaticPropV7ZC extends DStaticPropV6 {
     
-    protected byte[] unknown = new byte[72];
+    protected int unknown;
     
     @Override
     public int getSize() {
-        return super.getSize() + 72;
+        return super.getSize() + 4; // 68
     }
     
     @Override
     public void read(DataInputReader in) throws IOException {
         super.read(in);
-        in.readFully(unknown);
+        unknown = in.readInt();
     }
     
     @Override
     public void write(DataOutputWriter out) throws IOException {
         super.write(out);
-        out.write(unknown);
+        out.writeInt(unknown);
     }
 }

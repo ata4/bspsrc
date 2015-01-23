@@ -10,21 +10,21 @@
 package info.ata4.bsplib.struct;
 
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.util.EnumConverter;
 import info.ata4.io.DataInputReader;
 import info.ata4.io.DataOutputWriter;
+import info.ata4.util.EnumConverter;
 import java.io.IOException;
 
 /**
- * DStaticProp variant for Dear Esther
+ * DStaticProp V9 variant for Dear Esther
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class DStaticPropDE extends DStaticPropV8 {
+public class DStaticPropV9DE extends DStaticPropV8 {
 
     @Override
     public int getSize() {
-        return super.getSize() + 8;
+        return super.getSize() + 8; // 76
     }
 
     @Override

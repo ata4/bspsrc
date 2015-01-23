@@ -14,28 +14,30 @@ import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
- * DStaticProp variant for Zeno Clash
+ * DStaticProp V5 variant for The Ship.
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class DStaticPropZC extends DStaticPropV6 {
+public class DStaticPropV5Ship extends DStaticPropV5 {
     
-    protected int unknown;
+    public String targetname;
+    
+    public static final int TARGETNAME_LEN = 128;
     
     @Override
     public int getSize() {
-        return super.getSize() + 4;
+        return super.getSize() + TARGETNAME_LEN; // 188
     }
     
     @Override
     public void read(DataInputReader in) throws IOException {
         super.read(in);
-        unknown = in.readInt();
+        targetname = in.readStringPadded(TARGETNAME_LEN);
     }
     
     @Override
     public void write(DataOutputWriter out) throws IOException {
         super.write(out);
-        out.writeInt(unknown);
+        out.writeStringPadded(targetname, TARGETNAME_LEN);
     }
 }

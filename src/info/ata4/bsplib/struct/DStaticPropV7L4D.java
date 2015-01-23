@@ -14,39 +14,28 @@ import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
- *
+ * DStaticProp V7 variant for some old Left 4 Dead maps.
+ * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class DStaticPropV8 extends DStaticPropV5 {
+public class DStaticPropV7L4D extends DStaticPropV6 {
     
-    public byte minCPULevel;
-    public byte maxCPULevel;
-    public byte minGPULevel;
-    public byte maxGPULevel;
     public Color32 diffuseModulation;
     
     @Override
     public int getSize() {
-        return super.getSize() + 8; // 68
+        return super.getSize() + 4; // 70
     }
     
     @Override
     public void read(DataInputReader in) throws IOException {
         super.read(in);
-        minCPULevel = in.readByte();
-        maxCPULevel = in.readByte();
-        minGPULevel = in.readByte();
-        maxGPULevel = in.readByte();
         diffuseModulation = new Color32(in.readInt());
     }
     
     @Override
     public void write(DataOutputWriter out) throws IOException {
         super.write(out);
-        out.writeByte(minCPULevel);
-        out.writeByte(maxCPULevel);
-        out.writeByte(minGPULevel);
-        out.writeByte(maxGPULevel);
         out.writeInt(diffuseModulation.rgba);
     }
 }

@@ -288,71 +288,121 @@ public class BspFileReader {
             }
             
             // StaticPropLump_t
-            final int propstatics = in.readInt();
+            final int propStaticCount = in.readInt();
+            
+            // don't try to read static props if there are none
+            if (propStaticCount == 0) {
+                bspData.staticProps = Collections.emptyList();
+                return;
+            }
+            
+            // calculate static prop struct size
+            final int propStaticSize = (int) in.remaining() / propStaticCount;
             
             Class<? extends DStaticProp> structClass = null;
             
             // special cases where derivative lump structures are used
             switch (appID) {
                 case THE_SHIP:
-                    structClass = DStaticPropShip.class;
+                    if (propStaticSize == 188) {
+                        structClass = DStaticPropV5Ship.class;
+                    }
                     break;
                     
                 case BLOODY_GOOD_TIME:
-                    structClass = DStaticPropBGT.class;
+                    if (propStaticSize == 192) {
+                        structClass = DStaticPropV6BGT.class;
+                    }
                     break;
                     
                 case ZENO_CLASH:
-                    structClass = DStaticPropZC.class;
+                    if (propStaticSize == 68) {
+                        structClass = DStaticPropV7ZC.class;
+                    }
                     break;
                     
                 case DARK_MESSIAH:
-                    structClass = DStaticPropDM.class;
+                    if (propStaticSize == 136) {
+                        structClass = DStaticPropV6DM.class;
+                    }
                     break;
                     
                 case DEAR_ESTHER:
-                    structClass = DStaticPropDE.class;
+                    if (propStaticSize == 76) {
+                        structClass = DStaticPropV9DE.class;
+                    }
                     break;
                     
                 case VINDICTUS:
-                    structClass = DStaticPropV5.class;
+                    // newer maps report v6 even though the size is still 60, so
+                    // force v5 in all cases
+                    if (propStaticSize == 60) {
+                        structClass = DStaticPropV5.class;
+                    }
+                    break;
+                    
+                case LEFT_4_DEAD:
+                    // old L4D maps use v7 that is incompatible to the newer
+                    // Source 2013 v7
+                    if (sprpver == 7 && propStaticSize == 70) {
+                        structClass = DStaticPropV7L4D.class;
+                    }
                     break;
                     
                 case TEAM_FORTRESS_2:
-                    if (sprpver > 6) {
-                        structClass = DStaticPropTF2.class;
+                    // newer maps use v10, which is compatible to Source 2013 v7
+                    if (sprpver == 10 && propStaticSize == 72) {
+                        structClass = DStaticPropV7.class;
                     }
                     break;
             }
 
             // get structure class for the static prop lump version if it's not
             // a special case
+            int numFillBytes = 0;
             if (structClass == null) {
                 try {
                     String className = DStaticProp.class.getName();
                     structClass = (Class<? extends DStaticProp>) Class.forName(className + "V" + sprpver);
                 } catch (ClassNotFoundException ex) {
-                    structClass = DStaticPropV4.class;
-                    L.log(Level.WARNING, "Couldn''t find static prop struct for lump version {0}, using v4 instead", sprpver);
+                    L.log(Level.WARNING, "Couldn''t find static prop struct for version {0}", sprpver);
+                    structClass = null;
                 }
             }
             
-            bspData.staticProps = new ArrayList<>(propstatics);
+            // check if the size is correct
+            if (structClass != null) {
+                int propStaticSizeActual = structClass.newInstance().getSize();
+                if (propStaticSizeActual != propStaticSize) {
+                    L.log(Level.WARNING, "Static prop struct size mismatch: expected {0}, got {1} (using {2})",
+                            new Object[]{propStaticSize, propStaticSizeActual, structClass.getSimpleName()});
+                    structClass = null;
+                }
+            }
             
-            for (int i = 0; i < propstatics; i++) {
-                DStaticProp sp = structClass.newInstance();
+            // fall back to a very basic version that should hopefully work in
+            // all situations
+            if (structClass == null) {
+                L.log(Level.WARNING, "Falling back to static prop v4");
                 
-                long pos = in.position();
+                structClass = DStaticPropV4.class;
+                numFillBytes = propStaticSize - 56;
+            }
+            
+            bspData.staticProps = new ArrayList<>(propStaticCount);
+            
+            for (int i = 0; i < propStaticCount; i++) {
+                DStaticProp sp = structClass.newInstance();
                 sp.read(in);
-                int size = sp.getSize();
-                if (in.position() - pos != size) {
-                    throw new IOException("Bytes read: " + pos + "; expected: " + size);
+                
+                if (numFillBytes > 0) {
+                    in.skipBytes(numFillBytes);
                 }
                 
                 bspData.staticProps.add(sp);
             }
 
-            L.log(Level.FINE, "Static props: {0}", propstatics);
+            L.log(Level.FINE, "Static props: {0}", propStaticCount);
 
             checkRemaining(in);
         } catch (IOException ex) {

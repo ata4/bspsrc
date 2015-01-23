@@ -631,8 +631,8 @@ public class EntitySource extends ModuleDecompile {
             // write that later; both v7 and v8 have it, but v8 extends v5
             Color32 diffMod = null;
             
-            if (pst instanceof DStaticPropV7) {
-                DStaticPropV7 pst7 = (DStaticPropV7) pst;
+            if (pst instanceof DStaticPropV7L4D) {
+                DStaticPropV7L4D pst7 = (DStaticPropV7L4D) pst;
                 diffMod = pst7.diffuseModulation;
             }
             
@@ -656,12 +656,12 @@ public class EntitySource extends ModuleDecompile {
                 writer.put("disableX360", pst9.disableX360);
             }
             
-            if (pst instanceof DStaticPropShip) {
-                writer.put("targetname", ((DStaticPropShip) pst).targetname);
+            if (pst instanceof DStaticPropV5Ship) {
+                writer.put("targetname", ((DStaticPropV5Ship) pst).targetname);
             }
             
-            if (pst instanceof DStaticPropTF2) {
-                DStaticPropTF2 psttf2 = (DStaticPropTF2) pst;
+            if (pst instanceof DStaticPropV7) {
+                DStaticPropV7 psttf2 = (DStaticPropV7) pst;
                 
                 boolean genLightmaps = !psttf2.hasNoPerTexelLighting();
                 writer.put("generatelightmaps", genLightmaps);

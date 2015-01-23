@@ -23,7 +23,7 @@ public class DStaticPropV9 extends DStaticPropV8 {
     
     @Override
     public int getSize() {
-        return super.getSize() + 4;
+        return super.getSize() + 4; // 72
     }
     
     @Override

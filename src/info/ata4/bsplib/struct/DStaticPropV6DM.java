@@ -1,5 +1,5 @@
 /*
- ** 2011 Oktober 20
+ ** 2011 September 26
  **
  ** The author disclaims copyright to this source code.  In place of
  ** a legal notice, here is a blessing:
@@ -9,34 +9,33 @@
  */
 package info.ata4.bsplib.struct;
 
-import static info.ata4.bsplib.struct.DStaticPropShip.*;
 import info.ata4.io.DataInputReader;
 import info.ata4.io.DataOutputWriter;
 import java.io.IOException;
 
 /**
- * DStaticProp variant for Bloody Good Time
+ * DStaticProp V6 variant for Dark Messiah.
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class DStaticPropBGT extends DStaticPropV6 {
+public class DStaticPropV6DM extends DStaticPropV6 {
     
-    public String targetname;
+    protected byte[] unknown = new byte[72];
     
     @Override
     public int getSize() {
-        return super.getSize() + TARGETNAME_LEN;
+        return super.getSize() + 72; // 136
     }
     
     @Override
     public void read(DataInputReader in) throws IOException {
         super.read(in);
-        targetname = in.readStringPadded(TARGETNAME_LEN);
+        in.readFully(unknown);
     }
     
     @Override
     public void write(DataOutputWriter out) throws IOException {
         super.write(out);
-        out.writeStringPadded(targetname, TARGETNAME_LEN);
+        out.write(unknown);
     }
 }

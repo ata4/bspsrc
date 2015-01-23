@@ -24,7 +24,7 @@ public class DStaticPropV6 extends DStaticPropV5 {
     
     @Override
     public int getSize() {
-        return super.getSize() + 4;
+        return super.getSize() + 4; // 64
     }
     
     @Override
