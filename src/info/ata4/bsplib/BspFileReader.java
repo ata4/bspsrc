@@ -271,7 +271,7 @@ public class BspFileReader {
             }
 
             // StaticPropLeafLump_t
-            int propleaves = in.readInt();
+            final int propleaves = in.readInt();
             
             L.log(Level.FINE, "Static prop leaves: {0}", propleaves);
             
@@ -359,7 +359,6 @@ public class BspFileReader {
 
             // get structure class for the static prop lump version if it's not
             // a special case
-            int numFillBytes = 0;
             if (structClass == null) {
                 try {
                     String className = DStaticProp.class.getName();
@@ -380,8 +379,9 @@ public class BspFileReader {
                 }
             }
             
-            // fall back to a very basic version that should hopefully work in
-            // all situations
+            // if the correct class is still unknown at this point, fall back to
+            // a very basic version that should hopefully work in all situations
+            int numFillBytes = 0;
             if (structClass == null) {
                 L.log(Level.WARNING, "Falling back to static prop v4");
                 
@@ -791,14 +791,14 @@ public class BspFileReader {
     private <E extends DStruct> List<E> loadLump(LumpType lumpType, Class<E> struct) {
         // don't try to read lumps that aren't supported
         if (!bspFile.canReadLump(lumpType)) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         Lump lump = getLump(lumpType);
         
         // don't try to read empty lumps
         if (lump.getLength() == 0) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         
         L.log(Level.FINE, "Loading {0}", lumpType);
