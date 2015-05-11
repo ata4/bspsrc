@@ -10,8 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -30,7 +30,7 @@ public class DCubemapSample implements DStruct {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         origin[0] = in.readInt();
         origin[1] = in.readInt();
         origin[2] = in.readInt();
@@ -38,7 +38,7 @@ public class DCubemapSample implements DStruct {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         out.writeInt(origin[0]);
         out.writeInt(origin[1]);
         out.writeInt(origin[2]);

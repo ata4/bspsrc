@@ -9,8 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -28,16 +28,16 @@ public class DLeafV0 extends DLeaf {
     }
     
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         super.read(in);
-        in.readFully(ambientLighting);
+        in.readBytes(ambientLighting);
         in.readShort(); // padding
     }
    
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         super.write(out);
-        out.write(ambientLighting);
-        out.writeShort(0); // padding
+        out.writeBytes(ambientLighting);
+        out.writeUnsignedShort(0); // padding
     }
 }

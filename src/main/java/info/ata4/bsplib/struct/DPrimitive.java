@@ -9,8 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -31,7 +31,7 @@ public class DPrimitive implements DStruct {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         type = in.readUnsignedShort();
         firstIndex = in.readUnsignedShort();
         indexCount = in.readUnsignedShort();
@@ -40,11 +40,11 @@ public class DPrimitive implements DStruct {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
-        out.writeShort(type);
-        out.writeShort(firstIndex);
-        out.writeShort(indexCount);
-        out.writeShort(firstVert);
-        out.writeShort(vertCount);
+    public void write(DataWriter out) throws IOException {
+        out.writeUnsignedShort(type);
+        out.writeUnsignedShort(firstIndex);
+        out.writeUnsignedShort(indexCount);
+        out.writeUnsignedShort(firstVert);
+        out.writeUnsignedShort(vertCount);
     }
 }

@@ -10,8 +10,8 @@
 
 package info.ata4.bsplib.vector;
 
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -25,14 +25,14 @@ import java.io.IOException;
  */
 public final class Vector3f extends VectorXf {
     
-    public static Vector3f read(DataInputReader in) throws IOException {
+    public static Vector3f read(DataReader in) throws IOException {
         float x = in.readFloat();
         float y = in.readFloat();
         float z = in.readFloat();
         return new Vector3f(x, y, z);
     }
 
-    public static void write(DataOutputWriter out, Vector3f vec) throws IOException {
+    public static void write(DataWriter out, Vector3f vec) throws IOException {
         out.writeFloat(vec.x);
         out.writeFloat(vec.y);
         out.writeFloat(vec.z);

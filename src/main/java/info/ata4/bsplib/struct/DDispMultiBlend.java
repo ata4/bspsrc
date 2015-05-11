@@ -12,8 +12,8 @@ package info.ata4.bsplib.struct;
 
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bsplib.vector.Vector4f;
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -39,7 +39,7 @@ public class DDispMultiBlend implements DStruct {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         multiblend = Vector4f.read(in);
         alphablend = Vector4f.read(in);
         
@@ -49,7 +49,7 @@ public class DDispMultiBlend implements DStruct {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         Vector4f.write(out, multiblend);
         Vector4f.write(out, alphablend);
         

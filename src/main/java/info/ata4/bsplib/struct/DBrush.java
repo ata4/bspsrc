@@ -11,8 +11,8 @@
 package info.ata4.bsplib.struct;
 
 import info.ata4.util.EnumConverter;
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 import java.util.Set;
 
@@ -77,14 +77,14 @@ public class DBrush implements DStruct {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         fstside = in.readInt();
         numside = in.readInt();
         contents = EnumConverter.fromInteger(BrushFlag.class, in.readInt());
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         out.writeInt(fstside);
         out.writeInt(numside);
         out.writeInt(EnumConverter.toInteger(contents));

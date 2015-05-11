@@ -9,8 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -28,7 +28,7 @@ public class DFaceVinV2 extends DFaceVinV1 {
     }
     
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         pnum = in.readInt();
         side = in.readByte();
         onnode = in.readByte();
@@ -38,7 +38,7 @@ public class DFaceVinV2 extends DFaceVinV1 {
         texinfo = (short) in.readInt();
         dispInfo = (short) in.readInt();
         surfaceFogVolumeID = in.readInt();
-        in.readFully(styles);
+        in.readBytes(styles);
         unknown2 = in.readInt();
         lightofs = in.readInt();
         area = in.readFloat();
@@ -53,7 +53,7 @@ public class DFaceVinV2 extends DFaceVinV1 {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         out.writeInt(pnum);
         out.writeByte(side);
         out.writeByte(onnode);
@@ -63,7 +63,7 @@ public class DFaceVinV2 extends DFaceVinV1 {
         out.writeInt(texinfo);
         out.writeInt(dispInfo);
         out.writeInt(surfaceFogVolumeID);
-        out.write(styles);
+        out.writeBytes(styles);
         out.writeInt(unknown2);
         out.writeInt(lightofs);
         out.writeFloat(area);

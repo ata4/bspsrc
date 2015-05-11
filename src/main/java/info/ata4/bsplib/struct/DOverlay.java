@@ -11,8 +11,8 @@
 package info.ata4.bsplib.struct;
 
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -50,7 +50,7 @@ public class DOverlay implements DStruct {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         id = in.readInt();
         texinfo = in.readShort();
         faceCountAndRenderOrder = in.readUnsignedShort();
@@ -73,10 +73,10 @@ public class DOverlay implements DStruct {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         out.writeInt(id);
         out.writeShort(texinfo);
-        out.writeShort(faceCountAndRenderOrder);
+        out.writeUnsignedShort(faceCountAndRenderOrder);
         
         for (int j = 0; j < OVERLAY_BSP_FACE_COUNT; j++) {
             out.writeInt(ofaces[j]);

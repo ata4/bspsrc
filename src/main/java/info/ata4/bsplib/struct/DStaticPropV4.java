@@ -10,8 +10,8 @@
 package info.ata4.bsplib.struct;
 
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import info.ata4.util.EnumConverter;
 import java.io.IOException;
 import java.util.Set;
@@ -41,7 +41,7 @@ public class DStaticPropV4 implements DStaticProp {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         origin = Vector3f.read(in);
         angles = Vector3f.read(in);
         propType = in.readUnsignedShort();
@@ -56,14 +56,14 @@ public class DStaticPropV4 implements DStaticProp {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         Vector3f.write(out, origin);
         Vector3f.write(out, angles);
-        out.writeShort(propType);
-        out.writeShort(firstLeaf);
-        out.writeShort(leafCount);
-        out.writeByte(solid);
-        out.writeByte(EnumConverter.toInteger(flags));
+        out.writeUnsignedShort(propType);
+        out.writeUnsignedShort(firstLeaf);
+        out.writeUnsignedShort(leafCount);
+        out.writeUnsignedByte(solid);
+        out.writeUnsignedByte(EnumConverter.toInteger(flags));
         out.writeInt(skin);
         out.writeFloat(fademin);
         out.writeFloat(fademax);

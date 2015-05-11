@@ -9,8 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -33,7 +33,7 @@ public class DFaceVTMB extends DFace {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         for (int i = 0; i < MAXLIGHTMAPS; i++) {
             avgLightColor[i] = in.readInt();
         }
@@ -46,9 +46,9 @@ public class DFaceVTMB extends DFace {
         texinfo = in.readShort();
         dispInfo = in.readShort();
         surfaceFogVolumeID = in.readUnsignedShort();
-        in.readFully(styles);
-        in.readFully(day);
-        in.readFully(night);
+        in.readBytes(styles);
+        in.readBytes(day);
+        in.readBytes(night);
         lightofs = in.readInt();
         area = in.readFloat();
         lightmapTextureMinsInLuxels[0] = in.readInt();
@@ -60,22 +60,22 @@ public class DFaceVTMB extends DFace {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         for (int i = 0; i < MAXLIGHTMAPS; i++) {
            out.writeInt(avgLightColor[i]);
         }
         
-        out.writeShort(pnum);
+        out.writeUnsignedShort(pnum);
         out.writeByte(side);
         out.writeByte(onnode);
         out.writeInt(fstedge);
         out.writeShort(numedge);
         out.writeShort(texinfo);
         out.writeShort(dispInfo);
-        out.writeShort(surfaceFogVolumeID);
-        out.write(styles);
-        out.write(day);
-        out.write(night);
+        out.writeUnsignedShort(surfaceFogVolumeID);
+        out.writeBytes(styles);
+        out.writeBytes(day);
+        out.writeBytes(night);
         out.writeInt(lightofs);
         out.writeFloat(area);
         out.writeInt(lightmapTextureMinsInLuxels[0]);
@@ -83,8 +83,8 @@ public class DFaceVTMB extends DFace {
         out.writeInt(lightmapTextureSizeInLuxels[0]);
         out.writeInt(lightmapTextureSizeInLuxels[1]);
         out.writeInt(origFace);
-        out.writeShort(firstPrimID);
-        out.writeShort(numPrims);
+        out.writeUnsignedShort(firstPrimID);
+        out.writeUnsignedShort(numPrims);
         out.writeInt(smoothingGroups);
     }
 }

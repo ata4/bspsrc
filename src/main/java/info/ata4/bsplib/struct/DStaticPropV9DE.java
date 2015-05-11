@@ -10,8 +10,9 @@
 package info.ata4.bsplib.struct;
 
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
+import static info.ata4.io.Seekable.Origin.CURRENT;
 import info.ata4.util.EnumConverter;
 import java.io.IOException;
 
@@ -28,7 +29,7 @@ public class DStaticPropV9DE extends DStaticPropV8 {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         origin = Vector3f.read(in);
         angles = Vector3f.read(in);
         propType = in.readUnsignedShort();
@@ -36,20 +37,20 @@ public class DStaticPropV9DE extends DStaticPropV8 {
         leafCount = in.readUnsignedShort();
         solid = in.readUnsignedByte();
         flags = EnumConverter.fromInteger(StaticPropFlag.class, in.readUnsignedByte());
-        in.skipBytes(4);
+        in.seek(4, CURRENT);
         skin = in.readInt();
         fademin = in.readFloat();
         fademax = in.readFloat();
 //        lightingOrigin = lio.readVector3f();
-        in.skipBytes(12); // invalid lighting origin vector?
+        in.seek(12, CURRENT); // invalid lighting origin vector?
         forcedFadeScale = in.readFloat();
         minCPULevel = in.readByte();
         maxCPULevel = in.readByte();
         minGPULevel = in.readByte();
         maxGPULevel = in.readByte();
-        in.skipBytes(1);
+        in.seek(1, CURRENT);
         diffuseModulation = new Color32(in.readInt());
-        in.skipBytes(3);
+        in.seek(3, CURRENT);
     }
     
     @Override
@@ -59,7 +60,7 @@ public class DStaticPropV9DE extends DStaticPropV8 {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         throw new UnsupportedOperationException();
     }
 }

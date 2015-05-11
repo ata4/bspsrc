@@ -11,8 +11,8 @@
 package info.ata4.bsplib.struct;
 
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -37,14 +37,14 @@ public class DPlane implements DStruct {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         normal = Vector3f.read(in);
         dist = in.readFloat();
         type = in.readInt();
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         Vector3f.write(out, normal);
         out.writeFloat(dist);
         out.writeInt(type);

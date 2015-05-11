@@ -10,8 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -35,7 +35,7 @@ public class DNode implements DStruct {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         planenum = in.readInt();
         children[0] = in.readInt();
         children[1] = in.readInt();
@@ -48,11 +48,11 @@ public class DNode implements DStruct {
         fstface = in.readUnsignedShort();
         numface = in.readUnsignedShort();
         area = in.readShort();
-        in.readShort(); // paddding
+        in.readUnsignedShort(); // paddding
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         out.writeInt(planenum);
         out.writeInt(children[0]);
         out.writeInt(children[1]);
@@ -62,9 +62,9 @@ public class DNode implements DStruct {
         out.writeShort(maxs[0]);
         out.writeShort(maxs[1]);
         out.writeShort(maxs[2]);
-        out.writeShort(fstface);
-        out.writeShort(numface);
+        out.writeUnsignedShort(fstface);
+        out.writeUnsignedShort(numface);
         out.writeShort(area);
-        out.writeShort(0); // paddding
+        out.writeUnsignedShort(0); // paddding
     }
 }

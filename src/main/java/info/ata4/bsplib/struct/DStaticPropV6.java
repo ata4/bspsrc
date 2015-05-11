@@ -9,8 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -28,16 +28,16 @@ public class DStaticPropV6 extends DStaticPropV5 {
     }
     
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         super.read(in);
         minDXLevel = in.readUnsignedShort();
         maxDXLevel = in.readUnsignedShort();
     }
     
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         super.write(out);
-        out.writeShort(minDXLevel);
-        out.writeShort(maxDXLevel);
+        out.writeUnsignedShort(minDXLevel);
+        out.writeUnsignedShort(maxDXLevel);
     }
 }

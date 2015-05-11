@@ -9,8 +9,8 @@
  */
 package info.ata4.bsplib.struct;
 
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -27,14 +27,14 @@ public class DEdge implements DStruct {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         v[0] = in.readUnsignedShort();
         v[1] = in.readUnsignedShort();
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
-        out.writeShort(v[0]);
-        out.writeShort(v[1]);
+    public void write(DataWriter out) throws IOException {
+        out.writeUnsignedShort(v[0]);
+        out.writeUnsignedShort(v[1]);
     }
 }

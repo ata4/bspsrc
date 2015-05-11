@@ -16,9 +16,11 @@ import static info.ata4.bsplib.app.SourceAppID.*;
 import info.ata4.bsplib.io.LzmaBuffer;
 import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.util.StringMacroUtils;
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
-import static info.ata4.io.SeekOrigin.*;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataReaders;
+import info.ata4.io.DataWriter;
+import info.ata4.io.DataWriters;
+import static info.ata4.io.Seekable.Origin.CURRENT;
 import info.ata4.io.buffer.ByteBufferUtils;
 import info.ata4.io.util.XORUtils;
 import info.ata4.log.LogUtils;
@@ -502,7 +504,7 @@ public class BspFile {
         
         try {
             Lump lump = getLump(LumpType.LUMP_GAME_LUMP);
-            DataInputReader in = DataInputReader.newReader(lump.getBuffer());
+            DataReader in = DataReaders.forByteBuffer(lump.getBuffer());
             
             // hack for Vindictus
             if (version == 20 && bo == ByteOrder.LITTLE_ENDIAN
@@ -624,7 +626,7 @@ public class BspFile {
             ByteBuffer bb = ByteBuffer.allocateDirect(headerSize + dataSize);
             bb.order(bo);
             
-            DataOutputWriter out = DataOutputWriter.newWriter(bb);
+            DataWriter out = DataWriters.forByteBuffer(bb);
             out.writeInt(gameLumps.size());
             
             // use relative offsets, they're converted to absolute later
@@ -640,8 +642,8 @@ public class BspFile {
                     out.writeInt(gl.getFlags());
                     out.writeInt(gl.getVersion());
                 } else {
-                    out.writeShort(gl.getFlags());
-                    out.writeShort(gl.getVersion());
+                    out.writeUnsignedShort(gl.getFlags());
+                    out.writeUnsignedShort(gl.getVersion());
                 }
                 out.writeInt(gl.getOffset());
                 out.writeInt(gl.getLength());
@@ -709,7 +711,7 @@ public class BspFile {
      * @return true if the game lump header probably wasn't read correctly
      * @throws IOException 
      */
-    private boolean checkInvalidHeaders(DataInputReader in, boolean vin) throws IOException {
+    private boolean checkInvalidHeaders(DataReader in, boolean vin) throws IOException {
         int glumps = in.readInt();
         
         for (int i = 0; i < glumps; i++) {
@@ -721,7 +723,7 @@ public class BspFile {
                 return true;
             }
 
-            in.skipBytes(vin ? 16 : 12);
+            in.seek(vin ? 16 : 12, CURRENT);
         }
 
         in.position(0);

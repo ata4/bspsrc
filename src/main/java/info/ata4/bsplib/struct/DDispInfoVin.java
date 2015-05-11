@@ -10,8 +10,8 @@
 package info.ata4.bsplib.struct;
 
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -30,7 +30,7 @@ public class DDispInfoVin extends DDispInfo {
     }
     
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         startPos = Vector3f.read(in);
         dispVertStart = in.readInt();
         dispTriStart = in.readInt();
@@ -41,7 +41,7 @@ public class DDispInfoVin extends DDispInfo {
         mapFace = in.readUnsignedShort();
         lightmapAlphaStart = in.readInt();
         lightmapSamplePositionStart = in.readInt();
-        in.readFully(neighborsVin);
+        in.readBytes(neighborsVin);
 
         for (int i = 0; i < allowedVerts.length; i++) {
             allowedVerts[i] = in.readInt();
@@ -49,7 +49,7 @@ public class DDispInfoVin extends DDispInfo {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         Vector3f.write(out, startPos);
         out.writeInt(dispVertStart);
         out.writeInt(dispTriStart);
@@ -57,10 +57,10 @@ public class DDispInfoVin extends DDispInfo {
         out.writeFloat(smoothingAngle);
         out.writeInt(unknown);
         out.writeInt(contents);
-        out.writeShort(mapFace);
+        out.writeUnsignedShort(mapFace);
         out.writeInt(lightmapAlphaStart);
         out.writeInt(lightmapSamplePositionStart);
-        out.write(neighborsVin);
+        out.writeBytes(neighborsVin);
 
         for (int i = 0; i < allowedVerts.length; i++) {
             out.writeInt(allowedVerts[i]);

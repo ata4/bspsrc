@@ -10,8 +10,8 @@
 package info.ata4.bsplib.struct;
 
 import info.ata4.util.EnumConverter;
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -29,7 +29,7 @@ public class DTexInfoDM extends DTexInfo {
     }
     
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 4; k++) {
                 textureVecsTexels[j][k] = in.readFloat();
@@ -40,13 +40,13 @@ public class DTexInfoDM extends DTexInfo {
                 lightmapVecsLuxels[j][k] = in.readFloat();
             }
         }
-        in.readFully(unknown);
+        in.readBytes(unknown);
         flags = EnumConverter.fromInteger(SurfaceFlag.class, in.readInt());
         texdata = in.readInt();
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         for (int j = 0; j < 2; j++) {
             for (int k = 0; k < 4; k++) {
                 out.writeFloat(textureVecsTexels[j][k]);
@@ -57,7 +57,7 @@ public class DTexInfoDM extends DTexInfo {
                 out.writeFloat(lightmapVecsLuxels[j][k]);
             }
         }
-        out.write(unknown);
+        out.writeBytes(unknown);
         out.writeInt(EnumConverter.toInteger(flags));
         out.writeInt(texdata);
     }

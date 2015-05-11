@@ -10,8 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -27,7 +27,7 @@ public class DLeafVin extends DLeaf {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         contents = in.readInt();
         cluster = (short) in.readInt();
         areaFlags = (short) in.readInt();
@@ -45,7 +45,7 @@ public class DLeafVin extends DLeaf {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         out.writeInt(contents);
         out.writeInt(cluster);
         out.writeInt(areaFlags);

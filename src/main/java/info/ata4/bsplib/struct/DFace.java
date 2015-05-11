@@ -10,8 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -47,7 +47,7 @@ public class DFace implements DStruct {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         pnum = in.readUnsignedShort();
         side = in.readByte();
         onnode = in.readByte();
@@ -56,7 +56,7 @@ public class DFace implements DStruct {
         texinfo = in.readShort();
         dispInfo = in.readShort();
         surfaceFogVolumeID = in.readUnsignedShort();
-        in.readFully(styles);
+        in.readBytes(styles);
         lightofs = in.readInt();
         area = in.readFloat();
         lightmapTextureMinsInLuxels[0] = in.readInt();
@@ -70,16 +70,16 @@ public class DFace implements DStruct {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
-        out.writeShort(pnum);
+    public void write(DataWriter out) throws IOException {
+        out.writeUnsignedShort(pnum);
         out.writeByte(side);
         out.writeByte(onnode);
         out.writeInt(fstedge);
         out.writeShort(numedge);
         out.writeShort(texinfo);
         out.writeShort(dispInfo);
-        out.writeShort(surfaceFogVolumeID);
-        out.write(styles);
+        out.writeUnsignedShort(surfaceFogVolumeID);
+        out.writeBytes(styles);
         out.writeInt(lightofs);
         out.writeFloat(area);
         out.writeInt(lightmapTextureMinsInLuxels[0]);
@@ -87,8 +87,8 @@ public class DFace implements DStruct {
         out.writeInt(lightmapTextureSizeInLuxels[0]);
         out.writeInt(lightmapTextureSizeInLuxels[1]);
         out.writeInt(origFace);
-        out.writeShort(firstPrimID);
-        out.writeShort(numPrims);
+        out.writeUnsignedShort(firstPrimID);
+        out.writeUnsignedShort(numPrims);
         out.writeInt(smoothingGroups);
     }
 }

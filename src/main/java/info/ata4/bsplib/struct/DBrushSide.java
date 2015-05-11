@@ -10,8 +10,8 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
@@ -32,7 +32,7 @@ public class DBrushSide implements DStruct {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         pnum = in.readUnsignedShort();
         texinfo = in.readShort();
         dispinfo = in.readShort();
@@ -40,10 +40,10 @@ public class DBrushSide implements DStruct {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
-        out.writeShort(pnum);
+    public void write(DataWriter out) throws IOException {
+        out.writeUnsignedShort(pnum);
         out.writeShort(texinfo);
         out.writeShort(dispinfo);
-        out.writeShort(bevel ? 1 : 0);
+        out.writeUnsignedShort(bevel ? 1 : 0);
     }
 }

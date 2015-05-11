@@ -13,6 +13,8 @@ package info.ata4.bsplib.io;
 import info.ata4.bsplib.util.StringMacroUtils;
 import info.ata4.io.buffer.ByteBufferInputStream;
 import info.ata4.io.buffer.ByteBufferOutputStream;
+import info.ata4.io.lzma.LzmaDecoderProps;
+import info.ata4.io.lzma.LzmaEncoderProps;
 import info.ata4.log.LogUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,7 +24,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import lzma.LzmaDecoder;
 import lzma.LzmaEncoder;
-import org.apache.commons.io.IOUtils;
 
 /**
  * LZMA encoding and decoding helper class.
@@ -53,8 +54,8 @@ public class LzmaBuffer {
         // read more from the header
         int actualSize = bbc.getInt();
         int lzmaSize = bbc.getInt();
-        byte[] props = new byte[5];
-        bbc.get(props);
+        byte[] propsData = new byte[5];
+        bbc.get(propsData);
         
         int lzmaSizeBuf = bbc.limit() - HEADER_SIZE;
         
@@ -65,24 +66,23 @@ public class LzmaBuffer {
         
         ByteBuffer bbu = ByteBuffer.allocateDirect(actualSize);
 
-        ByteBufferInputStream is = new ByteBufferInputStream(bbc);
-        ByteBufferOutputStream os = new ByteBufferOutputStream(bbu);
-
-        try {
+        try (
+            ByteBufferInputStream is = new ByteBufferInputStream(bbc);
+            ByteBufferOutputStream os = new ByteBufferOutputStream(bbu);        
+        ) {
             LzmaDecoder decoder = new LzmaDecoder();
 
             // set properties
-            if (!decoder.setDecoderProperties(props)) {
-                throw new IOException("Incorrect stream properties");
-            }
+            LzmaDecoderProps props = new LzmaDecoderProps();
+            props.setIncludeSize(false);
+            props.fromArray(propsData);
+            
+            props.apply(decoder);
 
             // decompress buffer
             if (!decoder.code(is, os, actualSize)) {
                 throw new IOException("Error in LZMA stream");
             }
-        } finally {
-            IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(os);
         }
         
         // reset buffer
@@ -97,25 +97,24 @@ public class LzmaBuffer {
         ByteBuffer bbu = buffer.duplicate();
         bbu.rewind();
         
-        byte[] props;
+        LzmaEncoderProps props = new LzmaEncoderProps();
+        props.setIncludeSize(false);
+        byte[] lzma;
         
-        ByteBufferInputStream is = new ByteBufferInputStream(bbu);
-        ByteArrayOutputStream os = new ByteArrayOutputStream(bbu.limit() / 8);
-        
-        try {
+        try (
+            ByteBufferInputStream is = new ByteBufferInputStream(bbu);
+            ByteArrayOutputStream os = new ByteArrayOutputStream(bbu.limit() / 8);
+        ) {
             LzmaEncoder encoder = new LzmaEncoder();
             
-            // get properties
-            props = encoder.getCoderProperties();
-            
+            props.apply(encoder);
+
             // compress buffer
             encoder.code(is, os);
-        } finally {
-            IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(os);
+            
+            lzma = os.toByteArray();
         }
         
-        byte[] lzma = os.toByteArray();
         int size = HEADER_SIZE + lzma.length;
         
         ByteBuffer bbc = ByteBuffer.allocateDirect(size);
@@ -125,7 +124,7 @@ public class LzmaBuffer {
         bbc.putInt(LZMA_ID);
         bbc.putInt(bbu.limit());
         bbc.putInt(lzma.length);
-        bbc.put(props);
+        bbc.put(props.toArray());
         
         // write lzma data
         bbc.put(lzma);

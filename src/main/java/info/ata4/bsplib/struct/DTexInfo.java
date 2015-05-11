@@ -11,8 +11,8 @@
 package info.ata4.bsplib.struct;
 
 import info.ata4.util.EnumConverter;
-import info.ata4.io.DataInputReader;
-import info.ata4.io.DataOutputWriter;
+import info.ata4.io.DataReader;
+import info.ata4.io.DataWriter;
 import java.io.IOException;
 import java.util.Set;
 
@@ -36,7 +36,7 @@ public class DTexInfo implements DStruct {
     }
 
     @Override
-    public void read(DataInputReader in) throws IOException {
+    public void read(DataReader in) throws IOException {
         for (int i = 0; i < textureVecsTexels.length; i++) {
             for (int j = 0; j < textureVecsTexels[i].length; j++) {
                 textureVecsTexels[i][j] = in.readFloat();
@@ -52,7 +52,7 @@ public class DTexInfo implements DStruct {
     }
 
     @Override
-    public void write(DataOutputWriter out) throws IOException {
+    public void write(DataWriter out) throws IOException {
         for (int i = 0; i < textureVecsTexels.length; i++) {
             for (int j = 0; j < textureVecsTexels[i].length; j++) {
                 out.writeFloat(textureVecsTexels[i][j]);
