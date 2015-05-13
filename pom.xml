@@ -4,7 +4,7 @@
     <name>BSPSource</name>
     <artifactId>bspsrc</artifactId>
     <groupId>info.ata4.bspsrc</groupId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <version>1.3.20-SNAPSHOT</version>
     <description>A Source engine map decompile</description>
     <url>https://github.com/ata4/bspsource</url>
@@ -56,13 +56,32 @@
         <dependency>
             <groupId>com.github.ata4</groupId>
             <artifactId>lzmajio</artifactId>
-            <version>5daa9c59b8</version>
+            <version>3a3e05009e</version>
         </dependency>
         <dependency>
             <groupId>com.github.ata4</groupId>
             <artifactId>ioutils</artifactId>
-            <version>1844cb11d0</version>
+            <version>b1f26588b5</version>
         </dependency>
     </dependencies>
+    
+    <build>
+        <!-- Create fat jar using Maven Shade -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
