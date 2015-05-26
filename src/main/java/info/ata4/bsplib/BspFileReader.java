@@ -352,9 +352,17 @@ public class BspFileReader {
                     break;
                     
                 case TEAM_FORTRESS_2:
-                    // newer maps use v10, which is compatible to Source 2013 v7
-                    if (sprpver == 10 && propStaticSize == 72) {
-                        structClass = DStaticPropV7.class;
+                    // there's been a short period where TF2 used v7, which later
+                    // became v10 in all Source 2013 game
+                    if (sprpver == 7 && propStaticSize == 72) {
+                        structClass = DStaticPropV10.class;
+                    }
+                    break;
+                    
+                case COUNTER_STRIKE_GO:
+                    // custom v10 for CS:GO, not compatible with Source 2013 v10
+                    if (sprpver == 10) {
+                        structClass = DStaticPropV10CSGO.class;
                     }
                     break;
             }
