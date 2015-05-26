@@ -1222,7 +1222,7 @@
             trigger_req_player_touch
         </entities>
     </app>
-    <app name="Black Mesa" id="-200">
+    <app name="Black Mesa" id="362890">
         <version min="20" />
         <files><![CDATA[^bm_c[0-3]a[0-5][a-h]$]]></files>
         <entities>
