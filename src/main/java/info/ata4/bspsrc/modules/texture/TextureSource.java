@@ -43,10 +43,11 @@ public class TextureSource extends ModuleRead {
     // ID mappings
     private Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<>();
     private Map<Integer, Integer> texnameToCubemap = new HashMap<>();
-    public List<String> texnamesFixed = new ArrayList<>();
+    private List<String> texnamesFixed = new ArrayList<>();
     
     // settings
-    public boolean useFixedTexnames;
+    private boolean fixTextureNames;
+    private boolean fixToolTextures;
     
     public TextureSource(BspFileReader reader) {
         super(reader);
@@ -176,7 +177,7 @@ public class TextureSource extends ModuleRead {
         try {
             int ti = bsp.texinfos.get(itexinfo).texdata;
             int td = bsp.texdatas.get(ti).texname;
-            if (useFixedTexnames) {
+            if (fixTextureNames) {
                 return texnamesFixed.get(td);
             } else {
                 return bsp.texnames.get(td);
@@ -200,11 +201,19 @@ public class TextureSource extends ModuleRead {
         return Collections.unmodifiableList(texnamesFixed);
     }
 
-    public boolean isUseFixedTexnames() {
-        return useFixedTexnames;
+    public boolean isFixTextureNames() {
+        return fixTextureNames;
     }
 
-    public void setUseFixedTexnames(boolean useFixedTexnames) {
-        this.useFixedTexnames = useFixedTexnames;
+    public void setFixTextureNames(boolean fixTextureNames) {
+        this.fixTextureNames = fixTextureNames;
+    }
+    
+    public boolean isFixToolTextures() {
+        return fixToolTextures;
+    }
+
+    public void setFixToolTextures(boolean fixToolTextures) {
+        this.fixToolTextures = fixToolTextures;
     }
 }

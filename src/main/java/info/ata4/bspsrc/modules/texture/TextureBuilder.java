@@ -9,6 +9,7 @@
  */
 package info.ata4.bspsrc.modules.texture;
 
+import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.struct.BrushFlag;
 import info.ata4.bsplib.struct.BspData;
 import info.ata4.bsplib.struct.DBrush;
@@ -95,10 +96,13 @@ public class TextureBuilder {
         }
         
         String textureOverride = texsrc.getFixedTextureNames().get(texdata.texname);
-        String textureFix = fixToolTexture();
         
-        if (textureFix != null) {
-            textureOverride = textureFix;
+        if (texsrc.isFixToolTextures()) {
+            String textureFix = fixToolTexture();
+
+            if (textureFix != null) {
+                textureOverride = textureFix;
+            }
         }
 
         // assign texture paths
@@ -132,25 +136,30 @@ public class TextureBuilder {
         Set<BrushFlag> brushFlags = brush.contents;
         
         // fix clip textures
-        if (brush.isDetail() && surfFlags.equals(SURF_FLAGS_CLIP)) {
-            // clip
-            if (brush.isPlayerClip() && brush.isNpcClip()) {
-                return ToolTexture.CLIP;
-            }
-            
-            // player clip
-            if (brush.isPlayerClip()) {
-                return ToolTexture.PLAYERCLIP;
-            }
+        if (surfFlags.equals(SURF_FLAGS_CLIP)) {
+            if (brush.isDetail()) {
+                // clip
+                if (brush.isPlayerClip() && brush.isNpcClip()) {
+                    return ToolTexture.CLIP;
+                }
 
-            // NPC clip
-            if (brush.isNpcClip()) {
-                return ToolTexture.NPCCLIP;
-            }
-            
-            // block line of sight
-            if (brush.isBlockLos()) {
-                return ToolTexture.BLOCKLOS;
+                // player clip
+                if (brush.isPlayerClip()) {
+                    return ToolTexture.PLAYERCLIP;
+                }
+
+                // NPC clip
+                if (brush.isNpcClip()) {
+                    return ToolTexture.NPCCLIP;
+                }
+
+                // block line of sight
+                if (brush.isBlockLos()) {
+                    return ToolTexture.BLOCKLOS;
+                }
+            } else {
+                // nodraw
+                return ToolTexture.NODRAW;   
             }
         }
         

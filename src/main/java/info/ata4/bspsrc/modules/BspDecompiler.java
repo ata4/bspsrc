@@ -11,6 +11,7 @@
 package info.ata4.bspsrc.modules;
 
 import info.ata4.bsplib.BspFileReader;
+import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bspsrc.BspSource;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.VmfWriter;
@@ -65,8 +66,16 @@ public class BspDecompiler extends ModuleDecompile {
      */
     public void start() {
         // fix texture names
-        texsrc.setUseFixedTexnames(config.fixCubemapTextures);
+        texsrc.setFixTextureNames(config.fixCubemapTextures);
         
+        // VTBM has too many crucial game-specific tool textures that would break,
+        // so override the user selection
+        if (bspFile.getSourceApp().getAppID() == SourceAppID.VAMPIRE_BLOODLINES) {
+            texsrc.setFixToolTextures(false);
+        } else {
+            texsrc.setFixToolTextures(config.fixToolTextures);
+        }
+
         // check for protection and warn if the map has been protected
         if (!config.skipProt) {
             checkProtection();
