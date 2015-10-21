@@ -157,10 +157,10 @@ public class TextureBuilder {
                 if (brush.isBlockLos()) {
                     return ToolTexture.BLOCKLOS;
                 }
-            } else {
-                // nodraw
-                return ToolTexture.NODRAW;   
             }
+            
+            // nodraw
+            return ToolTexture.NODRAW;
         }
         
         // fix areaportal textures
