@@ -173,26 +173,28 @@ public class BspFileReader {
         
         Class struct = DFace.class;
         
-        if (appID == VAMPIRE_BLOODLINES) {
-            struct = DFaceVTMB.class;
-        } else if (appID == VINDICTUS) {
-            LumpType lt = orig ? LumpType.LUMP_ORIGINALFACES : LumpType.LUMP_FACES;
-            int facesver = getLump(lt).getVersion();
-            if (facesver == 2) {
-                struct = DFaceVinV2.class;
-            } else {
-                struct = DFaceVinV1.class;
-            }
-        } else {
-            switch (bspFile.getVersion()) {
-                case 17:
-                    struct = DFaceBSP17.class;
-                    break;
-
-                case 18:
-                    struct = DFaceBSP18.class;
-                    break;
-            }
+        switch (appID) {
+            case VAMPIRE_BLOODLINES:
+                struct = DFaceVTMB.class;
+                break;
+            case VINDICTUS:
+                LumpType lt = orig ? LumpType.LUMP_ORIGINALFACES : LumpType.LUMP_FACES;
+                int facesver = getLump(lt).getVersion();
+                if (facesver == 2) {
+                    struct = DFaceVinV2.class;
+                } else {
+                    struct = DFaceVinV1.class;
+                }   break;
+            default:
+                switch (bspFile.getVersion()) {
+                    case 17:
+                        struct = DFaceBSP17.class;
+                        break;
+                        
+                    case 18:
+                        struct = DFaceBSP18.class;
+                        break;
+                }   break;
         }
         
         if (orig) {
@@ -418,9 +420,7 @@ public class BspFileReader {
             checkRemaining(in);
         } catch (IOException ex) {
             lumpError(sprpLump, ex);
-        } catch (InstantiationException ex) {
-            L.log(Level.SEVERE, "Lump struct class error", ex);
-        } catch (IllegalAccessException ex) {
+        } catch (InstantiationException | IllegalAccessException ex) {
             L.log(Level.SEVERE, "Lump struct class error", ex);
         }
     }
@@ -849,9 +849,7 @@ public class BspFileReader {
             return packets;
         } catch (IOException ex) {
             lumpError(lump, ex);
-        } catch (IllegalAccessException ex) {
-            L.log(Level.SEVERE, "Lump struct class error", ex);
-        } catch (InstantiationException ex) {
+        } catch (IllegalAccessException | InstantiationException ex) {
             L.log(Level.SEVERE, "Lump struct class error", ex);
         }
         
