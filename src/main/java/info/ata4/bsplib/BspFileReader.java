@@ -12,6 +12,7 @@ package info.ata4.bsplib;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppDB;
+import info.ata4.bsplib.app.SourceAppID;
 import static info.ata4.bsplib.app.SourceAppID.*;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.io.EntityInputStream;
@@ -708,7 +709,15 @@ public class BspFileReader {
             for (int i = 0; i < occluders; i++) {
                 DOccluderData od;
                 
-                if (lump.getVersion() < 2) {
+                int lumpVersion = lump.getVersion();
+                
+                // Contagion maps report lump version 0, but they're actually
+                // using 1
+                if (bspFile.getSourceApp().getAppID() == SourceAppID.CONTAGION) {
+                    lumpVersion = 1;
+                }
+                
+                if (lumpVersion < 2) {
                     od = new DOccluderData();
                 } else {
                     od = new DOccluderDataV1();
