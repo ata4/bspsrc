@@ -126,6 +126,14 @@ public class EntitySource extends ModuleDecompile {
                 continue;
             }
             
+            // workaround for a Hammer crashing bug
+            if (className.equals("env_sprite")) {
+                String model = ent.getValue("model");
+                if (model != null && model.startsWith("model")) {
+                    ent.removeValue("scale");
+                }
+            }
+            
             // these two classes need special attention
             final boolean isAreaportal = className.startsWith("func_areaportal");
             final boolean isOccluder = className.equals("func_occluder");
