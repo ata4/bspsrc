@@ -1185,7 +1185,6 @@
     </app>
     <app name="Vindictus / Mabinogi: Heroes" id="-100">
         <version min="20" />
-        <files><![CDATA[^\d{2}([a-z]{1,2}|_(m)?boss(_return|_alice)?)|[pu]\d{2}|lobby_.+$]]></files>
         <entities>
             func_brush_projectile_remove
             info_custom_eye_target
@@ -1494,6 +1493,24 @@
             prop_vehicle_mp
             synergy_noblock
             trigger_coop
+        </entities>
+    </app>
+    <app name="Cyber Diver" id="-500">
+        <version min="20" />
+        <entities>
+            bs_ammomachine
+            bs_cgatecore
+            bs_cgatemachine
+            func_player_keepout_bs09
+            info_player_battle_bs09
+            info_player_briefing_bs09
+            info_player_tutorial_bs09
+            item_cybersoul
+            logic_tutorial_chapter
+            trigger_nodelay_bs09
+            trigger_physics_trap_bs09
+            trigger_recover_bs09
+            trigger_teleport_bs09
         </entities>
     </app>
 </apps>
