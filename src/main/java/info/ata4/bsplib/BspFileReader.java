@@ -707,8 +707,6 @@ public class BspFileReader {
             bspData.occluderDatas = new ArrayList<>(occluders);
 
             for (int i = 0; i < occluders; i++) {
-                DOccluderData od;
-                
                 int lumpVersion = lump.getVersion();
                 
                 // Contagion maps report lump version 0, but they're actually
@@ -717,10 +715,12 @@ public class BspFileReader {
                     lumpVersion = 1;
                 }
                 
-                if (lumpVersion < 2) {
-                    od = new DOccluderData();
-                } else {
+                DOccluderData od;
+                
+                if (lumpVersion > 0) {
                     od = new DOccluderDataV1();
+                } else {
+                    od = new DOccluderData();
                 }
 
                 od.read(in);
