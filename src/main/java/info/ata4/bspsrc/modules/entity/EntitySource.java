@@ -33,7 +33,7 @@ import info.ata4.bspsrc.util.WindingFactory;
 import info.ata4.log.LogUtils;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,8 +46,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Decompiling module to write point and brush entities converted from various lumps.
@@ -348,8 +346,8 @@ public class EntitySource extends ModuleDecompile {
         L.info("Writing func_details");
         
         if (config.detailMerge) {
-            Queue<Pair<DBrush, AABB>> detailBrushes = new ArrayDeque<>();
-            Map<DBrush, Integer> detailBrushIndices = new HashMap<>();
+            Set<AABB> detailBounds = new HashSet<>();
+            Map<AABB, Integer> detailIndices = new HashMap<>();
             
             // add all detail brushes to queue
             for (int i = 0; i < bsp.brushes.size(); i++) {
@@ -368,28 +366,23 @@ public class EntitySource extends ModuleDecompile {
                 // get bounding box of the detail brush
                 AABB bounds = BrushUtils.getBounds(bsp, brush);
                 
-                detailBrushes.add(new ImmutablePair<>(brush, bounds));
-                detailBrushIndices.put(brush, i);
+                // writeBrush() expects brush indices, so map it to the AABB
+                detailBounds.add(bounds);
+                detailIndices.put(bounds, i);
             }
             
-            while (!detailBrushes.isEmpty()) {
-                // get next detail brush
-                Pair<DBrush, AABB> detailBrush1 = detailBrushes.remove();
+            while (!detailBounds.isEmpty()) {
+                // get next group of merged brush AABBs
+                Set<AABB> detailBoundsGroup = mergeNearestNeighborAABB(
+                        detailBounds, config.detailMergeThresh);
                 
-                // add it as the first brush for the clump
-                Set<Pair<DBrush, AABB>> detailBrushClump = new HashSet<>();
-                detailBrushClump.add(detailBrush1);
-                
-                // move all touching brushes from the queue to this clump
-                clumpBrushes(detailBrushes, detailBrushClump, detailBrush1, config.detailMergeThresh);
-                
-                // write brush clump as func_detail to VMF
+                // write brush group as func_detail to VMF
                 writer.start("entity");
                 writer.put("id", vmfmeta.getUID());
                 writer.put("classname", "func_detail");
                 
-                for (Pair<DBrush, AABB> pair : detailBrushClump) {
-                    brushsrc.writeBrush(detailBrushIndices.get(pair.getLeft()));
+                for (AABB bounds : detailBoundsGroup) {
+                    brushsrc.writeBrush(detailIndices.get(bounds));
                 }
                 
                 writer.end("entity");
@@ -434,37 +427,47 @@ public class EntitySource extends ModuleDecompile {
     }
     
     /**
-     * Groups brushes that touch the target brush.
+     * Transfers the next group of touching bounding volumes from a set of loose
+     * bounding volumes.
      * 
-     * @param src global brush collection
-     * @param dst clumped brush collection
+     * @param src input bounding volumes
      * @param thresh touching threshold
-     * @param target search brush
+     * @return set of bounding volumes that have been removed from src
      */
-    private void clumpBrushes(Collection<Pair<DBrush, AABB>> src, Collection<Pair<DBrush, AABB>> dst, Pair<DBrush, AABB> target, float thresh) {
-        // expand bb so it can touch the bbs of other brushes
-        AABB targetBounds = target.getRight().expand(thresh);
+    private Set<AABB> mergeNearestNeighborAABB(Set<AABB> src, float thresh) {
+        // pop next AABB from src
+        Iterator<AABB> iter = src.iterator();
+        Queue<AABB> pending = new ArrayDeque<>(Collections.singletonList(iter.next()));
+        iter.remove();
         
-        Iterator<Pair<DBrush, AABB>> iter = src.iterator();
-        while (iter.hasNext()) {
-            // get next brush
-            Pair<DBrush, AABB> other = iter.next();
+        Set<AABB> group = new HashSet<>();
+        
+        // do while there are pending AABBs
+        while (!pending.isEmpty()) {
+            // get next pending AABB
+            AABB current = pending.remove();
             
-            // is it touching the target brush?
-            if (other.getRight().intersectsWith(targetBounds)) {
-                // put it to destination collection
-                dst.add(other);
+            // expand AABB slightly so it can touch other AABBs more reliably
+            AABB currentTest = current.expand(thresh);
+            
+            iter = src.iterator();
+            while (iter.hasNext()) {
+                // get next AABB
+                AABB other = iter.next();
                 
-                // remove it from source
-                iter.remove();
-                
-                // also move all brushes that touch this brush
-                clumpBrushes(src, dst, other, thresh);
-                
-                // recreate iterator, since the collection may have been modified
-                iter = src.iterator();
+                // is it touching the target AABB?
+                if (other.intersectsWith(currentTest)) {
+                    // add it as pending...
+                    pending.add(other);
+                    
+                    // ...and transfer to group
+                    iter.remove();
+                    group.add(other);
+                }
             }
         }
+        
+        return group;
     }
 
     /**
