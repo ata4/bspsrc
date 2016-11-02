@@ -349,7 +349,7 @@ public class BspFileReader {
                 case LEFT_4_DEAD:
                     // old L4D maps use v7 that is incompatible to the newer
                     // Source 2013 v7
-                    if (sprpver == 7 && propStaticSize == 70) {
+                    if (sprpver == 7 && propStaticSize == 68) {
                         structClass = DStaticPropV7L4D.class;
                     }
                     break;
