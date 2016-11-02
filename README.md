@@ -7,11 +7,6 @@ It decompiles .bsp map files back to .vmf files that can be loaded in Hammer, Va
 BSPSource is based on a reengineered version of [VMEX 0.98g](http://www.bagthorpe.org/bob/cofrdrbob/vmex.html) by Rof, which is no longer developed and lacks
 support for newer Source engine games.
 
-Downloads
----------
-
-The latest version is available in the "release" tab. Older versons are available for download [here](http://ata4.info/downloads/apps/bspsource/).
-
 Improvements and changes compared to VMEX 0.98g
 -----------------------------------------------
 
