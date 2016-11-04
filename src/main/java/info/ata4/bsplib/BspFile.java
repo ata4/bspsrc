@@ -535,18 +535,21 @@ public class BspFile {
                 }
 
                 ofs = in.readInt();
+                len = in.readInt();
 
                 if (flags == 1) {
-                    // game lump is compressed, use next entry offset to determine
-                    // compressed size
-                    in.seek(12, CURRENT);
+                    // game lump is compressed and "len" contains the uncompressed
+                    // size, so use next entry offset to determine compressed size
+                    in.seek(8, CURRENT);
                     int nextOfs = in.readInt();
+                    if (nextOfs == 0) {
+                        // no next entry, assume end of game lump
+                        nextOfs = lump.getOffset() + lump.getLength();
+                    }
                     len = nextOfs - ofs;
                     in.seek(-12, CURRENT);
-                } else {
-                    len = in.readInt();
                 }
-
+                    
                 // Offset is relative to the beginning of the BSP file,
                 // not to the game lump.
                 // FIXME: this isn't the case for the console version of Portal 2,
