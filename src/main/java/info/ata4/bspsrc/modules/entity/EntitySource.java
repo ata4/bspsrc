@@ -445,10 +445,11 @@ public class EntitySource extends ModuleDecompile {
     private Set<AABB> mergeNearestNeighborAABB(Set<AABB> src, float thresh) {
         // pop next AABB from src
         Iterator<AABB> iter = src.iterator();
-        Queue<AABB> pending = new ArrayDeque<>(Collections.singletonList(iter.next()));
+        List<AABB> first = Collections.singletonList(iter.next());
         iter.remove();
         
-        Set<AABB> group = new HashSet<>();
+        Queue<AABB> pending = new ArrayDeque<>(first);
+        Set<AABB> group = new HashSet<>(first);
         
         // do while there are pending AABBs
         while (!pending.isEmpty()) {
