@@ -96,4 +96,12 @@ public class DDispInfo implements DStruct {
     public boolean hasMultiBlend() {
         return ((minTess + DDispInfo.DISP_INFO_FLAG_MAGIC) & DDispInfo.DISP_INFO_FLAG_HAS_MULTIBLEND) != 0;
     }
+
+    public int getSurfaceFlags() {
+        if ((minTess & DDispInfo.DISP_INFO_FLAG_MAGIC) != 0) {
+            return minTess & ~DDispInfo.DISP_INFO_FLAG_MAGIC;
+        } else {
+            return 0;
+        }
+    }
 }
