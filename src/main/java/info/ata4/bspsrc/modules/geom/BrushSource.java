@@ -161,7 +161,7 @@ public class BrushSource extends ModuleDecompile {
             }
             
             // skip ladders
-            if (config.writeLadders && brush.isLadder()) {
+            if (config.writeLaddersAsEntities && brush.isLadder()) {
                 continue;
             }
             

@@ -144,7 +144,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         checkBoxFixRotation.setSelected(config.fixEntityRot);
         checkBoxLoadLumpFile.setSelected(config.loadLumpFiles);
         checkBoxOccluder.setSelected(config.writeOccluders);
-        checkBoxLadder.setSelected(config.writeLadders);
+        checkBoxLadder.setSelected(config.writeLaddersAsEntities);
         checkBoxOverlay.setSelected(config.writeOverlays);
         checkBoxPropStatic.setSelected(config.writeStaticProps);
         checkBoxVisgroups.setSelected(config.writeVisgroups);
@@ -701,6 +701,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         });
 
         checkBoxLadder.setText("func_ladder");
+        checkBoxLadder.setToolTipText("<html>Writes ladders as func_ladder entities.<br>Do not use if you intend to recompile for CSGO!</html>");
         checkBoxLadder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 checkBoxLadderActionPerformed(evt);
@@ -1005,7 +1006,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void checkBoxLadderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxLadderActionPerformed
-        config.writeLadders = checkBoxLadder.isSelected();
+        config.writeLaddersAsEntities = checkBoxLadder.isSelected();
     }//GEN-LAST:event_checkBoxLadderActionPerformed
 
     private void checkBoxEnableEntitiesActionPerformed(java.awt.event.ActionEvent evt) {                                                       

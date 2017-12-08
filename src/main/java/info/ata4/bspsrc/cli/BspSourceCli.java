@@ -275,7 +275,7 @@ public class BspSourceCli {
             config.writeOccluders = !cl.hasOption(nocclOpt.getOpt());
             config.writeCubemaps = !cl.hasOption(ncubemOpt.getOpt());
             config.writeDetails = !cl.hasOption(ndetailsOpt.getOpt());
-            config.writeLadders = !cl.hasOption(nladderOpt.getOpt());
+            config.writeLaddersAsEntities = !cl.hasOption(nladderOpt.getOpt());
             
             // world options
             config.writeWorldBrushes = !cl.hasOption(nbrushOpt.getOpt());

@@ -39,6 +39,9 @@ public class TextureBuilder {
     private static EnumSet<SurfaceFlag> SURF_FLAGS_AREAPORTAL = EnumSet.of(SurfaceFlag.SURF_NOLIGHT);
     private static EnumSet<BrushFlag> BRUSH_FLAGS_AREAPORTAL = EnumSet.of(BrushFlag.CONTENTS_AREAPORTAL);
     
+    //not sure how complete this blocklight signature is
+    private static EnumSet<BrushFlag> BRUSH_FLAGS_BLOCKLIGHT = EnumSet.of(BrushFlag.CONTENTS_DETAIL, BrushFlag.CONTENTS_OPAQUE);
+    
     private final BspData bsp;
     private final TextureSource texsrc;
     
@@ -134,9 +137,19 @@ public class TextureBuilder {
         }
         
         Set<BrushFlag> brushFlags = brush.contents;
-        
+                
         // fix clip textures
-        if (surfFlags.equals(SURF_FLAGS_CLIP)) {
+        if (surfFlags.equals(SURF_FLAGS_CLIP)) {            
+            if (brush.isLadder())
+            {
+                return ToolTexture.INVISLADDER;
+            }
+            
+            if (brush.contents.equals(BRUSH_FLAGS_BLOCKLIGHT))
+            {
+                return ToolTexture.BLOCKLIGHT;
+            }
+            
             if (brush.isDetail()) {
                 // clip
                 if (brush.isPlayerClip() && brush.isNpcClip()) {
