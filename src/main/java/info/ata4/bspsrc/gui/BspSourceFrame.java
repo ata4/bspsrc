@@ -700,7 +700,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
             }
         });
 
-        checkBoxLadder.setText("func_ladder");
+        checkBoxLadder.setText("Ladders as func_ladder");
         checkBoxLadder.setToolTipText("<html>Writes ladders as func_ladder entities.<br>Do not use if you intend to recompile for CSGO!</html>");
         checkBoxLadder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

@@ -497,7 +497,7 @@
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="checkBoxLadder">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="func_ladder"/>
+                    <Property name="text" type="java.lang.String" value="Ladders as func_ladder"/>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Writes ladders as func_ladder entities.&lt;br&gt;Do not use if you intend to recompile for CSGO!&lt;/html&gt;"/>
                   </Properties>
                   <Events>
