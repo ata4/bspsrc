@@ -145,6 +145,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         checkBoxLoadLumpFile.setSelected(config.loadLumpFiles);
         checkBoxOccluder.setSelected(config.writeOccluders);
         checkBoxLadder.setSelected(config.writeLaddersAsEntities);
+        checkBoxAddUseLandmarkAngles.setSelected(config.addUseLandmarkAngles);
         checkBoxOverlay.setSelected(config.writeOverlays);
         checkBoxPropStatic.setSelected(config.writeStaticProps);
         checkBoxVisgroups.setSelected(config.writeVisgroups);
@@ -429,6 +430,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         checkBoxOccluder = new javax.swing.JCheckBox();
         checkBoxFixRotation = new javax.swing.JCheckBox();
         checkBoxLadder = new javax.swing.JCheckBox();
+        checkBoxAddUseLandmarkAngles = new javax.swing.JCheckBox();
         checkBoxEnableEntities = new javax.swing.JCheckBox();
         panelTextures = new javax.swing.JPanel();
         labelFaceTex = new javax.swing.JLabel();
@@ -502,7 +504,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
             .addGroup(panelFilesLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(scrollFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
+                    .addComponent(scrollFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)
                     .addGroup(panelFilesLayout.createSequentialGroup()
                         .addComponent(buttonAdd)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -617,7 +619,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addGroup(panelWorldBrushesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(checkBoxDisp)
                     .addComponent(panelBrushMode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addContainerGap(64, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("World", panelWorldBrushes);
@@ -708,6 +710,14 @@ public class BspSourceFrame extends javax.swing.JFrame {
             }
         });
 
+        checkBoxAddUseLandmarkAngles.setText("Add UseLandmarkAngles");
+        checkBoxAddUseLandmarkAngles.setToolTipText("<html>\nAdds \"UseLandmarkAngles 1\" to trigger_teleport entities that have no value set<br>\nand also do not have a landmark specified. Older games do not use this key and<br>\ninstead treat it as if the value is 1, except when a landmark is set. Use this to<br>\nensure consistant behavior when recompiling maps from older games for newer ones.\n</html>");
+        checkBoxAddUseLandmarkAngles.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkBoxAddUseLandmarkAnglesActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelBrushEntsLayout = new javax.swing.GroupLayout(panelBrushEnts);
         panelBrushEnts.setLayout(panelBrushEntsLayout);
         panelBrushEntsLayout.setHorizontalGroup(
@@ -719,7 +729,8 @@ public class BspSourceFrame extends javax.swing.JFrame {
                     .addComponent(checkBoxAreaportal)
                     .addComponent(checkBoxOccluder)
                     .addComponent(checkBoxFixRotation)
-                    .addComponent(checkBoxLadder))
+                    .addComponent(checkBoxLadder)
+                    .addComponent(checkBoxAddUseLandmarkAngles))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelBrushEntsLayout.setVerticalGroup(
@@ -735,6 +746,8 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addComponent(checkBoxLadder)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkBoxFixRotation)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(checkBoxAddUseLandmarkAngles)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -841,7 +854,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addComponent(checkBoxFixCubemapTex)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkBoxFixToolTex)
-                .addContainerGap(90, Short.MAX_VALUE))
+                .addContainerGap(113, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("Textures", panelTextures);
@@ -955,7 +968,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addGroup(panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelSourceFormat)
                     .addComponent(comboBoxSourceFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(76, Short.MAX_VALUE))
+                .addContainerGap(99, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("Other", panelOther);
@@ -1008,6 +1021,10 @@ public class BspSourceFrame extends javax.swing.JFrame {
     private void checkBoxLadderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxLadderActionPerformed
         config.writeLaddersAsEntities = checkBoxLadder.isSelected();
     }//GEN-LAST:event_checkBoxLadderActionPerformed
+
+    private void checkBoxAddUseLandmarkAnglesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxAddUseLandmarkAnglesActionPerformed
+        config.addUseLandmarkAngles = checkBoxAddUseLandmarkAngles.isSelected();
+    }//GEN-LAST:event_checkBoxAddUseLandmarkAnglesActionPerformed
 
     private void checkBoxEnableEntitiesActionPerformed(java.awt.event.ActionEvent evt) {                                                       
         config.setWriteEntities(checkBoxEnableEntities.isSelected());
@@ -1200,6 +1217,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroupBrushMode;
     private javax.swing.JButton buttonRemove;
     private javax.swing.JButton buttonRemoveAll;
+    private javax.swing.JCheckBox checkBoxAddUseLandmarkAngles;
     private javax.swing.JCheckBox checkBoxAreaportal;
     private javax.swing.JCheckBox checkBoxCameras;
     private javax.swing.JCheckBox checkBoxCubemap;

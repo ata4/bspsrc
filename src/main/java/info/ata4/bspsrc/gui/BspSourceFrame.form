@@ -98,7 +98,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="scrollFiles" pref="158" max="32767" attributes="0"/>
+                          <Component id="scrollFiles" pref="181" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="buttonAdd" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -198,7 +198,7 @@
                           <Component id="checkBoxDisp" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="panelBrushMode" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="41" max="32767" attributes="0"/>
+                      <EmptySpace pref="64" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -438,6 +438,7 @@
                               <Component id="checkBoxOccluder" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="checkBoxFixRotation" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="checkBoxLadder" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="checkBoxAddUseLandmarkAngles" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
@@ -456,6 +457,8 @@
                           <Component id="checkBoxLadder" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="checkBoxFixRotation" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="checkBoxAddUseLandmarkAngles" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -502,6 +505,15 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxLadderActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="checkBoxAddUseLandmarkAngles">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Add UseLandmarkAngles"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Adds &quot;UseLandmarkAngles 1&quot; to trigger_teleport entities that have no value set&lt;br&gt;&#xa;and also do not have a landmark specified. Older games do not use this key and&lt;br&gt;&#xa;instead treat it as if the value is 1, except when a landmark is set. Use this to&lt;br&gt;&#xa;ensure consistant behavior when recompiling maps from older games for newer ones.&#xa;&lt;/html&gt;"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxAddUseLandmarkAnglesActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>
@@ -566,7 +578,7 @@
                       <Component id="checkBoxFixCubemapTex" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="checkBoxFixToolTex" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="90" max="32767" attributes="0"/>
+                      <EmptySpace pref="113" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -693,7 +705,7 @@
                           <Component id="labelSourceFormat" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="comboBoxSourceFormat" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="76" max="32767" attributes="0"/>
+                      <EmptySpace pref="99" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

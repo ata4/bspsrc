@@ -266,6 +266,16 @@ public class EntitySource extends ModuleDecompile {
                 writer.put(key, value);
             }
             
+            if (className.equals("trigger_teleport") && config.addUseLandmarkAngles) {
+                boolean hasULA = ent.hasKey("UseLandmarkAngles");
+                boolean hasLandmark = ent.getValue("landmark") != null;
+                
+                if (!hasULA && !hasLandmark)
+                {
+                    writer.put("UseLandmarkAngles", "1");
+                }
+            }
+            
             writer.put("classname", className);
 
             // write entity I/O
