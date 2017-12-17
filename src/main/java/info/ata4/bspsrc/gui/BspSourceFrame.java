@@ -711,7 +711,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         });
 
         checkBoxAddUseLandmarkAngles.setText("Add UseLandmarkAngles");
-        checkBoxAddUseLandmarkAngles.setToolTipText("<html>\nAdds \"UseLandmarkAngles 1\" to trigger_teleport entities that have no value set<br>\nand also do not have a landmark specified. Older games do not use this key and<br>\ninstead treat it as if the value is 1, except when a landmark is set. Use this to<br>\nensure consistant behavior when recompiling maps from older games for newer ones.\n</html>");
+        checkBoxAddUseLandmarkAngles.setToolTipText("<html>\nAdds \"UseLandmarkAngles 1\" to trigger_teleport entities that have no value set<br>\nand also do not have a landmark specified. Older games do not use this key and<br>\ninstead treat it as if the value is 1, except when a landmark is set. Use this to<br>\nensure consistent behavior when recompiling maps from older games for newer ones.\n</html>");
         checkBoxAddUseLandmarkAngles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 checkBoxAddUseLandmarkAnglesActionPerformed(evt);

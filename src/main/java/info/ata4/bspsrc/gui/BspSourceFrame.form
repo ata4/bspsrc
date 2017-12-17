@@ -510,7 +510,7 @@
                 <Component class="javax.swing.JCheckBox" name="checkBoxAddUseLandmarkAngles">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Add UseLandmarkAngles"/>
-                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Adds &quot;UseLandmarkAngles 1&quot; to trigger_teleport entities that have no value set&lt;br&gt;&#xa;and also do not have a landmark specified. Older games do not use this key and&lt;br&gt;&#xa;instead treat it as if the value is 1, except when a landmark is set. Use this to&lt;br&gt;&#xa;ensure consistant behavior when recompiling maps from older games for newer ones.&#xa;&lt;/html&gt;"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Adds &quot;UseLandmarkAngles 1&quot; to trigger_teleport entities that have no value set&lt;br&gt;&#xa;and also do not have a landmark specified. Older games do not use this key and&lt;br&gt;&#xa;instead treat it as if the value is 1, except when a landmark is set. Use this to&lt;br&gt;&#xa;ensure consistent behavior when recompiling maps from older games for newer ones.&#xa;&lt;/html&gt;"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxAddUseLandmarkAnglesActionPerformed"/>
