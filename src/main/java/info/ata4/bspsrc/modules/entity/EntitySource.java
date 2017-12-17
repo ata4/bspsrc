@@ -266,6 +266,16 @@ public class EntitySource extends ModuleDecompile {
                 writer.put(key, value);
             }
             
+            if (className.equals("trigger_teleport") && config.addUseLandmarkAngles) {
+                boolean hasULA = ent.hasKey("UseLandmarkAngles");
+                boolean hasLandmark = ent.getValue("landmark") != null;
+                
+                if (!hasULA && !hasLandmark)
+                {
+                    writer.put("UseLandmarkAngles", "1");
+                }
+            }
+            
             writer.put("classname", className);
 
             // write entity I/O
@@ -747,7 +757,14 @@ public class EntitySource extends ModuleDecompile {
      * Writes all func_ladder entities
      */
     public void writeLadders() {
-        L.info("Writing func_ladders");
+        String ladderClass = "func_detail";
+        
+        if (config.writeLaddersAsEntities) 
+        {
+            ladderClass = "func_ladder";
+        }
+        
+        L.log(Level.INFO, "Writing ladders (as {0})", ladderClass);
 
         for (int i = 0; i < bsp.brushes.size(); i++) {
             DBrush brush = bsp.brushes.get(i);
@@ -759,8 +776,8 @@ public class EntitySource extends ModuleDecompile {
             
             // write brush as func_ladder
             writer.start("entity");
-            writer.put("id", vmfmeta.getUID());
-            writer.put("classname", "func_ladder");
+            writer.put("id", vmfmeta.getUID());            
+            writer.put("classname", ladderClass);
 
             brushsrc.writeBrush(i);
 

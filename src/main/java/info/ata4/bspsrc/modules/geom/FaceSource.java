@@ -755,6 +755,7 @@ public class FaceSource extends ModuleDecompile {
         
         writer.put("power", di.power);
         writer.put("startposition", di.startPos, 2);
+        writer.put("flags", di.getSurfaceFlags());
         writer.put("elevation", 0);
         writer.put("subdiv", 0);
 

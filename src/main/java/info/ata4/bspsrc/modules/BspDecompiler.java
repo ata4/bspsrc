@@ -178,9 +178,7 @@ public class BspDecompiler extends ModuleDecompile {
                 entsrc.writeCubemaps();
             }
             
-            if (config.writeLadders) {
-                entsrc.writeLadders();
-            }
+            entsrc.writeLadders();
         }
     }
 }

@@ -131,7 +131,7 @@ public class BspSourceCli {
             .create('l'));
 
         // entity options
-        Option nbentsOpt, npentsOpt, npropsOpt, noverlOpt, ncubemOpt, ndetailsOpt, nareapOpt, nocclOpt, nladderOpt, nrotfixOpt;
+        Option nbentsOpt, npentsOpt, npropsOpt, noverlOpt, ncubemOpt, ndetailsOpt, nareapOpt, nocclOpt, nladderOpt, nULAOpt, nrotfixOpt;
         optsEntity.addOption(npentsOpt = new Option("no_point_ents", "Don't write any point entities."));
         optsEntity.addOption(nbentsOpt = new Option("no_brush_ents", "Don't write any brush entities."));
         optsEntity.addOption(npropsOpt = new Option("no_sprp", "Don't write prop_static entities."));
@@ -141,6 +141,7 @@ public class BspSourceCli {
         optsEntity.addOption(nareapOpt = new Option("no_areaportals", "Don't write func_areaportal(_window) entities."));
         optsEntity.addOption(nocclOpt = new Option("no_occluders", "Don't write func_occluder entities."));
         optsEntity.addOption(nladderOpt = new Option("no_ladders", "Don't write func_ladder entities."));
+        optsEntity.addOption(nULAOpt = new Option("add_uselandmarkangles", "Add UseLandmarkAngles key to teleporters."));
         optsEntity.addOption(nrotfixOpt = new Option("no_rotfix", "Don't fix instance entity brush rotations for Hammer."));
         
         // world brush options
@@ -275,7 +276,8 @@ public class BspSourceCli {
             config.writeOccluders = !cl.hasOption(nocclOpt.getOpt());
             config.writeCubemaps = !cl.hasOption(ncubemOpt.getOpt());
             config.writeDetails = !cl.hasOption(ndetailsOpt.getOpt());
-            config.writeLadders = !cl.hasOption(nladderOpt.getOpt());
+            config.writeLaddersAsEntities = !cl.hasOption(nladderOpt.getOpt());
+            config.addUseLandmarkAngles = cl.hasOption(nULAOpt.getOpt());
             
             // world options
             config.writeWorldBrushes = !cl.hasOption(nbrushOpt.getOpt());
