@@ -68,19 +68,23 @@ public class PakFile {
                     continue;
                 }
 
-                // some maps have embedded files with absolute paths, for
-                // whatever reason...
-                zipName = zipName.replace(':', '_');
-
-                Path entryFile = dest.resolve(zipName);
+                // create file path for zip entry and canonize it
+                Path entryFile = dest.resolve(zipName).normalize();
                 
+                // don't allow file path to exit the extraction directory
+                if (!entryFile.startsWith(dest)) {
+                    L.log(Level.WARNING, "Skipped {0} (path traversal attempt)", ze.getName());
+                    continue;
+                }
+
+                // create missing parent directory
                 if (Files.notExists(entryFile.getParent())) {
                     Files.createDirectories(entryFile.getParent());
                 }
                 
                 // don't overwrite any files
                 if (Files.exists(entryFile)) {
-                    L.log(Level.INFO, "Skipped {0}", ze.getName());
+                    L.log(Level.WARNING, "Skipped {0} (exists)", ze.getName());
                     continue;
                 }
 
