@@ -1223,10 +1223,11 @@
     </app>
     <app name="Black Mesa" id="362890">
         <version min="20" />
-        <files><![CDATA[^bm_c[0-3]a[0-5][a-h]$]]></files>
+        <files><![CDATA[^bm_c[0-3]a[0-5][a-i]$]]></files>
         <entities>
             ai_goal_throw_prop
             camera_satellite
+            env_cascade_volume
             env_dispenser
             env_introcredits
             env_leech_controller
@@ -1246,11 +1247,14 @@
             func_friction
             func_minefield
             func_tow
+            godrays_settings
             grenade_satchel
             grenade_tripmine
+            info_bigmomma
             info_dlightmap_update
             info_stopallsounds
             info_target_helicoptercrash
+            item_ammo_canister
             item_ammo_energy
             item_ammo_glock
             item_ammo_mp5
@@ -1273,15 +1277,23 @@
             item_weapon_snark
             item_weapon_tau
             item_weapon_tripmine
+            newLight_Dir
+            newLight_Point
+            newLight_Spot
+            newLights_settings
+            newLights_Spawner
             npc_abrams
             npc_alien_controller
             npc_alien_grunt
+            npc_alien_grunt_melee
             npc_alien_grunt_unarmored
             npc_alien_slave
             npc_apache
             npc_babycrab
+            npc_barrel_cactus
             npc_bullsquid
             npc_cockroach
+            npc_enemyfinder
             npc_flyer_flock
             npc_gargantua
             npc_gonarch
@@ -1301,6 +1313,8 @@
             npc_manta
             npc_nihilanth
             npc_osprey
+            npc_plantlight
+            npc_protozoan
             npc_rat
             npc_sentry_ceiling
             npc_sentry_ground
@@ -1310,8 +1324,11 @@
             npc_zombie_scientist
             npc_zombie_scientist_torso
             npc_zombie_security
+            npc_xentree
+            npc_xenturret
             prop_flare
             prop_physics_respawnable
+            prop_puffballfungus
             prop_retinalscanner
             prop_surgerybot
             prop_train_apprehension
