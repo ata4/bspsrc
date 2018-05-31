@@ -182,7 +182,7 @@ public class TextureSource extends ModuleRead {
             } else {
                 return bsp.texnames.get(td);
             }
-        } catch (ArrayIndexOutOfBoundsException ex) {
+        } catch (IndexOutOfBoundsException ex) {
             return ToolTexture.SKIP;
         }
     }

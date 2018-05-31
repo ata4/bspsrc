@@ -73,7 +73,7 @@ public class TextureBuilder {
 
         try {
             texinfo = bsp.texinfos.get(itexinfo);
-        } catch (ArrayIndexOutOfBoundsException ex) {
+        } catch (IndexOutOfBoundsException ex) {
             L.log(Level.WARNING, "Invalid texinfo index: {0}", itexinfo);
             return texture;
         }
@@ -81,7 +81,7 @@ public class TextureBuilder {
         try {
             texdata = bsp.texdatas.get(texinfo.texdata);
             texture.setData(texdata);
-        } catch (ArrayIndexOutOfBoundsException ex) {
+        } catch (IndexOutOfBoundsException ex) {
             L.log(Level.WARNING, "Invalid texdata index: {0}", texinfo.texdata);
             return texture;
         }
@@ -91,7 +91,7 @@ public class TextureBuilder {
 
         try {
             textureOriginal = bsp.texnames.get(texdata.texname);
-        } catch (ArrayIndexOutOfBoundsException ex) {
+        } catch (IndexOutOfBoundsException ex) {
             L.log(Level.WARNING, "Invalid texname index: {0}", texdata.texname);
         }
 

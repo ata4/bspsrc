@@ -225,7 +225,7 @@ public class FaceSource extends ModuleDecompile {
 
         try {
             model = bsp.models.get(imodel);
-        } catch (ArrayIndexOutOfBoundsException ex) {
+        } catch (IndexOutOfBoundsException ex) {
             L.log(Level.WARNING, "Invalid model index {0}", imodel);
             return;
         }
