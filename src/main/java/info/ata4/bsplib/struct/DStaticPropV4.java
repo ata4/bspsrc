@@ -93,4 +93,8 @@ public class DStaticPropV4 implements DStaticProp {
     public boolean hasIgnoreNormals() {
         return flags.contains(StaticPropFlag.STATIC_PROP_IGNORE_NORMALS);
     }
+
+    public boolean hasScreenSpaceFadeInPixels() {
+        return flags.contains(StaticPropFlag.STATIC_PROP_SCREEN_SPACE_FADE);
+    }
 }

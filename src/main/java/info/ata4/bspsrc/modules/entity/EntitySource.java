@@ -609,6 +609,10 @@ public class EntitySource extends ModuleDecompile {
             writer.put("fademaxdist", pst4.fademax);
             writer.put("solid", pst4.solid);
             writer.put("model", bsp.staticPropName.get(pst4.propType));
+
+            if (pst4.hasScreenSpaceFadeInPixels()) {
+                writer.put("screenspacefade", pst4.hasScreenSpaceFadeInPixels());
+            }
             
             // store coordinates and targetname of the lighing origin for later
             if (pst4.usesLightingOrigin()) {
@@ -656,7 +660,7 @@ public class EntitySource extends ModuleDecompile {
                 writer.put("maxgpulevel", pst8.maxGPULevel);
                 writer.put("mingpulevel", pst8.minGPULevel);
             }
-            
+
             if (diffMod != null) {
                 writer.put("rendercolor", String.format("%d %d %d",
                         diffMod.r, diffMod.g, diffMod.b));
