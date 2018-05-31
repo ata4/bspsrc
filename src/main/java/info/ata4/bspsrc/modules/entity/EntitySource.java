@@ -673,13 +673,13 @@ public class EntitySource extends ModuleDecompile {
             }
             
             if (pst instanceof DStaticPropV10) {
-                DStaticPropV10 psttf2 = (DStaticPropV10) pst;
+                DStaticPropV10 pst10 = (DStaticPropV10) pst;
                 
-                boolean genLightmaps = !psttf2.hasNoPerTexelLighting();
+                boolean genLightmaps = !pst10.hasNoPerTexelLighting();
                 writer.put("generatelightmaps", genLightmaps);
                 if (genLightmaps) {
-                    writer.put("lightmapresolutionx", psttf2.lightmapResolutionX);
-                    writer.put("lightmapresolutiony", psttf2.lightmapResolutionY);
+                    writer.put("lightmapresolutionx", pst10.lightmapResolutionX);
+                    writer.put("lightmapresolutiony", pst10.lightmapResolutionY);
                 }
             }
             
