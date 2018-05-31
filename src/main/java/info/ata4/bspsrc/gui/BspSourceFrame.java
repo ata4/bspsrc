@@ -104,13 +104,13 @@ public class BspSourceFrame extends javax.swing.JFrame {
     
     public ComboBoxModel getAppIDModel() {
         DefaultComboBoxModel<SourceApp> cbmodel = new DefaultComboBoxModel<>();
-        cbmodel.addElement(new SourceApp("Automatic", 0));
-        
         List<SourceApp> apps = SourceAppDB.getInstance().getAppList();
         
-        for (SourceApp app : apps) {
-            cbmodel.addElement(app);
-        }
+        apps.stream()
+            .sorted((SourceApp a1, SourceApp a2) -> a1.getName().compareTo(a2.getName()))
+            .forEach(app -> cbmodel.addElement(app));
+
+        cbmodel.insertElementAt(new SourceApp("Automatic", 0), 0);
         
         return cbmodel;
     }
@@ -160,6 +160,8 @@ public class BspSourceFrame extends javax.swing.JFrame {
         // combo boxes
         comboBoxBackfaceTex.setSelectedIndex(0);
         comboBoxFaceTex.setSelectedIndex(0);
+        comboBoxMapFormat.setSelectedIndex(0);
+        comboBoxSourceFormat.setSelectedIndex(0);
 
         // misc
         listFilesModel.removeAllElements();
@@ -862,7 +864,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         });
 
         comboBoxMapFormat.setModel(getAppIDModel());
-        comboBoxMapFormat.setToolTipText("<html>\n<p>Overrides the internal game detection for maps.</p>\n<p>Select <i>\"Unknown\"</i> for automatic detection.</p>\n<br>\n<b>Warning:</b> Change only if the game isn't detected<br>\ncorrectly, wrong values can cause program errors!\n</html>");
+        comboBoxMapFormat.setToolTipText("<html>\n<p>Overrides the internal game detection for maps.</p>\n<p>Select <i>\"Automatic\"</i> for automatic detection.</p>\n<br>\n<b>Warning:</b> Change only if the game isn't detected<br>\ncorrectly, wrong values can cause program errors!\n</html>");
         comboBoxMapFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboBoxMapFormatActionPerformed(evt);

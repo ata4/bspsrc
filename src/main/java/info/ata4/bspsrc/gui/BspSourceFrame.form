@@ -721,7 +721,7 @@
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="getAppIDModel()" type="code"/>
                 </Property>
-                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;&lt;p&gt;Overrides the internal game detection for maps.&lt;/p&gt;&#xa;&lt;p&gt;Select &lt;i&gt;&quot;Unknown&quot;&lt;/i&gt; for automatic detection.&lt;/p&gt;&#xa;&lt;br&gt;&#xa;&lt;b&gt;Warning:&lt;/b&gt; Change only if the game isn&apos;t detected&lt;br&gt;&#xa;correctly, wrong values can cause program errors!&#xa;&lt;/html&gt;"/>
+                <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;&lt;p&gt;Overrides the internal game detection for maps.&lt;/p&gt;&#xa;&lt;p&gt;Select &lt;i&gt;&quot;Automatic&quot;&lt;/i&gt; for automatic detection.&lt;/p&gt;&#xa;&lt;br&gt;&#xa;&lt;b&gt;Warning:&lt;/b&gt; Change only if the game isn&apos;t detected&lt;br&gt;&#xa;correctly, wrong values can cause program errors!&#xa;&lt;/html&gt;"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboBoxMapFormatActionPerformed"/>
