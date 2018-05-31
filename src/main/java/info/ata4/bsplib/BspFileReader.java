@@ -485,7 +485,7 @@ public class BspFileReader {
         if (bspData.dispmultiblend != null) {
             return;
         }
-    	
+
         bspData.dispmultiblend = loadLump(LumpType.LUMP_DISP_MULTIBLEND, DDispMultiBlend.class);
     }
 

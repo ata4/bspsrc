@@ -23,9 +23,9 @@ public class DFaceVTMB extends DFace {
     public static final int MAXLIGHTMAPS = 8;
 
     public int[] avgLightColor = new int[MAXLIGHTMAPS];
-    public byte[] styles = new byte[MAXLIGHTMAPS];	// lighting info
-    public byte[] day = new byte[MAXLIGHTMAPS];		// Nightime lightmapping system
-    public byte[] night = new byte[MAXLIGHTMAPS];	// Nightime lightmapping system
+    public byte[] styles = new byte[MAXLIGHTMAPS];  // lighting info
+    public byte[] day = new byte[MAXLIGHTMAPS];     // Nightime lightmapping system
+    public byte[] night = new byte[MAXLIGHTMAPS];   // Nightime lightmapping system
 
     @Override
     public int getSize() {

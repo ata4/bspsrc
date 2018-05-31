@@ -20,11 +20,11 @@ import java.io.IOException;
 public class LumpException extends IOException {
 
     public LumpException() {
-	super();
+        super();
     }
 
     public LumpException(String message) {
-	super(message);
+        super(message);
     }
 
     public LumpException(String message, Throwable cause) {

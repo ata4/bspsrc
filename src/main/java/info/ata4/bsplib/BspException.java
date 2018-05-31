@@ -20,11 +20,11 @@ import java.io.IOException;
 public class BspException extends IOException {
 
     public BspException() {
-	super();
+        super();
     }
 
     public BspException(String message) {
-	super(message);
+        super(message);
     }
 
     public BspException(String message, Throwable cause) {

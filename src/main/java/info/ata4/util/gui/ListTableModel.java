@@ -60,7 +60,7 @@ public class ListTableModel extends RowTableModel<List> {
      * column names will be used for the specified number of
      * <code>columns</code>.
      *
-     * @param rows	the number of initially empty rows to create
+     * @param rows  the number of initially empty rows to create
      * @param columns the number of columns the table holds
      */
     public ListTableModel(int rows, int columns) {
@@ -90,7 +90,7 @@ public class ListTableModel extends RowTableModel<List> {
      * thenumber of items in the
      * <code>columnNames</code> List.
      *
-     * @param modelData	the data of the table
+     * @param modelData the data of the table
      * @param columnNames
      * <code>List</code> containing the names of the new columns
      */
@@ -107,9 +107,9 @@ public class ListTableModel extends RowTableModel<List> {
      * <code>row</code> and
      * <code>column</code>.
      *
-     * @param row	the row whose value is to be queried
-     * @param column	the column whose value is to be queried
-     * @return	the value Object at the specified cell
+     * @param row   the row whose value is to be queried
+     * @param column    the column whose value is to be queried
+     * @return  the value Object at the specified cell
      * @exception IndexOutOfBoundsException if an invalid row or column was
      * given
      */
@@ -126,9 +126,9 @@ public class ListTableModel extends RowTableModel<List> {
      * <code>value</code> is the new value. This method will generate a
      * <code>tableChanged</code> notification.
      *
-     * @param value	the new value; this can be null
-     * @param row	the row whose value is to be changed
-     * @param column	the column whose value is to be changed
+     * @param value the new value; this can be null
+     * @param row   the row whose value is to be changed
+     * @param column    the column whose value is to be changed
      * @exception IndexOutOfBoundsException if an invalid row or column was
      * given
      */
@@ -145,7 +145,7 @@ public class ListTableModel extends RowTableModel<List> {
      * <code>row</code> location in the model. Notification of the row being
      * added will be generated.
      *
-     * @param row	row in the model where the data will be inserted
+     * @param row   row in the model where the data will be inserted
      * @param rowData data of the row being added
      */
     @Override
@@ -159,7 +159,7 @@ public class ListTableModel extends RowTableModel<List> {
      * <code>row</code> location in the model. Notification of the row being
      * added will be generated.
      *
-     * @param row	row in the model where the data will be inserted
+     * @param row   row in the model where the data will be inserted
      * @param rowList each item in the list is a separate row of data
      */
     @Override
@@ -185,7 +185,7 @@ public class ListTableModel extends RowTableModel<List> {
      * Adds a row of data to the end of the model. Notification of the row being
      * added will be generated.
      *
-     * @param rowData	data of the row being added
+     * @param rowData   data of the row being added
      */
     public void addRow(Object[] rowData) {
         insertRow(getRowCount(), rowData);
@@ -196,7 +196,7 @@ public class ListTableModel extends RowTableModel<List> {
      * <code>row</code> location in the model. Notification of the row being
      * added will be generated.
      *
-     * @param row	row in the model where the data will be inserted
+     * @param row   row in the model where the data will be inserted
      * @param rowData data of the row being added
      */
     public void insertRow(int row, Object[] rowData) {
@@ -208,7 +208,7 @@ public class ListTableModel extends RowTableModel<List> {
      * <code>row</code> location in the model. Notification of the row being
      * added will be generated.
      *
-     * @param row	row in the model where the data will be inserted
+     * @param row   row in the model where the data will be inserted
      * @param rowArray each item in the Array is a separate row of data
      */
     public void insertRows(int row, Object[][] rowArray) {
@@ -239,7 +239,7 @@ public class ListTableModel extends RowTableModel<List> {
      * ResultSet. The class of
      *
      * @param resultSet ResultSet containing results of a database query
-     * @return	a newly created ListTableModel
+     * @return  a newly created ListTableModel
      * @exception SQLException when an SQL error is encountered
      */
     public static ListTableModel createModelFromResultSet(ResultSet resultSet)
