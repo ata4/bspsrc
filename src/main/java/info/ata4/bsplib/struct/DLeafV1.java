@@ -23,13 +23,13 @@ public class DLeafV1 extends DLeaf  {
     public int getSize() {
         return super.getSize() + 2;
     }
-    
+
     @Override
     public void read(DataReader in) throws IOException {
         super.read(in);
         in.readUnsignedShort(); // padding
     }
-   
+
     @Override
     public void write(DataWriter out) throws IOException {
         super.write(out);

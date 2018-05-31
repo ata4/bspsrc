@@ -23,26 +23,26 @@ import java.util.Map.Entry;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class EntityOutputStream extends PrintStream {
-    
+
     public EntityOutputStream(OutputStream out) {
         super(out);
     }
-    
+
     public void writeEntity(Entity ent) throws IOException {
         print("{\n");
-        
+
         for (Entry<String, String> kv : ent.getEntrySet()) {
             printf("\"%s\" \"%s\"\n", kv.getKey(), kv.getValue());
         }
-        
+
         printf("\"classname\" \"%s\"\n", ent.getClassName());
-        
+
         List<KeyValue> ios = ent.getIO();
-        
+
         for (KeyValue io : ios) {
             printf("\"%s\" \"%s\"\n", io.getKey(), io.getValue());
         }
-        
+
         print("}\n");
     }
 }

@@ -26,19 +26,19 @@ public class BspFileEntry {
         if (bspFile == null) {
             throw new NullPointerException();
         }
-        
+
         this.bspFile = bspFile;
         this.vmfFile = replaceExtension(bspFile, "_d.vmf");
         this.pakfileDir = replaceExtension(bspFile, "");
     }
-    
+
     private File replaceExtension(File file, String newExt) {
         String base = FilenameUtils.removeExtension(file.getName());
         File parentFile = file.getAbsoluteFile().getParentFile();
 
         return new File(parentFile, base + newExt);
     }
-    
+
     public File getBspFile() {
         return bspFile;
     }
@@ -58,12 +58,12 @@ public class BspFileEntry {
     public void setPakDir(File pakfileDir) {
         this.pakfileDir = pakfileDir;
     }
-    
+
     @Override
     public String toString() {
         return bspFile.toString();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -78,7 +78,7 @@ public class BspFileEntry {
         }
         return true;
     }
-    
+
     @Override
     public int hashCode() {
         return bspFile.hashCode();

@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 public class Entity {
 
     private static final Logger L = LogUtils.getLogger();
-    
+
     private Map<String, String> keyValue = new LinkedHashMap<>();
     private List<KeyValue> keyValueIO = new ArrayList<>();
     private String className;

@@ -21,11 +21,11 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DOverlay implements DStruct {
-    
+
     public static final int OVERLAY_BSP_FACE_COUNT = 64;
     public static final int OVERLAY_RENDER_ORDER_NUM_BITS = 2;
     public static final int OVERLAY_RENDER_ORDER_MASK = 0xC000; // top 2 bits set
-    
+
     public int id;
     public short texinfo;
     public int faceCountAndRenderOrder;
@@ -35,11 +35,11 @@ public class DOverlay implements DStruct {
     public Vector3f[] uvpoints = new Vector3f[4];
     public Vector3f origin;
     public Vector3f basisNormal;
-    
+
     public int getFaceCount() {
         return faceCountAndRenderOrder & ~OVERLAY_RENDER_ORDER_MASK;
     }
-    
+
     public int getRenderOrder() {
         return faceCountAndRenderOrder >> (16 - OVERLAY_RENDER_ORDER_NUM_BITS);
     }
@@ -77,16 +77,16 @@ public class DOverlay implements DStruct {
         out.writeInt(id);
         out.writeShort(texinfo);
         out.writeUnsignedShort(faceCountAndRenderOrder);
-        
+
         for (int j = 0; j < OVERLAY_BSP_FACE_COUNT; j++) {
             out.writeInt(ofaces[j]);
         }
-        
+
         out.writeFloat(u[0]);
         out.writeFloat(u[1]);
         out.writeFloat(v[0]);
         out.writeFloat(v[1]);
-        
+
         for (int j = 0; j < 4; j++) {
             Vector3f.write(out, origin);
         }

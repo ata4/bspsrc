@@ -22,7 +22,7 @@ import java.util.Set;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DStaticPropV4 implements DStaticProp {
-    
+
     public Vector3f origin;
     public Vector3f angles;
     public int propType;
@@ -69,7 +69,7 @@ public class DStaticPropV4 implements DStaticProp {
         out.writeFloat(fademax);
         Vector3f.write(out, lightingOrigin);
     }
-    
+
     public boolean usesLightingOrigin() {
         return flags.contains(StaticPropFlag.STATIC_PROP_USE_LIGHTING_ORIGIN);
     }
@@ -77,7 +77,7 @@ public class DStaticPropV4 implements DStaticProp {
     public boolean hasNoShadowing() {
         return flags.contains(StaticPropFlag.STATIC_PROP_NO_SHADOW);
     }
-    
+
     public boolean hasNoSelfShadowing() {
         return flags.contains(StaticPropFlag.STATIC_PROP_NO_SELF_SHADOWING);
     }
@@ -85,11 +85,11 @@ public class DStaticPropV4 implements DStaticProp {
     public boolean hasNoPerVertexLighting() {
         return flags.contains(StaticPropFlag.STATIC_PROP_NO_PER_VERTEX_LIGHTING);
     }
-    
+
     public boolean hasNoPerTexelLighting() {
         return flags.contains(StaticPropFlag.STATIC_PROP_NO_PER_TEXEL_LIGHTING);
     }
-    
+
     public boolean hasIgnoreNormals() {
         return flags.contains(StaticPropFlag.STATIC_PROP_IGNORE_NORMALS);
     }

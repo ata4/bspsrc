@@ -27,14 +27,14 @@ import org.apache.commons.io.input.CountingInputStream;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class EntityInputStream extends CountingInputStream {
-    
+
     private static final Logger L = LogUtils.getLogger();
     private boolean allowEsc = false;
-    
+
     public EntityInputStream(InputStream in) {
         super(in);
     }
-    
+
     public Entity readEntity() throws IOException {
         boolean section = false;
         boolean string = false;
@@ -57,7 +57,7 @@ public class EntityInputStream extends CountingInputStream {
                             esc = false;
                             break;
                         }
-                        
+
                         // parse strings
                         if (string) {
                             if (key == null) {
@@ -102,7 +102,7 @@ public class EntityInputStream extends CountingInputStream {
                             return new Entity(keyValues);
                         }
                         break;
-                    
+
                     case '\\':
                         if (allowEsc) {
                             // skip this character and add the next '"' to the string
@@ -110,7 +110,7 @@ public class EntityInputStream extends CountingInputStream {
                         }
                         break;
                 }
-                
+
                 // append to current string if inside section
                 if (section && string) {
                     sb.append((char) b);

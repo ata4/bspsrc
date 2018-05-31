@@ -21,17 +21,17 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DDispInfoBSP17 extends DDispInfo {
-    
+
     @Override
     public int getTriangleTagCount() {
        return 0;
     }
-    
+
     @Override
     public int getSize() {
         return 172;
     }
-    
+
     @Override
     public void read(DataReader in) throws IOException {
         startPos = Vector3f.read(in);
@@ -44,7 +44,7 @@ public class DDispInfoBSP17 extends DDispInfo {
         lightmapAlphaStart = in.readInt();
         lightmapSamplePositionStart = in.readInt();
         in.readBytes(neighbors);
-        
+
         for (int i = 0; i < allowedVerts.length; i++) {
             allowedVerts[i] = in.readInt();
         }
@@ -62,7 +62,7 @@ public class DDispInfoBSP17 extends DDispInfo {
         out.writeInt(lightmapAlphaStart);
         out.writeInt(lightmapSamplePositionStart);
         out.writeBytes(neighbors);
-        
+
         for (int i = 0; i < allowedVerts.length; i++) {
             out.writeInt(allowedVerts[i]);
         }

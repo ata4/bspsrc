@@ -29,24 +29,24 @@ import java.util.logging.Logger;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class VmfMeta extends ModuleDecompile {
-    
+
     // logger
     private static final Logger L = LogUtils.getLogger();
-    
+
     // UID mappings
     private Map<Integer, Integer> faceUIDs = new HashMap<>();
     private Map<Integer, Integer> origFaceUIDs = new HashMap<>();
     private Map<Short, Integer> dispinfoUIDs = new HashMap<>();
-    
+
     // UID blacklist
     private Set<Integer> uidbl = new HashSet<>();
-    
+
     // VMF unique ID
     private int uid = 0;
-    
+
     // visgroup list
     private List<String> visgroups = new ArrayList<>();
-    
+
     // camera list
     private List<Camera> cameras = new ArrayList<>();
 
@@ -57,13 +57,13 @@ public class VmfMeta extends ModuleDecompile {
         super(reader, writer);
 
         worldspawn = bsp.entities.get(0);
-        
+
         // check for existing map comment
         if (worldspawn.getValue("comment") != null) {
             L.log(Level.INFO, "Map comment: {0}", worldspawn.getValue("comment"));
         }
     }
-    
+
     public Set<Integer> getUIDBlackList() {
         return uidbl;
     }
@@ -81,11 +81,11 @@ public class VmfMeta extends ModuleDecompile {
             do {
                 uid++;
             } while (uidbl.contains(uid));
-            
+
             return uid;
         }
     }
-    
+
     /**
      * Returns the VMF UID for the corresponding face index.
      * It automatically looks up the original face if the split face wasn't found.
@@ -103,11 +103,11 @@ public class VmfMeta extends ModuleDecompile {
                 return origFaceUIDs.get(ioface);
             }
         }
-        
+
         // not found
         return -1;
     }
-    
+
     /**
      * Sets the VMF UID for the given face index.
      * 
@@ -118,7 +118,7 @@ public class VmfMeta extends ModuleDecompile {
     public Integer setFaceUID(int iface, int id) {
         return faceUIDs.put(iface, id);
     }
-    
+
     /**
      * Sets the VMF UID for the given original face index.
      * 
@@ -129,7 +129,7 @@ public class VmfMeta extends ModuleDecompile {
     public Integer setOrigFaceUID(int iface, int id) {
         return origFaceUIDs.put(iface, id);
     }
-    
+
     /**
      * Returns the VMF UID for the corresponding dispInfo index.
      * 
@@ -140,11 +140,11 @@ public class VmfMeta extends ModuleDecompile {
         if (dispinfoUIDs.containsKey(idispinfo)) {
             return dispinfoUIDs.get(idispinfo);
         }
-        
+
         // not found
         return -1;
     }
-    
+
     /**
      * Sets the VMF UID for the given displacement info index.
      * 
@@ -155,7 +155,7 @@ public class VmfMeta extends ModuleDecompile {
     public Integer setDispInfoUID(short idispinfo, int id) {
         return dispinfoUIDs.put(idispinfo, id);
     }
-    
+
     public void setComment(String comment) {
         this.comment = comment;
     }
@@ -163,7 +163,7 @@ public class VmfMeta extends ModuleDecompile {
     public String getComment() {
         return comment;
     }
-    
+
     /**
      * Writes the worldspawn header
      */
@@ -171,22 +171,22 @@ public class VmfMeta extends ModuleDecompile {
         writer.start("world");
         writer.put("id", getUID());
         writer.put(worldspawn);
-        
+
         // write comment
         if (comment != null) {
             writer.put("comment", comment);
         }
-        
+
         writer.put("classname", "worldspawn");
     }
-    
+
     /**
      * Writes the worldspawn footer
      */
     public void writeWorldFooter() {
         writer.end("world");
     }
-    
+
     public void writeVisgroups() {
         if (visgroups.isEmpty()) {
             return;
@@ -205,13 +205,13 @@ public class VmfMeta extends ModuleDecompile {
 
         writer.end("visgroups");
     }
-    
+
     public void writeMetaVisgroup(String visgroupName) {
         writer.start("editor");
         writer.put("visgroupid", getVisgroupID(visgroupName));
         writer.end("editor");
     }
-    
+
     public void writeMetaVisgroups(List<String> visgroupNames) { 
         writer.start("editor");
         for (String visgroupName : visgroupNames) {
@@ -219,15 +219,15 @@ public class VmfMeta extends ModuleDecompile {
         }
         writer.end("editor");
     }
-    
+
     public int getVisgroupID(String visgroupName) {
         if (!visgroups.contains(visgroupName)) {
             visgroups.add(visgroupName);
         }
-        
+
         return visgroups.indexOf(visgroupName);
     }
-    
+
     public void writeCameras() {
         writer.start("cameras");
 
@@ -243,10 +243,10 @@ public class VmfMeta extends ModuleDecompile {
                 writer.end("camera");
             }
         }
-        
+
         writer.end("cameras");
     }
-    
+
     public List<Camera> getCameras() {
         return cameras;
     }

@@ -24,7 +24,7 @@ import javax.swing.JOptionPane;
 public class DialogHandler extends Handler {
 
     private final Component parentComponent;
-    
+
     public DialogHandler(Component parentComponent) {
         this.parentComponent = parentComponent;
         setFormatter(new DialogFormatter());
@@ -37,18 +37,18 @@ public class DialogHandler extends Handler {
         if (record.getLevel().intValue() < getLevel().intValue()) {
             return;
         }
-        
+
         int dialogType;
         String title;
         String message;
-        
+
          try {
             message = getFormatter().format(record);
         } catch (Exception ex) {
             reportError(null, ex, ErrorManager.FORMAT_FAILURE);
             return;
         }
-        
+
         if (record.getLevel() == Level.WARNING) {
             dialogType = JOptionPane.WARNING_MESSAGE;
             title = "Warning";
@@ -59,7 +59,7 @@ public class DialogHandler extends Handler {
             dialogType = JOptionPane.INFORMATION_MESSAGE;
             title = "Information";
         }
-        
+
         JOptionPane.showMessageDialog(parentComponent, message, title, dialogType);
     }
 
@@ -70,5 +70,5 @@ public class DialogHandler extends Handler {
     @Override
     public void close() throws SecurityException {
     }
-    
+
 }

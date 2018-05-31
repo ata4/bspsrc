@@ -22,7 +22,7 @@ public class URILabel extends JLabel {
         setCursor(new Cursor(Cursor.HAND_CURSOR));
         addMouseListener(new URLOpenAdapter());
     }
-    
+
     public void setURI(String text, URI uri) {
         this.uri = uri;
         super.setText("<html><body><a href=\"" + uri + "\">" + text + "</a></body></html>");

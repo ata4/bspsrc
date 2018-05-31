@@ -19,20 +19,20 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DFaceBSP17 extends DFace {
-    
+
     public int[] avgLightColor = new int[MAXLIGHTMAPS];
-    
+
     @Override
     public int getSize() {
         return 68;
     }
-    
+
     @Override
     public void read(DataReader in) throws IOException {
         for (int i = 0; i < MAXLIGHTMAPS; i++) {
             avgLightColor[i] = in.readInt();
         }
-        
+
         pnum = in.readUnsignedShort();
         side = in.readByte();
         onnode = in.readByte();
@@ -57,7 +57,7 @@ public class DFaceBSP17 extends DFace {
         for (int i = 0; i < MAXLIGHTMAPS; i++) {
            out.writeInt(avgLightColor[i]);
         }
-        
+
         out.writeUnsignedShort(pnum);
         out.writeByte(side);
         out.writeByte(onnode);

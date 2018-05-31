@@ -27,5 +27,5 @@ public class DialogFormatter extends Formatter {
         sb.append(record.getThrown().getMessage());
         return sb.toString();
     }
-    
+
 }

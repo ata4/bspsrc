@@ -28,19 +28,19 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class PakFile {
-    
+
     private static final Logger L = LogUtils.getLogger();
-    
+
     private final Lump pakLump;
-    
+
     public PakFile(BspFile bspFile) {
         pakLump = bspFile.getLump(LumpType.LUMP_PAKFILE);
     }
-    
+
     public ZipArchiveInputStream getArchiveInputStream() {
         return new ZipArchiveInputStream(pakLump.getInputStream(), "Cp437", false);
     }
-    
+
     public void unpack(Path dest) throws IOException {
         unpack(dest, false);
     }
@@ -56,10 +56,10 @@ public class PakFile {
             unpack(dest, null);
         }
     }
-    
+
     public void unpack(Path dest, List<String> names) throws IOException {
         Files.createDirectories(dest);
-        
+
         try (ZipArchiveInputStream zis = getArchiveInputStream()) {
             for (ZipArchiveEntry ze; (ze = zis.getNextZipEntry()) != null;) {
                 String zipName = ze.getName();
@@ -70,7 +70,7 @@ public class PakFile {
 
                 // create file path for zip entry and canonize it
                 Path entryFile = dest.resolve(zipName).normalize();
-                
+
                 // don't allow file path to exit the extraction directory
                 if (!entryFile.startsWith(dest)) {
                     L.log(Level.WARNING, "Skipped {0} (path traversal attempt)", ze.getName());
@@ -81,7 +81,7 @@ public class PakFile {
                 if (Files.notExists(entryFile.getParent())) {
                     Files.createDirectories(entryFile.getParent());
                 }
-                
+
                 // don't overwrite any files
                 if (Files.exists(entryFile)) {
                     L.log(Level.WARNING, "Skipped {0} (exists)", ze.getName());

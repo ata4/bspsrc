@@ -19,14 +19,14 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DOverlayDota2 extends DOverlay {
-    
+
     private int unknown;
-    
+
     @Override
     public int getSize() {
         return super.getSize() + 4;
     }
-    
+
     @Override
     public void read(DataReader in) throws IOException {
         super.read(in);

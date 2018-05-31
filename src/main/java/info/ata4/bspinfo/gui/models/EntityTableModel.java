@@ -28,11 +28,11 @@ public class EntityTableModel extends ListTableModel {
 
     public EntityTableModel(BspFileReader bspReader) {
         this();
-        
+
         Set<String> classes = bspReader.getEntityClassSet();
         List<Entity> entities = bspReader.getData().entities;
         List<String> entityStrings = new ArrayList<>();
-        
+
         // create non-unique list of all entity classes
         for (Entity ent : entities) {
             entityStrings.add(ent.getClassName());
@@ -46,7 +46,7 @@ public class EntityTableModel extends ListTableModel {
             addRow(row);
         }
     }
-    
+
     @Override
     public boolean isCellEditable(int row, int column) {
         return false;

@@ -31,7 +31,7 @@ public final class BspSourceConfig implements Serializable {
 
     // logger
     private static final Logger L = LogUtils.getLogger();
-    
+
     public SourceApp defaultApp = SourceApp.UNKNOWN;
     public BrushMode brushMode = BrushMode.BRUSHPLANES;
     public SourceFormat sourceFormat = SourceFormat.AUTO;
@@ -62,30 +62,30 @@ public final class BspSourceConfig implements Serializable {
     public boolean writeVisgroups = true;
     public boolean writeWorldBrushes = true;
     public boolean writeLadders = true;
-    
+
     private boolean debug = false;
     private Set<BspFileEntry> files = new HashSet<>();
-    
+
     private void updateLogger(boolean debug) {
         LogUtils.configure(debug ? Level.ALL : Level.INFO);
         if (debug) {
             L.fine("Debug mode on, verbosity set to maximum");
         }
     }
-    
+
     public void dumpToLog() {
         dumpToLog(L);
     }
-    
+
     public void dumpToLog(Logger logger) {
         Field[] fields = getClass().getDeclaredFields();
-        
+
         for (Field field : fields) {
             // ignore static fields
             if (Modifier.isStatic(field.getModifiers())) {
                 continue;
             }
-            
+
             try {
                 logger.log(Level.CONFIG, "{0} = {1}", new Object[]{field.getName(), field.get(this)});
             } catch (Exception ex) {
@@ -93,11 +93,11 @@ public final class BspSourceConfig implements Serializable {
             }
         }
     }
-    
+
     public Set<BspFileEntry> getFileSet() {
         return files;
     }
-    
+
     public boolean isWriteEntities() {
         return writeBrushEntities || writePointEntities;
     }

@@ -19,9 +19,9 @@ import javax.swing.table.DefaultTableCellRenderer;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class ByteSizeCellRenderer extends DefaultTableCellRenderer {
-    
+
     private boolean si;
-    
+
     public ByteSizeCellRenderer(boolean si) {
         this.si = si;
     }
@@ -33,12 +33,12 @@ public class ByteSizeCellRenderer extends DefaultTableCellRenderer {
         } else if (value instanceof Integer) {
             value = humanReadableByteCount((Integer) value);
         }
-        
+
         JLabel c = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         c.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         return c;
     }
-    
+
     private String humanReadableByteCount(long bytes) {
         int unit = si ? 1000 : 1024;
         if (bytes < unit) {

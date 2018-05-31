@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class BspFileReader {
-    
+
     private static final Logger L = LogUtils.getLogger();
 
     // BSP headers and data
@@ -53,18 +53,18 @@ public class BspFileReader {
         this.bspFile = bspFile;
         this.bspData = bspData;
         this.appID = bspFile.getSourceApp().getAppID();
-        
+
         if (bspFile.getFile() == null) {
             // "Gah! Hear me, man? Gah!"
             throw new BspException("BSP file is unloaded");
         }
-        
+
         // uncompress all lumps first
         if (bspFile.isCompressed()) {
             bspFile.uncompress();
         }
     }
-    
+
     public BspFileReader(BspFile bspFile) throws IOException {
         this(bspFile, new BspData());
     }
@@ -106,7 +106,7 @@ public class BspFileReader {
         if (bspData.planes != null) {
             return;
         }
-        
+
         bspData.planes = loadLump(LumpType.LUMP_PLANES, DPlane.class);
     }
 
@@ -114,7 +114,7 @@ public class BspFileReader {
         if (bspData.brushes != null) {
             return;
         }
-        
+
         bspData.brushes = loadLump(LumpType.LUMP_BRUSHES, DBrush.class);
     }
 
@@ -122,7 +122,7 @@ public class BspFileReader {
         if (bspData.brushSides != null) {
             return;
         }
-        
+
         Class struct = DBrushSide.class;
 
         if (appID == VINDICTUS) {
@@ -140,7 +140,7 @@ public class BspFileReader {
         if (bspData.verts != null) {
             return;
         }
-        
+
         bspData.verts = loadLump(LumpType.LUMP_VERTEXES, DVertex.class);
     }
 
@@ -148,7 +148,7 @@ public class BspFileReader {
         if (bspData.clipPortalVerts != null) {
             return;
         }
-        
+
         bspData.clipPortalVerts = loadLump(LumpType.LUMP_CLIPPORTALVERTS, DVertex.class);
     }
 
@@ -170,9 +170,9 @@ public class BspFileReader {
         if ((orig && bspData.origFaces != null) || (!orig && bspData.faces != null)) {
             return;
         }
-        
+
         Class struct = DFace.class;
-        
+
         switch (appID) {
             case VAMPIRE_BLOODLINES:
                 struct = DFaceVTMB.class;
@@ -190,13 +190,13 @@ public class BspFileReader {
                     case 17:
                         struct = DFaceBSP17.class;
                         break;
-                        
+
                     case 18:
                         struct = DFaceBSP18.class;
                         break;
                 }   break;
         }
-        
+
         if (orig) {
             bspData.origFaces = loadLump(LumpType.LUMP_ORIGINALFACES, struct);
         } else {
@@ -208,7 +208,7 @@ public class BspFileReader {
             }
         }
     }
-    
+
     public void loadFaces() {
         loadFaces(false);
     }
@@ -221,7 +221,7 @@ public class BspFileReader {
         if (bspData.models != null) {
             return;
         }
-        
+
         Class struct = DModel.class;
 
         if (appID == DARK_MESSIAH) {
@@ -235,7 +235,7 @@ public class BspFileReader {
         if (bspData.surfEdges != null) {
             return;
         }
-        
+
         bspData.surfEdges = loadIntegerLump(LumpType.LUMP_SURFEDGES);
     }
 
@@ -260,9 +260,9 @@ public class BspFileReader {
         try {
             final int padsize = 128;
             final int psnames = in.readInt();
-            
+
             L.log(Level.FINE, "Static prop names: {0}", psnames);
-            
+
             bspData.staticPropName = new ArrayList<>(psnames);
 
             for (int i = 0; i < psnames; i++) {
@@ -277,35 +277,35 @@ public class BspFileReader {
 
             // StaticPropLeafLump_t
             final int propleaves = in.readInt();
-            
+
             L.log(Level.FINE, "Static prop leaves: {0}", propleaves);
-            
+
             bspData.staticPropLeaf = new ArrayList<>(propleaves);
-            
+
             for (int i = 0; i < propleaves; i++) {
                 bspData.staticPropLeaf.add(in.readUnsignedShort());
             }
-            
+
             // extra data for Vindictus
             if (appID == VINDICTUS && sprpver == 6) {
                 int psextra = in.readInt();
                 in.seek(psextra * 16, CURRENT);
             }
-            
+
             // StaticPropLump_t
             final int propStaticCount = in.readInt();
-            
+
             // don't try to read static props if there are none
             if (propStaticCount == 0) {
                 bspData.staticProps = Collections.emptyList();
                 return;
             }
-            
+
             // calculate static prop struct size
             final int propStaticSize = (int) in.remaining() / propStaticCount;
-            
+
             Class<? extends DStaticProp> structClass = null;
-            
+
             // special cases where derivative lump structures are used
             switch (appID) {
                 case THE_SHIP:
@@ -313,31 +313,31 @@ public class BspFileReader {
                         structClass = DStaticPropV5Ship.class;
                     }
                     break;
-                    
+
                 case BLOODY_GOOD_TIME:
                     if (propStaticSize == 192) {
                         structClass = DStaticPropV6BGT.class;
                     }
                     break;
-                    
+
                 case ZENO_CLASH:
                     if (propStaticSize == 68) {
                         structClass = DStaticPropV7ZC.class;
                     }
                     break;
-                    
+
                 case DARK_MESSIAH:
                     if (propStaticSize == 136) {
                         structClass = DStaticPropV6DM.class;
                     }
                     break;
-                    
+
                 case DEAR_ESTHER:
                     if (propStaticSize == 76) {
                         structClass = DStaticPropV9DE.class;
                     }
                     break;
-                    
+
                 case VINDICTUS:
                     // newer maps report v6 even though the size is still 60, so
                     // force v5 in all cases
@@ -345,7 +345,7 @@ public class BspFileReader {
                         structClass = DStaticPropV5.class;
                     }
                     break;
-                    
+
                 case LEFT_4_DEAD:
                     // old L4D maps use v7 that is incompatible to the newer
                     // Source 2013 v7
@@ -353,7 +353,7 @@ public class BspFileReader {
                         structClass = DStaticPropV7L4D.class;
                     }
                     break;
-                    
+
                 case TEAM_FORTRESS_2:
                     // there's been a short period where TF2 used v7, which later
                     // became v10 in all Source 2013 game
@@ -361,7 +361,7 @@ public class BspFileReader {
                         structClass = DStaticPropV10.class;
                     }
                     break;
-                    
+
                 case COUNTER_STRIKE_GO:
                     // custom v10 for CS:GO, not compatible with Source 2013 v10
                     if (sprpver == 10) {
@@ -381,7 +381,7 @@ public class BspFileReader {
                     structClass = null;
                 }
             }
-            
+
             // check if the size is correct
             if (structClass != null) {
                 int propStaticSizeActual = structClass.newInstance().getSize();
@@ -391,27 +391,27 @@ public class BspFileReader {
                     structClass = null;
                 }
             }
-            
+
             // if the correct class is still unknown at this point, fall back to
             // a very basic version that should hopefully work in all situations
             int numFillBytes = 0;
             if (structClass == null) {
                 L.log(Level.WARNING, "Falling back to static prop v4");
-                
+
                 structClass = DStaticPropV4.class;
                 numFillBytes = propStaticSize - 56;
             }
-            
+
             bspData.staticProps = new ArrayList<>(propStaticCount);
-            
+
             for (int i = 0; i < propStaticCount; i++) {
                 DStaticProp sp = structClass.newInstance();
                 sp.read(in);
-                
+
                 if (numFillBytes > 0) {
                     in.seek(numFillBytes, CURRENT);
                 }
-                
+
                 bspData.staticProps.add(sp);
             }
 
@@ -429,7 +429,7 @@ public class BspFileReader {
         if (bspData.cubemaps != null) {
             return;
         }
-        
+
         bspData.cubemaps = loadLump(LumpType.LUMP_CUBEMAPS, DCubemapSample.class);
     }
 
@@ -437,22 +437,22 @@ public class BspFileReader {
         if (bspData.dispinfos != null) {
             return;
         }
-        
+
         Class struct = DDispInfo.class;
         int bspv = bspFile.getVersion();
-        
+
         // the lump version is useless most of the time, use the AppID instead
         switch (appID) {
             case VINDICTUS:
                 struct = DDispInfoVin.class;
                 break;
-                
+
             case HALF_LIFE_2:
                 if (bspv == 17) {
                     struct = DDispInfoBSP17.class;
                 }
                 break;
-                
+
             case DOTA_2_BETA:
                 if (bspv == 22) {
                     struct = DDispInfoBSP22.class;
@@ -461,7 +461,7 @@ public class BspFileReader {
                 }
                 break;
         }
-        
+
         bspData.dispinfos = loadLump(LumpType.LUMP_DISPINFO, struct);
     }
 
@@ -469,7 +469,7 @@ public class BspFileReader {
         if (bspData.dispverts != null) {
             return;
         }
-        
+
         bspData.dispverts = loadLump(LumpType.LUMP_DISP_VERTS, DDispVert.class);
     }
 
@@ -477,10 +477,10 @@ public class BspFileReader {
         if (bspData.disptris != null) {
             return;
         }
-        
+
         bspData.disptris = loadLump(LumpType.LUMP_DISP_TRIS, DDispTri.class);
     }
-    
+
     public void loadDispMultiBlend() {
         if (bspData.dispmultiblend != null) {
             return;
@@ -493,7 +493,7 @@ public class BspFileReader {
         if (bspData.texinfos != null) {
             return;
         }
-        
+
         Class struct = DTexInfo.class;
 
         if (appID == DARK_MESSIAH) {
@@ -507,14 +507,14 @@ public class BspFileReader {
         if (bspData.texdatas != null) {
             return;
         }
-        
+
         bspData.texdatas = loadLump(LumpType.LUMP_TEXDATA, DTexData.class);
         loadTexDataStrings();  // load associated texdata strings
     }
 
     private void loadTexDataStrings() {
         L.log(Level.FINE, "Loading {0}", LumpType.LUMP_TEXDATA_STRING_DATA);
-        
+
         byte[] stringData;
 
         Lump lump = getLump(LumpType.LUMP_TEXDATA_STRING_DATA);
@@ -529,7 +529,7 @@ public class BspFileReader {
             lumpError(lump, ex);
             return;
         }
-        
+
         L.log(Level.FINE, "Loading {0}", LumpType.LUMP_TEXDATA_STRING_TABLE);
 
         lump = getLump(LumpType.LUMP_TEXDATA_STRING_TABLE);
@@ -545,7 +545,7 @@ public class BspFileReader {
             for (int i = 0; i < tdsts; i++) {
                 int ofs = in.readInt();
                 int ofsNull;
-                
+
                 // find null byte offset
                 for (ofsNull = ofs; ofsNull < stringData.length; ofsNull++) {
                     if (stringData[ofsNull] == 0) {
@@ -563,21 +563,21 @@ public class BspFileReader {
             lumpError(lump, ex);
         }
     }
-    
+
     public void loadEntities() {
         if (bspData.entities != null) {
             return;
         }
-        
+
         L.log(Level.FINE, "Loading {0}", LumpType.LUMP_ENTITIES);
-        
+
         Lump lump = getLump(LumpType.LUMP_ENTITIES);
 
         try (EntityInputStream entReader = new EntityInputStream(lump.getInputStream())) {
             // allow escaped quotes for VTBM
             entReader.setAllowEscSeq(bspFile.getVersion() == 17);            
             bspData.entities = new ArrayList<>();
-            
+
             entityClasses.clear();
             Entity ent;
             while ((ent = entReader.readEntity()) != null) {
@@ -596,7 +596,7 @@ public class BspFileReader {
         } catch (IOException ex) {
             L.log(Level.SEVERE, "Couldn''t read entity lump", ex);
         }
-        
+
         L.log(Level.FINE, "Entities: {0}", bspData.entities.size());
     }
 
@@ -604,14 +604,14 @@ public class BspFileReader {
         if (bspData.nodes != null) {
             return;
         }
-        
+
         Class struct = DNode.class;
-        
+
         if (appID == VINDICTUS) {
             // use special struct for Vindictus
             struct = DNodeVin.class;
         }
-        
+
         bspData.nodes = loadLump(LumpType.LUMP_NODES, struct);
     }
 
@@ -619,9 +619,9 @@ public class BspFileReader {
         if (bspData.leaves != null) {
             return;
         }
-        
+
         Class struct = DLeafV1.class;
-        
+
         if (appID == VINDICTUS) {
             // use special struct for Vindictus
             struct = DLeafVin.class;
@@ -639,7 +639,7 @@ public class BspFileReader {
         if (bspData.leafFaces != null) {
             return;
         }
-        
+
         bspData.leafFaces = loadIntegerLump(LumpType.LUMP_LEAFFACES, appID != VINDICTUS);
     }
 
@@ -647,7 +647,7 @@ public class BspFileReader {
         if (bspData.leafBrushes != null) {
             return;
         }
-        
+
         bspData.leafBrushes = loadIntegerLump(LumpType.LUMP_LEAFBRUSHES, appID != VINDICTUS);
     }
 
@@ -655,17 +655,17 @@ public class BspFileReader {
         if (bspData.overlays != null) {
             return;
         }
-        
+
         Class struct = DOverlay.class;
-        
+
         if (appID == VINDICTUS) {
             struct = DOverlayVin.class;
         } else if (appID == DOTA_2_BETA) {
             struct = DOverlayDota2.class;
         }
-        
+
         bspData.overlays = loadLump(LumpType.LUMP_OVERLAYS, struct);
-        
+
         // read fade distances
         if (bspData.overlayFades == null) {
             bspData.overlayFades = loadLump(LumpType.LUMP_OVERLAY_FADES, DOverlayFade.class);
@@ -681,13 +681,13 @@ public class BspFileReader {
         if (bspData.areaportals != null) {
             return;
         }
-        
+
         Class struct = DAreaportal.class;
-        
+
         if (appID == VINDICTUS) {
             struct = DAreaportalVin.class;
         }
-        
+
         bspData.areaportals = loadLump(LumpType.LUMP_AREAPORTALS, struct);
     }
 
@@ -708,15 +708,15 @@ public class BspFileReader {
 
             for (int i = 0; i < occluders; i++) {
                 int lumpVersion = lump.getVersion();
-                
+
                 // Contagion maps report lump version 0, but they're actually
                 // using 1
                 if (bspFile.getSourceApp().getAppID() == SourceAppID.CONTAGION) {
                     lumpVersion = 1;
                 }
-                
+
                 DOccluderData od;
-                
+
                 if (lumpVersion > 0) {
                     od = new DOccluderDataV1();
                 } else {
@@ -782,28 +782,28 @@ public class BspFileReader {
             lumpError(lump, ex);
         }
     }
-    
+
     public void loadPrimitives() {
         if (bspData.prims != null) {
             return;
         }
-        
+
         bspData.prims = loadLump(LumpType.LUMP_PRIMITIVES, DPrimitive.class);
     }
-    
+
     public void loadPrimIndices() {
         if (bspData.primIndices != null) {
             return;
         }
-        
+
         bspData.primIndices = loadIntegerLump(LumpType.LUMP_PRIMINDICES, true);
     }
-    
+
     public void loadPrimVerts() {
         if (bspData.primVerts != null) {
             return;
         }
-        
+
         bspData.primVerts = loadLump(LumpType.LUMP_PRIMVERTS, DVertex.class);
     }
 
@@ -814,48 +814,48 @@ public class BspFileReader {
         }
 
         Lump lump = getLump(lumpType);
-        
+
         // don't try to read empty lumps
         if (lump.getLength() == 0) {
             return Collections.emptyList();
         }
-        
+
         L.log(Level.FINE, "Loading {0}", lumpType);
-        
+
         DataReader in = DataReaders.forByteBuffer(lump.getBuffer());
-        
+
         try {
             final int structSize = struct.newInstance().getSize();            
             final int packetCount = lump.getLength() / structSize;
-            
+
             List<E> packets = new ArrayList<>(packetCount);
 
             for (int i = 0; i < packetCount; i++) {
                 E packet = struct.newInstance();
-                
+
                 long pos = in.position();
                 packet.read(in);
                 if (in.position() - pos != packet.getSize()) {
                     throw new IOException("Bytes read: " + pos + "; expected: " + packet.getSize());
                 }
-                
+
                 packets.add(packet);
             }
-            
+
             checkRemaining(in);
-            
+
             L.log(Level.FINE, "{0} {1} objects", new Object[]{packets.size(), struct.getSimpleName()});
-            
+
             return packets;
         } catch (IOException ex) {
             lumpError(lump, ex);
         } catch (IllegalAccessException | InstantiationException ex) {
             L.log(Level.SEVERE, "Lump struct class error", ex);
         }
-        
+
         return null;
     }
-    
+
     private List<Integer> loadIntegerLump(LumpType lumpType, boolean unsignedShort) {
         L.log(Level.FINE, "Loading {0}", lumpType);
 
@@ -879,15 +879,15 @@ public class BspFileReader {
             L.log(Level.FINE, "{0} Integer objects", arraySize);
 
             checkRemaining(in);
-            
+
             return list;
         } catch (IOException ex) {
             lumpError(lump, ex);
         }
-        
+
         return null;
     }
-    
+
     private List<Integer> loadIntegerLump(LumpType lumpType) {
         return loadIntegerLump(lumpType, false);
     }
@@ -895,7 +895,7 @@ public class BspFileReader {
     private void lumpError(AbstractLump lump, IOException ex) {
         L.log(Level.SEVERE, "Lump reading error in " + lump, ex);
     }
-    
+
     /**
      * Checks the byte buffer for remaining bytes. Should always be called when
      * no remaining bytes are expected.
@@ -908,7 +908,7 @@ public class BspFileReader {
                     + " bytes remaining");
         }
     }
-    
+
     /**
      * Returns the lump for the given lump type
      *

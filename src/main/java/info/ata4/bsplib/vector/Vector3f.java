@@ -24,7 +24,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public final class Vector3f extends VectorXf {
-    
+
     public static Vector3f read(DataReader in) throws IOException {
         float x = in.readFloat();
         float y = in.readFloat();
@@ -42,7 +42,7 @@ public final class Vector3f extends VectorXf {
     public static final Vector3f NULL = new Vector3f(0, 0, 0);
     public static final Vector3f MAX_VALUE = new Vector3f(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
     public static final Vector3f MIN_VALUE = MAX_VALUE.scalar(-1); // don't use Float.MIN_VALUE here
-    
+
     // vector values
     public final float x;
     public final float y;
@@ -57,7 +57,7 @@ public final class Vector3f extends VectorXf {
     public Vector3f(Vector3f v) {
         this(v.x, v.y, v.z);
     }
-    
+
     /**
      * Constructs a new Vector3f using the values out of an array.
      * The array must have a size of at least 3.
@@ -81,7 +81,7 @@ public final class Vector3f extends VectorXf {
         this.y = y;
         this.z = z;
     }
-    
+
     /**
      * Returns the value of the n'th component.
      * 
@@ -185,7 +185,7 @@ public final class Vector3f extends VectorXf {
         float rx = this.x - that.x;
         float ry = this.y - that.y;
         float rz = this.z - that.z;
-        
+
         return new Vector3f(rx, ry, rz);
     }
 
@@ -225,7 +225,7 @@ public final class Vector3f extends VectorXf {
 
         return new Vector3f(rx, ry, rz);
     }
-    
+
     /**
      * Performs a scalar multiplication on this vector: this * that
      * 
@@ -279,7 +279,7 @@ public final class Vector3f extends VectorXf {
 
         return new Vector3f((float)rx, (float)ry, (float)rz);
     }
-    
+
     /**
      * Returns the minima between this vector and another vector.
      * 
@@ -324,7 +324,7 @@ public final class Vector3f extends VectorXf {
         private Point2d rotate(double angle) {
             // normalize angle
             angle %= 360;
-            
+
             // special cases
             if (angle == 0) {
                 return this;

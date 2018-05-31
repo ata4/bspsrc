@@ -19,7 +19,7 @@ import info.ata4.bspsrc.gui.BspSourceFrame;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class BspSourceLauncher {
-    
+
     /**
      * @param args the command line arguments
      */

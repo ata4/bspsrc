@@ -25,10 +25,10 @@ import java.util.regex.PatternSyntaxException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class SourceApp {
-    
+
     private static final Logger L = LogUtils.getLogger();
     public static final SourceApp UNKNOWN = new SourceApp("Unknown", SourceAppID.UNKNOWN);
-    
+
     private final String name;
     private final int appID;
     private int versionMin = -1;
@@ -38,12 +38,12 @@ public class SourceApp {
     private Set<String> entities = new HashSet<>();
     private float pointsEntities = 20;
     private float pointsFilePattern = 3;
-    
+
     public SourceApp(String name, int appID) {
         this.name = name;
         this.appID = appID;
     }
-    
+
     float getPointsEntities() {
         return pointsEntities;
     }
@@ -59,7 +59,7 @@ public class SourceApp {
     void setPointsFilePattern(float pointsFilePattern) {
         this.pointsFilePattern = pointsFilePattern;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -67,13 +67,13 @@ public class SourceApp {
     public int getAppID() {
         return appID;
     }
-    
+
     public URI getSteamStoreURI() {
         // don't return the URI for unknown or custom appIDs
         if (this == SourceApp.UNKNOWN || appID < 0) {
             return null;
         }
-        
+
         try {
             return new URI(String.format("http://store.steampowered.com/app/%d/", appID));
         } catch (URISyntaxException ex) {
@@ -94,7 +94,7 @@ public class SourceApp {
             L.log(Level.WARNING, "Invalid file name pattern", ex);
         }
     }
-    
+
     public Set<String> getEntities() {
         return entities;
     }
@@ -114,11 +114,11 @@ public class SourceApp {
     public void setVersionMax(int versionMax) {
         this.versionMax = versionMax;
     }
-    
+
     public boolean canCheckName() {
         return filePatternCompiled != null;
     }
-    
+
     /**
      * Returns the absolute heuristic score for a BSP file name. If the name
      * matches the pattern of this app, a score of {@link #getPointsFilePattern()}
@@ -131,7 +131,7 @@ public class SourceApp {
         if (!canCheckName()) {
             throw new UnsupportedOperationException();
         }
-        
+
         if (filePatternCompiled.matcher(name.toLowerCase()).find()) {
             L.log(Level.FINER, "File pattern match: {0} on {1}", new Object[]{filePattern, name});
             return pointsFilePattern;
@@ -139,7 +139,7 @@ public class SourceApp {
             return 0;
         }
     }
-    
+
     /**
      * Checks if the version can be checked.
      * 
@@ -148,7 +148,7 @@ public class SourceApp {
     public boolean canCheckVersion() {
         return versionMin != -1 || versionMax != -1;
     }
-    
+
     /**
      * Checks if a BSP version number is valid for this app.
      * 
@@ -159,7 +159,7 @@ public class SourceApp {
         if (!canCheckVersion()) {
             throw new UnsupportedOperationException();
         }
-        
+
         // check exact BSP version
         if (versionMin != -1 && versionMax == -1) {
             return bspVersion == versionMin;
@@ -176,7 +176,7 @@ public class SourceApp {
 
         return true;
     }
-    
+
     /**
      * Checks if the entities can be checked.
      * 
@@ -198,9 +198,9 @@ public class SourceApp {
         if (!canCheckEntities()) {
             throw new UnsupportedOperationException();
         }
-        
+
         int matches = 0;
-        
+
         for (String className : classNames) {
             if (entities.contains(className)) {
                 L.log(Level.FINER, "Entity match: {0}", className);

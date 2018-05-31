@@ -49,9 +49,9 @@ public class BspDecompiler extends ModuleDecompile {
         super(reader, writer);
 
         WindingFactory.clearCache();
-        
+
         this.config = config;
-        
+
         texsrc = new TextureSource(reader);
         bspprot = new BspProtection(reader, texsrc);
         vmfmeta = new VmfMeta(reader, writer);
@@ -60,14 +60,14 @@ public class BspDecompiler extends ModuleDecompile {
         entsrc = new EntitySource(reader, writer, config, brushsrc, facesrc,
                 texsrc, bspprot, vmfmeta);
     }
-    
+
     /**
      * Starts the decompiling process
      */
     public void start() {
         // fix texture names
         texsrc.setFixTextureNames(config.fixCubemapTextures);
-        
+
         // VTBM has too many crucial game-specific tool textures that would break,
         // so override the user selection
         if (bspFile.getSourceApp().getAppID() == SourceAppID.VAMPIRE_BLOODLINES) {
@@ -80,7 +80,7 @@ public class BspDecompiler extends ModuleDecompile {
         if (!config.skipProt) {
             checkProtection();
         }
-        
+
         // set comment
         vmfmeta.setComment("Decompiled by BSPSource v" + BspSource.VERSION + " from " + bspFile.getName());
 
@@ -99,12 +99,12 @@ public class BspDecompiler extends ModuleDecompile {
         if (config.isWriteEntities()) {
             writeEntities();
         }
-        
+
         // write visgroups
         if (config.writeVisgroups) {
             vmfmeta.writeVisgroups();
         }
-        
+
         // write cameras
         if (config.writeCameras) {
             vmfmeta.writeCameras();
@@ -118,9 +118,9 @@ public class BspDecompiler extends ModuleDecompile {
 
         L.log(Level.WARNING, "{0} contains anti-decompiling flags or is obfuscated!", reader.getBspFile().getName());
         L.log(Level.WARNING, "Detected methods:");
-        
+
         List<String> methods = bspprot.getProtectionMethods();
-        
+
         for (String method : methods) {
             L.warning(method);
         }
@@ -131,23 +131,23 @@ public class BspDecompiler extends ModuleDecompile {
             case BRUSHPLANES:
                 brushsrc.writeBrushes();
                 break;
-                
+
             case ORIGFACE:
                 facesrc.writeOrigFaces();
                 break;
-                
+
             case ORIGFACE_PLUS:
                 facesrc.writeOrigFacesPlus();
                 break;
-                
+
             case SPLITFACE:
                 facesrc.writeFaces();
                 break;
-                
+
             default:
                 break;
         }
-        
+
         // add faces with displacements
         // face modes don't need to do this separately
         if (config.brushMode == BrushMode.BRUSHPLANES) {
@@ -177,7 +177,7 @@ public class BspDecompiler extends ModuleDecompile {
             if (config.writeCubemaps) {
                 entsrc.writeCubemaps();
             }
-            
+
             if (config.writeLadders) {
                 entsrc.writeLadders();
             }

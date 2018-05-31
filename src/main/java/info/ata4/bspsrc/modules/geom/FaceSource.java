@@ -46,10 +46,10 @@ public class FaceSource extends ModuleDecompile {
 
     // logger
     private static final Logger L = LogUtils.getLogger();
-    
+
     //BSP=VMF 6=9  2=1  0=0
     private static final byte[] TRICONV = {0, 0, 1, 0, 0, 0, 9};
-    
+
     // epsilon for area comparison slop, in mu^2
     private static final float AREA_EPS = 1.0f;
 
@@ -57,24 +57,24 @@ public class FaceSource extends ModuleDecompile {
     private final BspSourceConfig config;
     private final TextureSource texsrc;
     private final VmfMeta vmfmeta;
-    
+
     // mapped original faces
     public Map<Integer, Set<Integer>> origFaceToSplitFace = new HashMap<>();
-    
+
     // set of face indices that are undersized
     private Set<Integer> undersizedFaces = new HashSet<>();
-    
+
     // current offset in multiblend lump
     private int multiblendOffset;
 
     public FaceSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
             TextureSource texsrc, VmfMeta vmfmeta) {
         super(reader, writer);
-        
+
         this.config = config;
         this.texsrc = texsrc;
         this.vmfmeta = vmfmeta;
-        
+
         if (bsp.origFaces.isEmpty()) {
             // fix invalid origFace indices when no original faces are available
             for (DFace face : bsp.faces) {
@@ -89,7 +89,7 @@ public class FaceSource extends ModuleDecompile {
             }
         }
     }
-    
+
     /**
      * Writes all split faces
      */
@@ -110,7 +110,7 @@ public class FaceSource extends ModuleDecompile {
      */
     public void writeOrigFaces() {
         L.info("Writing original faces");
-        
+
         // set of face indices that are already written
         Set<Integer> writtenFaces = new HashSet<>();
 
@@ -145,10 +145,10 @@ public class FaceSource extends ModuleDecompile {
      */
     public void writeOrigFacesPlus() {
         createFaceMapping();
-        
+
         // set of face indices that are already written
         Set<Integer> writtenFaces = new HashSet<>();
-        
+
         L.info("Writing original faces where possible");
 
         DModel model = bsp.models.get(0); // Model 0 = world brushes
@@ -157,10 +157,10 @@ public class FaceSource extends ModuleDecompile {
         for (int i = 0; i < model.numface; i++) {
             int iface = model.fstface + i;
             DFace face = bsp.faces.get(iface);
-            
+
             if (face.origFace >= 0) {
                 int iorigface = face.origFace;
-                
+
                 // don't write a face more than once
                 if (writtenFaces.contains(iorigface)) {
                     continue;
@@ -219,22 +219,22 @@ public class FaceSource extends ModuleDecompile {
             }
         }
     }
-    
+
     public void writeModel(int imodel, Vector3f origin, Vector3f angles) {
         DModel model;
-        
+
         try {
             model = bsp.models.get(imodel);
         } catch (ArrayIndexOutOfBoundsException ex) {
             L.log(Level.WARNING, "Invalid model index {0}", imodel);
             return;
         }
-        
+
         for (int i = 0; i < model.numface; i++) {
             writeFace(model.fstface + i, false, origin, angles);
         }
     }
-    
+
     public void writeModel(int imodel) {
         writeModel(imodel, null, null);
     }
@@ -244,41 +244,41 @@ public class FaceSource extends ModuleDecompile {
      */
     public void writeFace(int iface, boolean orig, Vector3f origin, Vector3f angles) {
         DFace face = orig ? bsp.origFaces.get(iface) : bsp.faces.get(iface);
-        
+
         if (face.numedge < 2) {
             // 0 or 1 edges? Something must be wrong
             return;
         }
 
         Winding wind = WindingFactory.fromFace(bsp, face);
-        
+
         // translate to origin
         if (origin != null) {
             wind = wind.translate(origin);
         }
-        
+
         // rotate
         if (angles != null) {
             wind = wind.rotate(angles);
         }
-        
+
         // calculate plane vectors
         Vector3f[] plane = wind.buildPlane();
-        
+
         Vector3f e1 = plane[0];
         Vector3f e2 = plane[1];
         Vector3f e3 = plane[2];
-        
+
         if (!e1.isValid() || !e2.isValid() || !e3.isValid()) {
             L.log(Level.WARNING, "Face with wind {0} is invalid", wind);
             return;
         }
-        
+
         // calculate plane normal
         Vector3f ev12 = e2.sub(e1);
         Vector3f ev13 = e3.sub(e1);
         Vector3f normal = ev12.cross(ev13).normalize();
-        
+
         if (normal.isNaN() || normal.isInfinite()) {
             // TODO: is there a way to fix/avoid this?
             L.log(Level.FINE, "Bad normal: {0} x {1}", new Object[]{ev12, ev13});
@@ -287,39 +287,39 @@ public class FaceSource extends ModuleDecompile {
 
         writer.start("solid");
         writer.put("id", vmfmeta.getUID());
-        
+
         // write metadata for debugging
         if (config.isDebug()) {
             writer.start("bspsrc_debug");
             writer.put("face_index", iface);
             writer.put("normal", normal);
             writer.put("winding", wind.toString());
-            
+
             if (face.texinfo != -1) {
                 writer.put("texinfo_index", face.texinfo);
                 writer.put("texinfo_flags", bsp.texinfos.get(face.texinfo).flags.toString());
             }
             writer.end("bspsrc_debug");
         }
-        
+
         int sideID = vmfmeta.getUID();
-        
+
         // map face index to brush side ID
         if (orig) {
             vmfmeta.setOrigFaceUID(iface, sideID);
         } else {
             vmfmeta.setFaceUID(iface, sideID);
         }
-        
+
         // build texture
         TextureBuilder tb = texsrc.getTextureBuilder();
-        
+
         tb.setOrigin(origin);
         tb.setAngles(angles);
         tb.setNormal(normal);
-        
+
         tb.setTexinfoIndex(face.texinfo);
-        
+
         Texture texture = tb.build();
 
         // set face texture string
@@ -337,7 +337,7 @@ public class FaceSource extends ModuleDecompile {
         writer.put("plane", e1, e2, e3);
         writer.put("smoothing_groups", face.smoothingGroups);
         writer.put(texture);
-        
+
         boolean disp = face.dispInfo != -1;
 
         // write displacement?
@@ -364,7 +364,7 @@ public class FaceSource extends ModuleDecompile {
 
         writer.end("solid");
     }
-    
+
     public void writeFace(int iface, boolean orig) {
         writeFace(iface, orig, null, null);
     }
@@ -374,11 +374,11 @@ public class FaceSource extends ModuleDecompile {
      */
     private void writePrismBack(Winding wind, Texture texture, float depth) {
         Vector3f[] plane = wind.buildPlane();
-        
+
         Vector3f e1 = plane[0];
         Vector3f e2 = plane[1];
         Vector3f e3 = plane[2];
-        
+
         // calculate plane normal
         Vector3f ev12 = e2.sub(e1);
         Vector3f ev13 = e3.sub(e1);
@@ -386,25 +386,25 @@ public class FaceSource extends ModuleDecompile {
 
         // displace vertices from face in normal direction by depth
         Vector3f bedge = normal.scalar(depth);
-        
+
         e1 = e1.add(bedge);
         e2 = e2.add(bedge);
         e3 = e3.add(bedge);
-        
+
         writeBackSide(texture, e1, e2, e3);
-        
+
         Vector3f tv2 = bedge.normalize();
-    
+
         // write surrounding sides
         int size = wind.size();
-    
+
         for (int i = 0; i < size; i++) {
             e1 = wind.get(i);
             e2 = wind.get((i + 1) % size);
             e3 = e1.add(bedge);
-            
+
             Vector3f tv1 = e2.sub(e1).normalize();
-            
+
             // use null vector if the result is invalid
             if (!tv1.isValid()) {
                 tv1 = Vector3f.NULL;
@@ -412,52 +412,52 @@ public class FaceSource extends ModuleDecompile {
 
             texture.setUAxis(new TextureAxis(tv1));
             texture.setVAxis(new TextureAxis(tv2));
-            
+
             writeBackSide(texture, e1, e2, e3);
         }
     }
-    
+
     private void writePrismBack(Winding wind, Texture texture) {
         writePrismBack(wind, texture, config.backfaceDepth);
     }
-    
+
     /**
      * Writes pyramidal back brush sides for a face
      */
     private void writePyramBack(Winding wind, Texture texture, float depth) {
         Vector3f[] plane = wind.buildPlane();
-        
+
         Vector3f e1 = plane[0];
         Vector3f e2 = plane[1];
         Vector3f e3 = plane[2];
-        
+
         // calculate plane normal
         Vector3f ev12 = e2.sub(e1);
         Vector3f ev13 = e3.sub(e1);
         Vector3f normal = ev12.cross(ev13).normalize();
-        
+
         // the coords of the barycenter
         e3 = wind.getCenter();
-        
+
         // displace barycenter in normal direction by depth
         // results in the apex point for the pyramid
         e3 = e3.add(normal.scalar(depth));
-        
+
         // write pyramid sides
         int size = wind.size();
 
         for (int i = 0; i < size; i++) {
             e1 = wind.get(i);
             e2 = wind.get((i + 1) % size);
-            
+
             writeBackSide(texture, e1, e2, e3);
         }
     }
-    
+
     private void writePyramBack(Winding wind, Texture texture) {
         writePyramBack(wind, texture, config.backfaceDepth);
     }
-    
+
     public void writeAreaportal(int portalKey) {
         for (DAreaportal ap : bsp.areaportals) {
             if (ap.portalKey == portalKey) {
@@ -468,13 +468,13 @@ public class FaceSource extends ModuleDecompile {
             }
         }
     }
-    
+
     public void writeAreaportal(DAreaportal ap) {
         Winding wind = WindingFactory.fromAreaportal(bsp, ap);
         // TODO: extrude polygon in the correct direction, currently it seems to be random?
         writePolygon(wind, ToolTexture.AREAPORTAL, true);
     }
-    
+
     public void writeOccluder(int occluderKey) {
         try {
             writeOccluder(bsp.occluderDatas.get(occluderKey));
@@ -482,7 +482,7 @@ public class FaceSource extends ModuleDecompile {
             L.log(Level.WARNING, "Invalid occluder key {0}", occluderKey);
         }
     }
-    
+
     public void writeOccluder(DOccluderData od) {
         for (int i = 0; i < od.polycount; i++) {
             DOccluderPolyData opd = bsp.occluderPolyDatas.get(od.firstpoly + i);
@@ -491,7 +491,7 @@ public class FaceSource extends ModuleDecompile {
             writePolygon(wind, ToolTexture.OCCLUDER, ToolTexture.SKIP, true, 8);
         }
     }
-    
+
     /**
      * Writes a brush from raw polygon data.
      * 
@@ -505,66 +505,66 @@ public class FaceSource extends ModuleDecompile {
         if (wind.isEmpty() || wind.size() < 3) {
             return;
         }
-        
+
         Vector3f[] plane = wind.buildPlane();
-        
+
         Vector3f e1 = plane[0];
         Vector3f e2 = plane[1];
         Vector3f e3 = plane[2];
-        
+
         if (!e1.isValid() || !e2.isValid() || !e3.isValid()) {
             L.log(Level.WARNING, "Areaportal with wind {0} is invalid", wind);
             return;
         }
-        
+
         // calculate plane normal
         Vector3f ev12 = e2.sub(e1);
         Vector3f ev13 = e3.sub(e1);
         Vector3f normal = ev12.cross(ev13).normalize();
-        
+
         if (normal.isNaN() || normal.isInfinite()) {
             // TODO: is there a way to fix/avoid this?
             L.log(Level.FINE, "Bad normal: {0} x {1}", new Object[]{ev12, ev13});
             return;
         }
-        
+
         writer.start("solid");
         writer.put("id", vmfmeta.getUID());
-        
+
         int sideID = vmfmeta.getUID();
-        
+
         // build texture
         TextureBuilder tb = texsrc.getTextureBuilder();
         tb.setNormal(normal);
-        
+
         Texture texture = tb.build();
         texture.setOriginalTexture(frontMaterial);
-        
+
         writer.start("side");
         writer.put("id", sideID);
         writer.put("plane", e1, e2, e3);
         writer.put(texture);
         writer.end("side");
-        
+
         texture.setOriginalTexture(backMaterial);
-        
+
         if (prism) {
             writePrismBack(wind, texture, depth);
         } else {
             writePyramBack(wind, texture, depth);
         }
-        
+
         writer.end("solid");
     }
-    
+
     public void writePolygon(Winding wind, String frontMaterial, String backMaterial, boolean prism) {
         writePolygon(wind, frontMaterial, backMaterial, prism, config.backfaceDepth);
     }
-    
+
     public void writePolygon(Winding wind, String material, boolean prism, float depth) {
         writePolygon(wind, material, material, prism, depth);
     }
-    
+
     public void writePolygon(Winding wind, String material, boolean prism) {
         writePolygon(wind, material, material, prism);
     }
@@ -580,7 +580,7 @@ public class FaceSource extends ModuleDecompile {
         writer.put(texture);
         writer.end("side");
     }
-    
+
     /**
      * Writes dispinfo data for a brush side
      *
@@ -588,12 +588,12 @@ public class FaceSource extends ModuleDecompile {
      */
     public void writeDisplacement(int idispinfo) {
         DDispInfo di = bsp.dispinfos.get(idispinfo);
-        
+
         Map<String, String> normalMap = new LinkedHashMap<>();
         Map<String, String> distanceMap = new LinkedHashMap<>();
         Map<String, String> alphaMap = new LinkedHashMap<>();
         Map<String, String> triangleTagMap = new LinkedHashMap<>();
-        
+
         Map<String, String> multiBlendMap = new LinkedHashMap<>();
         Map<String, String> alphaBlendMap = new LinkedHashMap<>();
 
@@ -616,9 +616,9 @@ public class FaceSource extends ModuleDecompile {
 
         final int vertcount = di.getVertexCount();
         final int psize = di.getPowerSize();
-        
+
         final boolean hasMultiBlend = !bsp.dispmultiblend.isEmpty() && di.hasMultiBlend();
-        
+
         // build vertex related strings
         for (int i = 0; i < vertcount; i++) {
             DDispVert dv = bsp.dispverts.get(di.dispVertStart + i);
@@ -633,13 +633,13 @@ public class FaceSource extends ModuleDecompile {
             normalSb.append(dv.vector.y);
             normalSb.append(" ");
             normalSb.append(dv.vector.z);
-            
+
             // distance
             distanceSb.append(dv.dist);
-            
+
             // alpha
             alphaSb.append(dv.alpha);
-            
+
             if (hasMultiBlend) {
                 // multiblend
                 multiblendSb.append(dmb.multiblend.x);
@@ -709,12 +709,12 @@ public class FaceSource extends ModuleDecompile {
                 }
             }
         }
-        
+
         // count up multiblend index
         if (hasMultiBlend) {
             multiblendOffset += vertcount;
         }
-        
+
         // build triangle tags
         int tcount = di.getTriangleTagCount();
 
@@ -748,11 +748,11 @@ public class FaceSource extends ModuleDecompile {
 
         // write VMF data
         writer.start("dispinfo");
-        
+
         if (config.isDebug()) {
             writer.put("bspsrc_dispinfo_index", idispinfo);
         }
-        
+
         writer.put("power", di.power);
         writer.put("startposition", di.startPos, 2);
         writer.put("flags", di.getSurfaceFlags());
@@ -778,7 +778,7 @@ public class FaceSource extends ModuleDecompile {
         writer.start("allowed_verts");
         writer.put("10", allowedVertSb.toString());
         writer.end("allowed_verts");
-        
+
         // Multiblend
         if (hasMultiBlend) {
             writer.start("multiblend");
@@ -795,7 +795,7 @@ public class FaceSource extends ModuleDecompile {
                 writer.end("multiblend_color_" + j);
             }
         }
-        
+
         writer.end("dispinfo");
     }
 
@@ -809,7 +809,7 @@ public class FaceSource extends ModuleDecompile {
         // look at every face
         for (int i = 0; i < bsp.faces.size(); i++) {
             int o = bsp.faces.get(i).origFace;
-            
+
             // must check for no face correspondence
             if (o == -1) {
                 continue;
@@ -827,13 +827,13 @@ public class FaceSource extends ModuleDecompile {
             //  add this face to the set
             faceSet.add(i);
         }
-        
+
         L.info("Building original face areas");
 
         // look at every oface
         for (int i = 0; i < bsp.origFaces.size(); i++) {
             DFace origFace = bsp.origFaces.get(i);
-            
+
             // recalculate face area when required
             if (origFace.area == 0) {
                 Winding wind = WindingFactory.fromFace(bsp, origFace);

@@ -56,7 +56,7 @@ public class Lump extends AbstractLump {
     public LumpType getType() {
         return type;
     }
-    
+
     @Override
     public void setCompressed(boolean compressed) {
         super.setCompressed(compressed);

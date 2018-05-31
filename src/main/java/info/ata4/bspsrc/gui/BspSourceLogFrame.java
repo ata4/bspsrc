@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class BspSourceLogFrame extends javax.swing.JFrame {
-    
+
     private final TextAreaHandler handler;
 
     /**

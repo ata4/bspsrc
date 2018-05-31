@@ -48,14 +48,14 @@ public class BspTreeStats {
         if (inode < 0) {
             int ileaf = -1 - inode;
             DLeaf l = bsp.leaves.get(ileaf);
-            
+
             // scan leaf faces
             for (int i = 0; i < l.numleafface; i++) {
                 int iface = bsp.leafFaces.get(l.fstleafface + i);
                 fmax = Math.max(fmax, iface);
                 fmin = Math.min(fmin, iface);
             }
-            
+
             // scan leaf brushes
             for (int i = 0; i < l.numleafbrush; i++) {
                 int ibrush = bsp.leafBrushes.get(l.fstleafbrush + i);
@@ -64,7 +64,7 @@ public class BspTreeStats {
             }
         } else {
             nmax = Math.max(nmax, inode);
-            
+
             // continue with child nodes
             walk(bsp.nodes.get(inode).children[0]);
             walk(bsp.nodes.get(inode).children[1]);

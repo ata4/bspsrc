@@ -23,7 +23,7 @@ public enum BrushMode {
     ORIGFACE("Original faces"),
     ORIGFACE_PLUS("Original plus split faces"),
     SPLITFACE("Split faces");
-    
+
     private final String name;
 
     BrushMode(String name) {

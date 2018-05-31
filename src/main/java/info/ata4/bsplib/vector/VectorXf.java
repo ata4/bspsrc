@@ -17,17 +17,17 @@ import java.util.Iterator;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public abstract class VectorXf implements Iterable<Float> {
-    
+
     public final int size;
 
     public VectorXf(int SIZE) {
         this.size = SIZE;
     }
-    
+
     public abstract float get(int index);
-    
+
     public abstract VectorXf set(int index, float value);
-    
+
     /**
      * Checks if the vector has NaN values.
      * 
@@ -39,7 +39,7 @@ public abstract class VectorXf implements Iterable<Float> {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -54,7 +54,7 @@ public abstract class VectorXf implements Iterable<Float> {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -66,7 +66,7 @@ public abstract class VectorXf implements Iterable<Float> {
     public boolean isValid() {
         return !isNaN() && !isInfinite();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if(!(obj instanceof VectorXf)) {
@@ -74,7 +74,7 @@ public abstract class VectorXf implements Iterable<Float> {
         }
 
         VectorXf that = (VectorXf) obj;
-        
+
         if (this.size != that.size) {
             return false;
         }
@@ -84,36 +84,36 @@ public abstract class VectorXf implements Iterable<Float> {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     @Override
     public int hashCode() {
         int hash = size;
-        
+
         for (float value : this) {
             hash = size * size * hash + Float.floatToIntBits(value);
         }
 
         return hash;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append("(");
-        
+
         for (int i = 0; i < size; i++) {
             sb.append(get(i));
             if (i != size - 1) {
                 sb.append(", ");
             }
         }
-        
+
         sb.append(")");
-        
+
         return sb.toString();
     }
 
@@ -121,14 +121,14 @@ public abstract class VectorXf implements Iterable<Float> {
     public Iterator<Float> iterator() {
         return new ValueIterator();
     }
-    
+
     /**
      * Private value iterator for the Iterable interface
      */
     private class ValueIterator implements Iterator<Float> {
-        
+
         private int index;
-        
+
         @Override
         public boolean hasNext() {
             return index < size;
@@ -143,6 +143,6 @@ public abstract class VectorXf implements Iterable<Float> {
         public void remove() {
             throw new UnsupportedOperationException("Can't remove immutable vector component");
         }
-        
+
     }
 }

@@ -21,7 +21,7 @@ import org.apache.commons.io.EndianUtils;
 public class GameLump extends AbstractLump {
 
     private int flags;
-    
+
     public int getFlags() {
         return flags;
     }
@@ -34,7 +34,7 @@ public class GameLump extends AbstractLump {
     public String getName() {
         return StringMacroUtils.unmakeID(EndianUtils.swapInteger(getFourCC()));
     }
-    
+
     @Override
     public void setCompressed(boolean compressed) {
         super.setCompressed(compressed);

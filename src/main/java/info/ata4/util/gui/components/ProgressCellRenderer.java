@@ -23,7 +23,7 @@ import javax.swing.table.TableCellRenderer;
  */
 public class ProgressCellRenderer extends JProgressBar
         implements TableCellRenderer {
-    
+
     public ProgressCellRenderer() {
         // Initialize the progress bar renderer to use a horizontal
         // progress bar.
@@ -47,7 +47,7 @@ public class ProgressCellRenderer extends JProgressBar
             // naturally (from a visual perspective) into the overall 
             // table's appearance.
             setBackground(table.getBackground());
-            
+
             // Save the current progress bar value for subsequent
             // rendering.
             setValue((Integer) value);

@@ -30,25 +30,25 @@ import java.util.logging.Logger;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class TextureBuilder {
-    
+
     private static final Logger L = LogUtils.getLogger();
     private static final float EPS_PERP = 0.02f;
-    
+
     // surface/brush flags
     private static EnumSet<SurfaceFlag> SURF_FLAGS_CLIP = EnumSet.of(SurfaceFlag.SURF_NOLIGHT, SurfaceFlag.SURF_NODRAW);
     private static EnumSet<SurfaceFlag> SURF_FLAGS_AREAPORTAL = EnumSet.of(SurfaceFlag.SURF_NOLIGHT);
     private static EnumSet<BrushFlag> BRUSH_FLAGS_AREAPORTAL = EnumSet.of(BrushFlag.CONTENTS_AREAPORTAL);
-    
+
     private final BspData bsp;
     private final TextureSource texsrc;
-    
+
     private Texture texture;
     private Vector3f origin;
     private Vector3f angles;
     private Vector3f normal;
     private DTexInfo texinfo;
     private DTexData texdata;
-    
+
     // indices
     private short itexinfo = DTexInfo.TEXINFO_NODE;
     private int ibrush = -1;
@@ -58,11 +58,11 @@ public class TextureBuilder {
         this.texsrc = texsrc;
         this.bsp = bsp;
     }
-    
+
     public Texture build() {
         texture = new Texture();
         texture.setOriginalTexture(ToolTexture.SKIP);
-        
+
         // align to preset axes
         fixPerpendicular();
 
@@ -85,7 +85,7 @@ public class TextureBuilder {
             L.log(Level.WARNING, "Invalid texdata index: {0}", texinfo.texdata);
             return texture;
         }
-        
+
         // get texture paths
         String textureOriginal = ToolTexture.SKIP;
 
@@ -94,9 +94,9 @@ public class TextureBuilder {
         } catch (ArrayIndexOutOfBoundsException ex) {
             L.log(Level.WARNING, "Invalid texname index: {0}", texdata.texname);
         }
-        
+
         String textureOverride = texsrc.getFixedTextureNames().get(texdata.texname);
-        
+
         if (texsrc.isFixToolTextures()) {
             String textureFix = fixToolTexture();
 
@@ -108,7 +108,7 @@ public class TextureBuilder {
         // assign texture paths
         texture.setOriginalTexture(textureOriginal);
         texture.setOverrideTexture(textureOverride);
-        
+
         // some calculations
         buildLightmapScale();
         buildUV();
@@ -121,20 +121,20 @@ public class TextureBuilder {
         if (ibrush == -1 || ibrushside == -1) {
             return null;
         }
-        
+
         DBrush brush = bsp.brushes.get(ibrush);
         DBrushSide brushSide = bsp.brushSides.get(ibrushside);
-        
+
         Set<SurfaceFlag> surfFlags;
-        
+
         if (brushSide.texinfo == DTexInfo.TEXINFO_NODE) {
             surfFlags = EnumSet.noneOf(SurfaceFlag.class);
         } else {
             surfFlags = bsp.texinfos.get(brushSide.texinfo).flags;
         }
-        
+
         Set<BrushFlag> brushFlags = brush.contents;
-        
+
         // fix clip textures
         if (surfFlags.equals(SURF_FLAGS_CLIP)) {
             if (brush.isDetail()) {
@@ -158,20 +158,20 @@ public class TextureBuilder {
                     return ToolTexture.BLOCKLOS;
                 }
             }
-            
+
             // nodraw
             return ToolTexture.NODRAW;
         }
-        
+
         // fix areaportal textures
         if (brushFlags.equals(BRUSH_FLAGS_AREAPORTAL) && surfFlags.equals(SURF_FLAGS_AREAPORTAL)) {
             return ToolTexture.AREAPORTAL;
         }
-        
+
         return null;
     }
-    
-    
+
+
     /**
      * Checks for texture axes that are perpendicular to the normal and fixes them.
      */
@@ -184,7 +184,7 @@ public class TextureBuilder {
         if (Math.abs(normal.dot(texNorm)) >= EPS_PERP) {
             return;
         }
-        
+
         // z is z-direction unit vector
         Vector3f udir = new Vector3f(0, 0, 1);
 
@@ -206,7 +206,7 @@ public class TextureBuilder {
         float[][] lvec = texinfo.lightmapVecsLuxels;
         Vector3f uaxis = new Vector3f(lvec[0]);
         Vector3f vaxis = new Vector3f(lvec[1]);
-        
+
         float ls = (uaxis.length() + vaxis.length()) / 2.0f;
 
         if (ls > 0.001f) {
@@ -219,7 +219,7 @@ public class TextureBuilder {
         float[][] tvec = texinfo.textureVecsTexels;
         Vector3f uaxis = new Vector3f(tvec[0]);
         Vector3f vaxis = new Vector3f(tvec[1]);
-        
+
         float utw = 1.0f / uaxis.length();
         float vtw = 1.0f / vaxis.length();
 
@@ -234,7 +234,7 @@ public class TextureBuilder {
             ushift -= origin.dot(uaxis) / utw;
             vshift -= origin.dot(vaxis) / vtw;
         }
-        
+
         // rotate texture axes
         if (angles != null) {
             uaxis = uaxis.rotate(angles);
@@ -256,7 +256,7 @@ public class TextureBuilder {
             ushift -= shift.dot(uaxis) / utw;
             vshift -= shift.dot(vaxis) / vtw;
         }
-        
+
         // normalize shift values
         if (texdata.width != 0) {
             ushift %= texdata.width;
@@ -264,7 +264,7 @@ public class TextureBuilder {
         if (texdata.height != 0) {
             vshift %= texdata.height;
         }
-        
+
         // round scales to 4 decimal digits to fix round-off errors
         // (e.g.: 0.25000018 -> 0.25)
         utw = Math.round(utw * 10000) / 10000f;
@@ -274,7 +274,7 @@ public class TextureBuilder {
         texture.setUAxis(new TextureAxis(uaxis, Math.round(ushift), utw));
         texture.setVAxis(new TextureAxis(vaxis, Math.round(vshift), vtw));
     }
-    
+
     public void setOrigin(Vector3f origin) {
         this.origin = origin;
     }

@@ -101,7 +101,7 @@ public enum LumpType {
      * Position of the lump type in the lump table
      */
     private final int index;
-    
+
     /**
      * BSP version where this lump type has been used first.
      * -1 for unknown/since time being.

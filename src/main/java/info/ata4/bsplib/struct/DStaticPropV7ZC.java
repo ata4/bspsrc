@@ -19,20 +19,20 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DStaticPropV7ZC extends DStaticPropV6 {
-    
+
     protected int unknown;
-    
+
     @Override
     public int getSize() {
         return super.getSize() + 4; // 68
     }
-    
+
     @Override
     public void read(DataReader in) throws IOException {
         super.read(in);
         unknown = in.readInt();
     }
-    
+
     @Override
     public void write(DataWriter out) throws IOException {
         super.write(out);

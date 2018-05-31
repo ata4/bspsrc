@@ -15,10 +15,10 @@ package info.ata4.bsplib.app;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class SourceAppID {
-    
+
     private SourceAppID() {
     }
-    
+
     public static final int UNKNOWN = 0;
     public static final int VINDICTUS = -100;
     public static final int HALF_LIFE_2 = 220;

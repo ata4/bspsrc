@@ -20,14 +20,14 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DTexInfoDM extends DTexInfo {
-    
+
     private byte[] unknown = new byte[24];
-    
+
     @Override
     public int getSize() {
         return 96;
     }
-    
+
     @Override
     public void read(DataReader in) throws IOException {
         for (int j = 0; j < 2; j++) {

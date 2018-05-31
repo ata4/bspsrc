@@ -18,7 +18,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DOverlaySystemLevel implements DStruct {
-    
+
     public int minCPULevel;
     public int maxCPULevel;
     public int minGPULevel;
@@ -44,5 +44,5 @@ public class DOverlaySystemLevel implements DStruct {
         out.writeUnsignedByte(minGPULevel);
         out.writeUnsignedByte(maxGPULevel);
     }
-    
+
 }

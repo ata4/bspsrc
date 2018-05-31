@@ -20,15 +20,15 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DStaticPropV10 extends DStaticPropV6 {
-    
+
     public int lightmapResolutionX;
     public int lightmapResolutionY;
-    
+
     @Override
     public int getSize() {
         return super.getSize() + 8; // 72
     }
-    
+
     @Override
     public void read(DataReader in) throws IOException {
         super.read(in);
@@ -36,7 +36,7 @@ public class DStaticPropV10 extends DStaticPropV6 {
         lightmapResolutionX = in.readUnsignedShort();
         lightmapResolutionY = in.readUnsignedShort();
     }
-    
+
     @Override
     public void write(DataWriter out) throws IOException {
         super.write(out);

@@ -25,7 +25,7 @@ public abstract class ModuleRead {
     protected final BspFileReader reader;
     protected final BspData bsp;
     protected final BspFile bspFile;
-    
+
     public ModuleRead(BspFileReader reader) {
         this.reader = reader;
         this.bsp = reader.getData();

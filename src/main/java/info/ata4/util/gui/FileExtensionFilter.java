@@ -18,9 +18,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class FileExtensionFilter extends FileFilter {
-    
+
     private final FileNameExtensionFilter parent;
-    
+
     public FileExtensionFilter(String description, String... extensions) {
         parent = new FileNameExtensionFilter(description, extensions);
     }
@@ -34,24 +34,24 @@ public class FileExtensionFilter extends FileFilter {
     public String getDescription() {
         StringBuilder sb = new StringBuilder();
         sb.append(parent.getDescription());
-        
+
         String[] exts = parent.getExtensions();
-        
+
         if (exts.length == 0) {
             return sb.toString();
         }
-        
+
         sb.append(" (");
-        
+
         for (String ext : exts) {
             sb.append("*.");
             sb.append(ext);
             sb.append(';');
         }
-        
+
         sb.deleteCharAt(sb.length() - 1);
         sb.append(')');
-        
+
         return sb.toString();
     }
 }

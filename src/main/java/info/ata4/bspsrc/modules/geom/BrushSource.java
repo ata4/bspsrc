@@ -45,7 +45,7 @@ public class BrushSource extends ModuleDecompile {
 
     // logger
     private static final Logger L = LogUtils.getLogger();
-    
+
     // sub-modules
     private final BspSourceConfig config;
     private final TextureSource texsrc;
@@ -54,10 +54,10 @@ public class BrushSource extends ModuleDecompile {
 
     // additional model data
     private List<DBrushModel> models = new ArrayList<>();
-    
+
     // amount of world brushes
     private int worldbrushes = 0;
-    
+
     // brush side ID mappings
     private Map<Integer, Integer> brushSideToID = new HashMap<>();
     private Map<Integer, Integer> brushIndexToID = new HashMap<>();
@@ -72,7 +72,7 @@ public class BrushSource extends ModuleDecompile {
 
         assignBrushes();
     }
-    
+
     /**
      * Returns the brush side VMF ID for the corresponding brush side index.
      * The brush side must have been previously written via
@@ -85,11 +85,11 @@ public class BrushSource extends ModuleDecompile {
         if (brushSideToID.containsKey(ibrushside)) {
             return brushSideToID.get(ibrushside);
         }
-        
+
         // not found
         return -1;
     }
-    
+
     /**
      * Returns the brush VMF ID for the corresponding brush index.
      * The brush must have been previously written via
@@ -102,7 +102,7 @@ public class BrushSource extends ModuleDecompile {
         if (brushIndexToID.containsKey(ibrush)) {
             return brushIndexToID.get(ibrush);
         }
-        
+
         // not found
         return -1;
     }
@@ -117,9 +117,9 @@ public class BrushSource extends ModuleDecompile {
         // to calculate the minimum and maximum brush in the tree
         // much simpler than the guessing method
         // plus this recovers null-faced brushes
-        
+
         BspTreeStats tl = new BspTreeStats(bsp);
-        
+
         // walk model 0 (worldspawn model)
         tl.walk(0);
 
@@ -159,24 +159,24 @@ public class BrushSource extends ModuleDecompile {
             if (config.writeAreaportals && brush.isAreaportal()) {
                 continue;
             }
-            
+
             // skip ladders
             if (config.writeLadders && brush.isLadder()) {
                 continue;
             }
-            
+
             // NOTE: occluder brushes aren't worldbrushes, so they don't need to
             // be handled here
 
             writeBrush(i);
         }
     }
-    
+
     public boolean writeBrush(int ibrush, Vector3f origin, Vector3f angles) {
         DBrush brush = bsp.brushes.get(ibrush);
-        
+
         int brushID = vmfmeta.getUID();
-        
+
         // map brush index to ID
         brushIndexToID.put(ibrush, brushID);
 
@@ -186,7 +186,7 @@ public class BrushSource extends ModuleDecompile {
         for (int i = 0; i < brush.numside; i++) {
             int ibrushside = brush.fstside + i;
             DBrushSide brushSide = bsp.brushSides.get(ibrushside);
-            
+
             // don't output surplus bevel faces - they lead to bad brushes
             if (brushSide.bevel) {
                 continue;
@@ -194,17 +194,17 @@ public class BrushSource extends ModuleDecompile {
 
             try {
                 Winding wind = WindingFactory.fromSide(bsp, brush, brushSide).removeDegenerated();
-                
+
                 // skip sides with no vertices
                 if (wind.isEmpty()) {
                     throw new BrushSideException("no vertices");
                 }
-                
+
                 // skip sides with too few vertices
                 if (wind.size() < 3) {
                     throw new BrushSideException("less than 3 vertices");
                 }
-                
+
                 // skip sides that are way too big
                 if (wind.isHuge()) {
                     throw new BrushSideException("too big");
@@ -257,24 +257,24 @@ public class BrushSource extends ModuleDecompile {
                 }
             }
         }
-        
+
         // all brush sides invalid = invalid brush
         if (validBrushSides.isEmpty()) {
             L.log(Level.WARNING, "Skipped empty brush {0}", ibrush);
             return false;
         } 
-        
+
         // skip brushes with less than three sides, they can't be compiled and
         // may crash older Hammer builds
         if (validBrushSides.size() < 3) {
             L.log(Level.WARNING, "Skipped brush {0} with less than 3 sides", ibrush);
             return false;
         }
-        
+
         // now write the brush
         writer.start("solid");
         writer.put("id", brushID);
-        
+
         // write metadata for debugging
         if (config.isDebug()) {    
             writer.start("bspsrc_debug");
@@ -296,51 +296,51 @@ public class BrushSource extends ModuleDecompile {
         }
 
         writer.end("solid");
-        
+
         return true;
     }
-    
+
     public boolean writeBrush(int ibrush) {
         return writeBrush(ibrush, null, null);
     }
 
     private boolean writeSide(int ibrushside, int ibrush, Winding wind, Vector3f origin, Vector3f angles) {
         DBrushSide brushSide = bsp.brushSides.get(ibrushside);
-        
+
         // calculate plane vectors
         Vector3f[] plane = wind.buildPlane();
-        
+
         Vector3f e1 = plane[0];
         Vector3f e2 = plane[1];
         Vector3f e3 = plane[2];
-        
+
         // calculate plane normal
         // NOTE: the plane normal from the BSP could be invalid if the brush was
         //       rotated! better re-calculate it every time.
         Vector3f ev12 = e2.sub(e1);
         Vector3f ev13 = e3.sub(e1);
         Vector3f normal = ev12.cross(ev13).normalize();
-        
+
         // build texture
         TextureBuilder tb = texsrc.getTextureBuilder();
-        
+
         tb.setOrigin(origin);
         tb.setAngles(angles);
         tb.setNormal(normal);
-        
+
         tb.setTexinfoIndex(brushSide.texinfo);
         tb.setBrushIndex(ibrush);
         tb.setBrushSideIndex(ibrushside);
-        
+
         Texture texture = tb.build();
-        
+
         // set custom face texture string
         if (!config.faceTexture.isEmpty()) {
             texture.setOverrideTexture(config.faceTexture);
         }
-        
+
         int sideID = vmfmeta.getUID();
-        
+
         // add side id to cubemap side list
         if (texture.getData() != null) {
             texsrc.addBrushSideID(texture.getData().texname, sideID);
@@ -351,51 +351,51 @@ public class BrushSource extends ModuleDecompile {
 
         writer.start("side");
         writer.put("id", sideID);
-        
+
         // write metadata for debugging
         if (config.isDebug()) {
             writer.start("bspsrc_debug");
             writer.put("brushside_index", ibrushside);
             writer.put("normal", normal);
             writer.put("winding", wind.toString());
-            
+
             if (texture.getOverrideTexture() != null) {
                 writer.put("original_material", texture.getOriginalTexture());
             }
-            
+
             if (brushSide.texinfo != -1) {
                 writer.put("texinfo_index", brushSide.texinfo);
                 writer.put("texinfo_flags", bsp.texinfos.get(brushSide.texinfo).flags.toString());
             }
             writer.end("bspsrc_debug");
         }
-        
+
         writer.put("plane", e1, e2, e3);
         writer.put("smoothing_groups", 0);
         writer.put(texture);
 
         writer.end("side");
-        
+
         return true;
     }
 
     public boolean writeModel(int imodel, Vector3f origin, Vector3f angles) {
         DBrushModel bmodel;
-        
+
         try {
             bmodel = models.get(imodel);
         } catch (IndexOutOfBoundsException ex) {
             L.log(Level.WARNING, "Invalid model index {0}", imodel);
             return false;
         }
-        
+
         for (int i = 0; i < bmodel.numbrush; i++) {
             writeBrush(bmodel.fstbrush + i, origin, angles);
         }
-        
+
         return true;
     }
-    
+
     public boolean writeModel(int imodel) {
         return writeModel(imodel);
     }
@@ -403,12 +403,12 @@ public class BrushSource extends ModuleDecompile {
     public int getWorldbrushes() {
         return worldbrushes;
     }
-    
+
     private class DBrushModel {
         private int fstbrush;
         private int numbrush;
     }
-    
+
     private class BrushSideException extends Exception {
         BrushSideException(String message) {
             super(message);

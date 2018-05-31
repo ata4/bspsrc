@@ -27,12 +27,12 @@ import org.apache.commons.io.FileUtils;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class BspFileUtils {
-    
+
     private static final Logger L = LogUtils.getLogger();
-    
+
     private BspFileUtils() {
     }
-    
+
     static void extractLump(BspFile bspFile, File destDir, LumpType type) throws IOException {
         FileUtils.forceMkdir(destDir);
 
@@ -57,11 +57,11 @@ public class BspFileUtils {
             }
         }
     }
-        
+
     public static void extractLumps(BspFile bspFile, File destDir) throws IOException {
         extractLump(bspFile, destDir, null);
     }
-    
+
     static void extractGameLump(BspFile bspFile, File destDir, String type) throws IOException {
         FileUtils.forceMkdir(destDir);
 
@@ -71,7 +71,7 @@ public class BspFileUtils {
             if (type != null && !gameLump.getName().equalsIgnoreCase(type)) {
                 continue;
             }
-            
+
             String fileName = String.format("%s_v%d.bin", gameLump.getName(), gameLump.getVersion());
             File lumpFile = new File(destDir, fileName);
 
@@ -85,7 +85,7 @@ public class BspFileUtils {
             }
         }
     }
-    
+
     public static void extractGameLumps(BspFile bspFile, File destDir) throws IOException {
         extractGameLump(bspFile, destDir, null);
     }

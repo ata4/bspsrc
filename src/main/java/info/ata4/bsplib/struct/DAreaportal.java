@@ -20,7 +20,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DAreaportal implements DStruct {
-    
+
     public short portalKey;
     public short otherportal;
     public short firstClipPortalVert;

@@ -40,7 +40,7 @@ public class OptionHelpFormatter extends HelpFormatter {
         printHelp(pw, getWidth(), header, options, getLeftPadding(), getDescPadding(), footer);
         pw.flush();
     }
-    
+
     @Override
     public void printHelp(String header, Options options) {
         printHelp(header, options, null);

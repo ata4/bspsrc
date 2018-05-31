@@ -18,7 +18,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DEdge implements DStruct {
-    
+
     public int[] v = new int[2]; // vertex numbers
 
     @Override

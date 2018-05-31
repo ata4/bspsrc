@@ -18,7 +18,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DDispTri implements DStruct {
-    
+
     public int tags;
 
     @Override

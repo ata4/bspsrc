@@ -19,7 +19,7 @@ import java.util.Set;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class EnumConverter {
-    
+
     private EnumConverter() {
     }
 

@@ -26,7 +26,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class EmbeddedTableModel extends ListTableModel {
-    
+
     private static final Logger L = LogUtils.getLogger();
 
     public EmbeddedTableModel() {
@@ -37,7 +37,7 @@ public class EmbeddedTableModel extends ListTableModel {
 
     public EmbeddedTableModel(BspFile bspFile) {
         this();
-        
+
         try (ZipArchiveInputStream zis = bspFile.getPakFile().getArchiveInputStream()) {
             ZipArchiveEntry ze;
             while ((ze = zis.getNextZipEntry()) != null) {

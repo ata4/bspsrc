@@ -18,7 +18,7 @@ import info.ata4.bsplib.vector.Vector3f;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class TextureAxis {
-    
+
     public final Vector3f axis;
     public final float tw;
     public final int shift;
@@ -42,7 +42,7 @@ public class TextureAxis {
     public TextureAxis(float x, float y, float z) {
         this(x, y, z, 0, 0.25f);
     }
-    
+
     @Override
     public String toString() {
         return axis + " " + shift + " [" + tw + "]";

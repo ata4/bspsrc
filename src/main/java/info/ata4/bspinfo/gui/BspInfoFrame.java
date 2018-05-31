@@ -59,21 +59,21 @@ import org.apache.commons.lang3.StringUtils;
 public class BspInfoFrame extends javax.swing.JFrame {
 
     private static final Logger L = LogUtils.getLogger();
-    
+
     public static final String NAME = "BSPInfo";
     public static final String VERSION = BspSource.VERSION;
-    
+
     private File currentFile;
     private BspFile bspFile;
     private BspFileReader bspReader;
     private FileDrop fdrop;
-    
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         LogUtils.configure();
-        
+
         // set the system look and feel
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -89,14 +89,14 @@ public class BspInfoFrame extends javax.swing.JFrame {
             }
         });
     }
-    
+
     /**
      * Creates new form BspToolFrame
      */
     public BspInfoFrame() {
         initComponents();
         initComponentsCustom();
-        
+
         // init file dropper
         fdrop = new FileDrop(this, new FileDrop.Listener() {
 
@@ -109,11 +109,11 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 }
             }
         });
-        
+
         // add dialog log handler
         L.addHandler(new DialogHandler(this));
     }
-    
+
     public final void reset() {
         // general
         textFieldName.setText(null);
@@ -126,11 +126,11 @@ public class BspInfoFrame extends javax.swing.JFrame {
         linkLabelAppURL.setText(null);
         textFieldFileCRC.setText(null);
         textFieldMapCRC.setText(null);
-        
+
         textFieldVbspParams.setText(null);
         textFieldVvisParams.setText(null);
         textFieldVradParams.setText(null);
-        
+
         // protection
         checkBoxVmexEntity.setSelected(false);
         checkBoxVmexTexture.setSelected(false);
@@ -140,17 +140,17 @@ public class BspInfoFrame extends javax.swing.JFrame {
         checkBoxIIDTexHack.setSelected(false);
 
         checkBoxBSPProtect.setSelected(false);
-        
+
         // lumps
         tableLumps.setModel(new LumpTableModel());
-        
+
         // entities
         textFieldTotalEnts.setText(null);
         textFieldBrushEnts.setText(null);
         textFieldPointEnts.setText(null);
-        
+
         tableEntities.setModel(new EntityTableModel());
-        
+
         // dependencies
         textAreaMaterials.setText(null);
         textAreaSounds.setText(null);
@@ -158,25 +158,25 @@ public class BspInfoFrame extends javax.swing.JFrame {
         textAreaSoundscapes.setText(null);
         textAreaModels.setText(null);
         textAreaParticles.setText(null);
-        
+
         // embedded files
         tableEmbedded.setModel(new EmbeddedTableModel());
-        
+
         // disable buttons
         extractLumpButton.setEnabled(false);
         extractAllLumpsButton.setEnabled(false);
-        
+
         extractGameLumpButton.setEnabled(false);
         extractAllGameLumpsButton.setEnabled(false);
-        
+
         extractEmbeddedButton.setEnabled(false);
         extractAllEmbeddedButton.setEnabled(false);
         extractEmbeddedZipButton.setEnabled(false);
     }
-    
+
     public void loadFile(File file) {
         currentFile = file;
-        
+
         setTitle(NAME + " " + VERSION + " - " + file.getName());
 
         new Thread(new Runnable() {
@@ -184,7 +184,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
             public void run() {
                 // clear form fields
                 reset();
-                
+
                 // set waiting cursor
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -192,12 +192,12 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     // load BSP file
                     bspFile = new BspFile();
                     bspFile.load(currentFile.toPath());
-                    
+
                     boolean compressed = bspFile.isCompressed();
-                    
+
                     bspReader = new BspFileReader(bspFile);
                     bspReader.loadEntities();
-                    
+
                     BspData data = bspReader.getData();
 
                     // general
@@ -206,65 +206,65 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     textFieldRevision.setText(String.valueOf(bspFile.getRevision()));
                     textFieldCompressed.setText(compressed ? "Yes" : "No");
                     textFieldEndian.setText(bspFile.getByteOrder() == ByteOrder.LITTLE_ENDIAN ? "Little endian" : "Big endian");
-                    
+
                     if (data.entities != null && !data.entities.isEmpty()) {
                         Entity worldspawn = data.entities.get(0);
                         textFieldComment.setText(worldspawn.getValue("comment"));
                     }
 
                     SourceApp app = bspFile.getSourceApp();
-                    
+
                     textFieldAppID.setText(app.getAppID() > 0 ? String.valueOf(app.getAppID()) : "n/a");
                     textFieldGame.setText(app.getName());
-                    
+
                     URI steamStoreURI = app.getSteamStoreURI();
-                    
+
                     if (steamStoreURI != null) {
                         linkLabelAppURL.setURI("Steam store link", steamStoreURI);
                     }
-                    
+
                     BspCompileParams cparams = new BspCompileParams(bspReader);
-                    
+
                     textFieldVbspParams.setText(StringUtils.join(cparams.getVbspParams(), ' '));
-                    
+
                     if (cparams.isVvisRun()) {
                         textFieldVvisParams.setText(StringUtils.join(cparams.getVvisParams(), ' '));
                     } else {
                         textFieldVvisParams.setText("(not run)");
                     }
-                    
+
                     if (cparams.isVradRun()) {
                         textFieldVradParams.setText(StringUtils.join(cparams.getVradParams(), ' '));
                     } else {
                         textFieldVradParams.setText("(not run)");
                     }
-                    
+
                     // protection
                     TextureSource texsrc = new TextureSource(bspReader);
                     BspProtection prot = new BspProtection(bspReader, texsrc);
                     prot.check();
-                    
+
                     checkBoxVmexEntity.setSelected(prot.hasEntityFlag());
                     checkBoxVmexTexture.setSelected(prot.hasTextureFlag());
                     checkBoxVmexBrush.setSelected(prot.hasBrushFlag());
-                    
+
                     checkBoxIIDObfs.setSelected(prot.hasObfuscatedEntities());
                     checkBoxIIDTexHack.setSelected(prot.hasModifiedTexinfo());
-                    
+
                     checkBoxBSPProtect.setSelected(prot.hasEncryptedEntities());
 
                     // lumps
                     tableLumps.setModel(new LumpTableModel(bspFile));
-                    
+
                     // game lumps
                     tableGameLumps.setModel(new GameLumpTableModel(bspFile));
-                    
+
                     // entities
                     int brushEnts = 0;
                     int pointEnts = 0;
-                    
+
                     List<Entity> entities = bspReader.getData().entities;
-                    
+
                     for (Entity ent : entities) {
                         if (ent.getModelNum() > 0) {
                             brushEnts++;
@@ -272,42 +272,42 @@ public class BspInfoFrame extends javax.swing.JFrame {
                             pointEnts++;
                         }
                     }
-                    
+
                     int totalEnts = pointEnts + brushEnts;
-                    
+
                     DecimalFormat df = new DecimalFormat("#,##0");
-                    
+
                     textFieldTotalEnts.setText(df.format(totalEnts));
                     textFieldBrushEnts.setText(df.format(brushEnts));
                     textFieldPointEnts.setText(df.format(pointEnts));
                     tableEntities.setModel(new EntityTableModel(bspReader));
-                    
+
                     // dependencies
                     BspDependencies bspres = new BspDependencies(bspReader);
-  
+
                     fillTextArea(textAreaMaterials, bspres.getMaterials());
                     fillTextArea(textAreaSounds, bspres.getSoundFiles());
                     fillTextArea(textAreaSoundScripts, bspres.getSoundScripts());
                     fillTextArea(textAreaSoundscapes, bspres.getSoundscapes());
                     fillTextArea(textAreaModels, bspres.getModels());
                     fillTextArea(textAreaParticles, bspres.getParticles());
-                    
+
                     // embedded files
                     tableEmbedded.setModel(new EmbeddedTableModel(bspFile));
-                    
+
                     // checksum (last step, takes most time)
                     BspChecksum checksum = new BspChecksum(bspReader);
-                    
+
                     textFieldFileCRC.setText(String.format("%x", checksum.getFileCRC()));
                     textFieldMapCRC.setText(String.format("%x", checksum.getMapCRC()));
-                    
+
                     // enable buttons
                     extractLumpButton.setEnabled(true);
                     extractAllLumpsButton.setEnabled(true);
 
                     extractGameLumpButton.setEnabled(true);
                     extractAllGameLumpsButton.setEnabled(true);
-                    
+
                     extractEmbeddedButton.setEnabled(true);
                     extractAllEmbeddedButton.setEnabled(true);
                     extractEmbeddedZipButton.setEnabled(true);
@@ -316,21 +316,21 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 } finally {
                     // free previously opened files and resources
                     System.gc();
-                    
+
                     // reset cursor
                     setCursor(Cursor.getDefaultCursor());
                 }
             }
         }).start();
     }
-    
+
     private void fillTextArea(JTextArea textArea, Collection<String> strings) {
         for (String string : strings) {
             textArea.append(string);
             textArea.append("\n");
         }
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -1116,7 +1116,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
     private void initComponentsCustom() {
         // add version to title
         setTitle(NAME + " " + VERSION);
-        
+
         // instant awesome, just add icons!
         try {
             URL iconUrl = getClass().getResource("resources/icon.png");
@@ -1125,12 +1125,12 @@ public class BspInfoFrame extends javax.swing.JFrame {
         } catch (Exception ex) {
             // meh, don't care
         }
-        
+
         DecimalFormat largeFormat = new DecimalFormat("#,##0");
-        
+
         // set table column widths and special renderers
         TableColumnModel tcm;
-        
+
         // lump table
         tcm = tableLumps.getColumnModel();
         tcm.getColumn(0).setPreferredWidth(30);
@@ -1139,7 +1139,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         tcm.getColumn(2).setCellRenderer(new ByteSizeCellRenderer(false));
         tcm.getColumn(3).setCellRenderer(new ProgressCellRenderer());
         tableLumps.setAutoCreateColumnsFromModel(false);
-        
+
         // game lump table
         tcm = tableGameLumps.getColumnModel();
         tcm.getColumn(0).setPreferredWidth(30);
@@ -1147,14 +1147,14 @@ public class BspInfoFrame extends javax.swing.JFrame {
         tcm.getColumn(1).setCellRenderer(new ByteSizeCellRenderer(false));
         tcm.getColumn(2).setCellRenderer(new ProgressCellRenderer());
         tableGameLumps.setAutoCreateColumnsFromModel(false);
-        
+
         // entity table
         tcm = tableEntities.getColumnModel();
         tcm.getColumn(0).setPreferredWidth(250);
         tcm.getColumn(1).setPreferredWidth(50);
         tcm.getColumn(1).setCellRenderer(new DecimalFormatCellRenderer(largeFormat));
         tableEntities.setAutoCreateColumnsFromModel(false);
-        
+
         // embedded table
         tcm = tableEmbedded.getColumnModel();
         tcm.getColumn(0).setPreferredWidth(250);
@@ -1162,23 +1162,23 @@ public class BspInfoFrame extends javax.swing.JFrame {
         tcm.getColumn(1).setCellRenderer(new ByteSizeCellRenderer(false));
         tableEmbedded.setAutoCreateColumnsFromModel(false);
     }
-    
+
     private void openFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileMenuItemActionPerformed
         int result = openFileChooser.showOpenDialog(this);
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        
+
         loadFile(openFileChooser.getSelectedFile());
     }//GEN-LAST:event_openFileMenuItemActionPerformed
 
     private void extractLumpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extractLumpButtonActionPerformed
         int[] selected = tableLumps.getSelectedRows();
-        
+
         if (selected.length == 0) {
             return;
         }
-        
+
         saveDirectoryChooser.setCurrentDirectory(currentFile);
         int result = saveDirectoryChooser.showSaveDialog(this);
         if (result != JFileChooser.APPROVE_OPTION) {
@@ -1194,7 +1194,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
             int files = 0;
             TableModel model = tableLumps.getModel();
             RowSorter sorter = tableLumps.getRowSorter();
-            
+
             for (int index : selected) {
                 index = sorter.convertRowIndexToModel(index);
                 int lumpIndex = (Integer) model.getValueAt(index, 0);
@@ -1207,7 +1207,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     L.log(Level.WARNING, "Couldn't extract lump " + lumpType, ex);
                 }
             }
-            
+
             JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " lumps.");
         } finally {
             // reset cursor
@@ -1221,9 +1221,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        
+
         File dest = saveDirectoryChooser.getSelectedFile();
-        
+
         // set waiting cursor
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -1240,11 +1240,11 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
     private void extractGameLumpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extractGameLumpButtonActionPerformed
         int[] selected = tableGameLumps.getSelectedRows();
-        
+
         if (selected.length == 0) {
             return;
         }
-        
+
         saveDirectoryChooser.setCurrentDirectory(currentFile);
         int result = saveDirectoryChooser.showSaveDialog(this);
         if (result != JFileChooser.APPROVE_OPTION) {
@@ -1260,7 +1260,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
             int files = 0;
             TableModel model = tableGameLumps.getModel();
             RowSorter sorter = tableGameLumps.getRowSorter();
-            
+
             for (int index : selected) {
                 index = sorter.convertRowIndexToModel(index);
                 String id = (String) model.getValueAt(index, 0);
@@ -1272,7 +1272,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                     L.log(Level.WARNING, "Couldn't extract game lump " + id, ex);
                 }
             }
-            
+
             JOptionPane.showMessageDialog(this, "Successfully extracted " + files + " game lumps.");
         } finally {
             // reset cursor
@@ -1286,9 +1286,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        
+
         File dest = saveDirectoryChooser.getSelectedFile();
-        
+
         // set waiting cursor
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -1305,11 +1305,11 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
     private void extractEmbeddedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extractEmbeddedButtonActionPerformed
         int[] selected = tableEmbedded.getSelectedRows();
-        
+
         if (selected.length == 0) {
             return;
         }
-        
+
         saveDirectoryChooser.setCurrentDirectory(currentFile);
         int result = saveDirectoryChooser.showSaveDialog(this);
         if (result != JFileChooser.APPROVE_OPTION) {
@@ -1317,10 +1317,10 @@ public class BspInfoFrame extends javax.swing.JFrame {
         }
 
         File dest = saveDirectoryChooser.getSelectedFile();
-        
+
         // set waiting cursor
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        
+
         List<String> names = new ArrayList<>();
         TableModel model = tableEmbedded.getModel();
         RowSorter sorter = tableEmbedded.getRowSorter();
@@ -1348,9 +1348,9 @@ public class BspInfoFrame extends javax.swing.JFrame {
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        
+
         File dest = saveDirectoryChooser.getSelectedFile();
-        
+
         // set waiting cursor
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -1371,12 +1371,12 @@ public class BspInfoFrame extends javax.swing.JFrame {
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        
+
         File dest = saveZipFileChooser.getSelectedFile();
-        
+
         // set waiting cursor
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        
+
         try {
             bspFile.getPakFile().unpack(dest.toPath(), true);
             JOptionPane.showMessageDialog(this, "Successfully extracted embedded Zip file.");

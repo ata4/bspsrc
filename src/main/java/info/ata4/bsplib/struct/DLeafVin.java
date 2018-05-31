@@ -20,7 +20,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DLeafVin extends DLeaf {
-    
+
     @Override
     public int getSize() {
         return 56;

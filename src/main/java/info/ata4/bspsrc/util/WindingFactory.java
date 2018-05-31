@@ -28,16 +28,16 @@ import java.util.Map;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class WindingFactory {
-    
+
     private static Map<DFace, Winding> faceCache = new HashMap<>();
     private static Map<Integer, Winding> brushSideCache = new HashMap<>();
     private static Map<DAreaportal, Winding> areaportalCache = new HashMap<>();
     private static Map<DOccluderPolyData, Winding> occluderCache = new HashMap<>();
     private static Map<DPlane, Winding> planeCache = new HashMap<>();
-    
+
     private WindingFactory() {
     }
-    
+
     public static void clearCache() {
         faceCache.clear();
         brushSideCache.clear();
@@ -45,7 +45,7 @@ public class WindingFactory {
         occluderCache.clear();
         planeCache.clear();
     }
-    
+
     /**
      * Constructs a winding from face vertices
      *
@@ -58,9 +58,9 @@ public class WindingFactory {
         if (faceCache.containsKey(face)) {
             return faceCache.get(face);
         }
-        
+
         List<Vector3f> verts = new ArrayList<>();
-        
+
         for (int i = 0; i < face.numedge; i++) {
             int v;
             int sedge = bsp.surfEdges.get(face.fstedge + i);
@@ -72,17 +72,17 @@ public class WindingFactory {
                 // forwards wound edge
                 v = bsp.edges.get(sedge).v[0];
             }
-            
+
             verts.add(bsp.verts.get(v).point);
         }
-        
+
         Winding w = new Winding(verts);
-        
+
         faceCache.put(face, w);
 
         return w;
     }
-    
+
     /**
      * Constructs a winding from a brush, for a brush side
      * 
@@ -97,14 +97,14 @@ public class WindingFactory {
         int cacheHash = 5;
         cacheHash = cacheHash * 14 + brush.hashCode();
         cacheHash = cacheHash * 8 + bside.hashCode();
-        
+
         if (brushSideCache.containsKey(cacheHash)) {
             return brushSideCache.get(cacheHash);
         }
 
         int iplane = bside.pnum;
         boolean hasSide = false;
-        
+
         Winding w = fromPlane(bsp.planes.get(iplane));
 
         // clip to all other planes
@@ -117,7 +117,7 @@ public class WindingFactory {
                 hasSide = true;
                 continue;
             }
-            
+
             // don't clip to bevel planes
             if (bside2.bevel) {
                 continue;
@@ -131,13 +131,13 @@ public class WindingFactory {
             flipPlane.dist = -plane.dist;
             w = w.clipPlane(flipPlane, false);
         }
-        
+
         if (!hasSide) {
             throw new IllegalArgumentException("Brush side is not part of brush!");
         }
-        
+
         brushSideCache.put(cacheHash, w);
-        
+
         // return the clipped winding
         return w;
     }
@@ -157,23 +157,23 @@ public class WindingFactory {
         DBrushSide bside = bsp.brushSides.get(ibside);
         return fromSide(bsp, brush, bside);
     }
-    
+
     public static Winding fromAreaportal(BspData bsp, DAreaportal ap) {
         if (areaportalCache.containsKey(ap)) {
             return areaportalCache.get(ap);
         }
-        
+
         List<Vector3f> verts = new ArrayList<>();
-        
+
         for (int i = 0; i < ap.clipPortalVerts; i++) {
             int pvi = ap.firstClipPortalVert + i;
             verts.add(bsp.clipPortalVerts.get(pvi).point);
         }
-                
+
         Winding w = new Winding(verts);
-        
+
         areaportalCache.put(ap, w);
-        
+
         return w;
     }
 
@@ -188,21 +188,21 @@ public class WindingFactory {
         if (occluderCache.containsKey(opd)) {
             return occluderCache.get(opd);
         }
-        
+
         List<Vector3f> verts = new ArrayList<>();
 
         for (int k = 0; k < opd.vertexcount; k++) {
             int pvi = bsp.occluderVerts.get(opd.firstvertexindex + k);
             verts.add(bsp.verts.get(pvi).point);
         }
-        
+
         Winding w = new Winding(verts);
-        
+
         occluderCache.put(opd, w);
-        
+
         return w;
     }
-    
+
     /**
      * Constructs a huge square winding from a plane
      * 
@@ -214,7 +214,7 @@ public class WindingFactory {
         if (planeCache.containsKey(pl)) {
             return planeCache.get(pl);
         }
-        
+
         // find the dominant axis of plane normal
         float dmax = -1.0F;
         int idir = -1;
@@ -252,19 +252,19 @@ public class WindingFactory {
         // remove the component of this vector along the normal
         float vdot = vup.dot(pl.normal);
         vup = vup.add(pl.normal.scalar(-vdot));
-        
+
         // make it a unit (perpendicular)
         vup = vup.normalize();
 
         // the vector from origin perpendicularly touching plane
         Vector3f org = pl.normal.scalar(pl.dist);
-        
+
         // this is the "rightwards" pointing vector
         Vector3f vrt = vup.cross(pl.normal);
 
         vup = vup.scalar(Winding.MAX_LEN);
         vrt = vrt.scalar(Winding.MAX_LEN);
-        
+
         List<Vector3f> verts = new ArrayList<>();
 
         // move diagonally away from org to create the corner verts
@@ -272,11 +272,11 @@ public class WindingFactory {
         verts.add(org.add(vrt).add(vup)); // right up
         verts.add(org.add(vrt).sub(vup)); // right down
         verts.add(org.sub(vrt).sub(vup)); // left down
-        
+
         Winding w = new Winding(verts);
-        
+
         planeCache.put(pl, w);
-        
+
         return w;
     }
 }

@@ -26,7 +26,7 @@ import java.util.*;
  */
 
 public class Winding implements List<Vector3f> {
-    
+
     private static final Winding EMPTY = new Winding(Collections.unmodifiableList(new ArrayList<Vector3f>()));
 
     public static final int MAX_LEN = 56756; // sqrt(3)*32768
@@ -39,18 +39,18 @@ public class Winding implements List<Vector3f> {
     public static final float EPS_SPLIT = 0.01f;
     public static final float EPS_COMP = 0.5f;
     public static final float EPS_DEGEN = 0.1f;
-    
+
     // list of vectors to vertex points
     private final List<Vector3f> verts;
-    
+
     public Winding(Winding that) {
         this.verts = that.verts;
     }
-    
+
     public Winding(List<Vector3f> verts) {
         this.verts = Collections.unmodifiableList(verts);
     }
-    
+
     /**
      * Clips this winding to a plane defined by a normal and distance, removing
      * all vertices in front or behind it.
@@ -73,13 +73,13 @@ public class Winding implements List<Vector3f> {
         for (int i = 0; i < size; i++) {
             // distance along norm-dirn from origin to vertex
             float dot = verts.get(i).dot(normal);
-            
+
             // distance along norm-dirn from clip plane to vertex
             dot -= dist;
-            
+
             // store it
             dists[i] = dot;
-            
+
             if (dot > eps) {
                 // vertex in front of plane
                 sides[i] = SIDE_FRONT;
@@ -114,23 +114,23 @@ public class Winding implements List<Vector3f> {
                 return this;
             }
         }
-        
+
         List<Vector3f> vertsNew = new ArrayList<Vector3f>();
 
         for (int i = 0; i < size; i++) {
             // get i'th vertex
             Vector3f p1 = verts.get(i);
-            
+
             if (sides[i] == SIDE_ON) {
                 vertsNew.add(p1);
                 continue;
             }
-            
+
             if (sides[i] == SIDE_FRONT && !back) {
                 // add copy the current vertex
                 vertsNew.add(p1);
             }
-            
+
             if (sides[i] == SIDE_BACK && back) {
                 // add copy the current vertex
                 vertsNew.add(p1);
@@ -140,15 +140,15 @@ public class Winding implements List<Vector3f> {
                 // next vertex is on the plane, so go to next vertex stat
                 continue;
             }
-            
+
             if (sides[i + 1] == sides[i]) {
                 // next vertex does not change side, so go to next vertex stat
                 continue;
             }
-            
+
             // otherwise, we are crossing the clip plane between this vertex and the next
             // so generate a split point
-            
+
             // will contain the next vertex position
             Vector3f p2;
 
@@ -164,7 +164,7 @@ public class Winding implements List<Vector3f> {
             // dot is fractional position of clip plane between
             // this vertex and the next
             float dot = dists[i] / (dists[i] - dists[i + 1]);
-            
+
             // vector of the split vertex
             Vector3f mv = Vector3f.NULL;
 
@@ -183,7 +183,7 @@ public class Winding implements List<Vector3f> {
             // write the output vertex
             vertsNew.add(mv);
         }
-        
+
         return new Winding(vertsNew);
     }
 
@@ -197,7 +197,7 @@ public class Winding implements List<Vector3f> {
     public Winding clipPlane(DPlane pl, boolean back) {
         return clipEpsilon(pl.normal, pl.dist, EPS_SPLIT, back);
     }
-    
+
    /**
      * Removes degenerated vertices from this winding. A vertex is degenerated
      * when its distance to the previous vertex is smaller than {@link EPS_DEGEN}.
@@ -208,9 +208,9 @@ public class Winding implements List<Vector3f> {
         if (verts.isEmpty()) {
             return this;
         }
-        
+
         ArrayList<Vector3f> vertsNew = new ArrayList<>();
-        
+
         final int size = verts.size();
 
         for (int i = 0; i < size; i++) {
@@ -225,7 +225,7 @@ public class Winding implements List<Vector3f> {
 
         return new Winding(vertsNew);
     }
-    
+
     /**
      * Removes collinear vertices from this winding.
      * 
@@ -235,9 +235,9 @@ public class Winding implements List<Vector3f> {
         if (verts.isEmpty()) {
             return this;
         }
-        
+
         ArrayList<Vector3f> vertsNew = new ArrayList<>();
-        
+
         final int size = verts.size();
 
         for (int i = 0; i < size; i++) {
@@ -250,10 +250,10 @@ public class Winding implements List<Vector3f> {
                 vertsNew.add(verts.get(i));
             }
         }
-        
+
         return new Winding(vertsNew);
     }
-    
+
     /**
      * Rotates all vertices in this winding by the given euler angles.
      * 
@@ -265,37 +265,37 @@ public class Winding implements List<Vector3f> {
         }
 
         ArrayList<Vector3f> vertsNew = new ArrayList<>();
-        
+
         for (Vector3f vert : verts) {
             vertsNew.add(vert.rotate(angles));
         }
 
         return new Winding(vertsNew);
     }
-    
+
     public Winding translate(Vector3f offset) {
         if (verts.isEmpty()) {
             return this;
         }
-        
+
         ArrayList<Vector3f> vertsNew = new ArrayList<>();
-        
+
         for (Vector3f vert : verts) {
             vertsNew.add(vert.add(offset));
         }
 
         return new Winding(vertsNew);
     }
-    
+
     public Winding addBackface() {
         if (verts.isEmpty()) {
             return this;
         }
-        
+
         List<Vector3f> vertsNew = new ArrayList<>();
-        
+
         final int size = verts.size();
-        
+
         for (int i = 0; i < size; i++) {
             if (i != 0) {
                 vertsNew.add(verts.get(i));
@@ -304,10 +304,10 @@ public class Winding implements List<Vector3f> {
                 vertsNew.add(verts.get(i));
             }
         }
-        
+
         return new Winding(vertsNew);
     }
-    
+
     /**
      * Returns true if the winding still has one of the points
      * from basewinding for plane.
@@ -336,23 +336,23 @@ public class Winding implements List<Vector3f> {
      */
     public boolean matches(Winding that) {
         final int size = verts.size();
-        
+
         // if windings have different number of points, trivially fail
         if (size != that.verts.size()) {
             return false;
         }
-        
+
         // minimum match distance
         float min = 1e6f;
 
         for (int i = 0; i < size; i++) {
             float mdist = 0;
-            
+
             // get the aggregate distance at offset i
             for (int j = 0; j < size; j++) {
                 // wrap index if greater than size
                 int k = (j + i) % size;
-                
+
                 // distance between vertex j of this and k of that
                 mdist += verts.get(j).sub(that.verts.get(k)).length();
             }
@@ -364,7 +364,7 @@ public class Winding implements List<Vector3f> {
         // check if match was close enough
         return min < EPS_COMP;
     }
-    
+
     /**
      * Checks if a point is inside this winding.
      * 
@@ -376,40 +376,40 @@ public class Winding implements List<Vector3f> {
             // "Is not possible!"
             return false;
         }
-        
+
         // get the first normal to test
         Vector3f toPt = pt.sub(get(0));
         Vector3f edge = get(1).sub(get(0));
         Vector3f testCross = edge.cross(toPt).normalize();
         Vector3f cross;
-        
+
         int size = size();
-        
+
         for (int i = 1; i < size; i++) {
             toPt = pt.sub(get(i));
             edge = get((i + 1) % size).sub(get(i));
             cross = edge.cross(toPt).normalize();
-            
+
             if (cross.dot(testCross) < 0) {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     public AABB getBounds() {
         Vector3f mins = Vector3f.MAX_VALUE;
         Vector3f maxs = Vector3f.MIN_VALUE;
-        
+
         for (Vector3f vert : verts) {
             mins = mins.min(vert);
             maxs = maxs.max(vert);
         }
-        
+
         return new AABB(mins, maxs);
     }
-        
+
     /**
      * Returns the center point (barycenter) of this winding.
      * 
@@ -419,16 +419,16 @@ public class Winding implements List<Vector3f> {
      */
     public Vector3f getCenter() {
         Vector3f sum = Vector3f.NULL;
-        
+
         // add all verts
         for (Vector3f vert : verts) {
             sum = sum.add(vert);
         }
-        
+
         // average vertex position
         return sum.scalar(1f / verts.size());
     }
-    
+
     /**
      * Returns the plane points of this winding in form of a triangle.
      * 
@@ -437,7 +437,7 @@ public class Winding implements List<Vector3f> {
     public Vector3f[] buildPlane() {
         Vector3f[] vertsNew = new Vector3f[verts.size()];
         Vector3f[] plane = new Vector3f[3];
-        
+
         // 1st vert is always base vertex
         plane[0] = get(0);
 
@@ -446,7 +446,7 @@ public class Winding implements List<Vector3f> {
             // the vector from start vertex to i'th
             vertsNew[i] = get(i).sub(plane[0]);
         }
-        
+
         // the largest modulus of cross product found between ixj
         float maxmcp = -1;
         // the i index of largest cp
@@ -466,14 +466,14 @@ public class Winding implements List<Vector3f> {
                 }
             }
         }
-        
+
         // choose other two such that cross product is maximum
         plane[1] = get(imax);
         plane[2] = get(jmax);
-        
+
         return plane;
     }
-    
+
     /**
      * Checks if this winding contains any duplicate vertices.
      * 
@@ -481,7 +481,7 @@ public class Winding implements List<Vector3f> {
      */
     public boolean hasDuplicates() {
         final int size = verts.size();
-        
+
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (i == j) {
@@ -496,10 +496,10 @@ public class Winding implements List<Vector3f> {
                 }
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Returns the total area of this winding.
      * 
@@ -514,10 +514,10 @@ public class Winding implements List<Vector3f> {
             Vector3f v2 = verts.get(i).sub(verts.get(0));
             total += v1.cross(v2).length();
         }
-        
+
         return total * 0.5f;
     }
-    
+
     @Override
     public int size() {
         return verts.size();
@@ -632,12 +632,12 @@ public class Winding implements List<Vector3f> {
     public List<Vector3f> subList(int fromIndex, int toIndex) {
         return verts.subList(fromIndex, toIndex);
     }
-    
+
     @Override
     public String toString() {
         return verts.toString();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

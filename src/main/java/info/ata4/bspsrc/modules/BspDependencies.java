@@ -23,10 +23,10 @@ import java.util.TreeSet;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class BspDependencies extends ModuleRead {
-    
+
     public BspDependencies(BspFileReader reader) {
         super(reader);
-        
+
         reader.loadEntities();
     }
 
@@ -38,7 +38,7 @@ public class BspDependencies extends ModuleRead {
         for (String texname : texsrc.getFixedTextureNames()) {
             materials.add("materials/" + texname + ".vmt");
         }
-        
+
         // add all entity materials
         for (Entity ent : bsp.entities) {
             try {
@@ -48,30 +48,30 @@ public class BspDependencies extends ModuleRead {
                             || value.endsWith(".vtf")
                             || value.endsWith(".vmt")) {
                         String texture = texsrc.canonizeTextureName(value);
-                    
+
                         if (!texture.startsWith("materials/")) {
                             texture = "materials/" + texture;
                         }
-                        
+
                         if (!texture.endsWith(".vtf") && !texture.endsWith(".vmt")) {
                             texture += ".vmt";
                         }
-                        
+
                         materials.add(texture);
                     }
                 }
             } catch (NullPointerException ex) {
             }
         }
-        
+
         return materials;
     }
-    
+
     public Set<String> getModels() {
         reader.loadStaticProps();
-        
+
         TreeSet<String> models = new TreeSet<>();
-        
+
         // add entity models
         for (Entity ent : bsp.entities) {
             try {
@@ -83,16 +83,16 @@ public class BspDependencies extends ModuleRead {
             } catch (NullPointerException ex) {
             }
         }
-        
+
         // add static prop models
         models.addAll(bsp.staticPropName);
-        
+
         return models;
     }
-    
+
     public Set<String> getSoundFiles() {
         Set<String> soundFiles = new TreeSet<>();
-        
+
         for (Entity ent : bsp.entities) {
             for (Map.Entry<String, String> kv : ent.getEntrySet()) {
                 String value = kv.getValue();
@@ -110,11 +110,11 @@ public class BspDependencies extends ModuleRead {
                 }
             }
         }
-        
+
         return soundFiles;
     }
-    
- 
+
+
     public Set<String> getSoundScripts() {
         Set<String> soundScripts = new TreeSet<>();
 
@@ -124,7 +124,7 @@ public class BspDependencies extends ModuleRead {
                 if (ent.getClassName().equals("env_soundscape")) {
                     continue;
                 }
-                
+
                 String key = kv.getKey();
                 String value = kv.getValue();
 
@@ -158,10 +158,10 @@ public class BspDependencies extends ModuleRead {
 
         return soundScapes;
     }
-    
+
     public Set<String> getParticles() {
         Set<String> particles = new TreeSet<>();
-        
+
         for (Entity ent : bsp.entities) {
             try {
                 if (ent.getClassName().equals("info_particle_system")) {
@@ -170,7 +170,7 @@ public class BspDependencies extends ModuleRead {
             } catch (NullPointerException ex) {
             }
         }
-        
+
         return particles;
     }
 }

@@ -19,14 +19,14 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DFaceVinV2 extends DFaceVinV1 {
-    
+
     protected int unknown2;
 
     @Override
     public int getSize() {
         return super.getSize() + 4;
     }
-    
+
     @Override
     public void read(DataReader in) throws IOException {
         pnum = in.readInt();

@@ -31,12 +31,12 @@ import lzma.LzmaEncoder;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class LzmaBuffer {
-    
+
     private static final Logger L = LogUtils.getLogger();
-    
+
     public final static int LZMA_ID = StringMacroUtils.makeID("LZMA");
     public final static int HEADER_SIZE = 17;
-    
+
     private LzmaBuffer() {
     }
 
@@ -45,25 +45,25 @@ public class LzmaBuffer {
         ByteBuffer bbc = buffer.duplicate();
         bbc.order(ByteOrder.LITTLE_ENDIAN);
         bbc.rewind();
-        
+
         // ensure that this buffer is actually compressed
         if (bbc.remaining() < HEADER_SIZE || bbc.getInt() != LZMA_ID) {
             throw new IOException("Buffer is not compressed");
         }
-        
+
         // read more from the header
         int actualSize = bbc.getInt();
         int lzmaSize = bbc.getInt();
         byte[] propsData = new byte[5];
         bbc.get(propsData);
-        
+
         int lzmaSizeBuf = bbc.limit() - HEADER_SIZE;
-        
+
         // check the size of the compressed buffer
         if (lzmaSizeBuf != lzmaSize) {
             L.log(Level.WARNING, "Difference in LZMA data length: found {0} bytes, expected {1}", new Object[]{lzmaSizeBuf, lzmaSize});
         }
-        
+
         ByteBuffer bbu = ByteBuffer.allocateDirect(actualSize);
 
         try (
@@ -76,7 +76,7 @@ public class LzmaBuffer {
             LzmaDecoderProps props = new LzmaDecoderProps();
             props.setIncludeSize(false);
             props.fromArray(propsData);
-            
+
             props.apply(decoder);
 
             // decompress buffer
@@ -84,55 +84,55 @@ public class LzmaBuffer {
                 throw new IOException("Error in LZMA stream");
             }
         }
-        
+
         // reset buffer
         bbu.order(bo);
         bbu.rewind();
 
         return bbu;
     }
-    
+
     public static ByteBuffer compress(ByteBuffer buffer) throws IOException {
         ByteOrder bo = buffer.order();
         ByteBuffer bbu = buffer.duplicate();
         bbu.rewind();
-        
+
         LzmaEncoderProps props = new LzmaEncoderProps();
         props.setIncludeSize(false);
         byte[] lzma;
-        
+
         try (
             ByteBufferInputStream is = new ByteBufferInputStream(bbu);
             ByteArrayOutputStream os = new ByteArrayOutputStream(bbu.limit() / 8);
         ) {
             LzmaEncoder encoder = new LzmaEncoder();
-            
+
             props.apply(encoder);
 
             // compress buffer
             encoder.code(is, os);
-            
+
             lzma = os.toByteArray();
         }
-        
+
         int size = HEADER_SIZE + lzma.length;
-        
+
         ByteBuffer bbc = ByteBuffer.allocateDirect(size);
         bbc.order(ByteOrder.LITTLE_ENDIAN);
-        
+
         // write header
         bbc.putInt(LZMA_ID);
         bbc.putInt(bbu.limit());
         bbc.putInt(lzma.length);
         bbc.put(props.toArray());
-        
+
         // write lzma data
         bbc.put(lzma);
-        
+
         // reset buffer
         bbc.order(bo);
         bbc.rewind();
-        
+
         return bbc;
     }
 
@@ -140,7 +140,7 @@ public class LzmaBuffer {
         ByteBuffer bb = buffer.duplicate();
         bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.rewind();
-        
+
         // check if this buffer is compressed
         return bb.remaining() >= HEADER_SIZE && bb.getInt() == LZMA_ID;
     }

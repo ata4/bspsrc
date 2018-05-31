@@ -27,19 +27,19 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class BspCompileParams extends ModuleRead {
-    
+
     private static final Logger L = LogUtils.getLogger();
-    
+
     private List<String> vbspParams = new ArrayList<>();
     private List<String> vvisParams = new ArrayList<>();
     private List<String> vradParams = new ArrayList<>();
-    
+
     private boolean vvisRun = false;
     private boolean vradRun = false;
 
     public BspCompileParams(BspFileReader reader) {
         super(reader);
-        
+
         reader.loadFlags();
 
         boolean stale = false;
@@ -52,7 +52,7 @@ public class BspCompileParams extends ModuleRead {
                 if (ze.getName().equals("stale.txt")) {
                     stale = true;
                 }
-                
+
                 // check for .vhv files, which contain the vertex lighting data
                 if (ze.getName().endsWith(".vhv")) {
                     hasVhv = true;

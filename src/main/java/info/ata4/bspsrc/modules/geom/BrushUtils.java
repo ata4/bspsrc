@@ -20,10 +20,10 @@ import info.ata4.bspsrc.util.WindingFactory;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class BrushUtils {
-    
+
     private BrushUtils() {
     }
-    
+
     /**
      * Returns the bounding box of a brush by combining the bounding boxes of all
      * its brush sides.

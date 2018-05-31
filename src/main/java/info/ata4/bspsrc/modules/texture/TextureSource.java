@@ -30,7 +30,7 @@ import org.apache.commons.io.FilenameUtils;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class TextureSource extends ModuleRead {
-    
+
     // logger
     private static final Logger L = LogUtils.getLogger();
 
@@ -39,25 +39,25 @@ public class TextureSource extends ModuleRead {
     private final Pattern wvtPatchPattern = Pattern.compile("_wvt_patch$"); // world vertex patch
     private final Pattern waterPatchPattern = Pattern.compile("_depth_(-?\\d+)$"); // water texture patch
     private final Pattern mapPattern;
-    
+
     // ID mappings
     private Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<>();
     private Map<Integer, Integer> texnameToCubemap = new HashMap<>();
     private List<String> texnamesFixed = new ArrayList<>();
-    
+
     // settings
     private boolean fixTextureNames;
     private boolean fixToolTextures;
-    
+
     public TextureSource(BspFileReader reader) {
         super(reader);
-        
+
         mapPattern = Pattern.compile("^maps/" + reader.getBspFile().getName() + "/");
-        
+
         reader.loadTexInfo();
         reader.loadTexData();
         reader.loadCubemaps();
-        
+
         processTextureNames();
     }
 
@@ -74,22 +74,22 @@ public class TextureSource extends ModuleRead {
         for (int i = 0; i < bsp.texnames.size(); i++) {
             String textureOld = bsp.texnames.get(i);
             String textureNew = textureOld;
-            
+
             textureNew = canonizeTextureName(textureNew);
-            
+
             // search for "maps/<mapname>" prefix
             Matcher matcher = mapPattern.matcher(textureNew);
             if (matcher.find()) {
                 // remove it
                 textureNew = matcher.replaceFirst("");
-                
+
                 // search for "_wvt_patch" suffix
                 matcher = wvtPatchPattern.matcher(textureNew);
                 if (matcher.find()) {
                     // remove it
                     textureNew = matcher.replaceFirst("");
                 }
-                
+
                 // search for "_depth_xxx" suffix
                 matcher = waterPatchPattern.matcher(textureNew);
                 if (matcher.find()) {
@@ -104,9 +104,9 @@ public class TextureSource extends ModuleRead {
                     int cx = Integer.valueOf(matcher.group(1));
                     int cy = Integer.valueOf(matcher.group(2));
                     int cz = Integer.valueOf(matcher.group(3));
-                    
+
                     setCubemapForTexname(i, cx, cy, cz);
-                    
+
                     // remove origin coordinates
                     textureNew = matcher.replaceFirst("");
                 }
@@ -116,11 +116,11 @@ public class TextureSource extends ModuleRead {
             if (!textureNew.equalsIgnoreCase(textureOld)) {
                 L.log(Level.FINEST, "{0} -> {1}", new Object[] {textureOld, textureNew});
             }
-            
+
             texnamesFixed.add(textureNew);
         }
     }
-    
+
     private void setCubemapForTexname(int itexname, int cx, int cy, int cz) {
         // search for cubemap with these coordinates
         for (int i = 0; i < bsp.cubemaps.size(); i++) {
@@ -140,29 +140,29 @@ public class TextureSource extends ModuleRead {
         L.log(Level.FINER, "Couldn''t find cubemap for coordinates ({0}, {1}, {2})",
                 new Object[]{cx, cy, cz});
     }
-    
+
     public TextureBuilder getTextureBuilder() {
         return new TextureBuilder(this, bsp);
     }
-    
+
     public void addBrushSideID(int itexname, int side) {
         Integer icubemap = texnameToCubemap.get(itexname);
         if (icubemap == null) {
             // not environment mapped
             return;
         }
-        
+
         Set<Integer> sides = cubemapToSideList.get(icubemap);
-        
+
         // create new side list if required
         if (sides == null) {
             sides = new HashSet<>();
             cubemapToSideList.put(icubemap, sides);
         }
-        
+
         sides.add(side);
     }
-    
+
     public Set<Integer> getBrushSidesForCubemap(int icubemap) {
         return cubemapToSideList.get(icubemap);
     }
@@ -186,7 +186,7 @@ public class TextureSource extends ModuleRead {
             return ToolTexture.SKIP;
         }
     }
-    
+
     public String canonizeTextureName(String textureNew) {
         // convert to lower case
         textureNew = textureNew.toLowerCase();
@@ -208,7 +208,7 @@ public class TextureSource extends ModuleRead {
     public void setFixTextureNames(boolean fixTextureNames) {
         this.fixTextureNames = fixTextureNames;
     }
-    
+
     public boolean isFixToolTextures() {
         return fixToolTextures;
     }

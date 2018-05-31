@@ -33,12 +33,12 @@ public class DecimalFormatCellRenderer extends DefaultTableCellRenderer {
         if (value instanceof Number) {
             value = formatter.format((Number) value);
         }
-        
+
         JLabel c = (JLabel) super.getTableCellRendererComponent(table, value, isSelected,
                 hasFocus, row, col);
-        
+
         c.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        
+
         return c;
     }
 }

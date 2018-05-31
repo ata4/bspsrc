@@ -21,15 +21,15 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DDispInfoBSP23 extends DDispInfo {
-    
+
     protected int unknown1;
     protected int unknown2;
-    
+
     @Override
     public int getSize() {
         return 184;
     }
-    
+
     @Override
     public void read(DataReader in) throws IOException {
         startPos = Vector3f.read(in);
@@ -45,7 +45,7 @@ public class DDispInfoBSP23 extends DDispInfo {
         lightmapSamplePositionStart = in.readInt();
         unknown2 = in.readInt();
         in.readBytes(neighbors);
-        
+
         for (int i = 0; i < allowedVerts.length; i++) {
             allowedVerts[i] = in.readInt();
         }
@@ -66,7 +66,7 @@ public class DDispInfoBSP23 extends DDispInfo {
         out.writeInt(lightmapSamplePositionStart);
         out.writeInt(unknown2);
         out.writeBytes(neighbors);
-        
+
         for (int i = 0; i < allowedVerts.length; i++) {
             out.writeInt(allowedVerts[i]);
         }

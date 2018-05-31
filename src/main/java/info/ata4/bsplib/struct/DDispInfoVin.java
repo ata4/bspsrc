@@ -20,15 +20,15 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DDispInfoVin extends DDispInfo {
-    
+
     private int unknown;
     private byte[] neighborsVin = new byte[146];
-    
+
     @Override
     public int getSize() {
         return 232;
     }
-    
+
     @Override
     public void read(DataReader in) throws IOException {
         startPos = Vector3f.read(in);

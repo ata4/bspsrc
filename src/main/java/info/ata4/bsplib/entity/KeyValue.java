@@ -18,7 +18,7 @@ import java.util.Map.Entry;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class KeyValue implements Entry<String, String> {
-    
+
     private final String key;
     private String value;
 
@@ -36,7 +36,7 @@ public class KeyValue implements Entry<String, String> {
     public String getValue() {
         return value;
     }
-    
+
     @Override
     public String setValue(String value) {
         String old = this.value;

@@ -25,7 +25,7 @@ public class DPlane implements DStruct {
     public Vector3f normal;
     public float dist;
     public int type;
-    
+
     @Override
     public String toString() {
         return "DPlane[n:" + normal + ", d:" + dist + ", t:" + type + "]";

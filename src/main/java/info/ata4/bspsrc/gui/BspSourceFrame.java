@@ -39,20 +39,20 @@ import javax.swing.filechooser.FileFilter;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class BspSourceFrame extends javax.swing.JFrame {
-    
+
     private static final Logger L = LogUtils.getLogger();
-    
+
     private BspSourceConfig config;
     private BspSourceLogFrame logFrame;
     private FileDrop fdrop;
     private DefaultListModel<BspFileEntry> listFilesModel = new DefaultListModel<>();
-    
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         LogUtils.configure();
-        
+
         // set the system look and feel
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -92,7 +92,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                         listFilesModel.addElement(new BspFileEntry(file));
                     }
                 }
-                
+
                 buttonDecompile.setEnabled(!listFilesModel.isEmpty());
             }
         });
@@ -101,38 +101,38 @@ public class BspSourceFrame extends javax.swing.JFrame {
     public ComboBoxModel getFaceTextureModel() {
         return new DefaultComboBoxModel<>(EnumToolTexture.values());
     }
-    
+
     public ComboBoxModel getAppIDModel() {
         DefaultComboBoxModel<SourceApp> cbmodel = new DefaultComboBoxModel<>();
         List<SourceApp> apps = SourceAppDB.getInstance().getAppList();
-        
+
         apps.stream()
             .sorted((SourceApp a1, SourceApp a2) -> a1.getName().compareTo(a2.getName()))
             .forEach(app -> cbmodel.addElement(app));
 
         cbmodel.insertElementAt(new SourceApp("Automatic", 0), 0);
-        
+
         return cbmodel;
     }
-    
+
     public ComboBoxModel getBrushModeModel() {
         return new DefaultComboBoxModel<>(BrushMode.values());
     }
-    
+
     public ComboBoxModel getSourceFormatModel() {
         return new DefaultComboBoxModel<>(SourceFormat.values());
     }
-    
+
     public ListModel getFilesModel() {
         return listFilesModel;
     }
-    
+
     /**
      * Resets BSPSource and all form elements to their default values
      */
     public final void reset() {
         config = new BspSourceConfig();
-        
+
         // check boxes
         checkBoxAreaportal.setSelected(config.writeAreaportals);
         checkBoxCubemap.setSelected(config.writeCubemaps);
@@ -165,20 +165,20 @@ public class BspSourceFrame extends javax.swing.JFrame {
 
         // misc
         listFilesModel.removeAllElements();
-        
+
         switch(config.brushMode) {
             case BRUSHPLANES:
                 radioButtonBrushesPlanes.setSelected(true);
                 break;
-                
+
             case ORIGFACE:
                 radioButtonOrigFaces.setSelected(true);
                 break;
-                
+
             case ORIGFACE_PLUS:
                 radioButtonOrigSplitFaces.setSelected(true);
                 break;
-                
+
             case SPLITFACE:
                 radioButtonSplitFaces.setSelected(true);
                 break;
@@ -186,21 +186,21 @@ public class BspSourceFrame extends javax.swing.JFrame {
 
         buttonDecompile.setEnabled(false);
     }
-    
+
     public void setButtonsEnabled(boolean value) {
         buttonDecompile.setEnabled(value);
         buttonDefaults.setEnabled(value);
     }
-    
+
     private void setPanelEnabled(JPanel panel, JCheckBox checkbox) {
         Component[] comps = panel.getComponents();
-        
+
         for (Component comp : comps) {
             // don't touch the checkbox
             if (comp == checkbox) {
                 continue;
             }
-            
+
             // enable/disable everything in child panels
             if (comp instanceof JPanel) {
                 setPanelEnabled((JPanel) comp, checkbox);
@@ -209,7 +209,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
             comp.setEnabled(checkbox.isSelected());
         }
     }
-    
+
     private File[] openFileDialog(File defaultFile, FileFilter filter) {
         JFileChooser fc = new JFileChooser() {
 
@@ -287,7 +287,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
 
         return fc.getSelectedFile();
     }
-    
+
     private File selectDirectoryDialog(File defaultFile) {
         JFileChooser fc = new JFileChooser();
         fc.setMultiSelectionEnabled(false);
@@ -335,13 +335,13 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 // clear files in config, then add everything from the list
                 Set<BspFileEntry> files = config.getFileSet();
                 files.clear();
-                
+
                 Enumeration<BspFileEntry> bspListFiles = listFilesModel.elements();
-                
+
                 while (bspListFiles.hasMoreElements()) {
                     files.add(bspListFiles.nextElement());
                 }
-                
+
                 // clear old output
                 logFrame.clear();
 
@@ -375,7 +375,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
             }
         }.start();
     }
-    
+
     private void initComponentsCustom() {
         // add version to title
         setTitle("BSPSource " + BspSource.VERSION);

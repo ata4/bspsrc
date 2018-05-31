@@ -18,7 +18,7 @@ import info.ata4.bsplib.struct.DTexData;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class Texture {
-    
+
     private DTexData data;
     private String texture;
     private String textureOverride;
@@ -45,7 +45,7 @@ public class Texture {
     public String getTexture() {
         return textureOverride != null ? textureOverride : texture;
     }
-    
+
     public String getOriginalTexture() {
         return texture;
     }
@@ -53,7 +53,7 @@ public class Texture {
     public void setOriginalTexture(String texture) {
         this.texture = texture;
     }
-    
+
     public String getOverrideTexture() {
         return textureOverride;
     }
@@ -65,7 +65,7 @@ public class Texture {
     public int getLightmapScale() {
         return lmscale;
     }
-    
+
     public void setLightmapScale(int lmscale) {
         this.lmscale = lmscale;
     }

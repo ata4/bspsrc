@@ -27,9 +27,9 @@ import java.util.logging.Logger;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public abstract class AbstractLump {
-    
+
     private static final Logger L = LogUtils.getLogger();
-    
+
     private ByteBuffer buffer = ByteBuffer.allocate(0);
     private int offset;
     private int version = 0;
@@ -39,7 +39,7 @@ public abstract class AbstractLump {
     public int getOffset() {
         return offset;
     }
-    
+
     public void setOffset(int offset) {
         this.offset = offset;
     }
@@ -62,25 +62,25 @@ public abstract class AbstractLump {
     public ByteBuffer getBuffer() {
         return buffer;
     }
-    
+
     public void setBuffer(ByteBuffer buf) {
         buffer = buf;
         buffer.rewind();
         setCompressed(LzmaBuffer.isCompressed(buffer));
     }
-    
+
     public InputStream getInputStream() {
         ByteBuffer buf = getBuffer();
         buf.rewind();
         return new ByteBufferInputStream(buf);
     }
-    
+
     public OutputStream getOutputStream() {
         ByteBuffer buf = getBuffer();
         buf.rewind();
         return new ByteBufferOutputStream(buf);
     }
-    
+
     public void setVersion(int vers) {
         this.version = vers;
     }
@@ -100,35 +100,35 @@ public abstract class AbstractLump {
     public boolean isCompressed() {
         return compressed;
     }
-    
+
     public void compress() {
         if (compressed) {
             return;
         }
-        
+
         try {
             buffer = LzmaBuffer.compress(buffer);
         } catch (IOException ex) {
             L.log(Level.SEVERE, "Couldn't compress lump " + this, ex);
         }
-        
+
         setCompressed(true);
     }
-    
+
     public void uncompress() {
         if (!compressed) {
             return;
         }
-        
+
         try {
             buffer = LzmaBuffer.uncompress(buffer);
         } catch (IOException ex) {
             L.log(Level.SEVERE, "Couldn't uncompress lump " + this, ex);
         }
-        
+
         setCompressed(false);
     }
-    
+
     protected void setCompressed(boolean compressed) {
         this.compressed = compressed;
     }

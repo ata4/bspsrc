@@ -301,7 +301,7 @@ public class FileDrop {
 
                             // Get a useful list
                             List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
-                            
+
                             // Convert list to array
                             File[] filesTemp = new File[fileList.size()];
                             fileList.toArray(filesTemp);

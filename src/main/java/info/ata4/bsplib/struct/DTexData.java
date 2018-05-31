@@ -20,7 +20,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DTexData implements DStruct {
-    
+
     public Vector3f reflectivity;
     public int texname;
     public int width, height;

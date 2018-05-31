@@ -30,10 +30,10 @@ public class BspChecksum extends ModuleRead {
     public BspChecksum(BspFileReader reader) {
         super(reader);
     }
-    
+
     public long getMapCRC() throws IOException {
         CRC32 crc = new CRC32();
-        
+
         // CRC across all lumps except for the Entities lump
         for (Lump lump : bspFile.getLumps()) {
             if (lump.getType() == LumpType.LUMP_ENTITIES) {
@@ -45,10 +45,10 @@ public class BspChecksum extends ModuleRead {
                 IOUtils.copy(in, new NullOutputStream());
             }
         }
-        
+
         return crc.getValue();
     }
-    
+
     public long getFileCRC() throws IOException {
         return FileUtils.checksumCRC32(bspFile.getFile().toFile());
     }

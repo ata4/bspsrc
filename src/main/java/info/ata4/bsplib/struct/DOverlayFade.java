@@ -18,7 +18,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DOverlayFade implements DStruct {
-    
+
     public float fadeDistMinSq;
     public float fadeDistMaxSq;
 

@@ -48,11 +48,11 @@ public class BspProtection extends ModuleRead {
     public static final String BSPPROTECT_FILE = "entities.dat";
     public static final String VMEX_LOCKED_TEX = "tools/locked";
     public static final String VMEX_LOCKED_ENT = "no_decomp";
-    
+
     private static final float EPS_SIZE = 0.01f;
     private static final float ALIGNED_ALPHA = 0.99f;
     private static final float NODRAW_RATIO_LIMIT = 0.9f;
-    
+
     private static final Vector3f PB1 = new Vector3f(1, 4, 9);
     private static final Vector3f PB2 = new Vector3f(4, 9, 1);
     private static final Vector3f PB3 = new Vector3f(9, 1, 4);
@@ -70,19 +70,19 @@ public class BspProtection extends ModuleRead {
     private boolean encryptedEnt;
     private boolean obfuscatedEnt;
     private boolean modifedTexinfo;
-    
+
     // lists of protecting elements
     private List<DBrush> protBrushes = new ArrayList<>();
     private List<Entity> protEntities = new ArrayList<>();
-    
+
     public BspProtection(BspFileReader reader, TextureSource texsrc) {
         super(reader);
-        
+
         reader.loadEntities();
         reader.loadPlanes();
         reader.loadBrushes();
         reader.loadBrushSides();
-        
+
         this.texsrc = texsrc;
     }
 
@@ -99,7 +99,7 @@ public class BspProtection extends ModuleRead {
         checkEntities();
         checkTextures();
         checkPakfile();
-        
+
         boolean prot = isProtected();
 
         if (!prot) {
@@ -136,7 +136,7 @@ public class BspProtection extends ModuleRead {
     public boolean hasModifiedTexinfo() {
         return modifedTexinfo;
     }
-    
+
     /**
      * Returns all found protection methods in string form.
      * 
@@ -144,7 +144,7 @@ public class BspProtection extends ModuleRead {
      */
     public List<String> getProtectionMethods() {
         List<String> methods = new ArrayList<>();
-        
+
         if (hasEntityFlag()) {
             methods.add("VMEX entity flag (no_decomp)");
         }
@@ -168,10 +168,10 @@ public class BspProtection extends ModuleRead {
         if (hasModifiedTexinfo()) {
             methods.add("IID nodraw texture hack");
         }
-        
+
         return methods;
     }
-    
+
     /**
      * Returns all found protector brushes.
      * 
@@ -182,7 +182,7 @@ public class BspProtection extends ModuleRead {
         list.addAll(protBrushes);
         return list;
     }
-    
+
     /**
      * Checks if the given brush is a protector brush.
      * 
@@ -192,7 +192,7 @@ public class BspProtection extends ModuleRead {
     public boolean isProtectedBrush(DBrush brush) {
         return protBrushes.contains(brush);
     }
-    
+
     /**
      * Returns all found protector entities.
      * 
@@ -203,7 +203,7 @@ public class BspProtection extends ModuleRead {
         list.addAll(protEntities);
         return list;
     }
-    
+
     /**
      * Checks if an entitiy contains protection keyvalues.
      * 
@@ -230,7 +230,7 @@ public class BspProtection extends ModuleRead {
 
             // get brush dimensions
             Vector3f bsize = BrushUtils.getBounds(bsp, b).getSize();
-            
+
             // check brush dimensions with prefab constants
             if (PB1.sub(bsize).length() < EPS_SIZE) {
                 b1 = b;
@@ -246,11 +246,11 @@ public class BspProtection extends ModuleRead {
             if (b1 != null && b2 != null && b3 != null) {
                 L.fine("Found protector prefab!");
                 flaggedBrush = true;
-                
+
                 protBrushes.add(b1);
                 protBrushes.add(b2);
                 protBrushes.add(b3);
-                
+
                 b1 = null;
                 b2 = null;
                 b3 = null;
@@ -280,7 +280,7 @@ public class BspProtection extends ModuleRead {
 
     private void checkEntities() {
         L.fine("Checking for entity lock key \"" + VMEX_LOCKED_ENT + "\" and obfuscated targetnames");
-        
+
         int targetnames = 0;
         int targetnamesObfs = 0;
 
@@ -404,7 +404,7 @@ public class BspProtection extends ModuleRead {
         for (int i = 1; i < brush.numside; i++) {
             bs = bsp.brushSides.get(brush.fstside + i);
             String nexttexname = texsrc.getTextureName(bs.texinfo);
-            
+
             if (!texname.equalsIgnoreCase(nexttexname)) {
                 return false;
             }

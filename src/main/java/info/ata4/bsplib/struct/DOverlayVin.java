@@ -20,7 +20,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DOverlayVin extends DOverlay {
-    
+
     @Override
     public int getSize() {
         return 356;
@@ -54,16 +54,16 @@ public class DOverlayVin extends DOverlay {
         out.writeInt(id);
         out.writeInt(texinfo);
         out.writeInt(faceCountAndRenderOrder);
-        
+
         for (int j = 0; j < OVERLAY_BSP_FACE_COUNT; j++) {
             out.writeInt(ofaces[j]);
         }
-        
+
         out.writeFloat(u[0]);
         out.writeFloat(u[1]);
         out.writeFloat(v[0]);
         out.writeFloat(v[1]);
-        
+
         for (int j = 0; j < 4; j++) {
             Vector3f.write(out, origin);
         }

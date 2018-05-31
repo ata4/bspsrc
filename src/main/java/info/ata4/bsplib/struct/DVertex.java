@@ -19,7 +19,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DVertex implements DStruct {
-    
+
     public Vector3f point;
 
     @Override
@@ -36,5 +36,5 @@ public class DVertex implements DStruct {
     public void write(DataWriter out) throws IOException {
         Vector3f.write(out, point);
     }
-    
+
 }

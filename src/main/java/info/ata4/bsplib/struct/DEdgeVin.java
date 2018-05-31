@@ -19,7 +19,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DEdgeVin extends DEdge {
-    
+
     @Override
     public int getSize() {
         return 8;

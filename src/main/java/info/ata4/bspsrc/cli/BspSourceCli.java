@@ -41,17 +41,17 @@ public class BspSourceCli {
     private Options optsTexture = new Options();
     private Options optsOther = new Options();
     private MultiOptions optsAll = new MultiOptions();
-    
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         LogUtils.configure();
-        
+
         try {
             BspSourceCli cli = new BspSourceCli();
             BspSourceConfig cfg = cli.getConfig(args);
-            
+
             BspSource bspsrc = new BspSource(cfg);
             bspsrc.run();
         } catch (Throwable t) {
@@ -67,14 +67,14 @@ public class BspSourceCli {
         System.out.println("BSPSource " + BspSource.VERSION);
         System.out.println("usage: bspsrc [options] <path> [path...]");
         System.out.println();
-        
+
         OptionHelpFormatter clHelp = new OptionHelpFormatter();
         clHelp.printHelp("Main options:", optsMain);
         clHelp.printHelp("Entity options:", optsEntity);
         clHelp.printHelp("World brush options:", optsWorld);
         clHelp.printHelp("Texture options:", optsTexture);
         clHelp.printHelp("Other options:", optsOther);
-        
+
         System.exit(0);
     }
 
@@ -86,19 +86,19 @@ public class BspSourceCli {
         System.out.println();
         System.out.println("Based on VMEX v0.98g by Rof <rof@mellish.org.uk>");
         System.out.println("Extended and modified by Nico Bergemann <barracuda415@yahoo.de>");
-        
+
         System.exit(0);
     }
-    
+
     private void printAppIDs() {
         System.out.printf("%6s  %s\n", "ID", "Name");
-        
+
         List<SourceApp> apps = SourceAppDB.getInstance().getAppList();
-        
+
         for (SourceApp app : apps) {
             System.out.printf("%6d  %s\n", app.getAppID(), app.getName());
         }
-        
+
         System.exit(0);
     }
 
@@ -110,7 +110,7 @@ public class BspSourceCli {
     @SuppressWarnings("static-access")
     public BspSourceConfig getConfig(String[] args) {
         BspSourceConfig config = new BspSourceConfig();
-        
+
         // basic options
         Option helpOpt, versionOpt, debugOpt, outputOpt, recursiveOpt, fileListOpt;
         optsMain.addOption(helpOpt = new Option("h", "help", false, "Print this help."));
@@ -142,7 +142,7 @@ public class BspSourceCli {
         optsEntity.addOption(nocclOpt = new Option("no_occluders", "Don't write func_occluder entities."));
         optsEntity.addOption(nladderOpt = new Option("no_ladders", "Don't write func_ladder entities."));
         optsEntity.addOption(nrotfixOpt = new Option("no_rotfix", "Don't fix instance entity brush rotations for Hammer."));
-        
+
         // world brush options
         Option nbrushOpt, ndispOpt, bmodeOpt, thicknOpt;
         optsWorld.addOption(nbrushOpt = new Option("no_brushes", "Don't write any world brushes."));
@@ -163,7 +163,7 @@ public class BspSourceCli {
             .withDescription("Thickness of brushes created from flat faces in units.\n" +
             "default: " + config.backfaceDepth)
             .create("thickness"));
-        
+
         // texture options
         Option ntexfixOpt, ftexOpt, bftexOpt;
         optsTexture.addOption(ntexfixOpt = new Option("no_texfix", "Don't fix texture names."));
@@ -209,12 +209,12 @@ public class BspSourceCli {
         optsAll.addOptions(optsWorld);
         optsAll.addOptions(optsTexture);
         optsAll.addOptions(optsOther);
-        
+
         if (args.length == 0) {
             printHelp();
             System.exit(0);
         }
-        
+
         CommandLineParser clParser = new PosixParser();
         CommandLine cl = null;
         File outputFile = null;
@@ -229,7 +229,7 @@ public class BspSourceCli {
             if(cl.hasOption(helpOpt.getOpt())) {
                 printHelp();
             }
-            
+
             // version
             if (cl.hasOption(versionOpt.getOpt())) {
                 printVersion();
@@ -239,16 +239,16 @@ public class BspSourceCli {
             if (cl.hasOption(listappidsOpt.getOpt())) {
                 printAppIDs();
             }
-            
+
             // main options
             config.setDebug(cl.hasOption(debugOpt.getOpt()));
-            
+
             if (cl.hasOption(outputOpt.getOpt())) {
                 outputFile = new File(cl.getOptionValue(outputOpt.getOpt()));
             }
-            
+
             recursive = cl.hasOption(recursiveOpt.getOpt());
-            
+
             if (cl.hasOption(fileListOpt.getOpt())) {
                 try {
                     List<String> filePaths = FileUtils.readLines(new File(cl.getOptionValue(fileListOpt.getOpt())));
@@ -264,7 +264,7 @@ public class BspSourceCli {
                     throw new RuntimeException("Can't read file list", ex);
                 }
             }
-            
+
             // entity options
             config.writePointEntities = !cl.hasOption(npentsOpt.getOpt());
             config.writeBrushEntities = !cl.hasOption(nbentsOpt.getOpt());
@@ -276,13 +276,13 @@ public class BspSourceCli {
             config.writeCubemaps = !cl.hasOption(ncubemOpt.getOpt());
             config.writeDetails = !cl.hasOption(ndetailsOpt.getOpt());
             config.writeLadders = !cl.hasOption(nladderOpt.getOpt());
-            
+
             // world options
             config.writeWorldBrushes = !cl.hasOption(nbrushOpt.getOpt());
-            
+
             if (cl.hasOption(bmodeOpt.getOpt())) {
                 String modeStr = cl.getOptionValue(bmodeOpt.getOpt());
-   
+
                 try {
                     config.brushMode = BrushMode.valueOf(modeStr);
                 } catch (IllegalArgumentException ex) {
@@ -295,10 +295,10 @@ public class BspSourceCli {
                     }
                 }
             }
-            
+
             if (cl.hasOption(formatOpt.getOpt())) {
                 String formatStr = cl.getOptionValue(formatOpt.getOpt());
-                
+
                 try {
                     config.sourceFormat = SourceFormat.valueOf(formatStr);
                 } catch (IllegalArgumentException ex) {
@@ -311,23 +311,23 @@ public class BspSourceCli {
                     }
                 }
             }
-            
+
             if (cl.hasOption(thicknOpt.getOpt())) {
                 float thickness = Float.valueOf(cl.getOptionValue(thicknOpt.getOpt()));
                 config.backfaceDepth = thickness;
             }
-            
+
             // texture options
             config.fixCubemapTextures = !cl.hasOption(ntexfixOpt.getOpt());
 
             if (cl.hasOption(ftexOpt.getOpt())) {
                 config.faceTexture = cl.getOptionValue(ftexOpt.getOpt());
             }
-            
+
             if (cl.hasOption(bftexOpt.getOpt())) {
                 config.backfaceTexture = cl.getOptionValue(bftexOpt.getOpt());
             }
-            
+
             // other options
             config.loadLumpFiles = !cl.hasOption(nlumpfilesOpt.getOpt());
             config.skipProt = cl.hasOption(nprotOpt.getOpt());
@@ -335,10 +335,10 @@ public class BspSourceCli {
             config.nullOutput = cl.hasOption(nvmfOpt.getOpt());
             config.writeVisgroups = !cl.hasOption(nvisgrpOpt.getOpt());
             config.writeCameras = !cl.hasOption(ncamsOpt.getOpt());
-            
+
             if (cl.hasOption(appidOpt.getOpt())) {
                 String appidStr = cl.getOptionValue(appidOpt.getOpt()).toUpperCase();
-                
+
                 try {
                     int appid = Integer.valueOf(appidStr);
                     config.defaultApp = SourceAppDB.getInstance().fromID(appid);
@@ -350,7 +350,7 @@ public class BspSourceCli {
             L.log(Level.SEVERE, "Internal CLI error", ex);
             System.exit(0);
         }
-        
+
         // get non-recognized arguments, these are the BSP input files
         String[] argsLeft = cl.getArgs();
 
@@ -362,10 +362,10 @@ public class BspSourceCli {
         } else {
             for (String arg : argsLeft) {
                 File file = new File(arg);
-                
+
                 if (file.isDirectory()) {
                     Collection<File> subFiles = FileUtils.listFiles(file, new String[]{"bsp"}, recursive);
-                    
+
                     for (File subFile : subFiles) {
                         BspFileEntry entry = new BspFileEntry(subFile);
 
@@ -388,12 +388,12 @@ public class BspSourceCli {
                 }
             }
         }
-        
+
         if (files.isEmpty()) {
             L.severe("No BSP file(s) specified");
             System.exit(1);
         }
-        
+
         return config;
     }
 }

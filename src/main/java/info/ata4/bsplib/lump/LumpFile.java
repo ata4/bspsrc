@@ -28,21 +28,21 @@ import java.util.logging.Logger;
 public class LumpFile {
 
     private static final Logger L = LogUtils.getLogger();
-    
+
     public static final int HEADER_SIZE = 20;
 
     // lump data
     private Lump lump;
-    
+
     // .lmp source file
     private Path file;
 
     // required to create the lump object
     private int bspVersion;
-    
+
     // fields from lumpfileheader_t
     private int mapRev;
-    
+
     public LumpFile(BspFile bsp) {
         this(bsp.getVersion());
         mapRev = bsp.getRevision();
@@ -54,9 +54,9 @@ public class LumpFile {
 
     public void load(Path file, ByteOrder bo) throws IOException {
         this.file = file;
-        
+
         L.log(Level.FINE, "Loading lump header from {0}", file.getFileName());
-        
+
         ByteBuffer bb = ByteBufferUtils.openReadOnly(file);
         bb.order(bo);
 
@@ -96,33 +96,33 @@ public class LumpFile {
         lump.setOffset(lumpOffset);
         lump.setParentFile(file);
     }
-    
+
     public void load(Path file) throws IOException {
         load(file, ByteOrder.LITTLE_ENDIAN);
     }
-    
+
     public void save(Path file) throws IOException {
         if (lump == null) {
             throw new NullPointerException("Lump is undefined");
         }
-        
+
         L.log(Level.FINE, "Saving lump header to {0}", file.getFileName());
-        
+
         int size = HEADER_SIZE + lump.getLength();
-        
+
         ByteBuffer bb = ByteBufferUtils.openReadWrite(file, 0, size);
-        
+
         bb.order(lump.getBuffer().order());
-        
+
         // header
         bb.putInt(HEADER_SIZE);
         bb.putInt(lump.getIndex());
         bb.putInt(lump.getVersion());
         bb.putInt(lump.getLength());
         bb.putInt(mapRev);
-        
+
         L.log(Level.FINE, "Saving lump data to {0}", file.getFileName());
-        
+
         // lump data
         bb.put(lump.getBuffer());
     }
@@ -130,7 +130,7 @@ public class LumpFile {
     public Lump getLump() {
         return lump;
     }
-    
+
     public void setLump(Lump lump) {
         this.lump = lump;
     }
@@ -142,7 +142,7 @@ public class LumpFile {
     public int getMapRev() {
         return mapRev;
     }
-    
+
     public void setMapRev(int mapRev) {
         this.mapRev = mapRev;
     }

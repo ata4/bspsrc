@@ -17,6 +17,6 @@ import info.ata4.io.Struct;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public interface DStruct extends Struct {
-    
+
     public int getSize();
 }

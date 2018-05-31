@@ -60,7 +60,7 @@ public class EntitySource extends ModuleDecompile {
     private static final Logger L = LogUtils.getLogger();
 
     private static final Pattern INSTANCE_PREFIX = Pattern.compile("^([^-]+)-");
-    
+
     // sub-modules
     private final BspSourceConfig config;
     private final BrushSource brushsrc;
@@ -85,7 +85,7 @@ public class EntitySource extends ModuleDecompile {
         this.texsrc = texsrc;
         this.bspprot = bspprot;
         this.vmfmeta = vmfmeta;
-        
+
         processEntities();
     }
 
@@ -108,24 +108,24 @@ public class EntitySource extends ModuleDecompile {
 
         // instances are currently supported in compilers for BSP v21+ only
         boolean instances = bspFile.getVersion() >= 21;
-        
+
         // fix rotated instance brushes?
         // this option is unnecessary for BSP files without instances, it will
         // only cause errors
         boolean fixRot = config.fixEntityRot && instances;
-        
+
         List<String> visgroups = new ArrayList<>();
 
         for (Entity ent : bsp.entities) {
             visgroups.clear();
-            
+
             final String className = ent.getClassName();
-            
+
             // don't write the worldspawn here
             if (className.equals("worldspawn")) {
                 continue;
             }
-            
+
             // workaround for a Hammer crashing bug
             if (className.equals("env_sprite")) {
                 String model = ent.getValue("model");
@@ -133,20 +133,20 @@ public class EntitySource extends ModuleDecompile {
                     ent.removeValue("scale");
                 }
             }
-            
+
             // these two classes need special attention
             final boolean isAreaportal = className.startsWith("func_areaportal");
             final boolean isOccluder = className.equals("func_occluder");
-            
+
             // areaportals and occluders don't have a "model" key, take that
             // into account
             final boolean hasBrush = ent.getModelNum() > 0 || isAreaportal || isOccluder;
-            
+
             // skip point entities?
             if (!config.writePointEntities && !hasBrush) {
                 continue;
             }
-            
+
             // skip brush entities?
             if (!config.writeBrushEntities && hasBrush) {
                 continue;
@@ -182,7 +182,7 @@ public class EntitySource extends ModuleDecompile {
                     continue;
                 }
             }
-            
+
             // re-use hammerid if possible, otherwise generate a new UID
             int entID = getHammerID(ent);
             if (entID == -1) {
@@ -237,7 +237,7 @@ public class EntitySource extends ModuleDecompile {
             for (Map.Entry<String, String> kv : ent.getEntrySet()) {
                 String key = kv.getKey();
                 String value = kv.getValue();
-                
+
                 // skip angles for models and world brushes when fixing rotation
                 if (key.equals("angles") && modelNum >= 0 && fixRot) {
                     continue;
@@ -252,7 +252,7 @@ public class EntitySource extends ModuleDecompile {
                 if (key.equals("model") && modelNum != -2) {
                     continue;
                 }
-                
+
                 // skip hammerid
                 if (key.equals("hammerid")) {
                     continue;
@@ -262,10 +262,10 @@ public class EntitySource extends ModuleDecompile {
                 if ((isAreaportal || isOccluder) && (key.equals("angles") || key.equals("origin"))) {
                     continue;
                 }
-                
+
                 writer.put(key, value);
             }
-            
+
             writer.put("classname", className);
 
             // write entity I/O
@@ -323,7 +323,7 @@ public class EntitySource extends ModuleDecompile {
                     visgroups.add("Rebuild occluders");
                 }
             }
-            
+
             // find instance prefix and add it to a visgroup
             if (instances && ent.getTargetName() != null) {
                 Matcher m = INSTANCE_PREFIX.matcher(ent.getTargetName());
@@ -332,12 +332,12 @@ public class EntitySource extends ModuleDecompile {
                     visgroups.add(m.group(1));
                 }
             }
-            
+
             // add protection flags to visgroup
             if (bspprot.isProtectedEntity(ent)) {
                 visgroups.add("VMEX flagged entities");
             }
-            
+
             // write visgroup metadata if filled
             if (!visgroups.isEmpty()) {
                 vmfmeta.writeMetaVisgroups(visgroups);
@@ -352,47 +352,47 @@ public class EntitySource extends ModuleDecompile {
      */
     public void writeDetails() {
         L.info("Writing func_details");
-        
+
         if (config.detailMerge) {
             Set<AABB> detailBounds = new HashSet<>();
             Map<AABB, Integer> detailIndices = new HashMap<>();
-            
+
             // add all detail brushes to queue
             for (int i = 0; i < bsp.brushes.size(); i++) {
                 DBrush brush = bsp.brushes.get(i);
-                
+
                 // skip non-detail/non-solid brushes
                 if (!brush.isSolid() || !brush.isDetail()) {
                     continue;
                 }
-                
+
                 // skip VMEX protector brushes
                 if (bspprot.isProtectedBrush(brush)) {
                     continue;
                 }
-                
+
                 // get bounding box of the detail brush
                 AABB bounds = BrushUtils.getBounds(bsp, brush);
-                
+
                 // writeBrush() expects brush indices, so map it to the AABB
                 detailBounds.add(bounds);
                 detailIndices.put(bounds, i);
             }
-            
+
             while (!detailBounds.isEmpty()) {
                 // get next group of merged brush AABBs
                 Set<AABB> detailBoundsGroup = mergeNearestNeighborAABB(
                         detailBounds, config.detailMergeThresh);
-                
+
                 // write brush group as func_detail to VMF
                 writer.start("entity");
                 writer.put("id", vmfmeta.getUID());
                 writer.put("classname", "func_detail");
-                
+
                 for (AABB bounds : detailBoundsGroup) {
                     brushsrc.writeBrush(detailIndices.get(bounds));
                 }
-                
+
                 writer.end("entity");
             }
         } else {
@@ -403,12 +403,12 @@ public class EntitySource extends ModuleDecompile {
                 if (!brush.isSolid() || !brush.isDetail()) {
                     continue;
                 }
-                
+
                 // skip VMEX protector brushes
                 if (bspprot.isProtectedBrush(brush)) {
                     continue;
                 }
-                
+
                 writer.start("entity");
                 writer.put("id", vmfmeta.getUID());
                 writer.put("classname", "func_detail");
@@ -417,7 +417,7 @@ public class EntitySource extends ModuleDecompile {
                 writer.end("entity");
             }
         }
-        
+
         // write protector brushes separately
         List<DBrush> protBrushes = bspprot.getProtectedBrushes();
         if (!protBrushes.isEmpty()) {
@@ -433,7 +433,7 @@ public class EntitySource extends ModuleDecompile {
             writer.end("entity");
         }
     }
-    
+
     /**
      * Transfers the next group of touching bounding volumes from a set of loose
      * bounding volumes.
@@ -447,35 +447,35 @@ public class EntitySource extends ModuleDecompile {
         Iterator<AABB> iter = src.iterator();
         List<AABB> first = Collections.singletonList(iter.next());
         iter.remove();
-        
+
         Queue<AABB> pending = new ArrayDeque<>(first);
         Set<AABB> group = new HashSet<>(first);
-        
+
         // do while there are pending AABBs
         while (!pending.isEmpty()) {
             // get next pending AABB
             AABB current = pending.remove();
-            
+
             // expand AABB slightly so it can touch other AABBs more reliably
             AABB currentTest = current.expand(thresh);
-            
+
             iter = src.iterator();
             while (iter.hasNext()) {
                 // get next AABB
                 AABB other = iter.next();
-                
+
                 // is it touching the target AABB?
                 if (other.intersectsWith(currentTest)) {
                     // add it as pending...
                     pending.add(other);
-                    
+
                     // ...and transfer to group
                     iter.remove();
                     group.add(other);
                 }
             }
         }
-        
+
         return group;
     }
 
@@ -484,10 +484,10 @@ public class EntitySource extends ModuleDecompile {
      */
     public void writeOverlays() {
         L.info("Writing info_overlays");
-        
+
         for (int i = 0; i < bsp.overlays.size(); i++) {
             DOverlay o = bsp.overlays.get(i);
-            
+
             // calculate u/v bases
             Vector3f ubasis = new Vector3f(o.uvpoints[0].z, o.uvpoints[1].z, o.uvpoints[2].z);
 
@@ -539,13 +539,13 @@ public class EntitySource extends ModuleDecompile {
             }
 
             writer.put("RenderOrder", o.getRenderOrder());
-            
+
             Set<Integer> sides = new HashSet<>();
             int faceCount = o.getFaceCount();
-            
+
             if (config.brushMode == BrushMode.BRUSHPLANES) {
                 Set<Integer> origFaces = new HashSet<>();
-                 
+
                 // collect original faces for this overlay
                 for (int j = 0; j < faceCount; j++) {
                     int iface = o.ofaces[j];
@@ -554,7 +554,7 @@ public class EntitySource extends ModuleDecompile {
                         origFaces.add(ioface);
                     }
                 }
-                
+
                 // scan brush sides for the original faces
                 for (Integer ioface : origFaces) {
                     findOverlayFaces(i, ioface, sides);
@@ -563,13 +563,13 @@ public class EntitySource extends ModuleDecompile {
                 for (int j = 0; j < faceCount; j++) {
                     int iface = o.ofaces[j];
                     int faceId = vmfmeta.getFaceUID(iface);
-                    
+
                     if (faceId != -1) {
                         sides.add(faceId);
                     }
                 }
             }
-            
+
             // write brush side list
             StringBuilder sb = new StringBuilder();
 
@@ -595,10 +595,10 @@ public class EntitySource extends ModuleDecompile {
         L.info("Writing prop_statics");
 
         Map<Vector3f, String> lightingOrigins = new LinkedHashMap<>();
-        
+
         for (DStaticProp pst : bsp.staticProps) {
             DStaticPropV4 pst4 = (DStaticPropV4) pst;
- 
+
             writer.start("entity");
             writer.put("id", vmfmeta.getUID());
             writer.put("classname", "prop_static");
@@ -613,7 +613,7 @@ public class EntitySource extends ModuleDecompile {
             if (pst4.hasScreenSpaceFadeInPixels()) {
                 writer.put("screenspacefade", pst4.hasScreenSpaceFadeInPixels());
             }
-            
+
             // store coordinates and targetname of the lighing origin for later
             if (pst4.usesLightingOrigin()) {
                 String infoLightingName;
@@ -627,31 +627,31 @@ public class EntitySource extends ModuleDecompile {
 
                 writer.put("lightingorigin", infoLightingName);
             }
-            
+
             writer.put("disableshadows", pst4.hasNoShadowing());
-            
+
             if (pst instanceof DStaticPropV5) {
                 DStaticPropV5 pst5 = (DStaticPropV5) pst;
                 writer.put("fadescale", pst5.forcedFadeScale);
                 writer.put("disableselfshadowing", pst5.hasNoSelfShadowing());
                 writer.put("disablevertexlighting", pst5.hasNoPerVertexLighting());
             }
-            
+
             if (pst instanceof DStaticPropV6) {
                 DStaticPropV6 pst6 = (DStaticPropV6) pst;
                 writer.put("maxdxlevel", pst6.maxDXLevel);
                 writer.put("mindxlevel", pst6.minDXLevel);
                 writer.put("ignorenormals", pst6.hasIgnoreNormals());
             }
-            
+
             // write that later; both v7 and v8 have it, but v8 extends v5
             Color32 diffMod = null;
-            
+
             if (pst instanceof DStaticPropV7L4D) {
                 DStaticPropV7L4D pst7 = (DStaticPropV7L4D) pst;
                 diffMod = pst7.diffuseModulation;
             }
-            
+
             if (pst instanceof DStaticPropV8) {
                 DStaticPropV8 pst8 = (DStaticPropV8) pst;
                 diffMod = pst8.diffuseModulation;
@@ -666,19 +666,19 @@ public class EntitySource extends ModuleDecompile {
                         diffMod.r, diffMod.g, diffMod.b));
                 writer.put("renderamt", diffMod.a);
             }
-            
+
             if (pst instanceof DStaticPropV9) {
                 DStaticPropV9 pst9 = (DStaticPropV9) pst;
                 writer.put("disableX360", pst9.disableX360);
             }
-            
+
             if (pst instanceof DStaticPropV5Ship) {
                 writer.put("targetname", ((DStaticPropV5Ship) pst).targetname);
             }
-            
+
             if (pst instanceof DStaticPropV10) {
                 DStaticPropV10 pst10 = (DStaticPropV10) pst;
-                
+
                 boolean genLightmaps = !pst10.hasNoPerTexelLighting();
                 writer.put("generatelightmaps", genLightmaps);
                 if (genLightmaps) {
@@ -686,7 +686,7 @@ public class EntitySource extends ModuleDecompile {
                     writer.put("lightmapresolutiony", pst10.lightmapResolutionY);
                 }
             }
-            
+
             writer.end("entity");
         }
 
@@ -715,7 +715,7 @@ public class EntitySource extends ModuleDecompile {
             writer.put("classname", "env_cubemap");
             writer.put("origin", new Vector3f(cm.origin[0], cm.origin[1], cm.origin[2]));
             writer.put("cubemapsize", cm.size);
-            
+
             // FIXME: results are too bad, find a better way
             Set<Integer> sideList = texsrc.getBrushSidesForCubemap(i);
 
@@ -746,7 +746,7 @@ public class EntitySource extends ModuleDecompile {
             writer.end("entity");
         }
     }
-    
+
     /**
      * Writes all func_ladder entities
      */
@@ -760,7 +760,7 @@ public class EntitySource extends ModuleDecompile {
             if (!brush.isLadder()) {
                 continue;
             }
-            
+
             // write brush as func_ladder
             writer.start("entity");
             writer.put("id", vmfmeta.getUID());
@@ -840,16 +840,16 @@ public class EntitySource extends ModuleDecompile {
         if (bsp.origFaces.isEmpty()) {
             return;
         }
-        
+
         // don't add more if we already hit the maximum
         if (sides.size() >= config.maxOverlaySides) {
             return;
         }
-        
+
         int sidesPrev = sides.size();
-        
+
         DFace origFace = bsp.origFaces.get(ioface);
-        
+
         // use sideid of displacement, if existing
         if (origFace.dispInfo != -1) {
             int side = vmfmeta.getDispInfoUID(origFace.dispInfo);
@@ -858,10 +858,10 @@ public class EntitySource extends ModuleDecompile {
                         new Object[]{ioverlay, origFace.dispInfo, side});
                 sides.add(side);
             }
-            
+
             return;
         }
-        
+
         // create winding from original face
         Winding wof = WindingFactory.fromFace(bsp, origFace);
 
@@ -871,12 +871,12 @@ public class EntitySource extends ModuleDecompile {
             for (int j = 0; j < brush.numside; j++) {
                 int ibs = brush.fstside + j;
                 int side = brushsrc.getBrushSideIDForIndex(ibs);
-                
+
                 // skip unmapped brush sides
                 if (side == -1) {
                     continue;
                 }
-                
+
                 DBrushSide bs = bsp.brushSides.get(ibs);
 
                 // create winding from brush side
@@ -892,7 +892,7 @@ public class EntitySource extends ModuleDecompile {
                         new Object[]{ioverlay, ioface, i, ibs, side});
 
                 sides.add(side);
-                
+
                 // make sure we won't have too many brush sides for that overlay
                 if (sides.size() >= config.maxOverlaySides) {
                     L.log(Level.WARNING, "Too many brush sides for overlay {0}", ioverlay);
@@ -909,7 +909,7 @@ public class EntitySource extends ModuleDecompile {
     private void processEntities() {
         for (Entity ent : bsp.entities) {
             String className = ent.getClassName();
-            
+
             // fix worldspawn
             if (className.equals("worldspawn")) {
                 // remove values that are unknown to Hammer
@@ -922,12 +922,12 @@ public class EntitySource extends ModuleDecompile {
                     ent.setValue("mapversion", bspFile.getRevision());
                 }
             }
-            
+
             // convert VMF format if requested
             if (config.sourceFormat != SourceFormat.AUTO) {
                 char srcSep;
                 char dstSep;
-                
+
                 if (config.sourceFormat == SourceFormat.NEW) {
                     srcSep = EntityIO.SEP_CHR_OLD;
                     dstSep = EntityIO.SEP_CHR_NEW;
@@ -935,14 +935,14 @@ public class EntitySource extends ModuleDecompile {
                     srcSep = EntityIO.SEP_CHR_NEW;
                     dstSep = EntityIO.SEP_CHR_OLD;
                 }
-                
+
                 for (KeyValue kv : ent.getIO()) {
                     String value = kv.getValue();
                     value = value.replace(srcSep, dstSep);
                     kv.setValue(value);
                 }
             }
-            
+
             // replace escaped quotes for VTMB so they can be loaded with the
             // inofficial SDK Hammer
             if (bspFile.getSourceApp().getAppID() == SourceAppID.VAMPIRE_BLOODLINES) {
@@ -951,14 +951,14 @@ public class EntitySource extends ModuleDecompile {
                     value = value.replace("\\\"", "");
                     kv.setValue(value);
                 }
-                
+
                 for (KeyValue kv : ent.getIO()) {
                     String value = kv.getValue();
                     value = value.replace("\\\"", "");
                     kv.setValue(value);
                 }
             }
-            
+
             // func_simpleladder entities are used by the engine only and won't
             // work when re-compiling, so replace them with empty func_ladder's
             // instead.
@@ -975,12 +975,12 @@ public class EntitySource extends ModuleDecompile {
                     && !className.equals("light_dynamic")) {
                 fixLightEntity(ent);
             }
-            
+
             // add cameras based on info_player_* positions
             if (className.startsWith("info_player_")) {
                 createCamera(ent);
             }
-            
+
             // add hammerid to UID blacklist to make sure they're not generated
             // for anything else
             int hammerid = getHammerID(ent);
@@ -989,23 +989,23 @@ public class EntitySource extends ModuleDecompile {
             }
         }
     }
-    
+
     private int getHammerID(Entity ent) {
         String keyName = "hammerid";
-        
+
         if (!ent.hasKey(keyName)) {
             return -1;
         }
-        
+
         String hammeridStr = ent.getValue(keyName);
         int hammerid = -1;
-        
+
         try {
             hammerid = Integer.parseInt(ent.getValue("hammerid"));
         } catch (NumberFormatException ex) {
             L.log(Level.WARNING, "Invalid hammerid format {0}", hammeridStr);
         }
-        
+
         return hammerid;
     }
 
@@ -1035,7 +1035,7 @@ public class EntitySource extends ModuleDecompile {
             ent.removeValue("style");
         }
     }
-    
+
     private void createCamera(Entity ent) {
         Vector3f origin = ent.getOrigin();
         Vector3f angles = ent.getAngles();
@@ -1050,13 +1050,13 @@ public class EntitySource extends ModuleDecompile {
 
         // calculate position and look vectors
         Vector3f pos, look;
-        
+
         // move 64 units up
         pos = origin.add(new Vector3f(0, 0, 64));
-        
+
         // look 256 units forwards to entity facing direction
         look = new Vector3f(192, 0, 0).rotate(angles).add(origin);
-        
+
         // move 64 units backwards to facing direction
         pos = look.sub(pos).normalize().scalar(-64).add(pos);
 

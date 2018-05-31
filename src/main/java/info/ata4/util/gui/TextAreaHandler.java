@@ -21,16 +21,16 @@ import javax.swing.JTextArea;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class TextAreaHandler extends Handler {
-    
+
     private JTextArea out;
     private JTextArea err;
     private boolean doneHeader;
-    
+
     public TextAreaHandler(JTextArea out, JTextArea err) {
         this.out = out;
         this.err = err;
     }
-    
+
     private void doHeaders() {
         if (!doneHeader) {
             String head = getFormatter().getHead(this);
@@ -55,7 +55,7 @@ public class TextAreaHandler extends Handler {
             if (record.getLevel().intValue() >= Level.WARNING.intValue()) {
                 err.append(msg);
             }
-            
+
             out.append(msg);
             // make sure the last line is always visible
             out.setCaretPosition(out.getDocument().getLength());

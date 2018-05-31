@@ -18,7 +18,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DPrimitive implements DStruct {
-    
+
     public int type;
     public int firstIndex;
     public int indexCount;

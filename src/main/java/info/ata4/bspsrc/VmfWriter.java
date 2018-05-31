@@ -44,15 +44,15 @@ public class VmfWriter implements Closeable {
     private final PrintWriter pw;
     private final Stack<String> section = new Stack<>();
     private final DecimalFormat decimalFormat = new DecimalFormat("0.####", new DecimalFormatSymbols(Locale.ENGLISH));
-    
+
     public VmfWriter(File file) throws FileNotFoundException, UnsupportedEncodingException {
         pw = new PrintWriter(file, "US-ASCII");
     }
-    
+
     public VmfWriter(OutputStream os) {
         pw = new PrintWriter(os);
     }
-    
+
     private void indent() {
         for (int i = 0; i < section.size(); i++) {
             pw.print("\t");
@@ -89,27 +89,27 @@ public class VmfWriter implements Closeable {
         indent();
         pw.printf("\"%s\" \"%s\"\r\n", key, value);
     }
-    
+
     public void put(String key, int value) {
         put(key, String.valueOf(value));
     }
-    
+
     public void put(String key, long value) {
         put(key, String.valueOf(value));
     }
-    
+
     public void put(String key, float value) {
         put(key, formatFloat(value));
     }
-  
+
     public void put(String key, double value) {
         put(key, formatFloat(value));
     }
-    
+
     public void put(String key, boolean value) {
         put(key, value ? "1" : "0");
     }
-    
+
     public void put(String key, char value) {
         put(key, String.valueOf(value));
     }
@@ -191,7 +191,7 @@ public class VmfWriter implements Closeable {
     private String formatTextureAxis(TextureAxis tx) {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
-        
+
         if (!tx.axis.isValid()) {
             L.log(Level.WARNING, "Invalid vector: {0}", tx.axis);
             sb.append("0 0 0 ");
@@ -200,14 +200,14 @@ public class VmfWriter implements Closeable {
             sb.append(formatFloat(tx.axis.y)).append(' ');
             sb.append(formatFloat(tx.axis.z)).append(' ');
         }
-        
+
         sb.append(formatFloat(tx.shift));
         sb.append("] ");
         sb.append(formatFloat(tx.tw));
 
         return sb.toString();
     }
-    
+
     private String formatFloat(double f) {
         return decimalFormat.format(f);
     }
@@ -219,20 +219,20 @@ public class VmfWriter implements Closeable {
         // stack should be empty, otherwise someone forgot to call end() at least once
         if (!section.isEmpty()) {
             StringBuilder sb = new StringBuilder();
-            
+
             // get stack trace
             Collections.reverse(section);
-            
+
             while (true) {
                 sb.append(section.pop());
-                
+
                 if (section.isEmpty()) {
                     break;
                 }
-                
+
                 sb.append(" -> ");
             }
-            
+
             L.log(Level.WARNING, "Unclosed VMF chunk: {0}", sb.toString());
         }
     }

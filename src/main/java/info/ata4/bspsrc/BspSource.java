@@ -32,13 +32,13 @@ import org.apache.commons.io.output.NullOutputStream;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class BspSource implements Runnable {
-    
+
     private static final Logger L = LogUtils.getLogger();
 
     public static final String VERSION = "1.3.24";
-    
+
     private final BspSourceConfig config;
-    
+
     public BspSource(BspSourceConfig config) {
         this.config = config;
     }
@@ -50,7 +50,7 @@ public class BspSource implements Runnable {
     public void run() {
         // some benchmarking
         long startTime = System.currentTimeMillis();
-        
+
         // log all config fields in debug mode
         if (config.isDebug()) {
             config.dumpToLog();
@@ -86,21 +86,21 @@ public class BspSource implements Runnable {
     private void decompile(BspFileEntry entry) {
         File bspFile = entry.getBspFile();
         File vmfFile = entry.getVmfFile();
-        
+
         // load BSP
         BspFileReader reader;
-        
+
         L.log(Level.INFO, "Loading {0}", bspFile);
 
         try {
             BspFile bsp = new BspFile();
             bsp.setSourceApp(config.defaultApp);
             bsp.load(bspFile.toPath());
-            
+
             if (config.loadLumpFiles) {
                 bsp.loadLumpFiles();
             }
-            
+
             // extract embedded files
             if (config.unpackEmbedded) {
                 try {
@@ -109,7 +109,7 @@ public class BspSource implements Runnable {
                     L.log(Level.WARNING, "Can't extract embedded files", ex);
                 }
             }
-            
+
             reader = new BspFileReader(bsp);
             reader.loadAll();
         } catch (IOException ex) {
@@ -121,7 +121,7 @@ public class BspSource implements Runnable {
             L.log(Level.INFO, "BSP version: {0}", reader.getBspFile().getVersion());
             L.log(Level.INFO, "Game: {0}", reader.getBspFile().getSourceApp());
         }
-        
+
         // create and configure decompiler and start decompiling
         try (VmfWriter writer = getVmfWriter(vmfFile)) {
             BspDecompiler decompiler = new BspDecompiler(reader, writer, config);
@@ -131,7 +131,7 @@ public class BspSource implements Runnable {
             L.log(Level.SEVERE, "Can't decompile " + bspFile + " to " + vmfFile, ex);
         }
     }
-    
+
     private VmfWriter getVmfWriter(File vmfFile) throws IOException {
         // write to file or omit output?
         if (config.nullOutput) {

@@ -66,7 +66,7 @@ public class DBrush implements DStruct {
     public boolean isTranslucent() {
         return contents.contains(BrushFlag.CONTENTS_TRANSLUCENT);
     }
-    
+
     public boolean isWindow() {
         return contents.contains(BrushFlag.CONTENTS_WINDOW);
     }

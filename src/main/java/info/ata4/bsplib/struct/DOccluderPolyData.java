@@ -20,7 +20,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DOccluderPolyData implements DStruct {
-    
+
     public int firstvertexindex;
     public int vertexcount;
     public int planenum;

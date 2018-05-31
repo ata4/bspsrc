@@ -52,7 +52,7 @@ public class DStaticPropV9DE extends DStaticPropV8 {
         diffuseModulation = new Color32(in.readInt());
         in.seek(3, CURRENT);
     }
-    
+
     @Override
     public boolean usesLightingOrigin() {
         // workaround for the invalid lighting origin vector

@@ -20,7 +20,7 @@ import java.io.IOException;
  * @author Sandern
  */
 public final class Vector4f extends VectorXf {
-    
+
     public static Vector4f read(DataReader in) throws IOException {
         float x = in.readFloat();
         float y = in.readFloat();
@@ -40,7 +40,7 @@ public final class Vector4f extends VectorXf {
     public static final Vector4f NULL = new Vector4f(0, 0, 0, 0);
     public static final Vector4f MAX_VALUE = new Vector4f(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
     public static final Vector4f MIN_VALUE = MAX_VALUE.scalar(-1); // don't use Float.MIN_VALUE here
-    
+
     // vector values
     public final float x;
     public final float y;
@@ -56,7 +56,7 @@ public final class Vector4f extends VectorXf {
     public Vector4f(Vector4f v) {
         this(v.x, v.y, v.z, v.w);
     }
-    
+
     /**
      * Constructs a new Vector4f using the values out of an array.
      * The array must have a size of at least 3.
@@ -81,7 +81,7 @@ public final class Vector4f extends VectorXf {
         this.z = z;
         this.w = w;
     }
-    
+
     /**
      * Returns the value of the n'th component.
      * 
@@ -179,7 +179,7 @@ public final class Vector4f extends VectorXf {
         float ry = this.y - that.y;
         float rz = this.z - that.z;
         float rw = this.w - that.w;
-        
+
         return new Vector4f(rx, ry, rz, rw);
     }
 
@@ -194,7 +194,7 @@ public final class Vector4f extends VectorXf {
         float ry = Math.round(y / value) * value;
         float rz = Math.round(z / value) * value;
         float rw = Math.round(w / value) * value;
-        
+
         return new Vector4f(rx, ry, rz, rw);
     }
 
@@ -221,7 +221,7 @@ public final class Vector4f extends VectorXf {
 
         return new Vector4f(rx, ry, rz, rw);
     }
-    
+
     /**
      * Performs a scalar multiplication on this vector: this * that
      * 
@@ -236,7 +236,7 @@ public final class Vector4f extends VectorXf {
 
         return new Vector4f(rx, ry, rz, rw);
     }
-    
+
     /**
      * Returns the minima between this vector and another vector.
      * 
@@ -248,7 +248,7 @@ public final class Vector4f extends VectorXf {
         float ry = Math.min(this.y, that.y);
         float rz = Math.min(this.z, that.z);
         float rw = Math.min(this.w, that.w);
-        
+
         return new Vector4f(rx, ry, rz, rw);
     }
 
@@ -263,7 +263,7 @@ public final class Vector4f extends VectorXf {
         float ry = Math.max(this.y, that.y);
         float rz = Math.max(this.z, that.z);
         float rw = Math.max(this.w, that.w);
-        
+
         return new Vector4f(rx, ry, rz, rw);
     }
 }

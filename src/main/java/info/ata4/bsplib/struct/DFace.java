@@ -20,7 +20,7 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DFace implements DStruct {
-    
+
     public static final int MAXLIGHTMAPS = 4;
 
     public int pnum;

@@ -19,9 +19,9 @@ import java.io.IOException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DFaceVinV1 extends DFace {
-    
+
     protected short unknown1;
-    
+
     @Override
     public int getSize() {
         return 72;

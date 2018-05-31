@@ -23,14 +23,14 @@ import javax.xml.parsers.SAXParserFactory;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class SourceAppDB {
-    
+
     private static final Logger L = LogUtils.getLogger();
     private static SourceAppDB instance;
-    
+
     private List<SourceApp> appList = new ArrayList<>();
     private Map<Integer, SourceApp> appMap = new HashMap<>();
     private float score;
-    
+
     public static SourceAppDB getInstance() {
         if (instance == null) {
             instance = new SourceAppDB();
@@ -64,7 +64,7 @@ public class SourceAppDB {
             L.log(Level.SEVERE, "Can't load Source application database", ex);
         }
     }
-    
+
     /**
      * Returns the source app for a Steam AppID.
      * 
@@ -79,7 +79,7 @@ public class SourceAppDB {
             return appMap.get(appID);
         }
     }
-    
+
     /**
      * Tries to find the AppID though a heuristical search with the given
      * parameters.
@@ -92,31 +92,31 @@ public class SourceAppDB {
     public SourceApp find(String bspName, int bspVersion, Set<String> classNames) {
         SourceApp candidate = SourceApp.UNKNOWN;
         score = 0;
-        
+
         if (appList == null) {
             return candidate;
         }
-        
+
         for (SourceApp app : appList) {
             // skip candidates with wrong version
             if (app.canCheckVersion() && !app.checkVersion(bspVersion)) {
                 continue;
             }
-            
+
             L.log(Level.FINER, "Testing {0}", app.getName());
-            
+
             float scoreNew = 0;
 
             // check entity class names
             if (app.canCheckEntities()) {
                 scoreNew += app.checkEntities(classNames);
             }
-            
+
             // check BSP file name pattern
             if (app.canCheckName()) {
                 scoreNew += app.checkName(bspName);
             }
-            
+
             if (scoreNew != 0 && scoreNew > score) {
                 L.log(Level.FINER, "New candidate {0} with a score of {1}", new Object[]{app.getName(), scoreNew});
                 candidate = app;
@@ -126,7 +126,7 @@ public class SourceAppDB {
 
         return candidate;
     }
-    
+
     /**
      * Returns the total heuristic score for the last call of
      * {@link #find(java.lang.String, int, java.util.Set)}.
@@ -136,7 +136,7 @@ public class SourceAppDB {
     public float getScore() {
         return score;
     }
-    
+
     /**
      * Returns the list of all Source apps from the database.
      * 

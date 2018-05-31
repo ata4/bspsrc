@@ -16,10 +16,10 @@ package info.ata4.bsplib.util;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class StringMacroUtils {
-    
+
     private StringMacroUtils() {
     }
-    
+
     /**
      * Simulates the MAKEID macro from the Source SDK. It makes a 4-byte
      * "packed ID" int out of a 4 character string.
@@ -31,11 +31,11 @@ public class StringMacroUtils {
         if (id.length() != 4) {
             throw new IllegalArgumentException("String must be exactly 4 characters long");
         }
-        
+
         byte[] bytes = id.getBytes();
         return (bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0];
     }
-    
+
     /**
      * Decodes a "packed ID" into a 4 character string that was made by 
      * the MAKEID macro from the Source SDK.
