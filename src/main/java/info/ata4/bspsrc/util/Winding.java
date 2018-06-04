@@ -342,27 +342,22 @@ public class Winding implements List<Vector3f> {
             return false;
         }
 
-        // minimum match distance
-        float min = 1e6f;
+        // compare minimum distance to any vertex
+        for (Vector3f v1 : this.verts) {
+            float min = 1e6f;
 
-        for (int i = 0; i < size; i++) {
-            float mdist = 0;
-
-            // get the aggregate distance at offset i
-            for (int j = 0; j < size; j++) {
-                // wrap index if greater than size
-                int k = (j + i) % size;
-
-                // distance between vertex j of this and k of that
-                mdist += verts.get(j).sub(that.verts.get(k)).length();
+            for (Vector3f v2 : that.verts) {
+                min = Math.min(min, v1.sub(v2).length());
             }
 
-            // update minimum match distance
-            min = Math.min(min, mdist);
+            // abort if no vertex is close enough
+            if (min > EPS_COMP) {
+                return false;
+            }
         }
 
-        // check if match was close enough
-        return min < EPS_COMP;
+        // vertices are close enough
+        return true;
     }
 
     /**
