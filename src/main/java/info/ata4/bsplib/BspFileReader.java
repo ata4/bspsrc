@@ -13,24 +13,25 @@ package info.ata4.bsplib;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bsplib.app.SourceAppID;
-import static info.ata4.bsplib.app.SourceAppID.*;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.io.EntityInputStream;
-import info.ata4.bsplib.lump.*;
+import info.ata4.bsplib.lump.AbstractLump;
+import info.ata4.bsplib.lump.GameLump;
+import info.ata4.bsplib.lump.Lump;
+import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bsplib.struct.*;
 import info.ata4.io.DataReader;
 import info.ata4.io.DataReaders;
-import static info.ata4.io.Seekable.Origin.CURRENT;
 import info.ata4.log.LogUtils;
 import info.ata4.util.EnumConverter;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static info.ata4.bsplib.app.SourceAppID.*;
+import static info.ata4.io.Seekable.Origin.CURRENT;
 
 /**
  * All-purpose BSP file and lump reader.
@@ -363,9 +364,9 @@ public class BspFileReader {
                     break;
 
                 case COUNTER_STRIKE_GO:
-                    // custom v10 for CS:GO, not compatible with Source 2013 v10
-                    if (sprpver == 10) {
-                        structClass = DStaticPropV10CSGO.class;
+                    // (custom v10 for CS:GO, not compatible with Source 2013 v10)  CS:GO now uses v11  since the addition of uniform prop scaling
+                    if (sprpver == 11) {
+                        structClass = DStaticPropV11CSGO.class;
                     }
                     break;
             }
