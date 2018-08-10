@@ -26,22 +26,10 @@ import info.ata4.bspsrc.modules.geom.BrushSource;
 import info.ata4.bspsrc.modules.geom.BrushUtils;
 import info.ata4.bspsrc.modules.geom.FaceSource;
 import info.ata4.bspsrc.modules.texture.TextureSource;
-import info.ata4.bspsrc.util.AABB;
-import info.ata4.bspsrc.util.SourceFormat;
-import info.ata4.bspsrc.util.Winding;
-import info.ata4.bspsrc.util.WindingFactory;
+import info.ata4.bspsrc.util.*;
 import info.ata4.log.LogUtils;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -87,6 +75,7 @@ public class EntitySource extends ModuleDecompile {
         this.vmfmeta = vmfmeta;
 
         processEntities();
+        AreaportalMapper areaportalMapper = new AreaportalMapper(bsp);
     }
 
     /**

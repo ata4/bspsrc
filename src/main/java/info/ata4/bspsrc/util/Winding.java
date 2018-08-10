@@ -51,6 +51,10 @@ public class Winding implements List<Vector3f> {
         this.verts = Collections.unmodifiableList(verts);
     }
 
+    public Winding(Vector3f[] vertices) {
+        this.verts = Collections.unmodifiableList(Arrays.asList(vertices));
+    }
+
     /**
      * Clips this winding to a plane defined by a normal and distance, removing
      * all vertices in front or behind it.
