@@ -13,6 +13,7 @@ package info.ata4.bspsrc.util;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Winding utility class.
@@ -105,7 +106,8 @@ public class Winding implements List<Vector3f> {
         if (counts[SIDE_FRONT] == 0) {
             // no vertices in front - all behind clip plane
             if (!back) {
-                return EMPTY;
+                if (counts[SIDE_ON] == 0)
+                    return EMPTY;
             } else {
                 return this;
             }
@@ -113,7 +115,8 @@ public class Winding implements List<Vector3f> {
         if (counts[SIDE_BACK] == 0) {
             // no vertices in back - all in front of clip plane
             if (back) {
-                return EMPTY;
+                if (counts[SIDE_ON] == 0)
+                    return EMPTY;
             } else {
                 return this;
             }
@@ -395,6 +398,46 @@ public class Winding implements List<Vector3f> {
         }
 
         return true;
+    }
+
+    /**
+     * Checks if this Winding intersects/touches with another one
+     *
+     * @param w the other winding
+     * @return true if they intersect/touch, else false
+     */
+    public boolean intersect(Winding w) {
+        //Saves all vertices from 'w2' into a set
+        HashSet<Vector3f> vertices = new HashSet<>(w);
+
+        if (size() < 3 || w.size() < 3)
+            return false;
+
+        Vector3f[] plane = buildPlane();
+        Vector3f vec1 = plane[1].sub(plane[0]);
+        Vector3f vec2 = plane[2].sub(plane[0]);
+        Vector3f normal = vec2.cross(vec1);
+        float dist = normal.normalize().dot(new Vector3f(0f, 0f, 0f).sub(plane[0]));
+
+        Vector3f[] wPlane = w.buildPlane();
+        Vector3f wVec1 = wPlane[1].sub(wPlane[0]);
+        Vector3f wVec2 = wPlane[2].sub(wPlane[0]);
+        Vector3f wNormal = wVec2.cross(wVec1);
+        float wDist = wNormal.normalize().dot(new Vector3f(0f, 0f, 0f).sub(wPlane[0]));
+
+        if (Math.abs(wNormal.dot(normal) / (wNormal.length() * normal.length())) < 1 - EPS_DEGEN)                       //TODO: Maybe remove 'EPS_DEGEN'. I have no idea if this is need here or how you should even use it
+            return false;
+
+        if (!(Math.abs(dist) + EPS_DEGEN >= Math.abs(wDist) && Math.abs(dist) - EPS_DEGEN <= Math.abs(wDist)))          //TODO: Maybe remove 'EPS_DEGEN'. I have no idea if this is need here or how you should even use it
+            return false;
+
+        return IntStream.range(0, size())
+                .allMatch(i -> {
+                    Vector3f edge = get((i + 1) % size()).sub(get(i));
+                    Vector3f edgeNormal = normal.cross(edge).normalize();
+
+                    return vertices.stream().anyMatch(vertex -> edgeNormal.dot(vertex.sub(get(i))) <= 0);
+                });
     }
 
     public AABB getBounds() {

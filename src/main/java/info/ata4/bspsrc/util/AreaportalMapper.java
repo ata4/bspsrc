@@ -3,13 +3,11 @@ package info.ata4.bspsrc.util;
 import info.ata4.bsplib.struct.BspData;
 import info.ata4.bsplib.struct.DAreaportal;
 import info.ata4.bsplib.struct.DBrush;
+import info.ata4.bsplib.struct.DVertex;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.log.LogUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -23,116 +21,120 @@ public class AreaportalMapper {
 
     private static final Logger L = LogUtils.getLogger();
 
+    private BspData bsp;
+
     private ArrayList<AreaportalHelper> areaportalHelpers = new ArrayList<>();
-    private ArrayList<AreaportalBrush> areaportalBrushes = new ArrayList<>();
+    private ArrayList<DBrush> areaportalBrushes = new ArrayList<>();
 
     public AreaportalMapper(BspData bsp) {
-        prepareApHelpers(bsp);
-        prepareApBrushes(bsp);
+        this.bsp = bsp;
+
+        if (checkAreaportal())
+            throw new RuntimeException("gsewaol IHUBwsgeroihuzgqofgh");
+
+        prepareApHelpers();
+        prepareApBrushes();
+    }
+
+    private boolean checkAreaportal()
+    {
+        return bsp.areaportals.stream().allMatch(dAreaportal -> dAreaportal.clipPortalVerts == 0);
     }
 
     /**
      * Fills {@code areaportalHelpers} with Objects that represent every Areaportal entity
      * @param bsp {@code BspData} object which contains brushes/areaportals
      */
-    private void prepareApHelpers(BspData bsp) {
+    private void prepareApHelpers() {
 
         // Skip everything if no areaportals exist
         if (bsp.areaportals.isEmpty()) {
             return;
         }
 
-        for (DAreaportal areaportal: bsp.areaportals) {
+        bsp.areaportals.stream()
+                .filter(dAreaportal -> dAreaportal.portalKey != 0)                                                      // Ignore first areaportal because it doesn't seem important...      And i don't have any idea what it should even represent
+                .forEach(dAreaportal -> {
+                    boolean exist = areaportalHelpers.stream()                                                          // Do we already have a 'AreaportalHelper' that represents this areaportal?
+                            .anyMatch(areaportalHelper -> areaportalHelper.portalID.contains((int) dAreaportal.portalKey));
 
-            // Skip first areaportal because it doesn't represent any func_areaportal entity in hammer (and maybe because I dont't have any idea what it even represents)
-            if (areaportal.portalKey == 0)
-                continue;
+                    if (!exist) {                                                                                       // If not we create one
+                        AreaportalHelper apHelper = new AreaportalHelper();                                            // Save the portal id
+                        ArrayList<Vector3f> vertices = IntStream.range(0, dAreaportal.clipPortalVerts)
+                                .mapToObj(i -> bsp.clipPortalVerts.get(dAreaportal.firstClipPortalVert + i).point)
+                                .collect(Collectors.toCollection(ArrayList::new));
+                        apHelper.vertices = vertices.toArray(new Vector3f[]{});                                         // Save all vertices
 
-            // Check if a AreaportalHelper is already defined for that specific areaportal. We expect to always get 2 'DAreaportal's for one areaportal because it always has to intersect with 2 areas
-            boolean exist = false;
-            for (AreaportalHelper areaportalHelper: areaportalHelpers) {
-                if (areaportalHelper.portalID == areaportal.portalKey) {
-                    exist = true;
+                        Set<Integer> portalIDs = new HashSet<>();
+                        portalIDs.add((int) dAreaportal.portalKey);
+                        ArrayList<Integer> ids = bsp.areaportals.stream()                                  // Find all other areaportals that share the same space with this one and add their ids to this helper object
+                                .filter(otherDAreaportal -> otherDAreaportal.portalKey != 0)                            // Find all other areaportals that share the same space with this one and add their ids to this helper object
+                                .filter(otherDAreaportal -> otherDAreaportal != dAreaportal)                           // -We don't want to compare the areaportal to itself, so we filter it out here
+                                .filter(otherDAreaportal -> IntStream.range(0, dAreaportal.clipPortalVerts)               // Check if all vertices are the same -> sharing the same space
+                                    .allMatch(i -> apHelper.vertices[i].equals(bsp.clipPortalVerts.get(otherDAreaportal.firstClipPortalVert + i).point)))
+                                .map(dupAp -> (int) dupAp.portalKey)                                                      // Convert the areaportal objects into their ids so we can add them easier
+                                .collect(Collectors.toCollection(ArrayList::new));
 
-                    if (areaportal.clipPortalVerts != areaportalHelper.vertices.length)
-                        L.log(Level.WARNING, "Found duplicated areaportals with different vertices count. Expected {0} found {1}", new Object[]{areaportalHelper.vertices.length, (int) areaportal.clipPortalVerts});
-
-                    for (int i = 0; i < areaportal.clipPortalVerts; i++) {
-                        Vector3f vertex = bsp.clipPortalVerts.get(areaportal.firstClipPortalVert + i).point;
-                        if (!vertex.equals(areaportalHelper.vertices[i]))
-                            L.log(Level.WARNING, "Found duplicated areaportals with different vertices position. Expected {0} found {1}", new Object[]{vertex, areaportalHelper.vertices[i]});
+                        portalIDs.addAll(ids);                                                                                                // Add all areaportal ids we found
+                        apHelper.portalID.addAll(portalIDs);
+                        areaportalHelpers.add(apHelper);                                                                // Finally add the helper into our list
                     }
-
-                    break;
-                }
-            }
-
-            // If there is no AreaportalHelper already defined for the specific areaportal, we create it and add it to the list
-            if (!exist) {
-                AreaportalHelper areaportalHelper = new AreaportalHelper();
-                areaportalHelper.portalID = areaportal.portalKey;
-
-                Vector3f[] vertices = new Vector3f[areaportal.clipPortalVerts];
-                for (int i = 0; i < vertices.length; i++) {
-                    vertices[i] = bsp.clipPortalVerts.get(areaportal.firstClipPortalVert + i).point;
-                }
-                areaportalHelper.vertices = vertices;
-
-                areaportalHelpers.add(areaportalHelper);
-            }
-        }
-
-        // Now we check if any of those areaportals share the same space/are identical. This happens when vBsp optimizes multiple areaportals into 1.
-        // TODO: Do more research on that as it seems odd that vBsp would just leave a duplicated areaportal in the map
-        ArrayList<AreaportalHelper> cloneList = (ArrayList<AreaportalHelper>) areaportalHelpers.clone();
-        ListIterator<AreaportalHelper> iterator = cloneList.listIterator();
-        while (iterator.hasNext()) {                                                                // Process every areaportalhelper
-            AreaportalHelper apHelper = iterator.next();
-            iterator.remove();                                                                      // *Directly* remove the current element from the list so we save some loop cycles and don't compare it to it self later
-
-
-            cloneList.stream()                                                                      // Compare current areaportal to all existing ones, except for itself because we removed it early
-                    //.filter(apHelper2 -> apHelper2 != apHelper) // Not needed
-                    .filter(apHelper2 -> apHelper.vertices.length == apHelper2.vertices.length)     // If the AreaportalHelpers have different count of vertices, they can't share the same space: filters them out
-                    .filter(apHelper2 -> IntStream.range(0, apHelper.vertices.length)               // Filter all AreaportalHelpers out that don't share the same vertices: Iterates over every vertex and compares them
-                            .allMatch(i -> apHelper.vertices[i].equals(apHelper2.vertices[i])))
-                    .forEach(apHelper2 -> {                                                         // All remaining Areaportals area getting their duplicated ones added into the 'duplicated' list
-                        apHelper.duplicated.add(apHelper2);
-                        apHelper2.duplicated.add(apHelper);
-                    });
-        }
+                });
     }
 
+    private void prepareApBrushes() {
+        areaportalBrushes.addAll(bsp.brushes.stream()
+                .filter(DBrush::isAreaportal)
+                .collect(Collectors.toList()));
+    }
 
     /**
-     * Fills {@code areaportalBrushes} with Objects that represent every Areaportal brush after vBsp combined/optimized them.
-     * These Objects contain info of their original brushes, so reconstruction is possible
-     * @param bsp {@code BspData} object which contains brushes/areaportals
+     * Maps all areaportal entitys to their brushes in form of a {@code HashMap}
+     *
+     * @return A {@code HashMap} where the key represents an areaportal id and the value a brush id
      */
-    private void prepareApBrushes(BspData bsp) {
+    public Map<Integer, Integer> createApBrushMapping() {
 
-        // Create a new List with all areaportal brushes
-        ArrayList<DBrush> apBrushes = bsp.brushes.stream()
-                .filter(DBrush::isAreaportal)
-                .collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<DBrush> areaportalBrushes = new ArrayList<>(this.areaportalBrushes);
 
-        // Converts and groups areaportal brushes into 'areaportalBrushes'
-        apBrushes.forEach(dBrush -> {                                               // Iterate over every areaportal brush
-            boolean exist = areaportalBrushes.stream()                              // Do we already 'AreaportalBrush' that represents this brush?
-                    .anyMatch(areaportalBrush -> areaportalBrush.brushes.contains(dBrush));
+        Map<Integer, Integer> apHelperBrushMapping = areaportalHelpers.stream()
+                .map(apHelper -> {
+                    Winding apWinding = new Winding(apHelper.vertices);
+                    Vector3f[] plane = apWinding.buildPlane();
+                    Vector3f vec1 = plane[1].sub(plane[0]);
+                    Vector3f vec2 = plane[2].sub(plane[0]);
+                    Vector3f normal = vec2.cross(vec1);
+                    float dist = normal.normalize().dot(new Vector3f(0f, 0f, 0f).sub(plane[0]));
 
-            if (!exist) {                                                           // If not we create it
-                AreaportalBrush apBrush = new AreaportalBrush();
-                apBrush.brushes.add(dBrush);
-                List<DBrush> intersectingBrushes = apBrushes.stream()               // Get all brushes that intersect with this one
-                        .filter(otherBrush -> otherBrush != dBrush)                   // -We don't want to compare the brush to itself, so we filter it out here
-                        .filter(otherBrush -> intersects(dBrush, otherBrush, bsp))    // -Filter all brushes out that don't intersect
-                        .collect(Collectors.toList());                                // -Return as list
-                apBrush.brushes.addAll(intersectingBrushes);
+                    List<DBrush> brushes = areaportalBrushes.stream()
+                            .map(dBrush -> {
+                                Winding w = IntStream.range(0, dBrush.numside)
+                                        .mapToObj(i -> WindingFactory.fromSide(bsp, dBrush, i))
+                                        .filter(winding -> winding.size() > 2)
+                                        .filter(winding -> winding.intersect(apWinding))
+                                        .findFirst().orElse(null);
 
-                areaportalBrushes.add(apBrush);                                     // Finally we add the 'AreaportalBrush' into the list
-            }
-        });
+                                return w == null ? null : dBrush;
+                            })
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList());
+                    return new AbstractMap.SimpleEntry<>(apHelper, brushes);
+                })
+                .filter(entry -> entry.getValue().size() >= entry.getKey().portalID.size())
+                .map(entry -> {
+                    AreaportalHelper apHelpers = entry.getKey();
+                    List<DBrush> brushes = entry.getValue();
+
+                    return IntStream.range(0, apHelpers.portalID.size())
+                            .mapToObj(i -> {
+                                areaportalBrushes.remove(brushes.get(i));
+                                return new AbstractMap.SimpleEntry<Integer, Integer>(apHelpers.portalID.get(i), bsp.brushes.indexOf(brushes.get(i)));
+                            })
+                            .collect(Collectors.toMap(o -> o.getKey(), o -> o.getValue()));
+                })
+                .collect(HashMap::new, HashMap::putAll, HashMap::putAll);
+
+        return Collections.unmodifiableMap(apHelperBrushMapping);
     }
 
     /**
@@ -152,7 +154,7 @@ public class AreaportalMapper {
         boolean intersects = true;                                  // Some Math magic. If the variable intersect is true at the end, we know they intersect...      But seriously i don't know how well i can explain this
         for (int i = 0; i < brush.numside; i++) {
             Winding w = WindingFactory.fromSide(bsp, brush, i);     // Basically what we do here is comparing each face/side of 'brush' to each vertex of the other brush.
-                                                                    // For each face we create a plane and measure the closest distance from each vertex of the other brush to that plane.
+            // For each face we create a plane and measure the closest distance from each vertex of the other brush to that plane.
             Vector3f[] plane = w.buildPlane();                      // Because the closest distance from a point to a plane is always a right angle we use the normal vector
             Vector3f vec1 = plane[1].sub(plane[0]);                 // If distance is <= 0 we know that that the point lies 'behind'/in that plane
             Vector3f vec2 = plane[2].sub(plane[0]);                 // A brush intersects/touches with another brush if every plane has at least one vertex of 'otherBrush' 'behind'/in it
@@ -167,21 +169,49 @@ public class AreaportalMapper {
         return intersects;
     }
 
+    public static void main(String[] args)
+    {
+        Winding w1 = new Winding(new Vector3f[]{
+                new Vector3f(0f, 0f, 0f), new Vector3f(0f, 1f, 1f),
+                new Vector3f(1f, 1f, 0f), new Vector3f(1f, 0f , 0f)
+        });
+        Winding w2 = new Winding(new Vector3f[]{
+                new Vector3f(0f, 1f, 0f), new Vector3f(0f, 2f, 0f),
+                new Vector3f(1f, 2f, 0f), new Vector3f(1f, 1f, 0f)
+        });
+
+
+
+        System.out.println(w1.intersect(w2));
+    }
+
+    public Map<Integer,Integer> getApBrushMapping()
+    {
+        System.out.println(areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum());
+        System.out.println(bsp.brushes.stream().filter(DBrush::isAreaportal).count());
+        if (areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum() == bsp.brushes.stream().filter(DBrush::isAreaportal).count())
+        {
+            System.out.println("Using reverse order methode");
+            HashMap<Integer, Integer> apBrushMap = new HashMap<>();
+            bsp.brushes.stream()
+                    .filter(DBrush::isAreaportal)
+                    .sorted((o1, o2) -> Integer.compare(bsp.brushes.indexOf(o2), bsp.brushes.indexOf(o1)))
+                    .forEach(dBrush -> {
+                        apBrushMap.put(apBrushMap.size() + 1, bsp.brushes.indexOf(dBrush));
+                    });
+
+            return apBrushMap;
+        } else {
+            return createApBrushMapping();
+        }
+    }
+
     /**
      * A little areaportal helper class for simplicity
      */
     private class AreaportalHelper {
 
-        public int portalID;
-        public List<AreaportalHelper> duplicated = new ArrayList<>();   // Array of AreaportalHelpers which are duplicated with this instance. Two AreaportalHelpers are duplicated when they share the same clipPortalVerts.
-                                                                        // This happens when vBsp optimizes multiple areaportals into one
+        public ArrayList<Integer> portalID = new ArrayList<>();         //All areaportal entities assigned to this helper
         public Vector3f[] vertices;
-    }
-
-    /**
-     * A little areaportal brush helper class for simplicity
-     */
-    private class AreaportalBrush {
-        public ArrayList<DBrush> brushes = new ArrayList<>(); // List of brushes this areaportal is made of
     }
 }

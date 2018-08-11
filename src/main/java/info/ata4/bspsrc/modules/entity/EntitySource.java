@@ -57,8 +57,8 @@ public class EntitySource extends ModuleDecompile {
     private final BspProtection bspprot;
     private final VmfMeta vmfmeta;
 
-    // list of areaportal brush ids
-    private final Set<Integer> apBrushes = new HashSet<>();
+    //Areaportal to brush mapping
+    Map<Integer, Integer> apBrushMap;
 
     // overlay target names
     private final Map<Integer, String> overlayNames = new HashMap<>();
@@ -75,7 +75,9 @@ public class EntitySource extends ModuleDecompile {
         this.vmfmeta = vmfmeta;
 
         processEntities();
+
         AreaportalMapper areaportalMapper = new AreaportalMapper(bsp);
+        apBrushMap = areaportalMapper.getApBrushMapping();
     }
 
     /**
@@ -291,7 +293,8 @@ public class EntitySource extends ModuleDecompile {
 
                     // find brushes in brush mode only
                     if (config.brushMode == BrushMode.BRUSHPLANES) {
-                        portalBrushNum = findAreaportalBrush(portalNum);
+                        if (apBrushMap.containsKey(portalNum))
+                            portalBrushNum = apBrushMap.get(portalNum);
                     }
 
                     if (portalBrushNum == -1) {
@@ -759,69 +762,6 @@ public class EntitySource extends ModuleDecompile {
 
             writer.end("entity");
         }
-    }
-
-    private int findAreaportalBrush(int portalnum) {
-        // do we have areaportals at all?
-        if (bsp.areaportals.isEmpty()) {
-            return -1;
-        }
-
-        DAreaportal ap = null;
-
-        // each portal key has two dareaportal_t's, but their geometry always
-        // seems to be identical, so just pick the first one we get
-        for (DAreaportal areaportal : bsp.areaportals) {
-            if (areaportal.portalKey == portalnum) {
-                ap = areaportal;
-                break;
-            }
-        }
-
-        // have we found something for that key?
-        if (ap == null) {
-            L.log(Level.FINER, "No portal geometry for portal key {0}", portalnum);
-            return -1;
-        }
-
-        // create areaportal winding
-        Winding wp = WindingFactory.fromAreaportal(bsp, ap);
-
-        for (int i = 0; i < bsp.brushes.size(); i++) {
-            DBrush brush = bsp.brushes.get(i);
-
-            // considered brushes must be flagged as areaportal
-            if (!brush.isAreaportal()) {
-                continue;
-            }
-
-            // skip already assigned brushes
-            if (apBrushes.contains(i)) {
-                continue;
-            }
-
-            // compare each brush side with areaportal face
-            for (int j = 0; j < brush.numside; j++) {
-                // create brush side winding
-                Winding w = WindingFactory.fromSide(bsp, brush, j);
-
-                // compare windings
-                if (w.matches(wp)) {
-                    L.log(Level.FINER, "Brush {0} for portal key {1}",
-                            new Object[]{i, portalnum});
-
-                    // add as assigned brush
-                    apBrushes.add(i);
-
-                    return i;
-                }
-            }
-        }
-
-        // nothing found :(
-        L.log(Level.FINER, "No brush for portal key {0}", portalnum);
-
-        return -1;
     }
 
     private void findOverlayFaces(int ioverlay, int ioface, Set<Integer> sides) {
