@@ -402,6 +402,7 @@ public class Winding implements List<Vector3f> {
 
     /**
      * Checks if this Winding intersects/touches with another one
+     * TODO: This algorithem is probably realy poorly implemented. Should be replaced by a optimized one
      *
      * @param w the other winding
      * @return true if they intersect/touch, else false
