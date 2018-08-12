@@ -4,9 +4,11 @@ import info.ata4.bsplib.struct.BspData;
 import info.ata4.bsplib.struct.DAreaportal;
 import info.ata4.bsplib.struct.DBrush;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.log.LogUtils;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -18,6 +20,7 @@ import java.util.stream.IntStream;
 public class AreaportalMapper {
 
     private static final Logger L = LogUtils.getLogger();
+    private BspSourceConfig config;
 
     private BspData bsp;
 
@@ -26,8 +29,9 @@ public class AreaportalMapper {
     private ArrayList<AreaportalHelper> areaportalHelpers = new ArrayList<>();
     private ArrayList<DBrush> areaportalBrushes = new ArrayList<>();
 
-    public AreaportalMapper(BspData bsp) {
+    public AreaportalMapper(BspData bsp, BspSourceConfig config) {
         this.bsp = bsp;
+        this.config = config;
 
         if (checkAreaportal()) {
             invalidAreaportals = true;
@@ -198,25 +202,33 @@ public class AreaportalMapper {
      */
     public Map<Integer,Integer> getApBrushMapping()
     {
-        if (areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum() == bsp.brushes.stream().filter(DBrush::isAreaportal).count())
+        if (!config.writeAreaportals)
+            return Collections.EMPTY_MAP;
+
+        if (config.apForceMapping) {
+            L.info("Forced areaportal methode: '" + config.apMappingMode + "'");
+            return config.apMappingMode.map(this);
+        }
+
+        if (areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum() == bsp.brushes.stream().filter(DBrush::isAreaportal).count() || invalidAreaportals)
         {
-            L.info("Equal amount of areaporal entities as areaportal brushes. Using order method for areaportal mapping.");
-            HashMap<Integer, Integer> apBrushMap = new HashMap<>();
-            bsp.brushes.stream()
-                    .filter(DBrush::isAreaportal)
-                    .sorted(Comparator.comparingInt(o -> bsp.brushes.indexOf(o)))
-                    .forEach(dBrush -> {
-                        apBrushMap.put(apBrushMap.size() + 1, bsp.brushes.indexOf(dBrush));
-                    });
+            if (invalidAreaportals)
+                L.warning("Couldn't perfectly map areaportals! Errors should be expected");
+            else
+                L.info("Equal amount of areaporal entities as areaportal brushes. Using '" + ApMappingMode.Ordered + "' method");
 
-            return apBrushMap;
-        } else if (!invalidAreaportals) {
-            L.info("Unequal amount of areaporal entities as areaportal brushes. Falling back to manual areaportal mapping.");
-            return createApBrushMapping();
+            return ApMappingMode.Ordered.map(this);
         } else {
-            L.warning("Couldn't perfectly map areaportals! Errors should be expected");
+            L.info("Unequal amount of areaporal entities as areaportal brushes. Falling back to '" + ApMappingMode.Manual + "' areaportal mapping.");
+            return ApMappingMode.Manual.map(this);
+        }
+    }
 
-            long min = Math.min(areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum(), bsp.brushes.stream().filter(DBrush::isAreaportal).count());
+    public enum ApMappingMode {
+        Ordered(AreaportalMapper::createApBrushMapping),
+        Manual(apMapper -> {
+            BspData bsp = apMapper.bsp;
+            long min = Math.min(apMapper.areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum(), bsp.brushes.stream().filter(DBrush::isAreaportal).count());
 
             HashMap<Integer, Integer> apBrushMap = new HashMap<>();
             ArrayList<DBrush> apBrushes = bsp.brushes.stream().filter(DBrush::isAreaportal).collect(Collectors.toCollection(ArrayList::new));
@@ -224,6 +236,17 @@ public class AreaportalMapper {
                 apBrushMap.put(apBrushMap.size(), bsp.brushes.indexOf(apBrushes.get(i)));
             }
             return apBrushMap;
+        });
+
+
+        private Function<AreaportalMapper, Map<Integer, Integer>> mapper;
+
+        ApMappingMode(Function<AreaportalMapper, Map<Integer, Integer>> mapper) {
+            this.mapper = mapper;
+        }
+
+        public Map<Integer, Integer> map(AreaportalMapper apMapper) {
+            return mapper.apply(apMapper);
         }
     }
 
