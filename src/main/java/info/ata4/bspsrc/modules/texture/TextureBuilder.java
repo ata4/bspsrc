@@ -158,8 +158,14 @@ public class TextureBuilder {
                 }
 
                 //Todo: CSGO only?
-                if (brush.isGrenadeClip() && appID == COUNTER_STRIKE_GO) {
-                    return ToolTexture.GRENADECLIP;
+                if (appID == COUNTER_STRIKE_GO) {
+                    if (brush.isGrenadeClip()) {
+                        return ToolTexture.GRENADECLIP;
+                    }
+
+                    if (brush.isOpaque()) {
+                        return ToolTexture.BLOCKLIGHT;
+                    }
                 }
             }
 
