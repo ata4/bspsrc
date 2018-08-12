@@ -76,7 +76,7 @@ public class EntitySource extends ModuleDecompile {
 
         processEntities();
 
-        AreaportalMapper areaportalMapper = new AreaportalMapper(bsp);
+        AreaportalMapper areaportalMapper = new AreaportalMapper(bsp, config);
         apBrushMap = areaportalMapper.getApBrushMapping();
     }
 
