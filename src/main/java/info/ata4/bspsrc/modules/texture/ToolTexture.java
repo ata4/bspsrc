@@ -30,6 +30,7 @@ public final class ToolTexture {
     public static final String CLIP = "tools/toolsclip";
     public static final String PLAYERCLIP = "tools/toolsplayerclip";
     public static final String NPCCLIP = "tools/toolsnpcclip";
+    public static final String GRENADECLIP = "tools/toolsgrenadeclip";
     public static final String AREAPORTAL = "tools/toolsareaportal";
     public static final String BLOCKLIGHT = "tools/toolsblocklight";
     public static final String BLOCKBULLETS = "tools/toolsblockbullets";
