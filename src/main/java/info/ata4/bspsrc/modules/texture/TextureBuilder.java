@@ -9,20 +9,16 @@
  */
 package info.ata4.bspsrc.modules.texture;
 
-import info.ata4.bsplib.app.SourceAppID;
-import info.ata4.bsplib.struct.BrushFlag;
-import info.ata4.bsplib.struct.BspData;
-import info.ata4.bsplib.struct.DBrush;
-import info.ata4.bsplib.struct.DBrushSide;
-import info.ata4.bsplib.struct.DTexData;
-import info.ata4.bsplib.struct.DTexInfo;
-import info.ata4.bsplib.struct.SurfaceFlag;
+import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.log.LogUtils;
+
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static info.ata4.bsplib.app.SourceAppID.COUNTER_STRIKE_GO;
 
 /**
  * A builder to create Texture objects.
@@ -42,6 +38,8 @@ public class TextureBuilder {
     private final BspData bsp;
     private final TextureSource texsrc;
 
+    private final int appID;
+
     private Texture texture;
     private Vector3f origin;
     private Vector3f angles;
@@ -54,9 +52,10 @@ public class TextureBuilder {
     private int ibrush = -1;
     private int ibrushside = -1;
 
-    TextureBuilder(TextureSource texsrc, BspData bsp) {
+    TextureBuilder(TextureSource texsrc, BspData bsp, int appID) {
         this.texsrc = texsrc;
         this.bsp = bsp;
+        this.appID = appID;
     }
 
     public Texture build() {
@@ -156,6 +155,11 @@ public class TextureBuilder {
                 // block line of sight
                 if (brush.isBlockLos()) {
                     return ToolTexture.BLOCKLOS;
+                }
+
+                //Todo: CSGO only?
+                if (brush.isGrenadeClip() && appID == COUNTER_STRIKE_GO) {
+                    return ToolTexture.GRENADECLIP;
                 }
             }
 
