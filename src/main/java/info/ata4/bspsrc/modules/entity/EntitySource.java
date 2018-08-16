@@ -57,7 +57,7 @@ public class EntitySource extends ModuleDecompile {
     private final BspProtection bspprot;
     private final VmfMeta vmfmeta;
 
-    //Areaportal to brush mapping
+    // Areaportal to brush mapping
     Map<Integer, Integer> apBrushMap;
 
     // overlay target names
@@ -287,25 +287,14 @@ public class EntitySource extends ModuleDecompile {
                     facesrc.writeModel(modelNum, origin, angles);
                 }
             } else {
-                // try to find the areaportal brush
+                // retrieve areaportal brush from map
                 if (isAreaportal && portalNum != -1) {
-                    int portalBrushNum = -1;
-
-                    // find brushes in brush mode only
-                    if (config.brushMode == BrushMode.BRUSHPLANES) {
-                        if (apBrushMap.containsKey(portalNum))
-                            portalBrushNum = apBrushMap.get(portalNum);
-                    }
-
-                    if (portalBrushNum == -1) {
-                        // no brush found, write areaportal polygon directly
+                    if (config.brushMode == BrushMode.BRUSHPLANES && apBrushMap.containsKey(portalNum)) {
+                        brushsrc.writeBrush(apBrushMap.get(portalNum));
+                        visgroups.add("Reallocated areaportals");
+                    } else {
                         facesrc.writeAreaportal(portalNum);
                         visgroups.add("Rebuild areaportals");
-                    } else {
-                        // don't rotate or move areaportal brushes, they're always
-                        // positioned correctly
-                        brushsrc.writeBrush(portalBrushNum);
-                        visgroups.add("Reallocated areaportals");
                     }
                 }
 

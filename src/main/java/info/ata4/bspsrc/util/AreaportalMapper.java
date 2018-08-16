@@ -24,8 +24,6 @@ public class AreaportalMapper {
 
     private BspData bsp;
 
-    private boolean invalidAreaportals = false;
-
     private ArrayList<AreaportalHelper> areaportalHelpers = new ArrayList<>();
     private ArrayList<DBrush> areaportalBrushes = new ArrayList<>();
 
@@ -33,11 +31,8 @@ public class AreaportalMapper {
         this.bsp = bsp;
         this.config = config;
 
-        if (checkAreaportal()) {
-            invalidAreaportals = true;
-            L.warning("Invalid areaportals! Map was probably compiled with errors. Manual areaportal mapping not possible");
-            return;
-        }
+        if (checkAreaportal())
+            L.warning("Invalid areaportals, map was probably compiled with errors! Errors should be expected");
 
         prepareApHelpers();
         prepareApBrushes();
@@ -206,34 +201,29 @@ public class AreaportalMapper {
             return Collections.EMPTY_MAP;
 
         if (config.apForceMapping) {
-            L.info("Forced areaportal methode: '" + config.apMappingMode + "'");
+            L.info("Forced areaportal method: '" + config.apMappingMode + "'");
             return config.apMappingMode.map(this);
         }
 
-        if (areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum() == bsp.brushes.stream().filter(DBrush::isAreaportal).count() || invalidAreaportals)
-        {
-            if (invalidAreaportals)
-                L.warning("Couldn't perfectly map areaportals! Errors should be expected");
-            else
-                L.info("Equal amount of areaporal entities as areaportal brushes. Using '" + ApMappingMode.Ordered + "' method");
-
-            return ApMappingMode.Ordered.map(this);
+        if (areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum() == bsp.brushes.stream().filter(DBrush::isAreaportal).count()) {
+            L.info("Equal amount of areaporal entities as areaportal brushes. Using '" + ApMappingMode.ORDERED + "' method");
+            return ApMappingMode.ORDERED.map(this);
         } else {
-            L.info("Unequal amount of areaporal entities as areaportal brushes. Falling back to '" + ApMappingMode.Manual + "' areaportal mapping.");
-            return ApMappingMode.Manual.map(this);
+            L.info("Unequal amount of areaporal entities as areaportal brushes. Falling back to '" + ApMappingMode.MANUAL + "' method");
+            return ApMappingMode.MANUAL.map(this);
         }
     }
 
     public enum ApMappingMode {
-        Ordered(AreaportalMapper::createApBrushMapping),
-        Manual(apMapper -> {
+        MANUAL(AreaportalMapper::createApBrushMapping),
+        ORDERED(apMapper -> {
             BspData bsp = apMapper.bsp;
             long min = Math.min(apMapper.areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum(), bsp.brushes.stream().filter(DBrush::isAreaportal).count());
 
             HashMap<Integer, Integer> apBrushMap = new HashMap<>();
             ArrayList<DBrush> apBrushes = bsp.brushes.stream().filter(DBrush::isAreaportal).collect(Collectors.toCollection(ArrayList::new));
             for (int i = 0; i < min; i++) {
-                apBrushMap.put(apBrushMap.size(), bsp.brushes.indexOf(apBrushes.get(i)));
+                apBrushMap.put(apBrushMap.size() + 1, bsp.brushes.indexOf(apBrushes.get(i)));
             }
             return apBrushMap;
         });
@@ -247,6 +237,11 @@ public class AreaportalMapper {
 
         public Map<Integer, Integer> map(AreaportalMapper apMapper) {
             return mapper.apply(apMapper);
+        }
+
+        @Override
+        public String toString() {
+            return super.toString().substring(0, 1).toUpperCase() + super.toString().substring(1).toLowerCase();
         }
     }
 
