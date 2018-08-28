@@ -27,6 +27,8 @@ public class DBrush implements DStruct {
     public int numside;
     public Set<BrushFlag> contents;
 
+    private boolean flagOccluder = false;
+
     public boolean isSolid() {
         return contents.contains(BrushFlag.CONTENTS_SOLID);
     }
@@ -69,6 +71,13 @@ public class DBrush implements DStruct {
 
     public boolean isWindow() {
         return contents.contains(BrushFlag.CONTENTS_WINDOW);
+    }
+
+    public void flagAsOccluder(boolean value) {
+        flagOccluder = value;
+    }
+    public boolean isFlaggedAsOccluder() {
+        return flagOccluder;
     }
 
     @Override

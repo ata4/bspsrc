@@ -60,6 +60,9 @@ public class EntitySource extends ModuleDecompile {
     // Areaportal to brush mapping
     Map<Integer, Integer> apBrushMap;
 
+    // Occluder to brushes mapping;
+    Map<Integer, List<Integer>> occBrushesMap;
+
     // overlay target names
     private final Map<Integer, String> overlayNames = new HashMap<>();
 
@@ -78,6 +81,9 @@ public class EntitySource extends ModuleDecompile {
 
         AreaportalMapper areaportalMapper = new AreaportalMapper(bsp, config);
         apBrushMap = areaportalMapper.getApBrushMapping();
+
+        OccluderMapper occluderMapper = new OccluderMapper(bsp, config);
+        occBrushesMap = occluderMapper.getOccBrushMapping();
     }
 
     /**
@@ -298,10 +304,18 @@ public class EntitySource extends ModuleDecompile {
                     }
                 }
 
-                // always write occluder polygons directly
+                // retrieve occluder brushes from map
                 if (isOccluder && occluderNum != -1) {
-                    facesrc.writeOccluder(occluderNum);
-                    visgroups.add("Rebuild occluders");
+                    if (config.brushMode == BrushMode.BRUSHPLANES && occBrushesMap.containsKey(occluderNum)) {
+                        for (int brushId: occBrushesMap.get(occluderNum)) {
+                            if (brushId != -1)
+                                brushsrc.writeBrush(brushId);
+                        }
+                        visgroups.add("Reallocated occluders");
+                    } else {
+                        facesrc.writeOccluder(occluderNum);
+                        visgroups.add("Rebuild occluders");
+                    }
                 }
             }
 

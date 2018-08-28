@@ -19,6 +19,7 @@ import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.gui.util.EnumToolTexture;
 import info.ata4.bspsrc.modules.geom.BrushMode;
 import info.ata4.bspsrc.util.AreaportalMapper;
+import info.ata4.bspsrc.util.OccluderMapper;
 import info.ata4.bspsrc.util.SourceFormat;
 import info.ata4.log.LogUtils;
 import info.ata4.util.gui.FileDrop;
@@ -435,9 +436,14 @@ public class BspSourceFrame extends javax.swing.JFrame {
         checkBoxOccluder = new javax.swing.JCheckBox();
         checkBoxFixRotation = new javax.swing.JCheckBox();
         checkBoxLadder = new javax.swing.JCheckBox();
+        checkBoxEnableEntities = new javax.swing.JCheckBox();
+        jpEntityMapping = new javax.swing.JPanel();
+        jpAreaportalMapping = new javax.swing.JPanel();
         checkBoxApChangeMM = new javax.swing.JCheckBox();
         comboBoxApMapping = new javax.swing.JComboBox<>();
-        checkBoxEnableEntities = new javax.swing.JCheckBox();
+        jpOccluderMapping = new javax.swing.JPanel();
+        checkBoxOccChangeMM = new javax.swing.JCheckBox();
+        comboBoxOccMapping = new javax.swing.JComboBox<>();
         panelTextures = new javax.swing.JPanel();
         labelFaceTex = new javax.swing.JLabel();
         labelBackfaceTex = new javax.swing.JLabel();
@@ -496,7 +502,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(panelFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelFilesLayout.createSequentialGroup()
-                        .addComponent(scrollFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 204, Short.MAX_VALUE)
+                        .addComponent(scrollFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panelFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(buttonRemove, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -510,7 +516,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
             .addGroup(panelFilesLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(scrollFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
+                    .addComponent(scrollFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
                     .addGroup(panelFilesLayout.createSequentialGroup()
                         .addComponent(buttonAdd)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -614,7 +620,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(checkBoxDisp))
                     .addComponent(checkBoxEnableWorldBrushes))
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
         panelWorldBrushesLayout.setVerticalGroup(
             panelWorldBrushesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -625,7 +631,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addGroup(panelWorldBrushesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(checkBoxDisp)
                     .addComponent(panelBrushMode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(93, Short.MAX_VALUE))
+                .addContainerGap(41, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("World", panelWorldBrushes);
@@ -715,22 +721,6 @@ public class BspSourceFrame extends javax.swing.JFrame {
             }
         });
 
-        checkBoxApChangeMM.setText("Force manual mapping");
-        checkBoxApChangeMM.setToolTipText("This forces the mapping of areaportal to brushes to be made manual. Only check this if you're getting trouble with the default mapping methode");
-        checkBoxApChangeMM.setActionCommand("forceManualMapping");
-        checkBoxApChangeMM.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkBoxApChangeMMActionPerformed(evt);
-            }
-        });
-
-        comboBoxApMapping.setModel(new DefaultComboBoxModel<>(AreaportalMapper.ApMappingMode.values()));
-        comboBoxApMapping.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboBoxApMappingActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout panelBrushEntsLayout = new javax.swing.GroupLayout(panelBrushEnts);
         panelBrushEnts.setLayout(panelBrushEntsLayout);
         panelBrushEntsLayout.setHorizontalGroup(
@@ -742,12 +732,8 @@ public class BspSourceFrame extends javax.swing.JFrame {
                     .addComponent(checkBoxAreaportal)
                     .addComponent(checkBoxOccluder)
                     .addComponent(checkBoxFixRotation)
-                    .addComponent(checkBoxLadder)
-                    .addGroup(panelBrushEntsLayout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addGroup(panelBrushEntsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(comboBoxApMapping, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(checkBoxApChangeMM)))))
+                    .addComponent(checkBoxLadder))
+                .addGap(5, 5, 5))
         );
         panelBrushEntsLayout.setVerticalGroup(
             panelBrushEntsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -757,10 +743,6 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkBoxAreaportal)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(checkBoxApChangeMM)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(comboBoxApMapping, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkBoxOccluder)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkBoxFixRotation)
@@ -796,13 +778,109 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(checkBoxEnableEntities)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(panelEntitiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(panelBrushEnts, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelPointEnts, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                .addGroup(panelEntitiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(panelBrushEnts, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelPointEnts, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("Entities", panelEntities);
+
+        jpEntityMapping.setName("Mapping"); // NOI18N
+
+        jpAreaportalMapping.setBorder(javax.swing.BorderFactory.createTitledBorder("Areaportal"));
+        jpAreaportalMapping.setName(""); // NOI18N
+        jpAreaportalMapping.setPreferredSize(new java.awt.Dimension(135, 68));
+
+        checkBoxApChangeMM.setText("Force mapping");
+        checkBoxApChangeMM.setToolTipText("This forces the mapping of areaportal to brushes to be made manual. Only check this if you're getting trouble with the default mapping methode");
+        checkBoxApChangeMM.setActionCommand("forceManualMapping");
+        checkBoxApChangeMM.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkBoxApChangeMMActionPerformed(evt);
+            }
+        });
+
+        comboBoxApMapping.setModel(new DefaultComboBoxModel<>(AreaportalMapper.ApMappingMode.values()));
+        comboBoxApMapping.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboBoxApMappingActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jpAreaportalMappingLayout = new javax.swing.GroupLayout(jpAreaportalMapping);
+        jpAreaportalMapping.setLayout(jpAreaportalMappingLayout);
+        jpAreaportalMappingLayout.setHorizontalGroup(
+            jpAreaportalMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(checkBoxApChangeMM, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+            .addComponent(comboBoxApMapping, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jpAreaportalMappingLayout.setVerticalGroup(
+            jpAreaportalMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpAreaportalMappingLayout.createSequentialGroup()
+                .addComponent(checkBoxApChangeMM)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(comboBoxApMapping, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        jpOccluderMapping.setBorder(javax.swing.BorderFactory.createTitledBorder("Occluder"));
+        jpOccluderMapping.setPreferredSize(new java.awt.Dimension(135, 46));
+
+        checkBoxOccChangeMM.setText("Force mapping");
+        checkBoxOccChangeMM.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkBoxOccChangeMMActionPerformed(evt);
+            }
+        });
+
+        comboBoxOccMapping.setModel(new DefaultComboBoxModel<>(OccluderMapper.OccMappingMode.values()));
+        comboBoxOccMapping.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboBoxOccMappingActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jpOccluderMappingLayout = new javax.swing.GroupLayout(jpOccluderMapping);
+        jpOccluderMapping.setLayout(jpOccluderMappingLayout);
+        jpOccluderMappingLayout.setHorizontalGroup(
+            jpOccluderMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpOccluderMappingLayout.createSequentialGroup()
+                .addComponent(checkBoxOccChangeMM, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
+                .addContainerGap())
+            .addComponent(comboBoxOccMapping, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jpOccluderMappingLayout.setVerticalGroup(
+            jpOccluderMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpOccluderMappingLayout.createSequentialGroup()
+                .addComponent(checkBoxOccChangeMM)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(comboBoxOccMapping, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        javax.swing.GroupLayout jpEntityMappingLayout = new javax.swing.GroupLayout(jpEntityMapping);
+        jpEntityMapping.setLayout(jpEntityMappingLayout);
+        jpEntityMappingLayout.setHorizontalGroup(
+            jpEntityMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpEntityMappingLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jpAreaportalMapping, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addComponent(jpOccluderMapping, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jpEntityMappingLayout.setVerticalGroup(
+            jpEntityMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpEntityMappingLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jpEntityMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jpOccluderMapping, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
+                    .addComponent(jpAreaportalMapping, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(121, Short.MAX_VALUE))
+        );
+
+        jpAreaportalMapping.getAccessibleContext().setAccessibleName("Areaportal");
+
+        tabbedPaneOptions.addTab("Entity mapping", jpEntityMapping);
 
         labelFaceTex.setText("Face texture");
 
@@ -855,7 +933,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                         .addGroup(panelTexturesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(comboBoxFaceTex, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(comboBoxBackfaceTex, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(176, Short.MAX_VALUE))
+                .addContainerGap(171, Short.MAX_VALUE))
         );
         panelTexturesLayout.setVerticalGroup(
             panelTexturesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -872,7 +950,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addComponent(checkBoxFixCubemapTex)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkBoxFixToolTex)
-                .addContainerGap(142, Short.MAX_VALUE))
+                .addContainerGap(90, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("Textures", panelTextures);
@@ -961,7 +1039,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                         .addGroup(panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(comboBoxMapFormat, 0, 190, Short.MAX_VALUE)
                             .addComponent(comboBoxSourceFormat, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(43, Short.MAX_VALUE))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
         panelOtherLayout.setVerticalGroup(
             panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -986,7 +1064,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addGroup(panelOtherLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelSourceFormat)
                     .addComponent(comboBoxSourceFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(128, Short.MAX_VALUE))
+                .addContainerGap(76, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("Other", panelOther);
@@ -1014,12 +1092,12 @@ public class BspSourceFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tabbedPaneOptions, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(tabbedPaneOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(buttonDefaults)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(buttonDecompile)
-                        .addContainerGap())))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 151, Short.MAX_VALUE)
+                        .addComponent(buttonDecompile)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1048,6 +1126,14 @@ public class BspSourceFrame extends javax.swing.JFrame {
         config.apMappingMode = (AreaportalMapper.ApMappingMode) comboBoxApMapping.getSelectedItem();
     }//GEN-LAST:event_comboBoxApMappingActionPerformed
 
+    private void comboBoxOccMappingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxOccMappingActionPerformed
+        config.occMappingMode = (OccluderMapper.OccMappingMode) comboBoxOccMapping.getSelectedItem();
+    }//GEN-LAST:event_comboBoxOccMappingActionPerformed
+
+    private void checkBoxOccChangeMMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxOccChangeMMActionPerformed
+        config.occForceMapping = checkBoxOccChangeMM.isSelected();
+    }//GEN-LAST:event_checkBoxOccChangeMMActionPerformed
+
     private void checkBoxEnableEntitiesActionPerformed(java.awt.event.ActionEvent evt) {                                                       
         config.setWriteEntities(checkBoxEnableEntities.isSelected());
         setPanelEnabled(panelEntities, checkBoxEnableEntities);
@@ -1070,6 +1156,13 @@ public class BspSourceFrame extends javax.swing.JFrame {
 
     private void checkBoxOccluderActionPerformed(java.awt.event.ActionEvent evt) {                                                 
         config.writeOccluders = checkBoxOccluder.isSelected();
+        checkBoxOccChangeMM.setEnabled(checkBoxOccluder.isSelected());
+        comboBoxOccMapping.setEnabled(checkBoxOccluder.isSelected());
+        
+        if (!checkBoxOccluder.isSelected()) {
+            checkBoxOccChangeMM.setSelected(false);
+            config.occForceMapping = false;
+        }
     }                                                
 
     private void checkBoxDetailActionPerformed(java.awt.event.ActionEvent evt) {                                               
@@ -1261,6 +1354,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox checkBoxFixToolTex;
     private javax.swing.JCheckBox checkBoxLadder;
     private javax.swing.JCheckBox checkBoxLoadLumpFile;
+    private javax.swing.JCheckBox checkBoxOccChangeMM;
     private javax.swing.JCheckBox checkBoxOccluder;
     private javax.swing.JCheckBox checkBoxOverlay;
     private javax.swing.JCheckBox checkBoxPropStatic;
@@ -1269,7 +1363,11 @@ public class BspSourceFrame extends javax.swing.JFrame {
     private javax.swing.JComboBox comboBoxBackfaceTex;
     private javax.swing.JComboBox comboBoxFaceTex;
     private javax.swing.JComboBox comboBoxMapFormat;
+    private javax.swing.JComboBox<OccluderMapper.OccMappingMode> comboBoxOccMapping;
     private javax.swing.JComboBox comboBoxSourceFormat;
+    private javax.swing.JPanel jpAreaportalMapping;
+    private javax.swing.JPanel jpEntityMapping;
+    private javax.swing.JPanel jpOccluderMapping;
     private javax.swing.JLabel labelBackfaceTex;
     private javax.swing.JLabel labelDnDTip;
     private javax.swing.JLabel labelFaceTex;
