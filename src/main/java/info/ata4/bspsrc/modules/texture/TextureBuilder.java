@@ -9,16 +9,10 @@
  */
 package info.ata4.bspsrc.modules.texture;
 
-import info.ata4.bsplib.app.SourceAppID;
-import info.ata4.bsplib.struct.BrushFlag;
-import info.ata4.bsplib.struct.BspData;
-import info.ata4.bsplib.struct.DBrush;
-import info.ata4.bsplib.struct.DBrushSide;
-import info.ata4.bsplib.struct.DTexData;
-import info.ata4.bsplib.struct.DTexInfo;
-import info.ata4.bsplib.struct.SurfaceFlag;
+import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.log.LogUtils;
+
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -167,6 +161,11 @@ public class TextureBuilder {
         if (brushFlags.equals(BRUSH_FLAGS_AREAPORTAL) && surfFlags.equals(SURF_FLAGS_AREAPORTAL)) {
             return ToolTexture.AREAPORTAL;
         }
+
+        // fix occluder textures
+        String textureName = bsp.texnames.get(texture.getData().texname);
+        if (brush.isFlaggedAsOccluder() && textureName.equalsIgnoreCase(ToolTexture.AREAPORTAL))
+            return ToolTexture.OCCLUDER;
 
         return null;
     }

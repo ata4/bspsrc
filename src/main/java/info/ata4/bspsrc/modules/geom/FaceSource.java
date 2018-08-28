@@ -487,8 +487,8 @@ public class FaceSource extends ModuleDecompile {
         for (int i = 0; i < od.polycount; i++) {
             DOccluderPolyData opd = bsp.occluderPolyDatas.get(od.firstpoly + i);
             Winding wind = WindingFactory.fromOccluder(bsp, opd);
-            // extrude by 8 units instead of one, the skip sides are ignored anyway
-            writePolygon(wind, ToolTexture.OCCLUDER, ToolTexture.SKIP, true, 8);
+            // extrude by 8 units instead of one, the skip sides are ignored anyway | Seems to be no longer the case as creating occluders in csgo doesn't even work with skip anymore - changed back to nodraw and 1 unit extrude
+            writePolygon(wind, ToolTexture.OCCLUDER, ToolTexture.NODRAW, true, 1);
         }
     }
 

@@ -37,4 +37,5 @@ public final class ToolTexture {
     public static final String INVISLADDER = "tools/toolsinvisibleladder";
     public static final String DOTTED = "tools/toolsdotted";
     public static final String OCCLUDER = "tools/toolsoccluder";
+    public static final String TRIGGER = "tools/toolstrigger";
 }

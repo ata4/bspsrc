@@ -408,7 +408,7 @@ public class Winding implements List<Vector3f> {
      * @return true if they intersect/touch, else false
      */
     public boolean intersect(Winding w) {
-        //Saves all vertices from 'w2' into a set
+        //Saves all vertices from 'w' into a set
         HashSet<Vector3f> vertices = new HashSet<>(w);
 
         if (size() < 3 || w.size() < 3)

@@ -20,8 +20,8 @@ import java.util.stream.IntStream;
 public class AreaportalMapper {
 
     private static final Logger L = LogUtils.getLogger();
-    private BspSourceConfig config;
 
+    private BspSourceConfig config;
     private BspData bsp;
 
     private ArrayList<AreaportalHelper> areaportalHelpers = new ArrayList<>();
@@ -104,15 +104,15 @@ public class AreaportalMapper {
     }
 
     /**
-     * Maps all areaportal entitys to their brushes in form of a {@code HashMap}
+     * Maps all areaportal entitys to their brushes in form of a {@code Map}
      *
-     * @return A {@code HashMap} where the key represents an areaportal id and the value a brush id
+     * @return A {@code Map} where the keys represent areaportal ids and the values brush ids
      */
-    public Map<Integer, Integer> createApBrushMapping() {
+    private Map<Integer, Integer> createApBrushMapping() {
 
         ArrayList<DBrush> areaportalBrushes = new ArrayList<>(this.areaportalBrushes);                                  // We create a copy this list so we can dynamically remove elements when we assign them. This way they can't be mapped to two entities
 
-        Map<Integer, Integer> apHelperBrushMapping = areaportalHelpers.stream()                                         // I know i maybe shouldn't have only used streams here...
+        Map<AreaportalHelper, List<DBrush>> apHelperBrushMapping = areaportalHelpers.stream()                                         // I know i maybe shouldn't have only used streams here...
                 .map(apHelper -> {
                     Winding apWinding = new Winding(apHelper.vertices);                                                 // We iterate over every areaportal and create some basic information about it: normal vector, distance to world origin
                     Vector3f[] plane = apWinding.buildPlane();
@@ -135,20 +135,32 @@ public class AreaportalMapper {
                             .collect(Collectors.toList());                                                              // Finally we got a list of brushes that have side that intersect/touch the areaportal -> return this
                     return new AbstractMap.SimpleEntry<>(apHelper, brushes);                                            // Return an entry with the areaportal helper as key and the brushes as value
                 })
-                .map(entry -> {                                                                                         // Now we create a HashMap for every areaportal helper with all its areaportal entities mapped to brush ids
-                    AreaportalHelper apHelpers = entry.getKey();
-                    List<DBrush> brushes = entry.getValue();
+                .collect(Collectors.toMap(o -> o.getKey(), o -> o.getValue()));                                         // Collect all entries into a Map
 
-                    HashMap<Integer, Integer> mapping = new HashMap<>();
-                    for (int i = 0; i < apHelpers.portalID.size(); i++) {
-                        areaportalBrushes.remove(brushes.get(i));
-                        mapping.put(apHelpers.portalID.get(i), bsp.brushes.indexOf(brushes.get(i)));
-                    }
-                    return mapping;
-                })
-                .collect(HashMap::new, HashMap::putAll, HashMap::putAll);                                               // Finally we combine all HashMaps to one big one
+        HashMap<Integer, List<DBrush>> portalToHelperMap = new HashMap<>();                                             // Now we reorder this map into a new one so that every key represents one areaportalId and the value the list of brushes
+        for (Map.Entry<AreaportalHelper, List<DBrush>> entry: apHelperBrushMapping.entrySet()) {
+            for (Integer portalID: entry.getKey().portalID) {
+                portalToHelperMap.put(portalID, entry.getValue());
+            }
+        }
 
-        return Collections.unmodifiableMap(apHelperBrushMapping);                                                       // And return it as an unmodifiable map
+        HashMap<Integer, Integer> mapping = new HashMap<>();
+        ArrayList<DBrush> usedBrushes = new ArrayList<>();
+        for (int i = 0; i < portalToHelperMap.entrySet().size(); i++) {                                                 // Map every key in the map to one of the brushes in the list. When multiple brushes are available always the one with the lowest index is taken. Brushes can only be assigned to one areaportal
+            if (!portalToHelperMap.containsKey(i))
+                continue;
+
+            for (DBrush dBrush: portalToHelperMap.get(i)) {
+                if (usedBrushes.contains(dBrush))
+                    continue;
+
+                mapping.put(i, bsp.brushes.indexOf(dBrush));
+                usedBrushes.add(dBrush);
+                break;
+            }
+        }
+
+        return Collections.unmodifiableMap(mapping);
     }
 
     /**
@@ -223,7 +235,7 @@ public class AreaportalMapper {
             HashMap<Integer, Integer> apBrushMap = new HashMap<>();
             ArrayList<DBrush> apBrushes = bsp.brushes.stream().filter(DBrush::isAreaportal).collect(Collectors.toCollection(ArrayList::new));
             for (int i = 0; i < min; i++) {
-                apBrushMap.put(apBrushMap.size() + 1, bsp.brushes.indexOf(apBrushes.get(i)));
+                apBrushMap.put(i + 1, bsp.brushes.indexOf(apBrushes.get(i)));
             }
             return apBrushMap;
         });
