@@ -49,8 +49,7 @@ public class OccluderMapper {
         potentialOccluderBrushes = bsp.brushes.stream()                                                                 // Iterate over every existing brush
                 .filter(dBrush -> !dBrush.isDetail())                                                                   // - Filter all out that have the 'detail' flag
                 .filter(dBrush -> !dBrush.isAreaportal())                                                               // - Filter all out that have the 'areaportal' flag
-                .filter(dBrush -> IntStream.range(dBrush.fstside, dBrush.fstside + dBrush.numside)                      // - Iterate over every brush side and test if it texture matches 'matchesOccluder'
-                        .mapToObj(i -> bsp.brushSides.get(i))                                                           // -- Map brushside index to brushside
+                .filter(dBrush -> bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()      // - Iterate over every brush side and test if it texture matches 'matchesOccluder'
                         .map(dBrushSide -> bsp.texinfos.get((int) dBrushSide.texinfo))                                  // -- Map brushside to textinfo
                         .filter(dTexInfo -> dTexInfo.texdata >= 0)                                                      // -- Skip brushsides that don't have textdata
                         .map(dTexInfo -> bsp.texdatas.get(dTexInfo.texdata))                                            // -- Map textinfo to textdata
@@ -66,8 +65,7 @@ public class OccluderMapper {
     private void prepareOccluderFaces() {
         occluderFaces = potentialOccluderBrushes.stream()
                 .map(dBrush -> {
-                    int faces = (int) IntStream.range(dBrush.fstside, dBrush.fstside + dBrush.numside)
-                            .mapToObj(i -> bsp.brushSides.get(i))
+                    int faces = (int) bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
                             .map(dBrushSide -> bsp.texinfos.get((int) dBrushSide.texinfo))
                             .filter(dTexInfo -> dTexInfo.texdata >= 0)
                             .map(dTexInfo -> bsp.texdatas.get(dTexInfo.texdata))
@@ -88,8 +86,7 @@ public class OccluderMapper {
     private Map<Integer, List<Integer>> createOccBrushMapping() {
         Map<Integer, List<Integer>> occBrushMapping = bsp.occluderDatas.stream()                                        // Iterate over every occluderData entry
                 .map(dOccluderData -> {                                                                                 // - Map them to an entry where the key is the occluderData and the value a list of brush indexes
-                    List<Integer> mappedBrushes = IntStream.range(dOccluderData.firstpoly, dOccluderData.firstpoly + dOccluderData.polycount)   // -- Iterate over every occluderface the occluder has
-                            .mapToObj(i -> bsp.occluderPolyDatas.get(i))                                                // --- Map the occluderFace index to occluderFace
+                    List<Integer> mappedBrushes = bsp.occluderPolyDatas.subList(dOccluderData.firstpoly, dOccluderData.firstpoly + dOccluderData.polycount).stream()   // -- Iterate over every occluderface the occluder has
                             .map(dOccluderPolyData -> potentialOccluderBrushes.stream()                                 // --- Map the occluder Face to a brush that contains a identical brushside with a texture matching 'matchesOccluder': Compare it to every potential occluder
                                     .filter(dBrush -> IntStream.range(0, dBrush.numside)                                // ---- Iterate over every brushside the brush has and test if it has matching vertices and a texture that matches 'matchesOccluder'
                                             .anyMatch(i -> {
