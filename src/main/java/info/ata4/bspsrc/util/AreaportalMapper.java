@@ -65,8 +65,8 @@ public class AreaportalMapper {
 
             if (!exist) {                                                                                               // If not we create one
                 AreaportalHelper apHelper = new AreaportalHelper();
-                ArrayList<Vector3f> vertices = IntStream.range(0, dAreaportal.clipPortalVerts)                          // Get all vertices
-                        .mapToObj(i -> bsp.clipPortalVerts.get(dAreaportal.firstClipPortalVert + i).point)
+                ArrayList<Vector3f> vertices = bsp.clipPortalVerts.subList(dAreaportal.firstClipPortalVert, dAreaportal.firstClipPortalVert + dAreaportal.clipPortalVerts).stream() // Get all vertices
+                        .map(dVertex -> dVertex.point)
                         .collect(Collectors.toCollection(ArrayList::new));
                 apHelper.vertices = vertices.toArray(new Vector3f[]{});                                                 // Save all vertices
 
@@ -76,7 +76,8 @@ public class AreaportalMapper {
                 ArrayList<Integer> ids = bsp.areaportals.stream()                                                       // Find all other areaportals that share the same space with this one and add their ids to this helper object
                         .filter(otherDAreaportal -> otherDAreaportal.portalKey != 0)                                    // - Filter first areaportal out because of reason mentioned above
                         .filter(otherDAreaportal -> otherDAreaportal != dAreaportal)                                    // - We don't want to compare the areaportal to itself, so we filter it out here
-                        .filter(otherDAreaportal -> IntStream.range(0, dAreaportal.clipPortalVerts)                     // - Check if all vertices are the same -> sharing the same space
+                        .filter(otherDAreaportal -> apHelper.vertices.length == otherDAreaportal.clipPortalVerts)
+                        .filter(otherDAreaportal -> IntStream.range(0, apHelper.vertices.length)                        // - Check if all vertices are the same -> sharing the same space
                                 .allMatch(i -> apHelper.vertices[i].equals(bsp.clipPortalVerts.get(otherDAreaportal.firstClipPortalVert + i).point)))
                         .map(dupAp -> (int) dupAp.portalKey)                                                            // - Convert the areaportal objects into their ids so we can add them easier
                         .collect(Collectors.toCollection(ArrayList::new));                                              // - Return all ids as a list
@@ -109,7 +110,6 @@ public class AreaportalMapper {
      * @return A {@code Map} where the keys represent areaportal ids and the values brush ids
      */
     private Map<Integer, Integer> createApBrushMapping() {
-
         ArrayList<DBrush> areaportalBrushes = new ArrayList<>(this.areaportalBrushes);                                  // We create a copy this list so we can dynamically remove elements when we assign them. This way they can't be mapped to two entities
 
         Map<AreaportalHelper, List<DBrush>> apHelperBrushMapping = areaportalHelpers.stream()                                         // I know i maybe shouldn't have only used streams here...
@@ -163,40 +163,44 @@ public class AreaportalMapper {
         return Collections.unmodifiableMap(mapping);
     }
 
-    /**
-     * Test if two brushes intersect/touch
-     *
-     * @param brush first brush
-     * @param otherBrush second brush
-     * @param bsp {@code BspData} object which contains needed geometry info
-     * @return {@code true} when the brushes intersect/touch, else {@code false}
-     */
-    private boolean intersects(DBrush brush, DBrush otherBrush, BspData bsp)
-    {
-        HashSet<Vector3f> vertices = new HashSet<>();
 
-        //Saves all vertices from 'otherBrush' into a set
-        for (int i1 = 0; i1 < otherBrush.numside; i1++) {
-            vertices.addAll(WindingFactory.fromSide(bsp, otherBrush, i1));
-        }
+    // Maybe something I will still need later. I had to change the 'Manual' method because i made some mistakes when creating the algorithm. The current method is very similar to the 'ordered' method.
+    // This will hopefully change soon. So this method will probably be used later again.
 
-        boolean intersects = true;                                  // Some Math magic. If the variable intersect is true at the end, we know they intersect...      But seriously i don't know how well i can explain this
-        for (int i = 0; i < brush.numside; i++) {
-            Winding w = WindingFactory.fromSide(bsp, brush, i);     // Basically what we do here is comparing each face/side of 'brush' to each vertex of the other brush.
-                                                                    // For each face we create a plane and measure the closest distance from each vertex of the other brush to that plane.
-            Vector3f[] plane = w.buildPlane();                      // Because the closest distance from a point to a plane is always a right angle we use the normal vector
-            Vector3f vec1 = plane[1].sub(plane[0]);                 // If distance is <= 0 we know that that the point lies 'behind'/in that plane
-            Vector3f vec2 = plane[2].sub(plane[0]);                 // A brush intersects/touches with another brush if every plane has at least one vertex of 'otherBrush' 'behind'/in it
-
-            Vector3f cross = vec2.cross(vec1).normalize();
-            if (vertices.stream().noneMatch(vertex -> cross.dot(vertex.sub(plane[0])) <= 0)) {
-                intersects = false;
-                break;
-            }
-        }
-
-        return intersects;
-    }
+//    /**
+//     * Test if two brushes intersect/touch
+//     *
+//     * @param brush first brush
+//     * @param otherBrush second brush
+//     * @param bsp {@code BspData} object which contains needed geometry info
+//     * @return {@code true} when the brushes intersect/touch, else {@code false}
+//     */
+//    private boolean intersects(DBrush brush, DBrush otherBrush, BspData bsp)
+//    {
+//        HashSet<Vector3f> vertices = new HashSet<>();
+//
+//        //Saves all vertices from 'otherBrush' into a set
+//        for (int i1 = 0; i1 < otherBrush.numside; i1++) {
+//            vertices.addAll(WindingFactory.fromSide(bsp, otherBrush, i1));
+//        }
+//
+//        boolean intersects = true;                                  // Some Math magic. If the variable intersect is true at the end, we know they intersect...      But seriously i don't know how well i can explain this
+//        for (int i = 0; i < brush.numside; i++) {
+//            Winding w = WindingFactory.fromSide(bsp, brush, i);     // Basically what we do here is comparing each face/side of 'brush' to each vertex of the other brush.
+//                                                                    // For each face we create a plane and measure the closest distance from each vertex of the other brush to that plane.
+//            Vector3f[] plane = w.buildPlane();                      // Because the closest distance from a point to a plane is always a right angle we use the normal vector
+//            Vector3f vec1 = plane[1].sub(plane[0]);                 // If distance is <= 0 we know that that the point lies 'behind'/in that plane
+//            Vector3f vec2 = plane[2].sub(plane[0]);                 // A brush intersects/touches with another brush if every plane has at least one vertex of 'otherBrush' 'behind'/in it
+//
+//            Vector3f cross = vec2.cross(vec1).normalize();
+//            if (vertices.stream().noneMatch(vertex -> cross.dot(vertex.sub(plane[0])) <= 0)) {
+//                intersects = false;
+//                break;
+//            }
+//        }
+//
+//        return intersects;
+//    }
 
     /**
      * Creates and returns an areaportal to brush mapping.
