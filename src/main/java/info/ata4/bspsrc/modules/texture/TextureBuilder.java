@@ -157,12 +157,16 @@ public class TextureBuilder {
                     return ToolTexture.BLOCKLOS;
                 }
 
-                //Todo: CSGO only?
                 if (appID == COUNTER_STRIKE_GO) {
-                    if (brush.isGrenadeClip()) {
-                        return ToolTexture.GRENADECLIP;
+                    if (brush.isCurrent90()) {
+                        return ToolTexture.CSGO_GRENADECLIP;
                     }
 
+                    if (brush.isCurrent180()) {
+                        return ToolTexture.CSGO_DRONECLIP;
+                    }
+
+                    //Todo: CSGO only?
                     if (brush.isOpaque()) {
                         return ToolTexture.BLOCKLIGHT;
                     }

@@ -71,8 +71,11 @@ public class DBrush implements DStruct {
         return contents.contains(BrushFlag.CONTENTS_WINDOW);
     }
 
-    //TODO: CSGO only?
-    public boolean isGrenadeClip() {
+    public boolean isCurrent180() {
+        return contents.contains(BrushFlag.CONTENTS_CURRENT_180);
+    }
+
+    public boolean isCurrent90() {
         return contents.contains(BrushFlag.CONTENTS_CURRENT_90);
     }
 
