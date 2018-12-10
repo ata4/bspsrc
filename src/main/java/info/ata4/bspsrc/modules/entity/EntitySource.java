@@ -26,22 +26,10 @@ import info.ata4.bspsrc.modules.geom.BrushSource;
 import info.ata4.bspsrc.modules.geom.BrushUtils;
 import info.ata4.bspsrc.modules.geom.FaceSource;
 import info.ata4.bspsrc.modules.texture.TextureSource;
-import info.ata4.bspsrc.util.AABB;
-import info.ata4.bspsrc.util.SourceFormat;
-import info.ata4.bspsrc.util.Winding;
-import info.ata4.bspsrc.util.WindingFactory;
+import info.ata4.bspsrc.util.*;
 import info.ata4.log.LogUtils;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -69,8 +57,11 @@ public class EntitySource extends ModuleDecompile {
     private final BspProtection bspprot;
     private final VmfMeta vmfmeta;
 
-    // list of areaportal brush ids
-    private final Set<Integer> apBrushes = new HashSet<>();
+    // Areaportal to brush mapping
+    Map<Integer, Integer> apBrushMap;
+
+    // Occluder to brushes mapping;
+    Map<Integer, List<Integer>> occBrushesMap;
 
     // overlay target names
     private final Map<Integer, String> overlayNames = new HashMap<>();
@@ -87,6 +78,12 @@ public class EntitySource extends ModuleDecompile {
         this.vmfmeta = vmfmeta;
 
         processEntities();
+
+        AreaportalMapper areaportalMapper = new AreaportalMapper(bsp, config);
+        apBrushMap = areaportalMapper.getApBrushMapping();
+
+        OccluderMapper occluderMapper = new OccluderMapper(bsp, config);
+        occBrushesMap = occluderMapper.getOccBrushMapping();
     }
 
     /**
@@ -296,31 +293,29 @@ public class EntitySource extends ModuleDecompile {
                     facesrc.writeModel(modelNum, origin, angles);
                 }
             } else {
-                // try to find the areaportal brush
+                // retrieve areaportal brush from map
                 if (isAreaportal && portalNum != -1) {
-                    int portalBrushNum = -1;
-
-                    // find brushes in brush mode only
-                    if (config.brushMode == BrushMode.BRUSHPLANES) {
-                        portalBrushNum = findAreaportalBrush(portalNum);
-                    }
-
-                    if (portalBrushNum == -1) {
-                        // no brush found, write areaportal polygon directly
+                    if (config.brushMode == BrushMode.BRUSHPLANES && apBrushMap.containsKey(portalNum)) {
+                        brushsrc.writeBrush(apBrushMap.get(portalNum));
+                        visgroups.add("Reallocated areaportals");
+                    } else {
                         facesrc.writeAreaportal(portalNum);
                         visgroups.add("Rebuild areaportals");
-                    } else {
-                        // don't rotate or move areaportal brushes, they're always
-                        // positioned correctly
-                        brushsrc.writeBrush(portalBrushNum);
-                        visgroups.add("Reallocated areaportals");
                     }
                 }
 
-                // always write occluder polygons directly
+                // retrieve occluder brushes from map
                 if (isOccluder && occluderNum != -1) {
-                    facesrc.writeOccluder(occluderNum);
-                    visgroups.add("Rebuild occluders");
+                    if (config.brushMode == BrushMode.BRUSHPLANES && occBrushesMap.containsKey(occluderNum)) {
+                        for (int brushId: occBrushesMap.get(occluderNum)) {
+                            if (brushId != -1)
+                                brushsrc.writeBrush(brushId);
+                        }
+                        visgroups.add("Reallocated occluders");
+                    } else {
+                        facesrc.writeOccluder(occluderNum);
+                        visgroups.add("Rebuild occluders");
+                    }
                 }
             }
 
@@ -774,69 +769,6 @@ public class EntitySource extends ModuleDecompile {
 
             writer.end("entity");
         }
-    }
-
-    private int findAreaportalBrush(int portalnum) {
-        // do we have areaportals at all?
-        if (bsp.areaportals.isEmpty()) {
-            return -1;
-        }
-
-        DAreaportal ap = null;
-
-        // each portal key has two dareaportal_t's, but their geometry always
-        // seems to be identical, so just pick the first one we get
-        for (DAreaportal areaportal : bsp.areaportals) {
-            if (areaportal.portalKey == portalnum) {
-                ap = areaportal;
-                break;
-            }
-        }
-
-        // have we found something for that key?
-        if (ap == null) {
-            L.log(Level.FINER, "No portal geometry for portal key {0}", portalnum);
-            return -1;
-        }
-
-        // create areaportal winding
-        Winding wp = WindingFactory.fromAreaportal(bsp, ap);
-
-        for (int i = 0; i < bsp.brushes.size(); i++) {
-            DBrush brush = bsp.brushes.get(i);
-
-            // considered brushes must be flagged as areaportal
-            if (!brush.isAreaportal()) {
-                continue;
-            }
-
-            // skip already assigned brushes
-            if (apBrushes.contains(i)) {
-                continue;
-            }
-
-            // compare each brush side with areaportal face
-            for (int j = 0; j < brush.numside; j++) {
-                // create brush side winding
-                Winding w = WindingFactory.fromSide(bsp, brush, j);
-
-                // compare windings
-                if (w.matches(wp)) {
-                    L.log(Level.FINER, "Brush {0} for portal key {1}",
-                            new Object[]{i, portalnum});
-
-                    // add as assigned brush
-                    apBrushes.add(i);
-
-                    return i;
-                }
-            }
-        }
-
-        // nothing found :(
-        L.log(Level.FINER, "No brush for portal key {0}", portalnum);
-
-        return -1;
     }
 
     private void findOverlayFaces(int ioverlay, int ioface, Set<Integer> sides) {

@@ -12,8 +12,11 @@ package info.ata4.bspsrc;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bspsrc.modules.geom.BrushMode;
+import info.ata4.bspsrc.util.AreaportalMapper;
+import info.ata4.bspsrc.util.OccluderMapper;
 import info.ata4.bspsrc.util.SourceFormat;
 import info.ata4.log.LogUtils;
+
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -49,12 +52,16 @@ public final class BspSourceConfig implements Serializable {
     public int maxOverlaySides = 64;
     public boolean detailMerge = true;
     public float detailMergeThresh = 1;
+    public boolean apForceMapping = false;
+    public AreaportalMapper.ApMappingMode apMappingMode = AreaportalMapper.ApMappingMode.MANUAL;
     public boolean writeAreaportals = true;
     public boolean writeBrushEntities = true;
     public boolean writeCameras = true;
     public boolean writeCubemaps = true;
     public boolean writeDetails = true;
     public boolean writeDisp = true;
+    public boolean occForceMapping = false;
+    public OccluderMapper.OccMappingMode occMappingMode = OccluderMapper.OccMappingMode.MANUAL;
     public boolean writeOccluders = true;
     public boolean writeOverlays = true;
     public boolean writePointEntities = true;
