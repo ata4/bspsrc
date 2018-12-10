@@ -182,6 +182,11 @@ public class TextureBuilder {
             return ToolTexture.AREAPORTAL;
         }
 
+        // fix occluder textures
+        String textureName = bsp.texnames.get(texture.getData().texname);
+        if (brush.isFlaggedAsOccluder() && textureName.equalsIgnoreCase(ToolTexture.AREAPORTAL))
+            return ToolTexture.OCCLUDER;
+
         return null;
     }
 

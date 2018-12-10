@@ -165,7 +165,8 @@ public class WindingFactory {
 
         List<Vector3f> verts = new ArrayList<>();
 
-        int clipPortalVerts = Math.min(4, ap.clipPortalVerts);
+        //int clipPortalVerts = Math.min(4, ap.clipPortalVerts); //TODO: Find reason for this as it doesn't really make sense (Maybe older engines?)
+        int clipPortalVerts = ap.clipPortalVerts;
         for (int i = 0; i < clipPortalVerts; i++) {
             int pvi = ap.firstClipPortalVert + i;
             verts.add(bsp.clipPortalVerts.get(pvi).point);
