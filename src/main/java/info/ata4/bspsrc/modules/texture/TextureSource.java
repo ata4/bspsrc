@@ -13,12 +13,13 @@ package info.ata4.bspsrc.modules.texture;
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bspsrc.modules.ModuleRead;
 import info.ata4.log.LogUtils;
+import org.apache.commons.io.FilenameUtils;
+
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.io.FilenameUtils;
 
 /**
  * Decompiling module to create Texture objects from texture data and to fix
@@ -142,7 +143,7 @@ public class TextureSource extends ModuleRead {
     }
 
     public TextureBuilder getTextureBuilder() {
-        return new TextureBuilder(this, bsp);
+        return new TextureBuilder(this, bsp, bspFile.getSourceApp().getAppID());
     }
 
     public void addBrushSideID(int itexname, int side) {

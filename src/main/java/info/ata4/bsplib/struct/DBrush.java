@@ -71,6 +71,14 @@ public class DBrush implements DStruct {
         return contents.contains(BrushFlag.CONTENTS_WINDOW);
     }
 
+    public boolean isCurrent180() {
+        return contents.contains(BrushFlag.CONTENTS_CURRENT_180);
+    }
+
+    public boolean isCurrent90() {
+        return contents.contains(BrushFlag.CONTENTS_CURRENT_90);
+    }
+
     @Override
     public int getSize() {
         return 12;
