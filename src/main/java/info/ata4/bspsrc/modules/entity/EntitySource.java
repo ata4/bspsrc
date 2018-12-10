@@ -682,6 +682,10 @@ public class EntitySource extends ModuleDecompile {
                 }
             }
 
+            if (pst instanceof DStaticPropV11CSGO) {
+                writer.put("uniformscale", ((DStaticPropV11CSGO) pst).uniformScale);
+            }
+
             writer.end("entity");
         }
 

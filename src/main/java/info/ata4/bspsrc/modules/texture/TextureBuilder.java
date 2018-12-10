@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static info.ata4.bsplib.app.SourceAppID.COUNTER_STRIKE_GO;
+
 /**
  * A builder to create Texture objects.
  * 
@@ -36,6 +38,8 @@ public class TextureBuilder {
     private final BspData bsp;
     private final TextureSource texsrc;
 
+    private final int appID;
+
     private Texture texture;
     private Vector3f origin;
     private Vector3f angles;
@@ -48,9 +52,10 @@ public class TextureBuilder {
     private int ibrush = -1;
     private int ibrushside = -1;
 
-    TextureBuilder(TextureSource texsrc, BspData bsp) {
+    TextureBuilder(TextureSource texsrc, BspData bsp, int appID) {
         this.texsrc = texsrc;
         this.bsp = bsp;
+        this.appID = appID;
     }
 
     public Texture build() {
@@ -150,6 +155,21 @@ public class TextureBuilder {
                 // block line of sight
                 if (brush.isBlockLos()) {
                     return ToolTexture.BLOCKLOS;
+                }
+
+                if (appID == COUNTER_STRIKE_GO) {
+                    if (brush.isCurrent90()) {
+                        return ToolTexture.CSGO_GRENADECLIP;
+                    }
+
+                    if (brush.isCurrent180()) {
+                        return ToolTexture.CSGO_DRONECLIP;
+                    }
+
+                    //Todo: CSGO only?
+                    if (brush.isOpaque()) {
+                        return ToolTexture.BLOCKLIGHT;
+                    }
                 }
             }
 
