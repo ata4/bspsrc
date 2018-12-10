@@ -76,8 +76,17 @@ public class DBrush implements DStruct {
     public void flagAsOccluder(boolean value) {
         flagOccluder = value;
     }
+  
     public boolean isFlaggedAsOccluder() {
         return flagOccluder;
+    }
+
+    public boolean isCurrent180() {
+        return contents.contains(BrushFlag.CONTENTS_CURRENT_180);
+    }
+
+    public boolean isCurrent90() {
+        return contents.contains(BrushFlag.CONTENTS_CURRENT_90);
     }
 
     @Override
