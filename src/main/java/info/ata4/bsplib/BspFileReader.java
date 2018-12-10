@@ -364,9 +364,11 @@ public class BspFileReader {
                     break;
 
                 case COUNTER_STRIKE_GO:
-                    // custom v10 for CS:GO, not compatible with Source 2013 v10
+                    //  (custom v10 for CS:GO, not compatible with Source 2013 v10)  CS:GO now uses v11  since the addition of uniform prop scaling
                     if (sprpver == 10) {
                         structClass = DStaticPropV10CSGO.class;
+                    } else if (sprpver == 11) {
+                        structClass = DStaticPropV11CSGO.class;
                     }
                     break;
             }
