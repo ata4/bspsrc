@@ -48,51 +48,37 @@ public class AreaportalMapper {
     }
 
     /**
-     * Fills {@code areaportalHelpers} with Objects that represent every portal
+     * Group similar areaportals into {@code areaportalHelpers}, as they represent the same portal
      */
     private void prepareApHelpers() {
 
-        // Skip everything if no areaportals exist
-        if (bsp.areaportals.isEmpty())
-            return;
-
         for (DAreaportal dAreaportal : bsp.areaportals) {
-            if (dAreaportal.portalKey == 0)                                                                             // Ignore first areaportal because it doesn't seem important...      And i don't have any idea what it should even represent
+            // Ignore first areaportal because it doesn't seem important...      And i don't have any idea what it should even represent
+            if (dAreaportal.portalKey == 0)
                 continue;
 
-            boolean exist = areaportalHelpers.stream()
-                    .anyMatch(areaportalHelper -> areaportalHelper.portalID.contains((int) dAreaportal.portalKey));     // Do we already have a 'AreaportalHelper' that represents this areaportal?
+            // Do we already have a 'AreaportalHelper' that represents this areaportal?
+            AreaportalHelper matchingApHelper = areaportalHelpers.stream()
+                    .filter(apHelper -> IntStream.range(0, apHelper.vertices.length)
+                            .allMatch(i -> apHelper.vertices[i].equals(bsp.clipPortalVerts.get(dAreaportal.firstClipPortalVert + i).point)))
+                    .findAny().orElse(null);
 
-            if (!exist) {                                                                                               // If not we create one
-                AreaportalHelper apHelper = new AreaportalHelper();
-                ArrayList<Vector3f> vertices = bsp.clipPortalVerts.subList(dAreaportal.firstClipPortalVert, dAreaportal.firstClipPortalVert + dAreaportal.clipPortalVerts).stream() // Get all vertices
+            // If there is no AreaportalHelper that represents this portal, we create one
+            // If there is already an AreaportalHelper representing this portal, we just add the portalID to it
+            if (matchingApHelper == null) {
+                AreaportalHelper areaportalHelper = new AreaportalHelper();
+                areaportalHelper.vertices = bsp.clipPortalVerts.subList(dAreaportal.firstClipPortalVert, dAreaportal.firstClipPortalVert + dAreaportal.clipPortalVerts).stream()
                         .map(dVertex -> dVertex.point)
-                        .collect(Collectors.toCollection(ArrayList::new));
-                apHelper.vertices = vertices.toArray(new Vector3f[]{});                                                 // Save all vertices
-
-                Set<Integer> portalIDs = new HashSet<>();                                                               // Set of all areaportal ids that are duplicated with this
-                portalIDs.add((int) dAreaportal.portalKey);                                                             // But first we add the areaportals own id
-
-                ArrayList<Integer> ids = bsp.areaportals.stream()                                                       // Find all other areaportals that share the same space with this one and add their ids to this helper object
-                        .filter(otherDAreaportal -> otherDAreaportal.portalKey != 0)                                    // - Filter first areaportal out because of reason mentioned above
-                        .filter(otherDAreaportal -> otherDAreaportal != dAreaportal)                                    // - We don't want to compare the areaportal to itself, so we filter it out here
-                        .filter(otherDAreaportal -> apHelper.vertices.length == otherDAreaportal.clipPortalVerts)
-                        .filter(otherDAreaportal -> IntStream.range(0, apHelper.vertices.length)                        // - Check if all vertices are the same -> sharing the same space
-                                .allMatch(i -> apHelper.vertices[i].equals(bsp.clipPortalVerts.get(otherDAreaportal.firstClipPortalVert + i).point)))
-                        .map(dupAp -> (int) dupAp.portalKey)                                                            // - Convert the areaportal objects into their ids so we can add them easier
-                        .collect(Collectors.toCollection(ArrayList::new));                                              // - Return all ids as a list
-                portalIDs.addAll(ids);                                                                                  // Add all areaportal ids we found. 'portalIDs' has to be a set so we don't get duplicated ids
-                apHelper.portalID.addAll(portalIDs);                                                                    // Add all ids into our areaportal helper object
-                areaportalHelpers.add(apHelper);                                                                        // Finally add the helper into our list
+                        .toArray(Vector3f[]::new);
+                areaportalHelper.portalID.add((int) dAreaportal.portalKey);
+                areaportalHelpers.add(areaportalHelper);
+            } else {
+                matchingApHelper.portalID.add((int) dAreaportal.portalKey);
             }
         }
 
-        // Sort all areaportal ids in all areaporal helper objects. This is important!
-        for (AreaportalHelper apHelper: areaportalHelpers) {
-            apHelper.portalID.sort(Integer::compareTo);
-        }
         // Sort the list of areaportal helpers by their first portal id. This is not necessary but could help if the manual mapping makes mistakes
-        areaportalHelpers.sort(Comparator.comparingInt(apHelper -> apHelper.portalID.get(0)));
+        areaportalHelpers.sort(Comparator.comparingInt(apHelper -> apHelper.portalID.first()));
     }
 
     /**
@@ -110,7 +96,7 @@ public class AreaportalMapper {
      * @return A {@code Map} where the keys represent areaportal ids and the values brush ids
      */
     private Map<Integer, Integer> createApBrushMapping() {
-        ArrayList<DBrush> areaportalBrushes = new ArrayList<>(this.areaportalBrushes);                                  // We create a copy this list so we can dynamically remove elements when we assign them. This way they can't be mapped to two entities
+        ArrayList<DBrush> areaportalBrushes = new ArrayList<>(this.areaportalBrushes);                                  // We create a copy of this list so we can dynamically remove elements when we assign them. This way they can't be mapped to two entities
 
         Map<AreaportalHelper, List<DBrush>> apHelperBrushMapping = areaportalHelpers.stream()                                         // I know i maybe shouldn't have only used streams here...
                 .map(apHelper -> {
@@ -266,7 +252,7 @@ public class AreaportalMapper {
      */
     private class AreaportalHelper {
 
-        public ArrayList<Integer> portalID = new ArrayList<>();         //All areaportal entities assigned to this helper
+        public TreeSet<Integer> portalID = new TreeSet<>();         //All areaportal entities assigned to this helper. All areaportals are sorted by their portalID!
         public Vector3f[] vertices;
     }
 }
