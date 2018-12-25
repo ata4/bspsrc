@@ -79,26 +79,22 @@ public class BspSourceFrame extends javax.swing.JFrame {
         reset();
 
         // init file dropper
-        fdrop = new FileDrop(listFiles, new FileDrop.Listener() {
+        fdrop = new FileDrop(listFiles, files -> {
+		    java.io.FileFilter filter = new BspFileFilter();
 
-            @Override
-            public void filesDropped(File[] files) {
-                java.io.FileFilter filter = new BspFileFilter();
+		    for (File file : files) {
+		        if (file.isDirectory()) {
+		            File[] subFiles = file.listFiles(filter);
+		            for (File subFile : subFiles) {
+		                listFilesModel.addElement(new BspFileEntry(subFile));
+		            }
+		        } else if (filter.accept(file)) {
+		            listFilesModel.addElement(new BspFileEntry(file));
+		        }
+		    }
 
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        File[] subFiles = file.listFiles(filter);
-                        for (File subFile : subFiles) {
-                            listFilesModel.addElement(new BspFileEntry(subFile));
-                        }
-                    } else if (filter.accept(file)) {
-                        listFilesModel.addElement(new BspFileEntry(file));
-                    }
-                }
-
-                buttonDecompile.setEnabled(!listFilesModel.isEmpty());
-            }
-        });
+		    buttonDecompile.setEnabled(!listFilesModel.isEmpty());
+		});
     }
 
     public ComboBoxModel getFaceTextureModel() {

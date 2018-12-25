@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 import java.util.TooManyListenersException;
+import java.util.function.*;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.border.Border;
@@ -79,7 +80,7 @@ public class FileDrop {
      */
     public FileDrop(
             final Component c,
-            final Listener listener) {
+            final Consumer<File[]> listener) {
         this(null, // Logging stream
                 c, // Drop target
                 BorderFactory.createMatteBorder(2, 2, 2, 2, defaultBorderColor), // Drag border
@@ -100,7 +101,7 @@ public class FileDrop {
     public FileDrop(
             final Component c,
             final boolean recursive,
-            final Listener listener) {
+            final Consumer<File[]> listener) {
         this(null, // Logging stream
                 c, // Drop target
                 BorderFactory.createMatteBorder(2, 2, 2, 2, defaultBorderColor), // Drag border
@@ -124,7 +125,7 @@ public class FileDrop {
     public FileDrop(
             final PrintStream out,
             final Component c,
-            final Listener listener) {
+            final Consumer<File[]> listener) {
         this(out, // Logging stream
                 c, // Drop target
                 BorderFactory.createMatteBorder(2, 2, 2, 2, defaultBorderColor),
@@ -153,7 +154,7 @@ public class FileDrop {
             final PrintStream out,
             final Component c,
             final boolean recursive,
-            final Listener listener) {
+            final Consumer<File[]> listener) {
         this(out, // Logging stream
                 c, // Drop target
                 BorderFactory.createMatteBorder(2, 2, 2, 2, defaultBorderColor), // Drag border
@@ -172,7 +173,7 @@ public class FileDrop {
     public FileDrop(
             final Component c,
             final Border dragBorder,
-            final Listener listener) {
+            final Consumer<File[]> listener) {
         this(
                 null, // Logging stream
                 c, // Drop target
@@ -196,7 +197,7 @@ public class FileDrop {
             final Component c,
             final Border dragBorder,
             final boolean recursive,
-            final Listener listener) {
+            final Consumer<File[]> listener) {
         this(
                 null,
                 c,
@@ -222,7 +223,7 @@ public class FileDrop {
             final PrintStream out,
             final Component c,
             final Border dragBorder,
-            final Listener listener) {
+            final Consumer<File[]> listener) {
         this(
                 out, // Logging stream
                 c, // Drop target
@@ -250,7 +251,7 @@ public class FileDrop {
             final Component c,
             final Border dragBorder,
             final boolean recursive,
-            final Listener listener) {
+            final Consumer<File[]> listener) {
 
         if (supportsDnD()) {   // Make a drop listener
             dropListener = new DropTargetListener() {
@@ -309,7 +310,7 @@ public class FileDrop {
 
                             // Alert listener to drop.
                             if (listener != null) {
-                                listener.filesDropped(files);
+                                listener.accept(files);
                             }
 
                             // Mark that drop is completed.
@@ -334,7 +335,7 @@ public class FileDrop {
                                     BufferedReader br = new BufferedReader(reader);
 
                                     if (listener != null) {
-                                        listener.filesDropped(createFileArray(br, out));
+                                        listener.accept(createFileArray(br, out));
                                     }
 
                                     // Mark that drop is completed.
@@ -576,33 +577,6 @@ public class FileDrop {
             return false;
         }
     }   // end remove
-
-    /* ********  I N N E R   I N T E R F A C E   L I S T E N E R  ******** */
-    /**
-     * Implement this inner interface to listen for when files are dropped. For example
-     * your class declaration may begin like this:
-     * <code><pre>
-     *      public class MyClass implements FileDrop.Listener
-     *      ...
-     *      public void filesDropped( java.io.File[] files )
-     *      {
-     *          ...
-     *      }   // end filesDropped
-     *      ...
-     * </pre></code>
-     *
-     * @since 1.1
-     */
-    public static interface Listener {
-
-        /**
-         * This method is called when files have been successfully dropped.
-         *
-         * @param files An array of <tt>File</tt>s that were dropped.
-         * @since 1.0
-         */
-        public abstract void filesDropped(File[] files);
-    }   // end inner-interface Listener
 
 
     /* ********  I N N E R   C L A S S  ******** */

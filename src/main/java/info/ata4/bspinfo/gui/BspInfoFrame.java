@@ -98,17 +98,11 @@ public class BspInfoFrame extends javax.swing.JFrame {
         initComponentsCustom();
 
         // init file dropper
-        fdrop = new FileDrop(this, new FileDrop.Listener() {
-
-            @Override
-            public void filesDropped(File[] files) {
-                java.io.FileFilter filter = new BspFileFilter();
-
-                if (filter.accept(files[0])) {
-                    loadFile(files[0]);
-                }
-            }
-        });
+        fdrop = new FileDrop(this, files -> {
+		    if (new BspFileFilter().accept(files[0])) {
+		        loadFile(files[0]);
+		    }
+		});
 
         // add dialog log handler
         L.addHandler(new DialogHandler(this));
