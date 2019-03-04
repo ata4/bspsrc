@@ -75,7 +75,7 @@ public class OccluderMapper {
 
                     return new AbstractMap.SimpleEntry<>(bsp.brushes.indexOf(dBrush), faces);
                 })
-                .collect(Collectors.toMap(o -> o.getKey(), o -> o.getValue()));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**
@@ -83,7 +83,7 @@ public class OccluderMapper {
      *
      * @return A {@code Map} where the keys represent an occluder an the values a list of brush ids
      */
-    private Map<Integer, List<Integer>> createOccBrushMapping() {
+    private Map<Integer, List<Integer>> manualMapping() {                                                               // TODO: This is still very ugly. Maybe change syntax in future
         Map<Integer, List<Integer>> occBrushMapping = bsp.occluderDatas.stream()                                        // Iterate over every occluderData entry
                 .map(dOccluderData -> {                                                                                 // - Map them to an entry where the key is the occluderData and the value a list of brush indexes
                     List<Integer> mappedBrushes = bsp.occluderPolyDatas.subList(dOccluderData.firstpoly, dOccluderData.firstpoly + dOccluderData.polycount).stream()   // -- Iterate over every occluderface the occluder has
@@ -115,7 +115,7 @@ public class OccluderMapper {
 
                     return new AbstractMap.SimpleEntry<>(bsp.occluderDatas.indexOf(dOccluderData), mappedBrushes);      // -- Return the found brushes as an entry. Key = occluderData, value = List of brush indexes
                 })
-                .collect(Collectors.toMap(o -> o.getKey(), o -> o.getValue()));                                         // - Collect all entries into a Map
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));                                         // - Collect all entries into a Map
 
         // Because the Texturebuilder needs to know which brush is a occluder we flag them here. (The Texturebuilder needs to know this information because the brushside that represents the occluder has almost always the wrong tooltexture applied)
         for (Map.Entry<Integer, List<Integer>> entry: occBrushMapping.entrySet()) {
@@ -135,7 +135,7 @@ public class OccluderMapper {
      *
      * @return A {@code Map} with occluder ids as keys and and a List of Integers as values
      */
-    private Map<Integer, List<Integer>> mapOccBrushMappingOrdered() {
+    private Map<Integer, List<Integer>> orderedMapping() {
         // Get the min amount of occluder faces that can be process#
         // This should always be limited by the amount of occluderData but we test nonetheless
         long min = Math.min(occluderFaces.entrySet().stream().mapToInt(Map.Entry::getValue).sum(), bsp.occluderDatas.stream().mapToInt(occluder -> occluder.polycount).sum());
@@ -193,20 +193,28 @@ public class OccluderMapper {
      * <p></p>
      * If the amount of occluder faces is equal to the amount of occluder faces of all potential occluder brushes we just map the occluder faces in order to the brushes.
      * This is possible because vBsp seems to compile the occluders in order.
-     * If this is not the case we use {@code createOccBrushMapping} to manually map the occluders to their brushes
+     * If this is not the case we use {@code manualMapping} to manually map the occluders to their brushes
      *
      * @return A {@code Map} where the keys represent occluder ids and values a list of brush ids
      */
     public Map<Integer, List<Integer>> getOccBrushMapping() {
         if (!config.writeOccluders)
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
 
         if (config.occForceMapping) {
             L.info("Forced occluder method: '" + config.occMappingMode + "'");
             return config.occMappingMode.map(this);
         }
 
-        if (occluderFaces.entrySet().stream().mapToInt(Map.Entry::getValue).sum() == bsp.occluderDatas.stream().mapToInt(occluder -> occluder.polycount).sum()) {
+        int occluderFacesNum = occluderFaces.entrySet().stream()
+                .mapToInt(Map.Entry::getValue)
+                .sum();
+
+        int occluderBrushFacesNum = bsp.occluderDatas.stream()
+                .mapToInt(occluder -> occluder.polycount)
+                .sum();
+
+        if (occluderFacesNum == occluderBrushFacesNum) {
             L.info("Equal amount of occluder faces as occluder brush faces. Using '" + OccMappingMode.ORDERED + "' method");
             return OccMappingMode.ORDERED.map(this);
         } else {
@@ -216,8 +224,8 @@ public class OccluderMapper {
     }
 
     public enum OccMappingMode {
-        MANUAL(OccluderMapper::createOccBrushMapping),
-        ORDERED(OccluderMapper::mapOccBrushMappingOrdered);
+        MANUAL(OccluderMapper::manualMapping),
+        ORDERED(OccluderMapper::orderedMapping);
 
         private Function<OccluderMapper, Map<Integer, List<Integer>>> mapper;
 

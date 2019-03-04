@@ -44,7 +44,9 @@ public class AreaportalMapper {
      * @return {@code true} if any areaportal entity is invalid, else {@code false}
      */
     private boolean checkAreaportal() {
-        return bsp.areaportals.stream().filter(dAreaportal -> dAreaportal.portalKey != 0).anyMatch(dAreaportal -> dAreaportal.clipPortalVerts == 0);
+        return bsp.areaportals.stream()
+                .filter(dAreaportal -> dAreaportal.portalKey != 0)
+                .anyMatch(dAreaportal -> dAreaportal.clipPortalVerts == 0);
     }
 
     /**
@@ -58,22 +60,22 @@ public class AreaportalMapper {
                 continue;
 
             // Do we already have a 'AreaportalHelper' that represents this areaportal?
-            AreaportalHelper matchingApHelper = areaportalHelpers.stream()
+            Optional<AreaportalHelper> matchingApHelper = areaportalHelpers.stream()
                     .filter(apHelper -> IntStream.range(0, apHelper.vertices.length)
                             .allMatch(i -> apHelper.vertices[i].equals(bsp.clipPortalVerts.get(dAreaportal.firstClipPortalVert + i).point)))
-                    .findAny().orElse(null);
+                    .findAny();
 
             // If there is no AreaportalHelper that represents this portal, we create one
             // If there is already an AreaportalHelper representing this portal, we just add the portalID to it
-            if (matchingApHelper == null) {
+            if (matchingApHelper.isPresent()) {
+                matchingApHelper.get().portalID.add((int) dAreaportal.portalKey);
+            } else {
                 AreaportalHelper areaportalHelper = new AreaportalHelper();
                 areaportalHelper.vertices = bsp.clipPortalVerts.subList(dAreaportal.firstClipPortalVert, dAreaportal.firstClipPortalVert + dAreaportal.clipPortalVerts).stream()
                         .map(dVertex -> dVertex.point)
                         .toArray(Vector3f[]::new);
                 areaportalHelper.portalID.add((int) dAreaportal.portalKey);
                 areaportalHelpers.add(areaportalHelper);
-            } else {
-                matchingApHelper.portalID.add((int) dAreaportal.portalKey);
             }
         }
 
@@ -95,7 +97,7 @@ public class AreaportalMapper {
      *
      * @return A {@code Map} where the keys represent areaportal ids and the values brush ids
      */
-    private Map<Integer, Integer> createApBrushMapping() {
+    private Map<Integer, Integer> manualMapping() {
         ArrayList<DBrush> areaportalBrushes = new ArrayList<>(this.areaportalBrushes);                                  // We create a copy of this list so we can dynamically remove elements when we assign them. This way they can't be mapped to two entities
 
         Map<AreaportalHelper, List<DBrush>> apHelperBrushMapping = areaportalHelpers.stream()                                         // I know i maybe shouldn't have only used streams here...
@@ -121,7 +123,7 @@ public class AreaportalMapper {
                             .collect(Collectors.toList());                                                              // Finally we got a list of brushes that have side that intersect/touch the areaportal -> return this
                     return new AbstractMap.SimpleEntry<>(apHelper, brushes);                                            // Return an entry with the areaportal helper as key and the brushes as value
                 })
-                .collect(Collectors.toMap(o -> o.getKey(), o -> o.getValue()));                                         // Collect all entries into a Map
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));                                         // Collect all entries into a Map
 
         HashMap<Integer, List<DBrush>> portalToHelperMap = new HashMap<>();                                             // Now we reorder this map into a new one so that every key represents one areaportalId and the value the list of brushes
         for (Map.Entry<AreaportalHelper, List<DBrush>> entry: apHelperBrushMapping.entrySet()) {
@@ -147,6 +149,18 @@ public class AreaportalMapper {
         }
 
         return Collections.unmodifiableMap(mapping);
+    }
+
+    private Map<Integer, Integer> orderedMapping() {
+        int areaportalIDCount = areaportalHelpers.stream()
+                .mapToInt(apHelper -> apHelper.portalID.size())
+                .sum();
+
+        int areaportalBrushCount = areaportalBrushes.size();
+
+        return IntStream.range(0, Math.min(areaportalIDCount, areaportalBrushCount))
+                .boxed()
+                .collect(Collectors.toMap(i -> i + 1, i -> bsp.brushes.indexOf(areaportalBrushes.get(i))));
     }
 
 
@@ -193,14 +207,14 @@ public class AreaportalMapper {
      * <p></p>
      * If the amount of portals is equal to the amount of areaportal brushes we just map the areaportal in order to the brushes.
      * This is possible because vBsp seems to compile the areaportals in order.
-     * If this is not the case we use {@code createApBrushMapping} to manually map the areaportal brushes to areaportal entities
+     * If this is not the case we use {@code manualMapping} to manually map the areaportal brushes to areaportal entities
      *
      * @return A {@code Map} where the keys represent portal ids and values the brush ids
      */
     public Map<Integer,Integer> getApBrushMapping()
     {
         if (!config.writeAreaportals)
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
 
         if (config.apForceMapping) {
             L.info("Forced areaportal method: '" + config.apMappingMode + "'");
@@ -217,19 +231,8 @@ public class AreaportalMapper {
     }
 
     public enum ApMappingMode {
-        MANUAL(AreaportalMapper::createApBrushMapping),
-        ORDERED(apMapper -> {
-            BspData bsp = apMapper.bsp;
-            long min = Math.min(apMapper.areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum(), bsp.brushes.stream().filter(DBrush::isAreaportal).count());
-
-            HashMap<Integer, Integer> apBrushMap = new HashMap<>();
-            ArrayList<DBrush> apBrushes = bsp.brushes.stream().filter(DBrush::isAreaportal).collect(Collectors.toCollection(ArrayList::new));
-            for (int i = 0; i < min; i++) {
-                apBrushMap.put(i + 1, bsp.brushes.indexOf(apBrushes.get(i)));
-            }
-            return apBrushMap;
-        });
-
+        MANUAL(AreaportalMapper::manualMapping),
+        ORDERED(AreaportalMapper::orderedMapping);
 
         private Function<AreaportalMapper, Map<Integer, Integer>> mapper;
 
