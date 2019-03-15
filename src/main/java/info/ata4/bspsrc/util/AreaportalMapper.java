@@ -3,11 +3,15 @@ package info.ata4.bspsrc.util;
 import info.ata4.bsplib.struct.BspData;
 import info.ata4.bsplib.struct.DAreaportal;
 import info.ata4.bsplib.struct.DBrush;
+import info.ata4.bsplib.struct.DBrushSide;
+import info.ata4.bsplib.util.VectorUtil;
+import info.ata4.bsplib.vector.Vector2f;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.log.LogUtils;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -93,62 +97,155 @@ public class AreaportalMapper {
     }
 
     /**
-     * Maps all areaportal entitys to their brushes in form of a {@code Map}
+     * Maps areaportal brushes to the likeliest areaportal entity it represents
+     * <p></p>
+     * This is done by comparing the brush to all available areaportals and determining how much they 'overlap'.
+     * This means if a brush doesn't have a brush side that's on the same plane as the areaportal, the probability is automatically 0.
+     * If there is a brush side that is on the same plane, the probability is computed by 'sharedSurfaceArea / areaportalSurfaceArea'
      *
      * @return A {@code Map} where the keys represent areaportal ids and the values brush ids
      */
-    private Map<Integer, Integer> manualMapping() {
-        ArrayList<DBrush> areaportalBrushes = new ArrayList<>(this.areaportalBrushes);                                  // We create a copy of this list so we can dynamically remove elements when we assign them. This way they can't be mapped to two entities
+    private Map<Integer, Integer> manualMapping()
+    {
+        Map<DBrush, Map<AreaportalHelper, Double>> brushProbMapping = areaportalBrushes.stream()
+                .collect(Collectors.toMap(dBrush -> dBrush, this::areaportalBrushProb));
 
-        Map<AreaportalHelper, List<DBrush>> apHelperBrushMapping = areaportalHelpers.stream()                                         // I know i maybe shouldn't have only used streams here...
-                .map(apHelper -> {
-                    Winding apWinding = new Winding(apHelper.vertices);                                                 // We iterate over every areaportal and create some basic information about it: normal vector, distance to world origin
-                    Vector3f[] plane = apWinding.buildPlane();
-                    Vector3f vec1 = plane[1].sub(plane[0]);
-                    Vector3f vec2 = plane[2].sub(plane[0]);
-                    Vector3f normal = vec2.cross(vec1);
-                    float dist = normal.normalize().dot(new Vector3f(0f, 0f, 0f).sub(plane[0]));
+        Map<Integer, Set<Integer>> debug = brushProbMapping.entrySet().stream()
+                .map(entry -> new AbstractMap.SimpleEntry<Integer, Set<Integer>>(areaportalBrushes.indexOf(entry.getKey()), entry.getValue().entrySet().stream()
+                        .max(Comparator.comparingDouble(Entry::getValue))
+                        .map(apEntry -> apEntry.getKey().portalID)
+                        .orElse(null)))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-                    List<DBrush> brushes = areaportalBrushes.stream()                                                   // For every areaportal we check every brush that has a face that intersects/touch the areaportal and store them into a list
-                            .map(dBrush -> {                                                                            // - Find Brush with side that intersects/touches the areportal
-                                Winding w = IntStream.range(0, dBrush.numside)                                          // -- Iterate over every side of this brush
-                                        .mapToObj(i -> WindingFactory.fromSide(bsp, dBrush, i))                         // -- Create winding of this face
-                                        .filter(winding -> winding.size() > 2)                                          // -- If the winding for whatever reason doesn't have at least 3 vertices we filter it out to prevent errors
-                                        .filter(winding -> winding.intersect(apWinding))                                // -- Filter every face out that doesn't intersect/touch
-                                        .findFirst().orElse(null);                                                // -- Return the first face which met the requirements or null if no element met them
+        // Remove every brush entry if it doesn't have areaportals mapped to it. (Not sure if this could actually happen here)
+        brushProbMapping.entrySet().removeIf(dBrushMapEntry -> dBrushMapEntry.getValue().isEmpty());
 
-                                return w == null ? null : dBrush;                                                       // - If we found a face that met the requirements we return the brush of it else null
-                            })
-                            .filter(Objects::nonNull)                                                                   // Filter all elements out that are null
-                            .collect(Collectors.toList());                                                              // Finally we got a list of brushes that have side that intersect/touch the areaportal -> return this
-                    return new AbstractMap.SimpleEntry<>(apHelper, brushes);                                            // Return an entry with the areaportal helper as key and the brushes as value
-                })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));                                         // Collect all entries into a Map
+        // Final brush mapping. Key represent areaportal ids, values represent index in bsp.brushes
+        HashMap<Integer, Integer> brushMapping = new HashMap<>();
+        while (!brushProbMapping.isEmpty())
+        {
+            TreeMap<DBrush, Map<AreaportalHelper, Double>> mappingQueue = new TreeMap<>(Comparator.comparingInt(areaportalBrushes::indexOf));
 
-        HashMap<Integer, List<DBrush>> portalToHelperMap = new HashMap<>();                                             // Now we reorder this map into a new one so that every key represents one areaportalId and the value the list of brushes
-        for (Map.Entry<AreaportalHelper, List<DBrush>> entry: apHelperBrushMapping.entrySet()) {
-            for (Integer portalID: entry.getKey().portalID) {
-                portalToHelperMap.put(portalID, entry.getValue());
+            // Get all brush mappings that only have one available areaportal to map to. These can be safely mapped as they don't create conflicts with other areaportal brushes (At least they shouldn't theoretically)
+            mappingQueue.putAll(brushProbMapping.entrySet().stream()
+                    .filter(dBrushMapEntry -> dBrushMapEntry.getValue().size() == 1)
+                    .collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+
+            if (mappingQueue.isEmpty())
+            {
+                // We ended up with only brushes that can't be mapped distinctively so we guess one to map by using the mapping with the highest probability
+                brushProbMapping.entrySet().stream()
+                        .max(Comparator.comparingDouble(entry -> entry.getValue().entrySet().stream()
+                                .max(Comparator.comparingDouble(Entry::getValue))
+                                .map(Entry::getValue)
+                                .orElseThrow(RuntimeException::new)))
+                        .ifPresent(entry -> mappingQueue.put(entry.getKey(), entry.getValue()));
             }
+
+            // Now mapped those brushes we selected earlier
+            for (Entry<DBrush, Map<AreaportalHelper, Double>> entry : mappingQueue.entrySet())
+            {
+                DBrush dBrush = entry.getKey();
+                Map<AreaportalHelper, Double> apHelperProbMap = entry.getValue();
+
+                if (!apHelperProbMap.isEmpty())
+                {
+                    AreaportalHelper apHelper = apHelperProbMap.keySet().iterator().next();
+                    int portalID = apHelper.portalID.first();
+
+                    // When we map a brush to the specific areaportal id, we need to make sure no other brush is mapped to it as well. -> Iterate over every brush mapping and remove the areaportal id if present
+                    brushProbMapping.entrySet().stream()
+                            .flatMap(dBrushMapEntry -> dBrushMapEntry.getValue().entrySet().stream()
+                                    .map(Entry::getKey))
+                            .forEach(areaportalHelper -> areaportalHelper.portalID.removeIf(integer -> integer == portalID));
+
+                    // This could cause Areaportalhelpers to be empty (of portal ids), so we remove every entry with those
+                    brushProbMapping.forEach((key, value) -> value.entrySet().removeIf(apEntry -> apEntry.getKey().portalID.isEmpty()));
+
+                    // Finally put our new mapping in the map
+                    brushMapping.put(portalID, bsp.brushes.indexOf(dBrush));
+                }
+                brushProbMapping.remove(dBrush);
+            }
+
+            // After every iteration we remove every entry that doesn't have a possible entry anymore. (This could for example happen if the algorithm makes mistake)
+            brushProbMapping.entrySet().removeIf(entry -> entry.getValue().isEmpty());
         }
 
-        HashMap<Integer, Integer> mapping = new HashMap<>();
-        ArrayList<DBrush> usedBrushes = new ArrayList<>();
-        for (int i = 0; i < portalToHelperMap.entrySet().size(); i++) {                                                 // Map every key in the map to one of the brushes in the list. When multiple brushes are available always the one with the lowest index is taken. Brushes can only be assigned to one areaportal
-            if (!portalToHelperMap.containsKey(i))
-                continue;
+        return brushMapping;
+    }
 
-            for (DBrush dBrush: portalToHelperMap.get(i)) {
-                if (usedBrushes.contains(dBrush))
-                    continue;
+    /**
+     * Returns all possible areaportals this brush could represent, each with a percentage as their likelihood
+     *
+     * @param dBrush An areaportal brush
+     * @return A {@code Map} with <b>copys</b> of {@link AreaportalHelper}'s as keys and and a percantage(0 < p <= 1) as likelihood
+     */
+    private Map<AreaportalHelper, Double> areaportalBrushProb(DBrush dBrush)
+    {
+        return IntStream.range(0, dBrush.numside)
+                .boxed()
+                .flatMap(side -> areaportalHelpers.stream()
+                        .map(apHelper -> new AbstractMap.SimpleEntry<AreaportalHelper, Double>(new AreaportalHelper(apHelper), areaportalBrushSideProb(apHelper, WindingFactory.fromSide(bsp, dBrush, side))))
+                        .filter(entry -> entry.getValue() != 0))
+                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+    }
 
-                mapping.put(i, bsp.brushes.indexOf(dBrush));
-                usedBrushes.add(dBrush);
-                break;
-            }
-        }
+    /**
+     * Returns the probability that the specified {@link DBrushSide} represents the specified {@link AreaportalHelper}
+     *
+     * @param areaportalHelper the areaportal this brush is compared to
+     * @param brushSideWinding a winding representing the brush side
+     * @return A probability in form of a double ranging from 0 to 1
+     */
+    private double areaportalBrushSideProb(AreaportalHelper areaportalHelper, Winding brushSideWinding)
+    {
+        Winding apWinding = new Winding(areaportalHelper.vertices);
 
-        return Collections.unmodifiableMap(mapping);
+        // Test if apWinding and brushSideWinding share the same plane
+        if (!apWinding.isInSamePlane(brushSideWinding))
+            return 0;
+
+        Vector3f[] plane = apWinding.buildPlane();
+        Vector3f vec1 = plane[1].sub(plane[0]);
+        Vector3f vec2 = plane[2].sub(plane[0]);
+        Vector3f planeNormal = vec2.cross(vec1).normalize();
+
+        Vector3f origin = apWinding.get(0);
+        Vector3f axis1 = apWinding.get(1).sub(origin).normalize(); //Random vector orthogonal to planeNormal
+        Vector3f axis2 = axis1.cross(planeNormal).normalize(); //Vector orthogonal to axis1 and planeNormal
+
+        //Map 3d coordinates of windings to 2d (2d coordinates on the plane they lie on)
+        List<Vector2f> apPolygon = apWinding.stream()
+                .map(vertex -> vertex.to2D(origin, axis1, axis2))
+                .collect(Collectors.toList());
+
+        List<Vector2f> brushSidePolygon = brushSideWinding.stream()
+                .map(vertex -> vertex.to2D(origin, axis1, axis2))
+                .collect(Collectors.toList());
+
+        Set<Vector2f> intersectingVertices = new HashSet<>();
+
+        // Find all corners of apWinding that are inside of brushSideWinding
+        intersectingVertices.addAll(apPolygon.stream()
+                .filter(vertex -> VectorUtil.isInsideConvexPolygon(vertex, brushSidePolygon))
+                .collect(Collectors.toList()));
+
+        // Find all corners of brushSideWinding that are inside of apWinding
+        intersectingVertices.addAll(brushSidePolygon.stream()
+                .filter(vertex -> VectorUtil.isInsideConvexPolygon(vertex, apPolygon))
+                .collect(Collectors.toList()));
+
+        // Find all intersections of the 2 polygons
+        intersectingVertices.addAll(VectorUtil.getPolygonIntersections(apPolygon, brushSidePolygon));
+
+        // Order all vertices creating a valid convex polygon
+        List<Vector2f> intersectionPolygon = VectorUtil.orderVertices(intersectingVertices);
+
+        double intersectionArea = VectorUtil.polygonArea(intersectionPolygon);
+        double areaportalArea = VectorUtil.polygonArea(apPolygon);
+
+        return intersectionArea / areaportalArea > 1 ? 0 : Math.abs(intersectionArea / areaportalArea);
     }
 
     private Map<Integer, Integer> orderedMapping() {
@@ -163,44 +260,6 @@ public class AreaportalMapper {
                 .collect(Collectors.toMap(i -> i + 1, i -> bsp.brushes.indexOf(areaportalBrushes.get(i))));
     }
 
-
-    // Maybe something I will still need later. I had to change the 'Manual' method because i made some mistakes when creating the algorithm. The current method is very similar to the 'ordered' method.
-    // This will hopefully change soon. So this method will probably be used later again.
-
-//    /**
-//     * Test if two brushes intersect/touch
-//     *
-//     * @param brush first brush
-//     * @param otherBrush second brush
-//     * @param bsp {@code BspData} object which contains needed geometry info
-//     * @return {@code true} when the brushes intersect/touch, else {@code false}
-//     */
-//    private boolean intersects(DBrush brush, DBrush otherBrush, BspData bsp)
-//    {
-//        HashSet<Vector3f> vertices = new HashSet<>();
-//
-//        //Saves all vertices from 'otherBrush' into a set
-//        for (int i1 = 0; i1 < otherBrush.numside; i1++) {
-//            vertices.addAll(WindingFactory.fromSide(bsp, otherBrush, i1));
-//        }
-//
-//        boolean intersects = true;                                  // Some Math magic. If the variable intersect is true at the end, we know they intersect...      But seriously i don't know how well i can explain this
-//        for (int i = 0; i < brush.numside; i++) {
-//            Winding w = WindingFactory.fromSide(bsp, brush, i);     // Basically what we do here is comparing each face/side of 'brush' to each vertex of the other brush.
-//                                                                    // For each face we create a plane and measure the closest distance from each vertex of the other brush to that plane.
-//            Vector3f[] plane = w.buildPlane();                      // Because the closest distance from a point to a plane is always a right angle we use the normal vector
-//            Vector3f vec1 = plane[1].sub(plane[0]);                 // If distance is <= 0 we know that that the point lies 'behind'/in that plane
-//            Vector3f vec2 = plane[2].sub(plane[0]);                 // A brush intersects/touches with another brush if every plane has at least one vertex of 'otherBrush' 'behind'/in it
-//
-//            Vector3f cross = vec2.cross(vec1).normalize();
-//            if (vertices.stream().noneMatch(vertex -> cross.dot(vertex.sub(plane[0])) <= 0)) {
-//                intersects = false;
-//                break;
-//            }
-//        }
-//
-//        return intersects;
-//    }
 
     /**
      * Creates and returns an areaportal to brush mapping.
@@ -257,5 +316,19 @@ public class AreaportalMapper {
 
         public TreeSet<Integer> portalID = new TreeSet<>();         //All areaportal entities assigned to this helper. All areaportals are sorted by their portalID!
         public Vector3f[] vertices;
+
+        public AreaportalHelper()
+        {
+        }
+
+        public AreaportalHelper(AreaportalHelper apHelper)
+        {
+            portalID.addAll(apHelper.portalID);
+            vertices = new Vector3f[apHelper.vertices.length];
+            for (int i = 0; i < vertices.length; i++)
+            {
+                vertices[i] = new Vector3f(apHelper.vertices[i]);
+            }
+        }
     }
 }
