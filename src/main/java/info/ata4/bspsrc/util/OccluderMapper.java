@@ -106,8 +106,7 @@ public class OccluderMapper {
      * @param dOccluderData occluder to find brushes for
      * @return a Integer list of brush indexes
      */
-    private List<Integer> mapOccluder(DOccluderData dOccluderData)
-    {
+    private List<Integer> mapOccluder(DOccluderData dOccluderData) {
         return bsp.occluderPolyDatas.subList(dOccluderData.firstpoly, dOccluderData.firstpoly + dOccluderData.polycount).stream()
                 .map(dOccluderPolyData -> potentialOccluderBrushes.stream()
                         .filter(dBrush -> bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
@@ -126,8 +125,7 @@ public class OccluderMapper {
      * @param dBrushSide the brush side
      * @return true if the specified occluder face matches with the specified brush side, false otherwise
      */
-    private boolean occFacesMatchesBrushFace(DOccluderPolyData dOccluderPolyData, DBrush dBrush, DBrushSide dBrushSide)
-    {
+    private boolean occFacesMatchesBrushFace(DOccluderPolyData dOccluderPolyData, DBrush dBrush, DBrushSide dBrushSide) {
         Winding w = WindingFactory.fromSide(bsp, dBrush, dBrushSide);
 
         // If the amount of vertices are unequal we know the cant be identical

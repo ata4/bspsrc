@@ -6,11 +6,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class VectorUtil
-{
+public class VectorUtil {
+
 	//https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
-	public static boolean isInsideConvexPolygon(Vector2f p, List<Vector2f> polygon)
-	{
+	public static boolean isInsideConvexPolygon(Vector2f p, List<Vector2f> polygon) {
 		return IntStream.range(0, polygon.size())
 				.mapToObj(i -> new Vector2f[]{polygon.get(i), polygon.get((i + 1) % polygon.size())})
 				.filter(edge -> (edge[0].y > p.y) != (edge[1].y > p.y) && (p.x < (edge[1].x - edge[0].x) * (p.y - edge[0].y) / (edge[1].y - edge[0].y) + edge[0].x))
@@ -19,8 +18,7 @@ public class VectorUtil
 	}
 
 
-	public static Set<Vector2f> getPolygonIntersections(List<Vector2f> polygon1, List<Vector2f> polygon2)
-	{
+	public static Set<Vector2f> getPolygonIntersections(List<Vector2f> polygon1, List<Vector2f> polygon2) {
 		return IntStream.range(0, polygon1.size())
 				.mapToObj(i -> new Vector2f[]{polygon1.get(i), polygon1.get((i + 1) % polygon1.size())})
 				.flatMap(edge -> IntStream.range(0, polygon2.size())
@@ -32,8 +30,7 @@ public class VectorUtil
 	}
 
 	//https://stackoverflow.com/a/565282
-	public static Optional<Vector2f> lineIntersection(Vector2f origin1, Vector2f end1, Vector2f origin2, Vector2f end2)
-	{
+	public static Optional<Vector2f> lineIntersection(Vector2f origin1, Vector2f end1, Vector2f origin2, Vector2f end2) {
 		Vector2f cmP = origin2.sub(origin1);
 		Vector2f r = end1.sub(origin1);
 		Vector2f s = end2.sub(origin2);
@@ -55,16 +52,14 @@ public class VectorUtil
 			return Optional.empty();
 	}
 
-	public static double polygonArea(List<Vector2f> polygon)
-	{
+	public static double polygonArea(List<Vector2f> polygon) {
 		return IntStream.range(0, polygon.size())
 				.mapToObj(i -> new Vector2f[]{polygon.get(i), polygon.get((i + 1) % polygon.size())})
 				.mapToDouble(edge -> (edge[0].x + edge[1].x) * (edge[0].y - edge[1].y))
 				.sum() / 2;
 	}
 
-	public static List<Vector2f> orderVertices(Collection<Vector2f> vertices)
-	{
+	public static List<Vector2f> orderVertices(Collection<Vector2f> vertices) {
 		Vector2f midPoint = vertices.stream()
 				.reduce((vertex1, vertex2) -> vertex1.add(vertex2).scalar(0.5f))
 				.orElse(new Vector2f(0, 0));
