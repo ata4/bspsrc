@@ -475,7 +475,7 @@
                     <Property name="text" type="java.lang.String" value="func_areaportal/_window"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxAreaportalActionPerformed"/>
+                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="checkBoxAreaportalStateChanged"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="checkBoxOccluder">
@@ -483,7 +483,7 @@
                     <Property name="text" type="java.lang.String" value="func_occluder"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxOccluderActionPerformed"/>
+                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="checkBoxOccluderStateChanged"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="checkBoxFixRotation">
@@ -565,9 +565,6 @@
                   <Dimension value="[135, 68]"/>
                 </Property>
               </Properties>
-              <AccessibilityProperties>
-                <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Areaportal"/>
-              </AccessibilityProperties>
 
               <Layout>
                 <DimensionLayout dim="0">
@@ -594,7 +591,7 @@
                     <Property name="actionCommand" type="java.lang.String" value="forceManualMapping"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxApChangeMMActionPerformed"/>
+                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="checkBoxApChangeMMStateChanged"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JComboBox" name="comboBoxApMapping">
@@ -607,6 +604,7 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboBoxApMappingActionPerformed"/>
                   </Events>
                   <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="comboBoxApMapping.setEnabled(checkBoxApChangeMM.isSelected());"/>
                     <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;AreaportalMapper.ApMappingMode&gt;"/>
                   </AuxValues>
                 </Component>
@@ -650,7 +648,7 @@
                     <Property name="text" type="java.lang.String" value="Force mapping"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxOccChangeMMActionPerformed"/>
+                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="checkBoxOccChangeMMStateChanged"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JComboBox" name="comboBoxOccMapping">
@@ -663,6 +661,7 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboBoxOccMappingActionPerformed"/>
                   </Events>
                   <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="comboBoxOccMapping.setEnabled(checkBoxOccChangeMM.isSelected());"/>
                     <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;OccluderMapper.OccMappingMode&gt;"/>
                   </AuxValues>
                 </Component>

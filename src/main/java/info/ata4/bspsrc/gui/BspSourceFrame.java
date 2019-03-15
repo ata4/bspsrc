@@ -693,16 +693,16 @@ public class BspSourceFrame extends javax.swing.JFrame {
         });
 
         checkBoxAreaportal.setText("func_areaportal/_window");
-        checkBoxAreaportal.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkBoxAreaportalActionPerformed(evt);
+        checkBoxAreaportal.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                checkBoxAreaportalStateChanged(evt);
             }
         });
 
         checkBoxOccluder.setText("func_occluder");
-        checkBoxOccluder.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkBoxOccluderActionPerformed(evt);
+        checkBoxOccluder.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                checkBoxOccluderStateChanged(evt);
             }
         });
 
@@ -795,13 +795,14 @@ public class BspSourceFrame extends javax.swing.JFrame {
         checkBoxApChangeMM.setText("Force mapping");
         checkBoxApChangeMM.setToolTipText("This forces the mapping of areaportal to brushes to be made manual. Only check this if you're getting trouble with the default mapping methode");
         checkBoxApChangeMM.setActionCommand("forceManualMapping");
-        checkBoxApChangeMM.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkBoxApChangeMMActionPerformed(evt);
+        checkBoxApChangeMM.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                checkBoxApChangeMMStateChanged(evt);
             }
         });
 
         comboBoxApMapping.setModel(new DefaultComboBoxModel<>(AreaportalMapper.ApMappingMode.values()));
+        comboBoxApMapping.setEnabled(checkBoxApChangeMM.isSelected());
         comboBoxApMapping.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboBoxApMappingActionPerformed(evt);
@@ -827,13 +828,14 @@ public class BspSourceFrame extends javax.swing.JFrame {
         jpOccluderMapping.setPreferredSize(new java.awt.Dimension(135, 46));
 
         checkBoxOccChangeMM.setText("Force mapping");
-        checkBoxOccChangeMM.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkBoxOccChangeMMActionPerformed(evt);
+        checkBoxOccChangeMM.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                checkBoxOccChangeMMStateChanged(evt);
             }
         });
 
         comboBoxOccMapping.setModel(new DefaultComboBoxModel<>(OccluderMapper.OccMappingMode.values()));
+        comboBoxOccMapping.setEnabled(checkBoxOccChangeMM.isSelected());
         comboBoxOccMapping.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboBoxOccMappingActionPerformed(evt);
@@ -877,8 +879,6 @@ public class BspSourceFrame extends javax.swing.JFrame {
                     .addComponent(jpAreaportalMapping, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(121, Short.MAX_VALUE))
         );
-
-        jpAreaportalMapping.getAccessibleContext().setAccessibleName("Areaportal");
 
         tabbedPaneOptions.addTab("Entity mapping", jpEntityMapping);
 
@@ -1118,10 +1118,6 @@ public class BspSourceFrame extends javax.swing.JFrame {
         config.writeLadders = checkBoxLadder.isSelected();
     }//GEN-LAST:event_checkBoxLadderActionPerformed
 
-    private void checkBoxApChangeMMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxApChangeMMActionPerformed
-        config.apForceMapping = checkBoxApChangeMM.isSelected();
-    }//GEN-LAST:event_checkBoxApChangeMMActionPerformed
-
     private void comboBoxApMappingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxApMappingActionPerformed
         config.apMappingMode = (AreaportalMapper.ApMappingMode) comboBoxApMapping.getSelectedItem();
     }//GEN-LAST:event_comboBoxApMappingActionPerformed
@@ -1130,9 +1126,35 @@ public class BspSourceFrame extends javax.swing.JFrame {
         config.occMappingMode = (OccluderMapper.OccMappingMode) comboBoxOccMapping.getSelectedItem();
     }//GEN-LAST:event_comboBoxOccMappingActionPerformed
 
-    private void checkBoxOccChangeMMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxOccChangeMMActionPerformed
+    private void checkBoxAreaportalStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkBoxAreaportalStateChanged
+        config.writeAreaportals = checkBoxAreaportal.isSelected();
+        checkBoxApChangeMM.setEnabled(checkBoxAreaportal.isSelected());
+        
+        if (!checkBoxAreaportal.isSelected()) {
+            checkBoxApChangeMM.setSelected(false);
+            config.apForceMapping = false;
+        }
+    }//GEN-LAST:event_checkBoxAreaportalStateChanged
+
+    private void checkBoxOccluderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkBoxOccluderStateChanged
+        config.writeOccluders = checkBoxOccluder.isSelected();
+        checkBoxOccChangeMM.setEnabled(checkBoxOccluder.isSelected());
+        
+        if (!checkBoxOccluder.isSelected()) {
+            checkBoxOccChangeMM.setSelected(false);
+            config.occForceMapping = false;
+        }
+    }//GEN-LAST:event_checkBoxOccluderStateChanged
+
+    private void checkBoxApChangeMMStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkBoxApChangeMMStateChanged
+        config.apForceMapping = checkBoxApChangeMM.isSelected();
+        comboBoxApMapping.setEnabled(checkBoxApChangeMM.isSelected());
+    }//GEN-LAST:event_checkBoxApChangeMMStateChanged
+
+    private void checkBoxOccChangeMMStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkBoxOccChangeMMStateChanged
         config.occForceMapping = checkBoxOccChangeMM.isSelected();
-    }//GEN-LAST:event_checkBoxOccChangeMMActionPerformed
+        comboBoxOccMapping.setEnabled(checkBoxOccChangeMM.isSelected());
+    }//GEN-LAST:event_checkBoxOccChangeMMStateChanged
 
     private void checkBoxEnableEntitiesActionPerformed(java.awt.event.ActionEvent evt) {                                                       
         config.setWriteEntities(checkBoxEnableEntities.isSelected());
@@ -1141,29 +1163,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
 
     private void checkBoxPropStaticActionPerformed(java.awt.event.ActionEvent evt) {                                                   
         config.writeStaticProps = checkBoxPropStatic.isSelected();
-    }                                                  
-
-    private void checkBoxAreaportalActionPerformed(java.awt.event.ActionEvent evt) {                                                   
-        config.writeAreaportals = checkBoxAreaportal.isSelected();
-        checkBoxApChangeMM.setEnabled(checkBoxAreaportal.isSelected());
-        comboBoxApMapping.setEnabled(checkBoxAreaportal.isSelected());
-        
-        if (!checkBoxAreaportal.isSelected()) {
-            checkBoxApChangeMM.setSelected(false);
-            config.apForceMapping = false;
-        }
-    }                                                  
-
-    private void checkBoxOccluderActionPerformed(java.awt.event.ActionEvent evt) {                                                 
-        config.writeOccluders = checkBoxOccluder.isSelected();
-        checkBoxOccChangeMM.setEnabled(checkBoxOccluder.isSelected());
-        comboBoxOccMapping.setEnabled(checkBoxOccluder.isSelected());
-        
-        if (!checkBoxOccluder.isSelected()) {
-            checkBoxOccChangeMM.setSelected(false);
-            config.occForceMapping = false;
-        }
-    }                                                
+    }                                               
 
     private void checkBoxDetailActionPerformed(java.awt.event.ActionEvent evt) {                                               
         config.writeDetails = checkBoxDetail.isSelected();
