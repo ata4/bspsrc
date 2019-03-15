@@ -5,10 +5,9 @@ import info.ata4.io.DataWriter;
 
 import java.io.IOException;
 
-public class Vector2f extends VectorXf
-{
-	public static Vector2f read(DataReader in) throws IOException
-	{
+public class Vector2f extends VectorXf {
+
+	public static Vector2f read(DataReader in) throws IOException {
 		float x = in.readFloat();
 		float y = in.readFloat();
 		return new Vector2f(x, y);
