@@ -1,7 +1,6 @@
 package info.ata4.bspsrc.util;
 
-import info.ata4.bsplib.struct.BspData;
-import info.ata4.bsplib.struct.DBrush;
+import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.modules.texture.ToolTexture;
@@ -12,7 +11,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  *
@@ -83,39 +81,11 @@ public class OccluderMapper {
      *
      * @return A {@code Map} where the keys represent an occluder an the values a list of brush ids
      */
-    private Map<Integer, List<Integer>> manualMapping() {                                                               // TODO: This is still very ugly. Maybe change syntax in future
-        Map<Integer, List<Integer>> occBrushMapping = bsp.occluderDatas.stream()                                        // Iterate over every occluderData entry
-                .map(dOccluderData -> {                                                                                 // - Map them to an entry where the key is the occluderData and the value a list of brush indexes
-                    List<Integer> mappedBrushes = bsp.occluderPolyDatas.subList(dOccluderData.firstpoly, dOccluderData.firstpoly + dOccluderData.polycount).stream()   // -- Iterate over every occluderface the occluder has
-                            .map(dOccluderPolyData -> potentialOccluderBrushes.stream()                                 // --- Map the occluder Face to a brush that contains a identical brushside with a texture matching 'matchesOccluder': Compare it to every potential occluder
-                                    .filter(dBrush -> IntStream.range(0, dBrush.numside)                                // ---- Iterate over every brushside the brush has and test if it has matching vertices and a texture that matches 'matchesOccluder'
-                                            .anyMatch(i -> {
-                                                Winding w = WindingFactory.fromSide(bsp, dBrush, i);
-
-                                                if (w.size() != dOccluderPolyData.vertexcount)                          // ----- If the amount of vertices are unequal we know the cant be identical
-                                                    return false;
-
-                                                for (int j = 0; j < w.size(); j++) {                                    // ----- Test vertices against each other
-                                                    boolean identical = true;
-                                                    for (int k = 0; k < w.size(); k++) {
-                                                        Vector3f occVertex = bsp.verts.get(bsp.occluderVerts.get(dOccluderPolyData.firstvertexindex + k)).point;
-                                                        if (!occVertex.equals(w.get((j + k) % w.size()))) {
-                                                            identical = false;
-                                                            break;
-                                                        }
-                                                    }
-                                                    if (identical)
-                                                        return true;
-                                                }
-                                                return false;
-                                            }))
-                                    .findFirst().orElse(null))                                                    // ---- Find the first brush that met the requirement. If no exist return null
-                            .map(dBrush -> bsp.brushes.indexOf(dBrush))                                                 // --- Map the found brush back to its index. If no brush was found -1
-                            .collect(Collectors.toList());                                                              // --- Collect all brushes into a list
-
-                    return new AbstractMap.SimpleEntry<>(bsp.occluderDatas.indexOf(dOccluderData), mappedBrushes);      // -- Return the found brushes as an entry. Key = occluderData, value = List of brush indexes
-                })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));                                         // - Collect all entries into a Map
+    private Map<Integer, List<Integer>> manualMapping() {
+        // Map all occluders to a list of representing brushes
+        Map<Integer, List<Integer>> occBrushMapping = bsp.occluderDatas.stream()
+                .map(dOccluderData -> new AbstractMap.SimpleEntry<>(bsp.occluderDatas.indexOf(dOccluderData), mapOccluder(dOccluderData)))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // Because the Texturebuilder needs to know which brush is a occluder we flag them here. (The Texturebuilder needs to know this information because the brushside that represents the occluder has almost always the wrong tooltexture applied)
         for (Map.Entry<Integer, List<Integer>> entry: occBrushMapping.entrySet()) {
@@ -128,6 +98,56 @@ public class OccluderMapper {
         }
 
         return occBrushMapping;
+    }
+
+    /**
+     * Finds all brushes that represent this occluder and return their indexes of bsp.brushes
+     *
+     * @param dOccluderData occluder to find brushes for
+     * @return a Integer list of brush indexes
+     */
+    private List<Integer> mapOccluder(DOccluderData dOccluderData)
+    {
+        return bsp.occluderPolyDatas.subList(dOccluderData.firstpoly, dOccluderData.firstpoly + dOccluderData.polycount).stream()
+                .map(dOccluderPolyData -> potentialOccluderBrushes.stream()
+                        .filter(dBrush -> bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
+                                .anyMatch(brushSide -> occFacesMatchesBrushFace(dOccluderPolyData, dBrush, brushSide)))
+                        .findAny())
+                .filter(Optional::isPresent)
+                .map(dBrush -> bsp.brushes.indexOf(dBrush.get()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Test if the specified occluder face matches with the specified brush side
+     *
+     * @param dOccluderPolyData the occluder face
+     * @param dBrush the brush, the brush side belongs to
+     * @param dBrushSide the brush side
+     * @return true if the specified occluder face matches with the specified brush side, false otherwise
+     */
+    private boolean occFacesMatchesBrushFace(DOccluderPolyData dOccluderPolyData, DBrush dBrush, DBrushSide dBrushSide)
+    {
+        Winding w = WindingFactory.fromSide(bsp, dBrush, dBrushSide);
+
+        // If the amount of vertices are unequal we know the cant be identical
+        if (w.size() != dOccluderPolyData.vertexcount)
+            return false;
+
+        // Test vertices against each other
+        for (int j = 0; j < w.size(); j++) {
+            boolean identical = true;
+            for (int k = 0; k < w.size(); k++) {
+                Vector3f occVertex = bsp.verts.get(bsp.occluderVerts.get(dOccluderPolyData.firstvertexindex + k)).point;
+                if (!occVertex.equals(w.get((j + k) % w.size()))) {
+                    identical = false;
+                    break;
+                }
+            }
+            if (identical)
+                return true;
+        }
+        return false;
     }
 
     /**
