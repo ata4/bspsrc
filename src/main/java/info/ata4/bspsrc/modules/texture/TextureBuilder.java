@@ -157,6 +157,11 @@ public class TextureBuilder {
                     return ToolTexture.BLOCKLOS;
                 }
 
+                // block light, tested in csgo, portal 2, garrysmod
+                if (brush.isOpaque()) {
+                    return ToolTexture.BLOCKLIGHT;
+                }
+
                 if (appID == COUNTER_STRIKE_GO) {
                     if (brush.isCurrent90()) {
                         return ToolTexture.CSGO_GRENADECLIP;
@@ -164,11 +169,6 @@ public class TextureBuilder {
 
                     if (brush.isCurrent180()) {
                         return ToolTexture.CSGO_DRONECLIP;
-                    }
-
-                    //Todo: CSGO only?
-                    if (brush.isOpaque()) {
-                        return ToolTexture.BLOCKLIGHT;
                     }
                 }
             }
