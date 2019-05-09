@@ -65,8 +65,7 @@ public class AreaportalMapper {
 
             // Do we already have a 'AreaportalHelper' that represents this areaportal?
             Optional<AreaportalHelper> matchingApHelper = areaportalHelpers.stream()
-                    .filter(apHelper -> IntStream.range(0, apHelper.vertices.length)
-                            .allMatch(i -> apHelper.vertices[i].equals(bsp.clipPortalVerts.get(dAreaportal.firstClipPortalVert + i).point)))
+                    .filter(apHelper -> apHelper.winding.matches(WindingFactory.fromAreaportal(bsp, dAreaportal)))
                     .findAny();
 
             // If there is no AreaportalHelper that represents this portal, we create one
@@ -75,9 +74,7 @@ public class AreaportalMapper {
                 matchingApHelper.get().portalID.add((int) dAreaportal.portalKey);
             } else {
                 AreaportalHelper areaportalHelper = new AreaportalHelper();
-                areaportalHelper.vertices = bsp.clipPortalVerts.subList(dAreaportal.firstClipPortalVert, dAreaportal.firstClipPortalVert + dAreaportal.clipPortalVerts).stream()
-                        .map(dVertex -> dVertex.point)
-                        .toArray(Vector3f[]::new);
+                areaportalHelper.winding = WindingFactory.fromAreaportal(bsp, dAreaportal);
                 areaportalHelper.portalID.add((int) dAreaportal.portalKey);
                 areaportalHelpers.add(areaportalHelper);
             }
@@ -193,7 +190,7 @@ public class AreaportalMapper {
      * @return A probability in form of a double ranging from 0 to 1
      */
     private double areaportalBrushSideProb(AreaportalHelper areaportalHelper, Winding brushSideWinding) {
-        Winding apWinding = new Winding(areaportalHelper.vertices);
+        Winding apWinding = areaportalHelper.winding;
 
         // Test if apWinding and brushSideWinding share the same plane
         if (!apWinding.isInSamePlane(brushSideWinding))
@@ -307,17 +304,13 @@ public class AreaportalMapper {
     private class AreaportalHelper {
 
         public TreeSet<Integer> portalID = new TreeSet<>();         //All areaportal entities assigned to this helper. All areaportals are sorted by their portalID!
-        public Vector3f[] vertices;
+        public Winding winding;
 
         public AreaportalHelper() {}
 
         public AreaportalHelper(AreaportalHelper apHelper) {
             portalID.addAll(apHelper.portalID);
-            vertices = new Vector3f[apHelper.vertices.length];
-
-            for (int i = 0; i < vertices.length; i++) {
-                vertices[i] = new Vector3f(apHelper.vertices[i]);
-            }
+            winding = apHelper.winding;
         }
     }
 }
