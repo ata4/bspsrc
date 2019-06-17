@@ -106,12 +106,12 @@ public class AreaportalMapper {
         Map<DBrush, Map<AreaportalHelper, Double>> brushProbMapping = areaportalBrushes.stream()
                 .collect(Collectors.toMap(dBrush -> dBrush, this::areaportalBrushProb));
 
-        Map<Integer, Set<Integer>> debug = brushProbMapping.entrySet().stream()
-                .map(entry -> new AbstractMap.SimpleEntry<Integer, Set<Integer>>(areaportalBrushes.indexOf(entry.getKey()), entry.getValue().entrySet().stream()
-                        .max(Comparator.comparingDouble(Entry::getValue))
-                        .map(apEntry -> apEntry.getKey().portalID)
-                        .orElse(null)))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+//        Map<Integer, Set<Integer>> debug = brushProbMapping.entrySet().stream()
+//                .map(entry -> new AbstractMap.SimpleEntry<Integer, Set<Integer>>(areaportalBrushes.indexOf(entry.getKey()), entry.getValue().entrySet().stream()
+//                        .max(Comparator.comparingDouble(Entry::getValue))
+//                        .map(apEntry -> apEntry.getKey().portalID)
+//                        .orElse(null)))
+//                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // Remove every brush entry if it doesn't have areaportals mapped to it. (Not sure if this could actually happen here)
         brushProbMapping.entrySet().removeIf(dBrushMapEntry -> dBrushMapEntry.getValue().isEmpty());
@@ -147,8 +147,7 @@ public class AreaportalMapper {
 
                     // When we map a brush to the specific areaportal id, we need to make sure no other brush is mapped to it as well. -> Iterate over every brush mapping and remove the areaportal id if present
                     brushProbMapping.entrySet().stream()
-                            .flatMap(dBrushMapEntry -> dBrushMapEntry.getValue().entrySet().stream()
-                                    .map(Entry::getKey))
+                            .flatMap(dBrushMapEntry -> dBrushMapEntry.getValue().keySet().stream())
                             .forEach(areaportalHelper -> areaportalHelper.portalID.removeIf(integer -> integer == portalID));
 
                     // This could cause Areaportalhelpers to be empty (of portal ids), so we remove every entry with those
@@ -177,7 +176,7 @@ public class AreaportalMapper {
         return IntStream.range(0, dBrush.numside)
                 .boxed()
                 .flatMap(side -> areaportalHelpers.stream()
-                        .map(apHelper -> new AbstractMap.SimpleEntry<AreaportalHelper, Double>(new AreaportalHelper(apHelper), areaportalBrushSideProb(apHelper, WindingFactory.fromSide(bsp, dBrush, side))))
+                        .map(apHelper -> new AbstractMap.SimpleEntry<>(new AreaportalHelper(apHelper), areaportalBrushSideProb(apHelper, WindingFactory.fromSide(bsp, dBrush, side))))
                         .filter(entry -> entry.getValue() != 0))
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
@@ -207,11 +206,11 @@ public class AreaportalMapper {
 
         //Map 3d coordinates of windings to 2d (2d coordinates on the plane they lie on)
         List<Vector2f> apPolygon = apWinding.stream()
-                .map(vertex -> vertex.to2D(origin, axis1, axis2))
+                .map(vertex -> vertex.getAsPointOnPlane(origin, axis1, axis2))
                 .collect(Collectors.toList());
 
         List<Vector2f> brushSidePolygon = brushSideWinding.stream()
-                .map(vertex -> vertex.to2D(origin, axis1, axis2))
+                .map(vertex -> vertex.getAsPointOnPlane(origin, axis1, axis2))
                 .collect(Collectors.toList());
 
         Set<Vector2f> intersectingVertices = new HashSet<>();

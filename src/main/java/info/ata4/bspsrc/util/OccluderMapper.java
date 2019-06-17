@@ -62,18 +62,14 @@ public class OccluderMapper {
      */
     private void prepareOccluderFaces() {
         occluderFaces = potentialOccluderBrushes.stream()
-                .map(dBrush -> {
-                    int faces = (int) bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
-                            .map(dBrushSide -> bsp.texinfos.get((int) dBrushSide.texinfo))
-                            .filter(dTexInfo -> dTexInfo.texdata >= 0)
-                            .map(dTexInfo -> bsp.texdatas.get(dTexInfo.texdata))
-                            .map(dTexData -> bsp.texnames.get(dTexData.texname))
-                            .filter(matchesOccluder)
-                            .count();
-
-                    return new AbstractMap.SimpleEntry<>(bsp.brushes.indexOf(dBrush), faces);
-                })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .collect(Collectors.toMap(dBrush -> bsp.brushes.indexOf(dBrush), dBrush -> (int) bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
+                        .map(dBrushSide -> bsp.texinfos.get((int) dBrushSide.texinfo))
+                        .filter(dTexInfo -> dTexInfo.texdata >= 0)
+                        .map(dTexInfo -> bsp.texdatas.get(dTexInfo.texdata))
+                        .map(dTexData -> bsp.texnames.get(dTexData.texname))
+                        .filter(matchesOccluder)
+                        .count())
+                );
     }
 
     /**
@@ -84,8 +80,7 @@ public class OccluderMapper {
     private Map<Integer, List<Integer>> manualMapping() {
         // Map all occluders to a list of representing brushes
         Map<Integer, List<Integer>> occBrushMapping = bsp.occluderDatas.stream()
-                .map(dOccluderData -> new AbstractMap.SimpleEntry<>(bsp.occluderDatas.indexOf(dOccluderData), mapOccluder(dOccluderData)))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .collect(Collectors.toMap(dOccluderData -> bsp.occluderDatas.indexOf(dOccluderData), this::mapOccluder));
 
         // Because the Texturebuilder needs to know which brush is a occluder we flag them here. (The Texturebuilder needs to know this information because the brushside that represents the occluder has almost always the wrong tooltexture applied)
         for (Map.Entry<Integer, List<Integer>> entry: occBrushMapping.entrySet()) {
@@ -156,7 +151,7 @@ public class OccluderMapper {
     private Map<Integer, List<Integer>> orderedMapping() {
         // Get the min amount of occluder faces that can be process#
         // This should always be limited by the amount of occluderData but we test nonetheless
-        long min = Math.min(occluderFaces.entrySet().stream().mapToInt(Map.Entry::getValue).sum(), bsp.occluderDatas.stream().mapToInt(occluder -> occluder.polycount).sum());
+        long min = Math.min(occluderFaces.values().stream().mapToInt(i -> i).sum(), bsp.occluderDatas.stream().mapToInt(occluder -> occluder.polycount).sum());
 
         HashMap<Integer, List<Integer>> occBrushMap = new HashMap<>();
 
@@ -224,8 +219,8 @@ public class OccluderMapper {
             return config.occMappingMode.map(this);
         }
 
-        int occluderFacesNum = occluderFaces.entrySet().stream()
-                .mapToInt(Map.Entry::getValue)
+        int occluderFacesNum = occluderFaces.values().stream()
+                .mapToInt(i -> i)
                 .sum();
 
         int occluderBrushFacesNum = bsp.occluderDatas.stream()
