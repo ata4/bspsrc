@@ -308,7 +308,7 @@ public final class Vector3f extends VectorXf {
         return new Vector3f(rx, ry, rz);
     }
 
-    public Vector2f to2D(Vector3f origin, Vector3f axis1, Vector3f axis2)
+    public Vector2f getAsPointOnPlane(Vector3f origin, Vector3f axis1, Vector3f axis2)
     {
         return new Vector2f(axis1.dot(this.sub(origin)), axis2.dot(this.sub(origin)));
     }
