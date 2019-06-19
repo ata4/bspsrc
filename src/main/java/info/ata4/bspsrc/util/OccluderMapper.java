@@ -23,28 +23,40 @@ public class OccluderMapper {
     private BspSourceConfig config;
     private BspData bsp;
 
+    // Occluders aren't worldbrushes, so we can limit our 'search' by limiting the brushes to non worldbrushes
+    private ArrayList<DBrush> nonWorldBrushes;
+
+    // ONLY used for 'ORDERED MAPPING'
     private ArrayList<DBrush> potentialOccluderBrushes;
     private Map<Integer, Integer> occluderFaces;
 
-    // Predicate that test if a texture name matches one of the valid occluder texture names. YES, an occluder can contain the areaportal texture after compile.
-    // Don't ask me why but if there are areaportals in a map all occluder textures are getting changed to areaportal textures
+    // Predicate that test if a texture name matches one of the valid occluder texture names.
+    // ONLY used for 'ORDERED MAPPING', because for some reason vBsp sometimes changes textures of all occluders to some arbitrary texture
     private static final Predicate<String> matchesOccluder = s -> s.equalsIgnoreCase(ToolTexture.TRIGGER) ||
-                                                            s.equalsIgnoreCase(ToolTexture.OCCLUDER) ||
-                                                            s.equalsIgnoreCase(ToolTexture.AREAPORTAL);
+                                                            s.equalsIgnoreCase(ToolTexture.OCCLUDER);
 
     public OccluderMapper(BspData bsp, BspSourceConfig config) {
         this.config = config;
         this.bsp = bsp;
 
+        prepareNonWorldBrushes();
         preparePotentialOccBrushes();
         prepareOccluderFaces();
+    }
+
+    private void prepareNonWorldBrushes()
+    {
+        BspTreeStats t = new BspTreeStats(bsp);
+        t.walk(0);
+
+        nonWorldBrushes = new ArrayList<>(bsp.brushes.subList(t.getMaxBrushLeaf() + 1, bsp.brushes.size()));
     }
 
     /**
      * Fills {@code potentialOccluderBrushes} with potential brushes that could have represented occluders
      */
     private void preparePotentialOccBrushes() {
-        potentialOccluderBrushes = bsp.brushes.stream()                                                                 // Iterate over every existing brush
+        potentialOccluderBrushes = nonWorldBrushes.stream()                                                                 // Iterate over every existing brush
                 .filter(dBrush -> !dBrush.isDetail())                                                                   // - Filter all out that have the 'detail' flag
                 .filter(dBrush -> !dBrush.isAreaportal())                                                               // - Filter all out that have the 'areaportal' flag
                 .filter(dBrush -> bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()      // - Iterate over every brush side and test if it texture matches 'matchesOccluder'
@@ -54,7 +66,7 @@ public class OccluderMapper {
                         .map(dTexData -> bsp.texnames.get(dTexData.texname))                                            // -- Map textdata to textname
                         .anyMatch(matchesOccluder)                                                                      // -- Test if any texture matches 'matchesOccluder'
                 )
-                .collect(Collectors.toCollection(ArrayList::new));                                                      // - Collect every brush into a list that had atleast one brushside that matched 'matchesOccluder'
+                .collect(Collectors.toCollection(ArrayList::new));                                                      // - Collect every brush into a list that had at ^2least one brushside that matched 'matchesOccluder'
     }
 
     /**
@@ -73,7 +85,7 @@ public class OccluderMapper {
     }
 
     /**
-     * Maps all ocluder entities to their brushes in form of a {@code Map}
+     * Maps all occluder entities to their brushes in form of a {@code Map}
      *
      * @return A {@code Map} where the keys represent an occluder an the values a list of brush ids
      */
@@ -82,15 +94,12 @@ public class OccluderMapper {
         Map<Integer, List<Integer>> occBrushMapping = bsp.occluderDatas.stream()
                 .collect(Collectors.toMap(dOccluderData -> bsp.occluderDatas.indexOf(dOccluderData), this::mapOccluder));
 
-        // Because the Texturebuilder needs to know which brush is a occluder we flag them here. (The Texturebuilder needs to know this information because the brushside that represents the occluder has almost always the wrong tooltexture applied)
-        for (Map.Entry<Integer, List<Integer>> entry: occBrushMapping.entrySet()) {
-            for (Integer brushID: entry.getValue()) {
-                if (brushID == -1)
-                    continue;
+        // Remove every occluder mapping that has 0 brushes assigned, because we couldn't find a mapping
+        occBrushMapping.values().removeIf(list -> list.size() == 0);
 
-                bsp.brushes.get(brushID).flagAsOccluder(true);
-            }
-        }
+        // Because the Texturebuilder needs to know which brush is a occluder we flag them here. (The Texturebuilder needs to know this information, because the brushside that represents the occluder has almost always the wrong tooltexture applied, which we need to fix)
+        occBrushMapping.values().forEach(brushIndexes -> brushIndexes.forEach(index -> bsp.brushes.get(index).flagAsOccluder(true)));
+
 
         return occBrushMapping;
     }
@@ -103,12 +112,13 @@ public class OccluderMapper {
      */
     private List<Integer> mapOccluder(DOccluderData dOccluderData) {
         return bsp.occluderPolyDatas.subList(dOccluderData.firstpoly, dOccluderData.firstpoly + dOccluderData.polycount).stream()
-                .map(dOccluderPolyData -> potentialOccluderBrushes.stream()
+                .map(dOccluderPolyData -> nonWorldBrushes.stream()
                         .filter(dBrush -> bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
                                 .anyMatch(brushSide -> occFacesMatchesBrushFace(dOccluderPolyData, dBrush, brushSide)))
                         .findAny())
                 .filter(Optional::isPresent)
                 .map(dBrush -> bsp.brushes.indexOf(dBrush.get()))
+                .filter(index -> index != -1)   //Shouldn't happen, but just in case 'indexOf' returns -1 we filter these out here
                 .collect(Collectors.toList());
     }
 
