@@ -308,8 +308,7 @@ public class EntitySource extends ModuleDecompile {
                 if (isOccluder && occluderNum != -1) {
                     if (config.brushMode == BrushMode.BRUSHPLANES && occBrushesMap.containsKey(occluderNum)) {
                         for (int brushId: occBrushesMap.get(occluderNum)) {
-                            if (brushId != -1)
-                                brushsrc.writeBrush(brushId);
+                            brushsrc.writeBrush(brushId);
                         }
                         visgroups.add("Reallocated occluders");
                     } else {
