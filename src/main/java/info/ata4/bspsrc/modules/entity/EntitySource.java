@@ -566,14 +566,13 @@ public class EntitySource extends ModuleDecompile {
             }
 
             // write brush side list
-            StringBuilder sb = new StringBuilder();
+            StringJoiner sj = new StringJoiner(" ");
 
             for (Integer side : sides) {
-                sb.append(side);
-                sb.append(" ");
+                sj.add(side.toString());
             }
 
-            writer.put("sides", sb.toString());
+            writer.put("sides", sj.toString());
 
             if (overlayNames.containsKey(o.id)) {
                 writer.put("targetname", overlayNames.get(o.id));
@@ -728,17 +727,13 @@ public class EntitySource extends ModuleDecompile {
 
                 // write list of brush sides that use this cubemap
                 if (cmSides > 0 && cmSides < config.maxCubemapSides) {
-                    StringBuilder sb = new StringBuilder();
+                    StringJoiner sj = new StringJoiner(" ");
 
-                    for (int sideId : sideList) {
-                        sb.append(sideId);
-                        sb.append(" ");
+                    for (Integer sideId : sideList) {
+                        sj.add(sideId.toString());
                     }
 
-                    // delete last space
-                    sb.deleteCharAt(sb.length() - 1);
-
-                    writer.put("sides", sb.toString());
+                    writer.put("sides", sj.toString());
                 }
             }
 
