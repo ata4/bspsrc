@@ -35,4 +35,5 @@ public class SourceAppID {
     public static final int TITANFALL = -400;
     public static final int TEAM_FORTRESS_2 = 440;
     public static final int COUNTER_STRIKE_GO = 730;
+    public static final int BLACK_MESA = 362890;
 }

@@ -682,6 +682,17 @@ public class EntitySource extends ModuleDecompile {
                 }
             }
 
+            if (pst instanceof DStaticPropV11lite) {
+                DStaticPropV11lite pst11 = (DStaticPropV11lite) pst;
+                // only write if it's set to anything other than default
+                if (pst11.diffuseModulation.rgba != -1) {
+                    diffMod = pst11.diffuseModulation;
+                    writer.put("rendercolor", String.format("%d %d %d",
+                            diffMod.r, diffMod.g, diffMod.b));
+                    writer.put("renderamt", diffMod.a);
+                }
+            }
+
             if (pst instanceof DStaticPropV11CSGO) {
                 writer.put("uniformscale", ((DStaticPropV11CSGO) pst).uniformScale);
             }
