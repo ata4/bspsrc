@@ -1530,4 +1530,35 @@
             trigger_teleport_bs09
         </entities>
     </app>
+    <app name="No More Room in Hell" id="224260">
+        <version min="20" />
+        <files><![CDATA[^[nmo|nms]_]]></files>
+        <entities>
+            info_player_nmrih
+            nmrih_barricade
+            nmrih_objective_boundary
+            overlord_wave_controller
+            wave_resupply_point
+            nmrih_interactive_screen
+            nmrih_game_state
+            prop_barricade_door
+            prop_door_breakable
+            func_nmrih_extractionzone
+            nmrih_extract_point
+            nmrih_extract_preview
+            func_ff_blocker
+            func_no_zombie_spawn
+            func_zombie_spawn
+            func_safe_zone
+            func_safe_zone_extension
+            walkie_manager
+            music_manager
+            overlord_zombie_helper
+            nmrih_npc_squad
+            npc_zombie_template_maker
+            nmrih_health_station
+            nmrih_health_station_location
+            nmrih_safezone_supply
+        </entities>
+    </app>
 </apps>
