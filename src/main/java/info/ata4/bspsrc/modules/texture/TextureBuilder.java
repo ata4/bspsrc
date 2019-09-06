@@ -157,7 +157,7 @@ public class TextureBuilder {
                     return ToolTexture.BLOCKLOS;
                 }
 
-                // block light, tested in csgo, portal 2, garrysmod
+                // block light, tested in csgo, portal 2, garrysmod, black mesa - 03.09.2019
                 if (brush.isOpaque()) {
                     return ToolTexture.BLOCKLIGHT;
                 }
