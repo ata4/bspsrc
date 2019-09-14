@@ -10,6 +10,8 @@
 package info.ata4.bspsrc;
 
 import java.io.File;
+import java.util.Objects;
+
 import org.apache.commons.io.FilenameUtils;
 
 /**
@@ -23,16 +25,19 @@ public class BspFileEntry {
     private File pakfileDir;
 
     public BspFileEntry(File bspFile) {
-        if (bspFile == null) {
-            throw new NullPointerException();
-        }
-
-        this.bspFile = bspFile;
-        this.vmfFile = replaceExtension(bspFile, "_d.vmf");
-        this.pakfileDir = replaceExtension(bspFile, "");
+        this(bspFile, replaceExtension(bspFile, "_d.vmf"));
     }
 
-    private File replaceExtension(File file, String newExt) {
+    public BspFileEntry(File bspFile, File vmfFile) {
+    	Objects.requireNonNull(bspFile);
+    	Objects.requireNonNull(vmfFile);
+
+    	this.bspFile = bspFile;
+    	this.vmfFile = vmfFile;
+    	this.pakfileDir = replaceExtension(vmfFile, "");
+    }
+
+    private static File replaceExtension(File file, String newExt) {
         String base = FilenameUtils.removeExtension(file.getName());
         File parentFile = file.getAbsoluteFile().getParentFile();
 
