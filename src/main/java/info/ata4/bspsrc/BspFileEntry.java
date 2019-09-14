@@ -73,10 +73,7 @@ public class BspFileEntry {
             return false;
         }
         final BspFileEntry other = (BspFileEntry) obj;
-        if (this.bspFile != other.bspFile && !this.bspFile.equals(other.bspFile)) {
-            return false;
-        }
-        return true;
+        return this.bspFile == other.bspFile || this.bspFile.equals(other.bspFile);
     }
 
     @Override
