@@ -1200,6 +1200,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
             entry.setVmfFile(vmfFile);
             entry.setPakDir(new File(vmfFile.getAbsoluteFile().getParentFile(),
                     entry.getPakDir().getName()));
+            entry.setNmosFile(new File(vmfFile.getAbsoluteFile().getParentFile(), entry.getNmosFile().getName()));
         } else {
             File dstDir = selectDirectoryDialog(null);
 
@@ -1214,6 +1215,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 BspFileEntry entry = entries.nextElement();
                 entry.setVmfFile(new File(dstDir, entry.getVmfFile().getName()));
                 entry.setPakDir(new File(dstDir, entry.getPakDir().getName()));
+                entry.setNmosFile(new File(dstDir, entry.getNmosFile().getName()));
             }
         }
 

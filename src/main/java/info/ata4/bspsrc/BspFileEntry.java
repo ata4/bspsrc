@@ -24,6 +24,10 @@ public class BspFileEntry {
     private File vmfFile;
     private File pakfileDir;
 
+    //No More Room in Hell only
+    private File nmoFile;
+    private File nmosFile;
+
     public BspFileEntry(File bspFile) {
         this(bspFile, replaceExtension(bspFile, "_d.vmf"));
     }
@@ -35,6 +39,8 @@ public class BspFileEntry {
     	this.bspFile = bspFile;
     	this.vmfFile = vmfFile;
     	this.pakfileDir = replaceExtension(vmfFile, "");
+        this.nmoFile = replaceExtension(bspFile, ".nmo");
+        this.nmosFile = replaceExtension(vmfFile, ".nmos");
     }
 
     private static File replaceExtension(File file, String newExt) {
@@ -63,6 +69,21 @@ public class BspFileEntry {
     public void setPakDir(File pakfileDir) {
         this.pakfileDir = pakfileDir;
     }
+
+    //No More Room in Hell only
+    public File getNmoFile() {
+        return nmoFile;
+    }
+
+    public File getNmosFile() {
+    	return nmosFile;
+    }
+
+	public void setNmosFile(File nmosFile)
+	{
+		Objects.requireNonNull(nmosFile);
+		this.nmosFile = nmosFile;
+	}
 
     @Override
     public String toString() {
