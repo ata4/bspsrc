@@ -73,8 +73,10 @@ public class BspDecompiler extends ModuleDecompile {
         // so override the user selection
         if (bspFile.getSourceApp().getAppID() == SourceAppID.VAMPIRE_BLOODLINES) {
             texsrc.setFixToolTextures(false);
+            texsrc.setFixToolTextureAxes(false);
         } else {
             texsrc.setFixToolTextures(config.fixToolTextures);
+            texsrc.setFixToolTextureAxes(config.fixToolTextureAxes);
         }
 
         // check for protection and warn if the map has been protected

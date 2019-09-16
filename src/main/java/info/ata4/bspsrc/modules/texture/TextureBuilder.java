@@ -52,6 +52,11 @@ public class TextureBuilder {
     private int ibrush = -1;
     private int ibrushside = -1;
 
+    // base unit vectors
+    private static final Vector3f X = new Vector3f(1, 0, 0);
+    private static final Vector3f Y = new Vector3f(0, 1, 0);
+    private static final Vector3f Z = new Vector3f(0, 0, 1);
+
     TextureBuilder(TextureSource texsrc, BspData bsp, int appID) {
         this.texsrc = texsrc;
         this.bsp = bsp;
@@ -62,8 +67,8 @@ public class TextureBuilder {
         texture = new Texture();
         texture.setOriginalTexture(ToolTexture.SKIP);
 
-        // align to preset axes
-        fixPerpendicular();
+        // align to face
+        fixTextureAxes();
 
         // no texinfo
         if (itexinfo == DTexInfo.TEXINFO_NODE) {
@@ -111,7 +116,14 @@ public class TextureBuilder {
         // some calculations
         buildLightmapScale();
         buildUV();
-        fixPerpendicular();
+
+        // if enabled in config, fix texture axes if it is a tool texture
+        if (texsrc.isFixToolTextureAxes() & texture.isToolTexture()) {
+            fixTextureAxes();
+        } else {
+            // otherwise only fix perpendicular texture axes
+            fixPerpendicular();
+        }
 
         return texture;
     }
@@ -190,6 +202,38 @@ public class TextureBuilder {
         return null;
     }
 
+    /**
+     * Calculates new UV axes based on the normal vector of the face.
+     * 
+     * It should produce the same result as face alignment in Hammer.
+     */
+    private void fixTextureAxes() {
+        if (normal == null) {
+            return;
+        }
+
+        // calculate the projections of the surface normal onto the world axes
+        float dotX = Math.abs(X.dot(normal));
+        float dotY = Math.abs(Y.dot(normal));
+        float dotZ = Math.abs(Z.dot(normal));
+
+        Vector3f vdir;
+
+        // if the projection of the surface normal onto the z-axis is greatest
+        if (dotZ > dotX & dotZ > dotY) {
+            // use y-axis as basis
+            vdir = Y;
+        } else {
+            // otherwise use z-axis as basis
+            vdir = Z;
+        }
+
+        Vector3f tv1 = normal.cross(vdir).normalize(); // 1st tex vector
+        Vector3f tv2 = normal.cross(tv1).normalize();  // 2nd tex vector
+
+        texture.setUAxis(new TextureAxis(tv1));
+        texture.setVAxis(new TextureAxis(tv2));
+    }
 
     /**
      * Checks for texture axes that are perpendicular to the normal and fixes them.
@@ -199,25 +243,12 @@ public class TextureBuilder {
             return;
         }
 
-        Vector3f texNorm = texture.getVAxis().axis.cross(texture.getUAxis().axis);
+        Vector3f texNorm = texture.getUAxis().axis.cross(texture.getVAxis().axis);
         if (Math.abs(normal.dot(texNorm)) >= EPS_PERP) {
             return;
         }
 
-        // z is z-direction unit vector
-        Vector3f udir = new Vector3f(0, 0, 1);
-
-        // if angle of normal to z axis is less than ~25 degrees
-        if (Math.abs(udir.dot(normal)) > Math.sin(45)) {
-            // use x unit-vector as basis
-            udir = new Vector3f(1, 0, 0);
-        }
-
-        Vector3f tv1 = udir.cross(normal).normalize(); // 1st tex vector
-        Vector3f tv2 = tv1.cross(normal).normalize();  // 2nd tex vector
-
-        texture.setUAxis(new TextureAxis(tv1));
-        texture.setVAxis(new TextureAxis(tv2));
+        fixTextureAxes();
     }
 
     private void buildLightmapScale() {
