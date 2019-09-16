@@ -544,8 +544,8 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="jpOccluderMapping" pref="68" max="32767" attributes="0"/>
-                          <Component id="jpAreaportalMapping" max="32767" attributes="0"/>
+                          <Component id="jpOccluderMapping" pref="69" max="32767" attributes="0"/>
+                          <Component id="jpAreaportalMapping" pref="69" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace pref="121" max="32767" attributes="0"/>
                   </Group>
@@ -684,6 +684,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="checkBoxFixToolTexAxes" min="-2" max="-2" attributes="0"/>
                           <Component id="checkBoxFixToolTex" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="checkBoxFixCubemapTex" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
@@ -698,7 +699,7 @@
                               </Group>
                           </Group>
                       </Group>
-                      <EmptySpace pref="171" max="32767" attributes="0"/>
+                      <EmptySpace pref="149" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -719,7 +720,9 @@
                       <Component id="checkBoxFixCubemapTex" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="checkBoxFixToolTex" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="90" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="checkBoxFixToolTexAxes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="67" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -771,6 +774,15 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxFixToolTexActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="checkBoxFixToolTexAxes">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Fix tool texture alignment"/>
+                <Property name="toolTipText" type="java.lang.String" value="Fix alignment of all (or most) tool textures by re-creating the texture axes (UV) based on the normal vector of the face (equivalent to face alignment in Hammer.) Tool textures with perpendicular texture axes will however always be fixed regardless of this setting."/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxFixToolTexAxesActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

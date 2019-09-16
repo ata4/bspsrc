@@ -28,6 +28,7 @@ import info.ata4.bspsrc.util.Winding;
 import info.ata4.bspsrc.util.WindingFactory;
 import info.ata4.log.LogUtils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -366,6 +367,19 @@ public class BrushSource extends ModuleDecompile {
             if (brushSide.texinfo != -1) {
                 writer.put("texinfo_index", brushSide.texinfo);
                 writer.put("texinfo_flags", bsp.texinfos.get(brushSide.texinfo).flags.toString());
+                float[][] tvec = bsp.texinfos.get(brushSide.texinfo).textureVecsTexels;
+                writer.put("texturevecs_u", Arrays.toString(tvec[0]));
+                writer.put("texturevecs_v", Arrays.toString(tvec[1]));
+                Vector3f uaxis = new Vector3f(tvec[0]);
+                Vector3f vaxis = new Vector3f(tvec[1]);
+                Vector3f texNorm = uaxis.cross(vaxis);
+                double angle = Math.toDegrees(Math.acos(normal.dot(texNorm) / texNorm.length()));
+                writer.put("input_uv_normal", texNorm);
+                writer.put("input_uv_angle", Double.isNaN(angle) ? 0 : angle);
+                texNorm = texture.getUAxis().axis.cross(texture.getVAxis().axis);
+                angle = Math.toDegrees(Math.acos(normal.dot(texNorm)));
+                writer.put("output_uv_normal", texNorm);
+                writer.put("output_uv_angle", Double.isNaN(angle) ? 0 : angle);
             }
             writer.end("bspsrc_debug");
         }

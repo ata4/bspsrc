@@ -43,6 +43,7 @@ public final class BspSourceConfig implements Serializable {
     public boolean fixCubemapTextures = true;
     public boolean fixEntityRot = true;
     public boolean fixToolTextures = true;
+    public boolean fixToolTextureAxes = true;
     public boolean loadLumpFiles = true;
     public boolean nullOutput = false;
     public boolean skipProt = false;
