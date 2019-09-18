@@ -14,12 +14,8 @@ import info.ata4.bsplib.entity.Entity;
 import info.ata4.bspsrc.VmfWriter;
 import info.ata4.bspsrc.modules.entity.Camera;
 import info.ata4.log.LogUtils;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,8 +40,14 @@ public class VmfMeta extends ModuleDecompile {
     // VMF unique ID
     private int uid = 0;
 
-    // visgroup list
-    private List<String> visgroups = new ArrayList<>();
+    // Visgroup seperator char
+    public static final char VISGROUP_SEPERATOR = '/';
+    // visgroup root node. Will not actualy be written in the final vmf but rather serves as the root node which contains every visgroup
+    private Visgroup rootVisgroup = new Visgroup("root", 0, null, new HashSet<>());
+    // number for indexing every visgroup incrementally
+    private int visgroupIndex = 1;
+    // reserved visgroup ids. Main use for nmrih objectives visgroups
+    private Map<String, Integer> reservedVisgroups = new HashMap<>();
 
     // camera list
     private List<Camera> cameras = new ArrayList<>();
@@ -188,44 +190,117 @@ public class VmfMeta extends ModuleDecompile {
     }
 
     public void writeVisgroups() {
-        if (visgroups.isEmpty()) {
+        if (rootVisgroup.visgroups.isEmpty()) {
             return;
         }
 
-        String[] visgroupArray = visgroups.toArray(new String[0]);
-
         writer.start("visgroups");
-
-        for (String visgroup : visgroupArray) {
-            writer.start("visgroup");
-            writer.put("name", visgroup);
-            writer.put("visgroupid", visgroups.indexOf(visgroup));
-            writer.end("visgroup");
-        }
-
+        rootVisgroup.visgroups.forEach(this::writeVisgroup);
         writer.end("visgroups");
+    }
+
+    private void writeVisgroup(Visgroup visgroup) {
+        writer.start("visgroup");
+
+        writer.put("name", visgroup.name);
+        writer.put("visgroupid", visgroup.id);
+        visgroup.visgroups.forEach(this::writeVisgroup);
+
+        writer.end("visgroup");
     }
 
     public void writeMetaVisgroup(String visgroupName) {
         writer.start("editor");
-        writer.put("visgroupid", getVisgroupID(visgroupName));
+        writer.put("visgroupid", getVisgroup(visgroupName).id);
         writer.end("editor");
     }
 
     public void writeMetaVisgroups(List<String> visgroupNames) { 
         writer.start("editor");
         for (String visgroupName : visgroupNames) {
-            writer.put("visgroupid", getVisgroupID(visgroupName));
+            writer.put("visgroupid", getVisgroup(visgroupName).id);
         }
         writer.end("editor");
     }
 
-    public int getVisgroupID(String visgroupName) {
-        if (!visgroups.contains(visgroupName)) {
-            visgroups.add(visgroupName);
+    private Visgroup getVisgroup(String visgroupName) {
+        if (visgroupName.isEmpty())
+            throw new IllegalArgumentException("A visgroup cannot have an empty name");
+
+        Visgroup parentVisgroup = rootVisgroup;
+        for (String name : visgroupName.split(String.valueOf(VISGROUP_SEPERATOR))) {
+            parentVisgroup = getVisgroup(parentVisgroup, name);
         }
 
-        return visgroups.indexOf(visgroupName);
+        return parentVisgroup;
+    }
+
+    private Visgroup getVisgroup(Visgroup parentVisgroup, String visgroupName) {
+        if (visgroupName.isEmpty())
+            throw new IllegalArgumentException("A visgroup cannot have an empty name");
+
+        Optional<Visgroup> optionalVisgroup = parentVisgroup.visgroups.stream()
+                .filter(visgroup -> visgroup.name.equals(visgroupName))
+                .findAny();
+
+        if (optionalVisgroup.isPresent()) {
+            return optionalVisgroup.get();
+        } else {
+            Integer visgroupId = reservedVisgroups.get(getPathForVisgroup(parentVisgroup) + VISGROUP_SEPERATOR + visgroupName);
+            if (visgroupId == null) {
+                while (reservedVisgroups.containsValue(visgroupId = visgroupIndex++));
+            }
+
+            Visgroup targetVisgroup = new Visgroup(visgroupName, visgroupId, parentVisgroup);
+            parentVisgroup.visgroups.add(targetVisgroup);
+            return targetVisgroup;
+        }
+    }
+
+    /**
+     * Reserves the specified id for the specified visgroup.
+     * <p>
+     * This guarantees that the specified visgroup will use the specified id instead of a generated one.
+     * <p>
+     * <b>WARNING:</b> Any calls to this method must be made <b>before</b> any subsequent calls are made to either {@link #writeMetaVisgroup(String)} or {@link #writeMetaVisgroups(List)}. Else no guarantee can be made that the specified id can be reserved
+     *
+     * @param visgroupName Visgroup name which should use a specific id. A nested visgroup can be written like "outerVisgroup + VmfMeta.VISGROUP_SEPERATOR + innerVisgroup"
+     * @param visgroupId Id, the specified visgroup will use in the vmf
+     */
+    public void reserveVisgroupId(String visgroupName, int visgroupId) {
+        if (visgroupName.isEmpty())
+            throw new IllegalArgumentException("A visgroup cannot have an empty name");
+
+        if (reservedVisgroups.containsValue(visgroupId)) {
+            String duplicatedVisgroupName = reservedVisgroups.entrySet().stream()
+                    .filter(entry -> entry.getValue() == visgroupId)
+                    .findAny()
+                    .map(Map.Entry::getKey)
+                    .orElse("null");
+
+            L.warning(String.format("Tried to reserve visgroup '%s' with id %d, which is already reserved by '%s'", visgroupName, visgroupId, duplicatedVisgroupName));
+            return;
+        }
+
+        if (reservedVisgroups.containsKey(visgroupName))
+            L.warning(String.format("Visgroup '%s' is already reserved with id %d. Overriding with %d", visgroupName, reservedVisgroups.get(visgroupName), visgroupId));
+
+        reservedVisgroups.put(visgroupName, visgroupId);
+    }
+
+    /**
+     * @param visgroup A visgroup for which a path should be generated
+     * @return A String which represents path to the specified visgroup. For example for a visgroup 'InnerVis', which is in a visgroup 'OuterVis', getPathForVisgroup(InnerVis) returns "OuterVis + {@link #VISGROUP_SEPERATOR} + InnerVis"
+     */
+    private static String getPathForVisgroup(Visgroup visgroup) {
+        StringBuilder path = new StringBuilder(visgroup.name);
+
+        Visgroup parentVisgroup = visgroup;
+        while ((parentVisgroup = parentVisgroup.parent) != null && parentVisgroup.id != 0) {
+            path.insert(0, parentVisgroup.name + VISGROUP_SEPERATOR);
+        }
+
+        return path.toString();
     }
 
     public void writeCameras() {
@@ -249,5 +324,40 @@ public class VmfMeta extends ModuleDecompile {
 
     public List<Camera> getCameras() {
         return cameras;
+    }
+
+    /**
+     * Visgroup class for representing visgroups in a Tree like structure
+     */
+    private static class Visgroup
+    {
+        public String name;
+        public int id;
+        public Visgroup parent;
+        public Set<Visgroup> visgroups;
+
+        public Visgroup(String name, int id, Visgroup parent) {
+            this(name, id, parent, new HashSet<>());
+        }
+
+        public Visgroup(String name, int id, Visgroup parent, Set<Visgroup> visgroups) {
+            Objects.requireNonNull(name);
+            Objects.requireNonNull(visgroups);
+
+            this.name = name;
+            this.id = id;
+            this.parent = parent;
+            this.visgroups = visgroups;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Visgroup visGroup = (Visgroup) o;
+
+            return id == visGroup.id;
+        }
     }
 }
