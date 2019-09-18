@@ -297,10 +297,10 @@ public class EntitySource extends ModuleDecompile {
                 if (isAreaportal && portalNum != -1) {
                     if (config.brushMode == BrushMode.BRUSHPLANES && apBrushMap.containsKey(portalNum)) {
                         brushsrc.writeBrush(apBrushMap.get(portalNum));
-                        visgroups.add("Reallocated areaportals");
+                        visgroups.add("Reallocated" + VmfMeta.VISGROUP_SEPERATOR + "areaportals");
                     } else {
                         facesrc.writeAreaportal(portalNum);
-                        visgroups.add("Rebuild areaportals");
+                        visgroups.add("Rebuild" + VmfMeta.VISGROUP_SEPERATOR + "areaportals");
                     }
                 }
 
@@ -311,10 +311,10 @@ public class EntitySource extends ModuleDecompile {
                             if (brushId != -1)
                                 brushsrc.writeBrush(brushId);
                         }
-                        visgroups.add("Reallocated occluders");
+                        visgroups.add("Reallocated" + VmfMeta.VISGROUP_SEPERATOR + "occluders");
                     } else {
                         facesrc.writeOccluder(occluderNum);
-                        visgroups.add("Rebuild occluders");
+                        visgroups.add("Rebuild" + VmfMeta.VISGROUP_SEPERATOR + "occluders");
                     }
                 }
             }
