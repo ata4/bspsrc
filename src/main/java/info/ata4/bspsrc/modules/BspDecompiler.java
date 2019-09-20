@@ -12,6 +12,7 @@ package info.ata4.bspsrc.modules;
 
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.app.SourceAppID;
+import info.ata4.bsplib.nmo.NmoFile;
 import info.ata4.bspsrc.BspSource;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.VmfWriter;
@@ -182,5 +183,12 @@ public class BspDecompiler extends ModuleDecompile {
                 entsrc.writeLadders();
             }
         }
+    }
+
+    /**
+     * @see EntitySource#setNmo(NmoFile)
+     */
+    public void setNmoData(NmoFile nmo) {
+        entsrc.setNmo(nmo);
     }
 }

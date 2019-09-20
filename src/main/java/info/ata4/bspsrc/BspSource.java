@@ -12,6 +12,9 @@ package info.ata4.bspsrc;
 
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.BspFileReader;
+import info.ata4.bsplib.nmo.NmoException;
+import info.ata4.bsplib.nmo.NmoFile;
+import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bspsrc.modules.BspDecompiler;
 import info.ata4.log.LogUtils;
 import java.io.File;
@@ -87,6 +90,10 @@ public class BspSource implements Runnable {
         File bspFile = entry.getBspFile();
         File vmfFile = entry.getVmfFile();
 
+        // Only used for 'No More Room in Hell'
+        File nmoFile = entry.getNmoFile();
+        File nmosFile = entry.getNmosFile();
+
         // load BSP
         BspFileReader reader;
 
@@ -117,6 +124,29 @@ public class BspSource implements Runnable {
             return;
         }
 
+        // load NMO if game is 'No More Room in Hell'
+        NmoFile nmo = null;
+        if (reader.getBspFile().getSourceApp().getAppID() == SourceAppID.NO_MORE_ROOM_IN_HELL) {
+            if (nmoFile.exists()) {
+                try {
+                    nmo = new NmoFile();
+                    nmo.load(nmoFile.toPath(), true);
+
+	                // write nmos
+	                try {
+		                nmo.writeAsNmos(nmosFile.toPath());
+	                } catch (IOException ex) {
+		                L.log(Level.SEVERE, "Error while writing nmos", ex);
+	                }
+                } catch (IOException | NmoException ex) {
+                    L.log(Level.SEVERE, "Can't load " + nmoFile, ex);
+                    nmo = null;
+                }
+            } else {
+                L.warning("Missing .nmo file! If the bsp is for the objective game mode, its objectives will be missing");
+            }
+        }
+
         if (!config.isDebug()) {
             L.log(Level.INFO, "BSP version: {0}", reader.getBspFile().getVersion());
             L.log(Level.INFO, "Game: {0}", reader.getBspFile().getSourceApp());
@@ -125,6 +155,10 @@ public class BspSource implements Runnable {
         // create and configure decompiler and start decompiling
         try (VmfWriter writer = getVmfWriter(vmfFile)) {
             BspDecompiler decompiler = new BspDecompiler(reader, writer, config);
+
+            if (nmo != null)
+                decompiler.setNmoData(nmo);
+
             decompiler.start();
             L.log(Level.INFO, "Finished decompiling {0}", bspFile);
         } catch (IOException ex) {

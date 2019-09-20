@@ -15,6 +15,7 @@ import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.entity.EntityIO;
 import info.ata4.bsplib.entity.KeyValue;
+import info.ata4.bsplib.nmo.NmoFile;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.*;
@@ -62,6 +63,9 @@ public class EntitySource extends ModuleDecompile {
 
     // Occluder to brushes mapping;
     Map<Integer, List<Integer>> occBrushesMap;
+
+    //'No More Room in Hell' Nmo data
+    private NmoFile nmo;
 
     // overlay target names
     private final Map<Integer, String> overlayNames = new HashMap<>();
@@ -182,6 +186,16 @@ public class EntitySource extends ModuleDecompile {
 
             // re-use hammerid if possible, otherwise generate a new UID
             int entID = getHammerID(ent);
+
+            // if we have nmo data re-use extractions ids
+            if (nmo != null) {
+                entID = nmo.extractions.stream()
+                        .filter(extraction -> extraction.name.equals(ent.getTargetName()))
+                        .findAny()
+                        .map(extraction -> extraction.id)
+                        .orElse(entID);
+            }
+
             if (entID == -1) {
                 entID = vmfmeta.getUID();
             }
@@ -331,6 +345,21 @@ public class EntitySource extends ModuleDecompile {
             // add protection flags to visgroup
             if (bspprot.isProtectedEntity(ent)) {
                 visgroups.add("VMEX flagged entities");
+            }
+
+            // when we have nmo data, add objectives visgroups
+            if (nmo != null && ent.getTargetName() != null) {
+                nmo.nodes.stream()
+                        .filter(objective -> objective.entityName.equals(ent.getTargetName()))
+                        .forEach(objective -> visgroups.add("Objectives" + VmfMeta.VISGROUP_SEPERATOR + objective.name));
+
+                nmo.nodes.stream()
+                        .filter(objective -> objective.entities.stream().anyMatch(entitiyName -> entitiyName.equals(ent.getTargetName())))
+                        .forEach(objective -> visgroups.add("Objectives" + VmfMeta.VISGROUP_SEPERATOR + objective.name));
+
+                nmo.antiNodes.stream()
+                        .filter(anti -> anti.entities.stream().anyMatch(entitiyName -> entitiyName.equals(ent.getTargetName())))
+                        .forEach(anti -> visgroups.add("Objectives" + VmfMeta.VISGROUP_SEPERATOR + "anti" + VmfMeta.VISGROUP_SEPERATOR + anti.name));
             }
 
             // write visgroup metadata if filled
@@ -997,5 +1026,17 @@ public class EntitySource extends ModuleDecompile {
         pos = look.sub(pos).normalize().scalar(-64).add(pos);
 
         vmfmeta.getCameras().add(new Camera(pos, look));
+    }
+
+    /**
+     * Sets nmo data. Causes referenced 'objectives/antiObjectives' entities to be written in visgroups and extraction entity to reuse nmo entity id
+     * @param nmoData the nmo data
+     */
+    public void setNmo(NmoFile nmoData) {
+        this.nmo = nmoData;
+
+        nmoData.nodes.forEach(nmoObjective -> vmfmeta.reserveVisgroupId("Objectives" + VmfMeta.VISGROUP_SEPERATOR + nmoObjective.name, nmoObjective.id));
+        nmoData.antiNodes.forEach(nmoAntiObjective -> vmfmeta.reserveVisgroupId("Objectives" + VmfMeta.VISGROUP_SEPERATOR + "anti" + VmfMeta.VISGROUP_SEPERATOR + nmoAntiObjective.name, nmoAntiObjective.id));
+        nmoData.extractions.forEach(extraction -> vmfmeta.getUIDBlackList().add(extraction.id));
     }
 }
