@@ -14,6 +14,7 @@ import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import java.util.*;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Winding utility class.
@@ -451,6 +452,38 @@ public class Winding implements List<Vector3f> {
         }
 
         return new AABB(mins, maxs);
+    }
+
+
+    /**
+     * Checks if this winding shares the same plane with the other one
+     *
+     * @param w the other winding
+     * @return true if both windings share the same plane otherwise false
+     */
+    public boolean isInSamePlane(Winding w)
+    {
+        // A wingind with only 2 vertices can't build a plane
+        if (size() < 3 || w.size() < 3)
+            return false;
+
+        Vector3f[] plane = buildPlane();
+        Vector3f vec1 = plane[1].sub(plane[0]);
+        Vector3f vec2 = plane[2].sub(plane[0]);
+        Vector3f normal = vec2.cross(vec1);
+        float dist = normal.normalize().dot(new Vector3f(0f, 0f, 0f).sub(plane[0]));
+
+        Vector3f[] wPlane = w.buildPlane();
+        Vector3f wVec1 = wPlane[1].sub(wPlane[0]);
+        Vector3f wVec2 = wPlane[2].sub(wPlane[0]);
+        Vector3f wNormal = wVec2.cross(wVec1);
+        float wDist = wNormal.normalize().dot(new Vector3f(0f, 0f, 0f).sub(wPlane[0]));
+
+        Vector3f cross = wNormal.normalize().cross(normal.normalize());
+        if (cross.dot(cross) < 0.001)                                           //TODO: I have no idea how you would actually mathematically compute the error margine, so im just using a guessed one here
+            return Math.abs(Math.abs(dist) - Math.abs(wDist)) < EPS_DEGEN;      //TODO: Maybe remove 'EPS_DEGEN'. I have no idea if this is needed here or how you should even use it
+        else
+            return false;
     }
 
     /**

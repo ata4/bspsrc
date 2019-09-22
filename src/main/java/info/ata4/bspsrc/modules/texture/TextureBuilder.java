@@ -184,7 +184,7 @@ public class TextureBuilder {
 
         // fix occluder textures
         String textureName = bsp.texnames.get(texture.getData().texname);
-        if (brush.isFlaggedAsOccluder() && textureName.equalsIgnoreCase(ToolTexture.AREAPORTAL))
+        if (brush.isFlaggedAsOccluder() && !textureName.equalsIgnoreCase(ToolTexture.NODRAW))
             return ToolTexture.OCCLUDER;
 
         return null;

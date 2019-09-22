@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Factory methods for winding objects.
@@ -163,16 +164,9 @@ public class WindingFactory {
             return areaportalCache.get(ap);
         }
 
-        List<Vector3f> verts = new ArrayList<>();
-
-        //int clipPortalVerts = Math.min(4, ap.clipPortalVerts); //TODO: Find reason for this as it doesn't really make sense (Maybe older engines?)
-        int clipPortalVerts = ap.clipPortalVerts;
-        for (int i = 0; i < clipPortalVerts; i++) {
-            int pvi = ap.firstClipPortalVert + i;
-            verts.add(bsp.clipPortalVerts.get(pvi).point);
-        }
-
-        Winding w = new Winding(verts);
+        Winding w = bsp.clipPortalVerts.subList(ap.firstClipPortalVert, ap.firstClipPortalVert + ap.clipPortalVerts).stream()
+                .map(dVertex -> dVertex.point)
+                .collect(Collectors.collectingAndThen(Collectors.toList(), Winding::new));
 
         areaportalCache.put(ap, w);
 
