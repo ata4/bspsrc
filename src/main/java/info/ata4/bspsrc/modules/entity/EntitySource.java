@@ -34,6 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static info.ata4.bsplib.app.SourceAppID.COUNTER_STRIKE_GO;
 
@@ -567,14 +568,9 @@ public class EntitySource extends ModuleDecompile {
             }
 
             // write brush side list
-            StringBuilder sb = new StringBuilder();
-
-            for (Integer side : sides) {
-                sb.append(side);
-                sb.append(" ");
-            }
-
-            writer.put("sides", sb.toString());
+            writer.put("sides", sides.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(" ")));
 
             if (overlayNames.containsKey(o.id)) {
                 writer.put("targetname", overlayNames.get(o.id));
@@ -745,17 +741,9 @@ public class EntitySource extends ModuleDecompile {
 
                 // write list of brush sides that use this cubemap
                 if (cmSides > 0 && cmSides < config.maxCubemapSides) {
-                    StringBuilder sb = new StringBuilder();
-
-                    for (int sideId : sideList) {
-                        sb.append(sideId);
-                        sb.append(" ");
-                    }
-
-                    // delete last space
-                    sb.deleteCharAt(sb.length() - 1);
-
-                    writer.put("sides", sb.toString());
+                    writer.put("sides", sideList.stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(" ")));
                 }
             }
 
