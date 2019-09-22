@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 
@@ -252,14 +254,13 @@ public class BspSourceCli {
             if (cl.hasOption(fileListOpt.getOpt())) {
                 try {
                     List<String> filePaths = FileUtils.readLines(new File(cl.getOptionValue(fileListOpt.getOpt())));
-                    for (String filePath : filePaths) {
-                        BspFileEntry entry = new BspFileEntry(new File(filePath));
-                        // override destination directory?
-                        if (outputFile != null) {
-                            entry.setVmfFile(new File(outputFile, entry.getVmfFile().getName()));
-                        }
-                        files.add(entry);
-                    }
+                    File finalOutputFile1 = outputFile;
+                    files.addAll(
+                            filePaths.stream()
+                                    .map(File::new)
+                                    .map(filePath -> finalOutputFile1 == null ? new BspFileEntry(filePath) : new BspFileEntry(filePath, finalOutputFile1))
+                                    .collect(Collectors.toSet())
+                    );
                 } catch (IOException ex) {
                     throw new RuntimeException("Can't read file list", ex);
                 }
@@ -355,10 +356,7 @@ public class BspSourceCli {
         String[] argsLeft = cl.getArgs();
 
         if (argsLeft.length == 1 && outputFile != null) {
-            // set VMF file for one BSP
-            BspFileEntry entry = new BspFileEntry(new File(argsLeft[0]));
-            entry.setVmfFile(outputFile);
-            files.add(entry);
+            files.add(new BspFileEntry(new File(argsLeft[0]), outputFile));
         } else {
             for (String arg : argsLeft) {
                 File file = new File(arg);
@@ -366,25 +364,17 @@ public class BspSourceCli {
                 if (file.isDirectory()) {
                     Collection<File> subFiles = FileUtils.listFiles(file, new String[]{"bsp"}, recursive);
 
-                    for (File subFile : subFiles) {
-                        BspFileEntry entry = new BspFileEntry(subFile);
-
-                        // override destination directory?
-                        if (outputFile != null) {
-                            entry.setVmfFile(new File(outputFile, entry.getVmfFile().getName()));
-                        }    
-
-                        files.add(entry);
-                    }
+                    File finalOutputFile = outputFile;
+                    files.addAll(
+                            subFiles.stream()
+                                    .map(bspFile -> finalOutputFile == null ? new BspFileEntry(bspFile) : new BspFileEntry(bspFile, finalOutputFile))
+                                    .collect(Collectors.toSet())
+                    );
                 } else {
-                    BspFileEntry entry = new BspFileEntry(file);
-
-                    // override destination directory?
-                    if (outputFile != null) {
-                        entry.setVmfFile(new File(outputFile, entry.getVmfFile().getName()));
-                    }    
-
-                    files.add(entry);
+                    if (outputFile != null)
+                        files.add(new BspFileEntry(file, outputFile));
+                    else
+                        files.add(new BspFileEntry(file));
                 }
             }
         }

@@ -10,6 +10,8 @@
 package info.ata4.bspsrc;
 
 import java.io.File;
+import java.util.Objects;
+
 import org.apache.commons.io.FilenameUtils;
 
 /**
@@ -22,17 +24,26 @@ public class BspFileEntry {
     private File vmfFile;
     private File pakfileDir;
 
-    public BspFileEntry(File bspFile) {
-        if (bspFile == null) {
-            throw new NullPointerException();
-        }
+    //No More Room in Hell only
+    private File nmoFile;
+    private File nmosFile;
 
-        this.bspFile = bspFile;
-        this.vmfFile = replaceExtension(bspFile, "_d.vmf");
-        this.pakfileDir = replaceExtension(bspFile, "");
+    public BspFileEntry(File bspFile) {
+        this(bspFile, replaceExtension(bspFile, "_d.vmf"));
     }
 
-    private File replaceExtension(File file, String newExt) {
+    public BspFileEntry(File bspFile, File vmfFile) {
+    	Objects.requireNonNull(bspFile);
+    	Objects.requireNonNull(vmfFile);
+
+    	this.bspFile = bspFile;
+    	this.vmfFile = vmfFile;
+    	this.pakfileDir = replaceExtension(vmfFile, "");
+        this.nmoFile = replaceExtension(bspFile, ".nmo");
+        this.nmosFile = replaceExtension(vmfFile, ".nmos");
+    }
+
+    private static File replaceExtension(File file, String newExt) {
         String base = FilenameUtils.removeExtension(file.getName());
         File parentFile = file.getAbsoluteFile().getParentFile();
 
@@ -59,6 +70,21 @@ public class BspFileEntry {
         this.pakfileDir = pakfileDir;
     }
 
+    //No More Room in Hell only
+    public File getNmoFile() {
+        return nmoFile;
+    }
+
+    public File getNmosFile() {
+    	return nmosFile;
+    }
+
+	public void setNmosFile(File nmosFile)
+	{
+		Objects.requireNonNull(nmosFile);
+		this.nmosFile = nmosFile;
+	}
+
     @Override
     public String toString() {
         return bspFile.toString();
@@ -73,10 +99,7 @@ public class BspFileEntry {
             return false;
         }
         final BspFileEntry other = (BspFileEntry) obj;
-        if (this.bspFile != other.bspFile && !this.bspFile.equals(other.bspFile)) {
-            return false;
-        }
-        return true;
+        return this.bspFile == other.bspFile || this.bspFile.equals(other.bspFile);
     }
 
     @Override
