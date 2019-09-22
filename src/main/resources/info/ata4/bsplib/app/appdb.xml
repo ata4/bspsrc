@@ -1223,7 +1223,7 @@
     </app>
     <app name="Black Mesa" id="362890">
         <version min="20" />
-        <files><![CDATA[^bm_c[0-3]a[0-5][a-i]$]]></files>
+        <files><![CDATA[^(bm_c[0-5]a[0-5][a-i][1]?)|(dm_.*)$]]></files>
         <entities>
             ai_goal_throw_prop
             camera_satellite

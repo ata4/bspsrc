@@ -99,7 +99,7 @@ public class DDispInfo implements DStruct {
 
     public int getSurfaceFlags() {
         if ((minTess & DDispInfo.DISP_INFO_FLAG_MAGIC) != 0) {
-            return minTess & ~DDispInfo.DISP_INFO_FLAG_MAGIC;
+            return minTess & ~(DDispInfo.DISP_INFO_FLAG_MAGIC | DDispInfo.DISP_INFO_FLAG_HAS_MULTIBLEND);
         } else {
             return 0;
         }

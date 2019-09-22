@@ -157,6 +157,11 @@ public class TextureBuilder {
                     return ToolTexture.BLOCKLOS;
                 }
 
+                // block light, tested in csgo, portal 2, garrysmod, black mesa - 03.09.2019
+                if (brush.isOpaque()) {
+                    return ToolTexture.BLOCKLIGHT;
+                }
+
                 if (appID == COUNTER_STRIKE_GO) {
                     if (brush.isCurrent90()) {
                         return ToolTexture.CSGO_GRENADECLIP;
@@ -164,11 +169,6 @@ public class TextureBuilder {
 
                     if (brush.isCurrent180()) {
                         return ToolTexture.CSGO_DRONECLIP;
-                    }
-
-                    //Todo: CSGO only?
-                    if (brush.isOpaque()) {
-                        return ToolTexture.BLOCKLIGHT;
                     }
                 }
             }
@@ -184,7 +184,7 @@ public class TextureBuilder {
 
         // fix occluder textures
         String textureName = bsp.texnames.get(texture.getData().texname);
-        if (brush.isFlaggedAsOccluder() && textureName.equalsIgnoreCase(ToolTexture.AREAPORTAL))
+        if (brush.isFlaggedAsOccluder() && !textureName.equalsIgnoreCase(ToolTexture.NODRAW))
             return ToolTexture.OCCLUDER;
 
         return null;

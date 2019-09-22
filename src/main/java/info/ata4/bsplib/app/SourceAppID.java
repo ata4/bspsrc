@@ -36,4 +36,5 @@ public class SourceAppID {
     public static final int TEAM_FORTRESS_2 = 440;
     public static final int COUNTER_STRIKE_GO = 730;
     public static final int NO_MORE_ROOM_IN_HELL = 224260;
+    public static final int BLACK_MESA = 362890;
 }
