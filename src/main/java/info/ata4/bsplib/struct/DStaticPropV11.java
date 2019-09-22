@@ -14,32 +14,31 @@ import info.ata4.io.DataWriter;
 import java.io.IOException;
 
 /**
- * V11 structure found in BM, possibly found in recent Source 2013 games as
- * well.
- *
- * @author Nico Bergemann <barracuda415 at yahoo.de>
+ * V11 structure found in Black Mesa, xengine(cu5) branch and later releases
+ * (introduced with the December 2017 Update.)
+ * 
+ * Possibly found in recent Source 2013 games as well.
  */
-public class DStaticPropV11 extends DStaticPropV10 {
+public class DStaticPropV11 extends DStaticPropV11lite {
 
-    public int unknown1; // usually -1
-    public int unknown2; // usually 0
+    // m_FlagsEx
+    // Additional flags? Purpose and use unknown. Usually 0.
+    public int flagsEx;
 
     @Override
     public int getSize() {
-        return super.getSize() + 8; // 80
+        return super.getSize() + 4; // 80
     }
 
     @Override
     public void read(DataReader in) throws IOException {
         super.read(in);
-        unknown1 = in.readInt();
-        unknown2 = in.readInt();
+        flagsEx = in.readInt();
     }
 
     @Override
     public void write(DataWriter out) throws IOException {
         super.write(out);
-        out.writeInt(unknown1);
-        out.writeInt(unknown2);
-    }
+        out.writeInt(flagsEx);
+   }
 }
