@@ -371,6 +371,27 @@ public class BspFileReader {
                         structClass = DStaticPropV11CSGO.class;
                     }
                     break;
+
+                case BLACK_MESA:
+                    // different structures used by Black Mesa
+                    if (sprpver == 10 && propStaticSize == 72) {
+                        structClass = DStaticPropV10.class;
+                    } else if (sprpver == 11) {
+                        if (propStaticSize == 76) {
+                            structClass = DStaticPropV11lite.class;
+                        } else if (propStaticSize == 80) {
+                            structClass = DStaticPropV11.class;
+                        }
+                    }
+                    break;
+
+                default:
+                    // check for "lite" version of V11 struct in case it applies
+                    // to a game other than BM (or BM wasn't detected/selected)
+                    if (sprpver == 11 && propStaticSize == 76) {
+                        structClass = DStaticPropV11lite.class;
+                    }
+                    break;
             }
 
             // get structure class for the static prop lump version if it's not
@@ -396,7 +417,10 @@ public class BspFileReader {
             }
 
             // if the correct class is still unknown at this point, fall back to
-            // a very basic version that should hopefully work in all situations
+            // a very basic version that should hopefully work in most situations
+            // (note: this will not work well if the struct is based on the V10
+            // struct from the Source 2013 or the TF2 Source engine branches,
+            // in which case the flags attribute will contain garbage data)
             int numFillBytes = 0;
             if (structClass == null) {
                 L.log(Level.WARNING, "Falling back to static prop v4");
