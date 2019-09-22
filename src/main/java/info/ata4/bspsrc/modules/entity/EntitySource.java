@@ -35,6 +35,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static info.ata4.bsplib.app.SourceAppID.COUNTER_STRIKE_GO;
 
 /**
  * Decompiling module to write point and brush entities converted from various lumps.
@@ -322,8 +325,7 @@ public class EntitySource extends ModuleDecompile {
                 if (isOccluder && occluderNum != -1) {
                     if (config.brushMode == BrushMode.BRUSHPLANES && occBrushesMap.containsKey(occluderNum)) {
                         for (int brushId: occBrushesMap.get(occluderNum)) {
-                            if (brushId != -1)
-                                brushsrc.writeBrush(brushId);
+                            brushsrc.writeBrush(brushId);
                         }
                         visgroups.add("Reallocated" + VmfMeta.VISGROUP_SEPERATOR + "occluders");
                     } else {
@@ -595,14 +597,9 @@ public class EntitySource extends ModuleDecompile {
             }
 
             // write brush side list
-            StringBuilder sb = new StringBuilder();
-
-            for (Integer side : sides) {
-                sb.append(side);
-                sb.append(" ");
-            }
-
-            writer.put("sides", sb.toString());
+            writer.put("sides", sides.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(" ")));
 
             if (overlayNames.containsKey(o.id)) {
                 writer.put("targetname", overlayNames.get(o.id));
@@ -634,8 +631,13 @@ public class EntitySource extends ModuleDecompile {
             writer.put("solid", pst4.solid);
             writer.put("model", bsp.staticPropName.get(pst4.propType));
 
+            //Csgo no longer uses the screenspacefade flag for 'Screen space fade' but for 'Render in fastreflection'
             if (pst4.hasScreenSpaceFadeInPixels()) {
-                writer.put("screenspacefade", pst4.hasScreenSpaceFadeInPixels());
+                if (bspFile.getSourceApp().getAppID() == COUNTER_STRIKE_GO) {
+                    writer.put("drawinfastreflection", pst4.hasScreenSpaceFadeInPixels());
+                } else {
+                    writer.put("screenspacefade", pst4.hasScreenSpaceFadeInPixels());
+                }
             }
 
             // store coordinates and targetname of the lighing origin for later
@@ -711,6 +713,17 @@ public class EntitySource extends ModuleDecompile {
                 }
             }
 
+            if (pst instanceof DStaticPropV11lite) {
+                DStaticPropV11lite pst11 = (DStaticPropV11lite) pst;
+                // only write if it's set to anything other than default
+                if (pst11.diffuseModulation.rgba != -1) {
+                    diffMod = pst11.diffuseModulation;
+                    writer.put("rendercolor", String.format("%d %d %d",
+                            diffMod.r, diffMod.g, diffMod.b));
+                    writer.put("renderamt", diffMod.a);
+                }
+            }
+
             if (pst instanceof DStaticPropV11CSGO) {
                 writer.put("uniformscale", ((DStaticPropV11CSGO) pst).uniformScale);
             }
@@ -757,17 +770,9 @@ public class EntitySource extends ModuleDecompile {
 
                 // write list of brush sides that use this cubemap
                 if (cmSides > 0 && cmSides < config.maxCubemapSides) {
-                    StringBuilder sb = new StringBuilder();
-
-                    for (int sideId : sideList) {
-                        sb.append(sideId);
-                        sb.append(" ");
-                    }
-
-                    // delete last space
-                    sb.deleteCharAt(sb.length() - 1);
-
-                    writer.put("sides", sb.toString());
+                    writer.put("sides", sideList.stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(" ")));
                 }
             }
 
