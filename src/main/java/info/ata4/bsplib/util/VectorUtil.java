@@ -1,12 +1,95 @@
 package info.ata4.bsplib.util;
 
+import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector2f;
+import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.bspsrc.util.Winding;
+import info.ata4.bspsrc.util.WindingFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class VectorUtil {
+
+	public static double matchingAreaPercentage(DOccluderPolyData occluderPolyData, DBrush brush, DBrushSide brushSide, BspData bsp) {
+		DPlane occluderPlane = bsp.planes.get(occluderPolyData.planenum);
+		DPlane brushSidePlane = bsp.planes.get(brushSide.pnum);
+
+		if (shareSamePlane(occluderPlane, brushSidePlane))
+			return internalMatchingAreaPercentage(WindingFactory.fromOccluder(bsp, occluderPolyData), WindingFactory.fromSide(bsp, brush, brushSide));
+		else
+			return 0;
+	}
+
+	public static double matchingAreaPercentage(DAreaportal areaportal, DBrush brush, DBrushSide brushSide, BspData bsp) {
+
+		DPlane areaportalPlane = bsp.planes.get(areaportal.planenum);
+		DPlane brushSidePlane = bsp.planes.get(brushSide.pnum);
+
+		if (shareSamePlane(areaportalPlane, brushSidePlane))
+			return internalMatchingAreaPercentage(WindingFactory.fromAreaportal(bsp, areaportal), WindingFactory.fromSide(bsp, brush, brushSide));
+		else
+			return 0;
+	}
+
+	public static boolean shareSamePlane(DPlane p1, DPlane p2) {
+		//TODO: I have no idea how you would actually mathematically compute the error margin, so im just using a guessed one here (0.001)
+		//TODO: Maybe remove 'EPS_DEGEN'. I have no idea if this is needed here or how you should even use it
+		return p1.normal.normalize().cross(p2.normal.normalize()).length() < 0.001 && Math.abs(p1.dist - p2.dist * (p1.normal.dot(p2.normal) >= 1 ? 1 : -1)) < Winding.EPS_DEGEN;
+	}
+
+	/**
+	 * Returns the touching area of two Winding's in percent to w1 (0-1)
+	 * <p><b>This assumes that the 2 windings already lie in the same plane!!!</b></p>
+	 *
+	 * @param w1 the areaportal this brush is compared to
+	 * @param w2 a winding representing the brush side
+	 * @return A probability in form of a double ranging from 0 to 1
+	 */
+	private static double internalMatchingAreaPercentage(Winding w1, Winding w2) {
+		Vector3f[] plane = w1.buildPlane();
+		Vector3f vec1 = plane[1].sub(plane[0]);
+		Vector3f vec2 = plane[2].sub(plane[0]);
+		Vector3f planeNormal = vec2.cross(vec1).normalize();
+
+		Vector3f origin = w1.get(0);
+		Vector3f axis1 = w1.get(1).sub(origin).normalize(); //Random vector orthogonal to planeNormal
+		Vector3f axis2 = axis1.cross(planeNormal).normalize(); //Vector orthogonal to axis1 and planeNormal
+
+		//Map 3d coordinates of windings to 2d (2d coordinates on the plane they lie on)
+		List<Vector2f> w1Polygon = w1.stream()
+				.map(vertex -> vertex.getAsPointOnPlane(origin, axis1, axis2))
+				.collect(Collectors.toList());
+
+		List<Vector2f> w2Polygon = w2.stream()
+				.map(vertex -> vertex.getAsPointOnPlane(origin, axis1, axis2))
+				.collect(Collectors.toList());
+
+		Set<Vector2f> intersectingVertices = new HashSet<>();
+
+		// Find all corners of w1 that are inside of w2
+		intersectingVertices.addAll(w1Polygon.stream()
+				.filter(vertex -> VectorUtil.isInsideConvexPolygon(vertex, w2Polygon))
+				.collect(Collectors.toList()));
+
+		// Find all corners of w2 that are inside of w1
+		intersectingVertices.addAll(w2Polygon.stream()
+				.filter(vertex -> VectorUtil.isInsideConvexPolygon(vertex, w1Polygon))
+				.collect(Collectors.toList()));
+
+		// Find all intersections of the 2 polygons
+		intersectingVertices.addAll(VectorUtil.getPolygonIntersections(w1Polygon, w2Polygon));
+
+		// Order all vertices creating a valid convex polygon
+		List<Vector2f> intersectionPolygon = VectorUtil.orderVertices(intersectingVertices);
+
+		double intersectionArea = VectorUtil.polygonArea(intersectionPolygon);
+		double w1Area = VectorUtil.polygonArea(w1Polygon);
+
+		// actually intersectionArea / w1Area should never be greater 1, but i don't know why I have written that, so im just gonna leave that here
+		return intersectionArea / w1Area > 1 ? 0 : Math.abs(intersectionArea / w1Area);
+	}
 
 	//https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
 	public static boolean isInsideConvexPolygon(Vector2f p, List<Vector2f> polygon) {
