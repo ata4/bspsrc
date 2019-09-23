@@ -915,7 +915,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         });
 
         checkBoxFixToolTexAxes.setText("Fix tool texture alignment");
-        checkBoxFixToolTexAxes.setToolTipText("Fix alignment of all (or most) tool textures by re-creating the texture axes (UV) based on the normal vector of the face (equivalent to face alignment in Hammer.) Tool textures with perpendicular texture axes will however always be fixed regardless of this setting.");
+        checkBoxFixToolTexAxes.setToolTipText("Realign tool textures on brush faces (tool textures with perpendicular UVs will always be fixed regardless of this setting.)");
         checkBoxFixToolTexAxes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 checkBoxFixToolTexAxesActionPerformed(evt);

@@ -779,7 +779,7 @@
             <Component class="javax.swing.JCheckBox" name="checkBoxFixToolTexAxes">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Fix tool texture alignment"/>
-                <Property name="toolTipText" type="java.lang.String" value="Fix alignment of all (or most) tool textures by re-creating the texture axes (UV) based on the normal vector of the face (equivalent to face alignment in Hammer.) Tool textures with perpendicular texture axes will however always be fixed regardless of this setting."/>
+                <Property name="toolTipText" type="java.lang.String" value="Realign tool textures on brush faces (tool textures with perpendicular UVs will always be fixed regardless of this setting.)"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkBoxFixToolTexAxesActionPerformed"/>
