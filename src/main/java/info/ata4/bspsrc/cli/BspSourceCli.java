@@ -167,8 +167,10 @@ public class BspSourceCli {
             .create("thickness"));
 
         // texture options
-        Option ntexfixOpt, ftexOpt, bftexOpt;
+        Option ntexfixOpt, ntooltexfixOpt, ntooltexalignfixOpt, ftexOpt, bftexOpt;
         optsTexture.addOption(ntexfixOpt = new Option("no_texfix", "Don't fix texture names."));
+        optsTexture.addOption(ntooltexfixOpt = new Option("no_tooltexfix", "Don't fix tool textures."));
+        optsTexture.addOption(ntooltexalignfixOpt = new Option("no_tooltexalignfix", "Don't fix tool texture alignment."));
         optsTexture.addOption(ftexOpt = OptionBuilder
             .hasArg()
             .withArgName("string")
@@ -320,6 +322,8 @@ public class BspSourceCli {
 
             // texture options
             config.fixCubemapTextures = !cl.hasOption(ntexfixOpt.getOpt());
+            config.fixToolTextures = !cl.hasOption(ntooltexfixOpt.getOpt());
+            config.fixToolTextureAxes = !cl.hasOption(ntooltexalignfixOpt.getOpt());
 
             if (cl.hasOption(ftexOpt.getOpt())) {
                 config.faceTexture = cl.getOptionValue(ftexOpt.getOpt());
