@@ -1,7 +1,7 @@
 package info.ata4.bspsrc.util;
 
 import info.ata4.bsplib.struct.*;
-import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.bsplib.util.VectorUtil;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.modules.texture.ToolTexture;
 import info.ata4.log.LogUtils;
@@ -114,7 +114,7 @@ public class OccluderMapper {
         return bsp.occluderPolyDatas.subList(dOccluderData.firstpoly, dOccluderData.firstpoly + dOccluderData.polycount).stream()
                 .map(dOccluderPolyData -> nonWorldBrushes.stream()
                         .filter(dBrush -> bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
-                                .anyMatch(brushSide -> occFacesMatchesBrushFace(dOccluderPolyData, dBrush, brushSide)))
+                                .anyMatch(brushSide -> occFacesContainsBrushFace(dOccluderPolyData, dBrush, brushSide)))
                         .findAny())
                 .filter(Optional::isPresent)
                 .map(dBrush -> bsp.brushes.indexOf(dBrush.get()))
@@ -123,34 +123,15 @@ public class OccluderMapper {
     }
 
     /**
-     * Test if the specified occluder face matches with the specified brush side
+     * Test if the specified occluder face contains the specified brush side
      *
      * @param dOccluderPolyData the occluder face
      * @param dBrush the brush, the brush side belongs to
      * @param dBrushSide the brush side
-     * @return true if the specified occluder face matches with the specified brush side, false otherwise
+     * @return true if the specified occluder face contains the specified brush side, false otherwise
      */
-    private boolean occFacesMatchesBrushFace(DOccluderPolyData dOccluderPolyData, DBrush dBrush, DBrushSide dBrushSide) {
-        Winding w = WindingFactory.fromSide(bsp, dBrush, dBrushSide);
-
-        // If the amount of vertices are unequal we know the cant be identical
-        if (w.size() != dOccluderPolyData.vertexcount)
-            return false;
-
-        // Test vertices against each other
-        for (int j = 0; j < w.size(); j++) {
-            boolean identical = true;
-            for (int k = 0; k < w.size(); k++) {
-                Vector3f occVertex = bsp.verts.get(bsp.occluderVerts.get(dOccluderPolyData.firstvertexindex + k)).point;
-                if (!occVertex.equals(w.get((j + k) % w.size()))) {
-                    identical = false;
-                    break;
-                }
-            }
-            if (identical)
-                return true;
-        }
-        return false;
+    private boolean occFacesContainsBrushFace(DOccluderPolyData dOccluderPolyData, DBrush dBrush, DBrushSide dBrushSide) {
+        return VectorUtil.matchingAreaPercentage(dOccluderPolyData, dBrush, dBrushSide, bsp) > 0; // <- May need to be some epsilon instead of 0
     }
 
     /**
