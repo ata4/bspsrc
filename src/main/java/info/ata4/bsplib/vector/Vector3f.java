@@ -43,6 +43,11 @@ public final class Vector3f extends VectorXf {
     public static final Vector3f MAX_VALUE = new Vector3f(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
     public static final Vector3f MIN_VALUE = MAX_VALUE.scalar(-1); // don't use Float.MIN_VALUE here
 
+    // base unit vectors
+    public static final Vector3f BASE_VECTOR_X = new Vector3f(1, 0, 0);
+    public static final Vector3f BASE_VECTOR_Y = new Vector3f(0, 1, 0);
+    public static final Vector3f BASE_VECTOR_Z = new Vector3f(0, 0, 1);
+
     // vector values
     public final float x;
     public final float y;

@@ -52,11 +52,6 @@ public class TextureBuilder {
     private int ibrush = -1;
     private int ibrushside = -1;
 
-    // base unit vectors
-    private static final Vector3f X = new Vector3f(1, 0, 0);
-    private static final Vector3f Y = new Vector3f(0, 1, 0);
-    private static final Vector3f Z = new Vector3f(0, 0, 1);
-
     TextureBuilder(TextureSource texsrc, BspData bsp, int appID) {
         this.texsrc = texsrc;
         this.bsp = bsp;
@@ -213,19 +208,19 @@ public class TextureBuilder {
         }
 
         // calculate the projections of the surface normal onto the world axes
-        float dotX = Math.abs(X.dot(normal));
-        float dotY = Math.abs(Y.dot(normal));
-        float dotZ = Math.abs(Z.dot(normal));
+        float dotX = Math.abs(Vector3f.BASE_VECTOR_X.dot(normal));
+        float dotY = Math.abs(Vector3f.BASE_VECTOR_Y.dot(normal));
+        float dotZ = Math.abs(Vector3f.BASE_VECTOR_Z.dot(normal));
 
         Vector3f vdir;
 
         // if the projection of the surface normal onto the z-axis is greatest
         if (dotZ > dotX & dotZ > dotY) {
             // use y-axis as basis
-            vdir = Y;
+            vdir = Vector3f.BASE_VECTOR_Y;
         } else {
             // otherwise use z-axis as basis
-            vdir = Z;
+            vdir = Vector3f.BASE_VECTOR_Z;
         }
 
         Vector3f tv1 = normal.cross(vdir).normalize(); // 1st tex vector
