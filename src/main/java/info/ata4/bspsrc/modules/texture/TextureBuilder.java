@@ -110,13 +110,14 @@ public class TextureBuilder {
 
         // some calculations
         buildLightmapScale();
-        buildUV();
 
-        // if enabled in config, fix texture axes if it is a tool texture
-        if (texsrc.isFixToolTextureAxes() & texture.isToolTexture()) {
+        // if enabled in config, fix texture axes for tool texture if necessary
+        if (texsrc.isFixToolTextureAxes() && isToolTextureNeedsRealignment()) {
             fixTextureAxes();
         } else {
-            // otherwise only fix perpendicular texture axes
+            // otherwise build UV from texture vectors and fix perpendicular
+            // texture axes if necessary
+            buildUV();
             fixPerpendicular();
         }
 
@@ -195,6 +196,29 @@ public class TextureBuilder {
             return ToolTexture.OCCLUDER;
 
         return null;
+    }
+
+    private boolean isToolTextureNeedsRealignment() {
+    /**
+     * Checks if the current texture is a tool texture known to have invalid
+     * texture vectors, and therefore needs to be realigned.
+     * 
+     * @return <code>true</code> if it is a tool texture that needs to be realigned,
+     *         <code>false</code> otherwise.
+     */
+        if (ibrushside == -1) {
+            return false;
+        }
+
+        DBrushSide brushSide = bsp.brushSides.get(ibrushside);
+
+        if (brushSide.texinfo == DTexInfo.TEXINFO_NODE) {
+            return false;
+        }
+
+        Set<SurfaceFlag> surfFlags = bsp.texinfos.get(brushSide.texinfo).flags;
+
+        return (surfFlags.contains(SurfaceFlag.SURF_NODRAW) || surfFlags.contains(SurfaceFlag.SURF_SKY));
     }
 
     /**
