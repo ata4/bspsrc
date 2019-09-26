@@ -77,36 +77,4 @@ public class Texture {
     public void setData(DTexData texdata) {
         this.data = texdata;
     }
-
-    public boolean isToolTexture() {
-        if (getTexture() != null) {
-            switch(getTexture()) {
-                case ToolTexture.NODRAW:
-                case ToolTexture.CLIP:
-                case ToolTexture.BLOCKLIGHT:
-                case ToolTexture.PLAYERCLIP:
-                case ToolTexture.SKIP:
-                case ToolTexture.TRIGGER:
-                case ToolTexture.SKYBOX:
-                case ToolTexture.AREAPORTAL:
-                case ToolTexture.INVIS:
-                case ToolTexture.HINT:
-                case ToolTexture.NPCCLIP:
-                case ToolTexture.BLACK:
-                case ToolTexture.CSGO_GRENADECLIP:
-                case ToolTexture.BLOCKBULLETS:
-                case ToolTexture.OCCLUDER:
-                case ToolTexture.BLOCKLOS:
-                case ToolTexture.CSGO_DRONECLIP:
-                case ToolTexture.WHITE:
-                case ToolTexture.DOTTED:
-                case ToolTexture.INVISLADDER:
-                    return true;
-                default:
-                    return false;
-            }
-        } else {
-            return false;
-        }
-    }
 }
