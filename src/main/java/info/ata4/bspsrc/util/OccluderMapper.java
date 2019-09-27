@@ -97,10 +97,6 @@ public class OccluderMapper {
         // Remove every occluder mapping that has 0 brushes assigned, because we couldn't find a mapping
         occBrushMapping.values().removeIf(list -> list.size() == 0);
 
-        // Because the Texturebuilder needs to know which brush is a occluder we flag them here. (The Texturebuilder needs to know this information, because the brushside that represents the occluder has almost always the wrong tooltexture applied, which we need to fix)
-        occBrushMapping.values().forEach(brushIndexes -> brushIndexes.forEach(index -> bsp.brushes.get(index).flagAsOccluder(true)));
-
-
         return occBrushMapping;
     }
 
@@ -180,14 +176,6 @@ public class OccluderMapper {
             remaining = j;
 
             occBrushMap.put(occBrushMap.size(), occBrushes);
-
-            // Because the Texturebuilder needs to know which brush is a occluder we flag them here. (The Texturebuilder needs to know this information because the brushside that represents the occluder has almost always the wrong tooltexture applied)
-            for (int brushID: occBrushes) {
-                if (brushID == -1)
-                    continue;
-
-                bsp.brushes.get(brushID).flagAsOccluder(true);
-            }
         }
         return occBrushMap;
     }

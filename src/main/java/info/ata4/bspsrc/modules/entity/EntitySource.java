@@ -18,7 +18,8 @@ import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.nmo.NmoFile;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.bspsrc.*;
+import info.ata4.bspsrc.BspSourceConfig;
+import info.ata4.bspsrc.VmfWriter;
 import info.ata4.bspsrc.modules.BspProtection;
 import info.ata4.bspsrc.modules.ModuleDecompile;
 import info.ata4.bspsrc.modules.VmfMeta;
@@ -91,6 +92,9 @@ public class EntitySource extends ModuleDecompile {
 
         OccluderMapper occluderMapper = new OccluderMapper(bsp, config);
         occBrushesMap = occluderMapper.getOccBrushMapping();
+
+        // Because the Texturebuilder needs to know which brush is a occluder we flag them here. (The Texturebuilder needs to know this information, because the brushside that represents the occluder has almost always the wrong tooltexture applied, which we need to fix)
+        occBrushesMap.values().forEach(brushIndexes -> brushIndexes.forEach(index -> bsp.brushes.get(index).flagAsOccluder(true)));
     }
 
     /**
