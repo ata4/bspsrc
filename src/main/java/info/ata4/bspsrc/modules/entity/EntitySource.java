@@ -691,6 +691,10 @@ public class EntitySource extends ModuleDecompile {
                 writer.put("ignorenormals", pst6.hasIgnoreNormals());
             }
 
+            if (pst instanceof DStaticPropV6VIN) {
+                writer.put("scale", ((DStaticPropV6VIN) pst).scaling);
+            }
+
             // write that later; both v7 and v8 have it, but v8 extends v5
             Color32 diffMod = null;
 

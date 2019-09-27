@@ -20,6 +20,7 @@ import info.ata4.bsplib.lump.GameLump;
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bsplib.struct.*;
+import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.io.DataReader;
 import info.ata4.io.DataReaders;
 import info.ata4.log.LogUtils;
@@ -287,10 +288,13 @@ public class BspFileReader {
                 bspData.staticPropLeaf.add(in.readUnsignedShort());
             }
 
+            HashMap<Integer, Vector3f> scaling = new HashMap<>();
             // extra data for Vindictus
             if (appID == VINDICTUS && sprpver == 6) {
-                int psextra = in.readInt();
-                in.seek(psextra * 16, CURRENT);
+                int scalingCount = in.readInt();
+                for (int i = 0; i < scalingCount; i++) {
+                    scaling.put(in.readInt(), Vector3f.read(in));
+                }
             }
 
             // StaticPropLump_t
@@ -340,10 +344,10 @@ public class BspFileReader {
                     break;
 
                 case VINDICTUS:
-                    // newer maps report v6 even though the size is still 60, so
-                    // force v5 in all cases
-                    if (propStaticSize == 60) {
-                        structClass = DStaticPropV5.class;
+                    // newer maps report v6 even though the size is still 60, probably because they additionally have a
+                    // scaling attribute which however is not saved in the actual prop itself
+                    if (sprpver == 6 && propStaticSize == 60) {
+                        structClass = DStaticPropV6VIN.class;
                     }
                     break;
 
@@ -438,6 +442,9 @@ public class BspFileReader {
                 if (numFillBytes > 0) {
                     in.seek(numFillBytes, CURRENT);
                 }
+
+                if (scaling.containsKey(i) && sp instanceof DStaticPropV6VIN)
+                    ((DStaticPropV6VIN) sp).scaling = scaling.get(i);
 
                 bspData.staticProps.add(sp);
             }
