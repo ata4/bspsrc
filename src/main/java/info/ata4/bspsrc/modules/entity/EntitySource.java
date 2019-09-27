@@ -18,7 +18,8 @@ import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.nmo.NmoFile;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.bspsrc.*;
+import info.ata4.bspsrc.BspSourceConfig;
+import info.ata4.bspsrc.VmfWriter;
 import info.ata4.bspsrc.modules.BspProtection;
 import info.ata4.bspsrc.modules.ModuleDecompile;
 import info.ata4.bspsrc.modules.VmfMeta;
@@ -668,6 +669,10 @@ public class EntitySource extends ModuleDecompile {
                 writer.put("maxdxlevel", pst6.maxDXLevel);
                 writer.put("mindxlevel", pst6.minDXLevel);
                 writer.put("ignorenormals", pst6.hasIgnoreNormals());
+            }
+
+            if (pst instanceof DStaticPropV6VIN) {
+                writer.put("scale", ((DStaticPropV6VIN) pst).scaling);
             }
 
             // write that later; both v7 and v8 have it, but v8 extends v5
