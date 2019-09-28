@@ -112,8 +112,8 @@ public class TextureBuilder {
         // some calculations
         buildLightmapScale();
 
-        // if enabled in config, fix texture axes for tool texture if necessary
-        if (texsrc.isFixToolTextureAxes() && isToolTextureNeedsRealignment()) {
+        // fix texture axes for tool texture if necessary
+        if (isToolTextureNeedsRealignment()) {
             fixTextureAxes();
         } else {
             // otherwise build UV from texture vectors and fix perpendicular

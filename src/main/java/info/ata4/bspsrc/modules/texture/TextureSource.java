@@ -49,7 +49,6 @@ public class TextureSource extends ModuleRead {
     // settings
     private boolean fixTextureNames;
     private boolean fixToolTextures;
-    private boolean fixToolTextureAxes;
 
     public TextureSource(BspFileReader reader) {
         super(reader);
@@ -215,15 +214,7 @@ public class TextureSource extends ModuleRead {
         return fixToolTextures;
     }
 
-    public boolean isFixToolTextureAxes() {
-        return fixToolTextureAxes;
-    }
-
     public void setFixToolTextures(boolean fixToolTextures) {
         this.fixToolTextures = fixToolTextures;
-    }
-
-    public void setFixToolTextureAxes(boolean fixToolTextureAxes) {
-        this.fixToolTextureAxes = fixToolTextureAxes;
     }
 }
