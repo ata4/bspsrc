@@ -38,8 +38,6 @@ public final class ToolTexture {
     public static final String DOTTED = "tools/toolsdotted";
     public static final String OCCLUDER = "tools/toolsoccluder";
     public static final String TRIGGER = "tools/toolstrigger";
-    public static final String SKYBOX = "tools/toolsskybox";
-    public static final String HINT = "tools/toolshint";
 
     //CSGO Only
     public static final String CSGO_GRENADECLIP = "tools/toolsgrenadeclip";
