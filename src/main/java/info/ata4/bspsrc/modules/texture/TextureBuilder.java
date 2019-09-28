@@ -31,9 +31,10 @@ public class TextureBuilder {
     private static final float EPS_PERP = 0.02f;
 
     // surface/brush flags
-    private static EnumSet<SurfaceFlag> SURF_FLAGS_CLIP = EnumSet.of(SurfaceFlag.SURF_NOLIGHT, SurfaceFlag.SURF_NODRAW);
-    private static EnumSet<SurfaceFlag> SURF_FLAGS_AREAPORTAL = EnumSet.of(SurfaceFlag.SURF_NOLIGHT);
-    private static EnumSet<BrushFlag> BRUSH_FLAGS_AREAPORTAL = EnumSet.of(BrushFlag.CONTENTS_AREAPORTAL);
+    private static final EnumSet<SurfaceFlag> SURF_FLAGS_CLIP = EnumSet.of(SurfaceFlag.SURF_NOLIGHT, SurfaceFlag.SURF_NODRAW);
+    private static final EnumSet<SurfaceFlag> SURF_FLAGS_AREAPORTAL = EnumSet.of(SurfaceFlag.SURF_NOLIGHT);
+    private static final EnumSet<BrushFlag> BRUSH_FLAGS_AREAPORTAL = EnumSet.of(BrushFlag.CONTENTS_AREAPORTAL);
+    private static final EnumSet<SurfaceFlag> SURF_FLAGS_NEEDS_REALIGNMENT = EnumSet.of(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_SKY, SurfaceFlag.SURF_SKY2D);
 
     private final BspData bsp;
     private final TextureSource texsrc;
@@ -200,13 +201,14 @@ public class TextureBuilder {
 
     private boolean isToolTextureNeedsRealignment() {
     /**
-     * Checks if the current texture is a tool texture known to have invalid
-     * texture vectors, and therefore needs to be realigned.
+     * Checks if the current texture is a tool texture likely to have unsuitable
+     * or invalid texture vectors as a result of texinfo optimization performed
+     * by VBSP, and therefore needs to be realigned.
      * 
      * @return <code>true</code> if it is a tool texture that needs to be realigned,
      *         <code>false</code> otherwise.
      */
-        if (ibrushside == -1) {
+        if (ibrush == -1 || ibrushside == -1) {
             return false;
         }
 
@@ -216,9 +218,13 @@ public class TextureBuilder {
             return false;
         }
 
+        DBrush brush = bsp.brushes.get(ibrush);
+        Set<BrushFlag> brushFlags = brush.contents;
         Set<SurfaceFlag> surfFlags = bsp.texinfos.get(brushSide.texinfo).flags;
 
-        return (surfFlags.contains(SurfaceFlag.SURF_NODRAW) || surfFlags.contains(SurfaceFlag.SURF_SKY));
+        return (surfFlags.stream().anyMatch(flag -> SURF_FLAGS_NEEDS_REALIGNMENT.contains(flag))
+                || brush.isFlaggedAsOccluder())
+                || (brushFlags.equals(BRUSH_FLAGS_AREAPORTAL) && surfFlags.equals(SURF_FLAGS_AREAPORTAL));
     }
 
     /**
@@ -239,7 +245,7 @@ public class TextureBuilder {
         Vector3f vdir;
 
         // if the projection of the surface normal onto the z-axis is greatest
-        if (dotZ > dotX & dotZ > dotY) {
+        if (dotZ > dotX && dotZ > dotY) {
             // use y-axis as basis
             vdir = Vector3f.BASE_VECTOR_Y;
         } else {
