@@ -140,7 +140,6 @@ public class BspSourceFrame extends javax.swing.JFrame {
         checkBoxDetail.setSelected(config.writeDetails);
         checkBoxDisp.setSelected(config.writeDisp);
         checkBoxFixToolTex.setSelected(config.fixToolTextures);
-        checkBoxFixToolTexAxes.setSelected(config.fixToolTextureAxes);
         checkBoxFixCubemapTex.setSelected(config.fixCubemapTextures);
         checkBoxFixRotation.setSelected(config.fixEntityRot);
         checkBoxLoadLumpFile.setSelected(config.loadLumpFiles);
@@ -448,7 +447,6 @@ public class BspSourceFrame extends javax.swing.JFrame {
         comboBoxBackfaceTex = new javax.swing.JComboBox();
         checkBoxFixCubemapTex = new javax.swing.JCheckBox();
         checkBoxFixToolTex = new javax.swing.JCheckBox();
-        checkBoxFixToolTexAxes = new javax.swing.JCheckBox();
         panelOther = new javax.swing.JPanel();
         checkBoxDebugMode = new javax.swing.JCheckBox();
         checkBoxLoadLumpFile = new javax.swing.JCheckBox();
@@ -873,8 +871,8 @@ public class BspSourceFrame extends javax.swing.JFrame {
             .addGroup(jpEntityMappingLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jpEntityMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jpOccluderMapping, javax.swing.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE)
-                    .addComponent(jpAreaportalMapping, javax.swing.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE))
+                    .addComponent(jpOccluderMapping, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
+                    .addComponent(jpAreaportalMapping, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(121, Short.MAX_VALUE))
         );
 
@@ -914,14 +912,6 @@ public class BspSourceFrame extends javax.swing.JFrame {
             }
         });
 
-        checkBoxFixToolTexAxes.setText("Fix tool texture alignment");
-        checkBoxFixToolTexAxes.setToolTipText("Realign tool textures on brush faces (tool textures with perpendicular UVs will always be fixed regardless of this setting.)");
-        checkBoxFixToolTexAxes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkBoxFixToolTexAxesActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout panelTexturesLayout = new javax.swing.GroupLayout(panelTextures);
         panelTextures.setLayout(panelTexturesLayout);
         panelTexturesLayout.setHorizontalGroup(
@@ -929,7 +919,6 @@ public class BspSourceFrame extends javax.swing.JFrame {
             .addGroup(panelTexturesLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelTexturesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(checkBoxFixToolTexAxes)
                     .addComponent(checkBoxFixToolTex)
                     .addComponent(checkBoxFixCubemapTex)
                     .addGroup(panelTexturesLayout.createSequentialGroup()
@@ -940,7 +929,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                         .addGroup(panelTexturesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(comboBoxFaceTex, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(comboBoxBackfaceTex, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(149, Short.MAX_VALUE))
+                .addContainerGap(171, Short.MAX_VALUE))
         );
         panelTexturesLayout.setVerticalGroup(
             panelTexturesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -957,9 +946,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 .addComponent(checkBoxFixCubemapTex)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkBoxFixToolTex)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(checkBoxFixToolTexAxes)
-                .addContainerGap(67, Short.MAX_VALUE))
+                .addContainerGap(90, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("Textures", panelTextures);
@@ -1165,10 +1152,6 @@ public class BspSourceFrame extends javax.swing.JFrame {
         comboBoxOccMapping.setEnabled(checkBoxOccChangeMM.isSelected());
     }//GEN-LAST:event_checkBoxOccChangeMMStateChanged
 
-    private void checkBoxFixToolTexAxesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxFixToolTexAxesActionPerformed
-        config.fixToolTextureAxes = checkBoxFixToolTexAxes.isSelected();
-    }//GEN-LAST:event_checkBoxFixToolTexAxesActionPerformed
-
     private void checkBoxEnableEntitiesActionPerformed(java.awt.event.ActionEvent evt) {                                                       
         config.setWriteEntities(checkBoxEnableEntities.isSelected());
         setPanelEnabled(panelEntities, checkBoxEnableEntities);
@@ -1367,7 +1350,6 @@ public class BspSourceFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox checkBoxFixCubemapTex;
     private javax.swing.JCheckBox checkBoxFixRotation;
     private javax.swing.JCheckBox checkBoxFixToolTex;
-    private javax.swing.JCheckBox checkBoxFixToolTexAxes;
     private javax.swing.JCheckBox checkBoxLadder;
     private javax.swing.JCheckBox checkBoxLoadLumpFile;
     private javax.swing.JCheckBox checkBoxOccChangeMM;
