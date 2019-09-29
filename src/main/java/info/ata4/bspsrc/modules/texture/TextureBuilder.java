@@ -199,15 +199,15 @@ public class TextureBuilder {
         return null;
     }
 
-    private boolean isToolTextureNeedsRealignment() {
     /**
      * Checks if the current texture is a tool texture likely to have unsuitable
      * or invalid texture vectors as a result of texinfo optimization performed
      * by VBSP, and therefore needs to be realigned.
      * 
-     * @return <code>true</code> if it is a tool texture that needs to be realigned,
-     *         <code>false</code> otherwise.
+     * @return {@code true} if it is a tool texture that needs to be realigned,
+     *         {@code false} otherwise.
      */
+    private boolean isToolTextureNeedsRealignment() {
         if (ibrush == -1 || ibrushside == -1) {
             return false;
         }
@@ -222,9 +222,9 @@ public class TextureBuilder {
         Set<BrushFlag> brushFlags = brush.contents;
         Set<SurfaceFlag> surfFlags = bsp.texinfos.get(brushSide.texinfo).flags;
 
-        return (surfFlags.stream().anyMatch(flag -> SURF_FLAGS_NEEDS_REALIGNMENT.contains(flag))
-                || brush.isFlaggedAsOccluder())
-                || (brushFlags.equals(BRUSH_FLAGS_AREAPORTAL) && surfFlags.equals(SURF_FLAGS_AREAPORTAL));
+        return surfFlags.stream().anyMatch(SURF_FLAGS_NEEDS_REALIGNMENT::contains)
+            || brush.isFlaggedAsOccluder()
+            || (brushFlags.equals(BRUSH_FLAGS_AREAPORTAL) && surfFlags.equals(SURF_FLAGS_AREAPORTAL));
     }
 
     /**
