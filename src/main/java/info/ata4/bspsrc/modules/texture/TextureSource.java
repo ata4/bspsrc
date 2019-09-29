@@ -190,7 +190,7 @@ public class TextureSource extends ModuleRead {
 
     public String canonizeTextureName(String textureNew) {
         // convert to lower case
-        textureNew = textureNew.toLowerCase();
+        textureNew = textureNew.toLowerCase(Locale.ROOT);
 
         // fix separators
         textureNew = FilenameUtils.separatorsToUnix(textureNew);
