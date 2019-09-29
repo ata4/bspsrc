@@ -10,9 +10,11 @@
 package info.ata4.bsplib.app;
 
 import info.ata4.log.LogUtils;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -132,7 +134,7 @@ public class SourceApp {
             throw new UnsupportedOperationException();
         }
 
-        if (filePatternCompiled.matcher(name.toLowerCase()).find()) {
+        if (filePatternCompiled.matcher(name.toLowerCase(Locale.ROOT)).find()) {
             L.log(Level.FINER, "File pattern match: {0} on {1}", new Object[]{filePattern, name});
             return pointsFilePattern;
         } else {
