@@ -391,6 +391,9 @@ public class FaceSource extends ModuleDecompile {
         e2 = e2.add(bedge);
         e3 = e3.add(bedge);
 
+        // flip UAxis for back side
+        texture.setUAxis(new TextureAxis(texture.getUAxis().axis.scalar(-1)));
+
         writeBackSide(texture, e1, e2, e3);
 
         Vector3f tv2 = bedge.normalize();
@@ -403,7 +406,8 @@ public class FaceSource extends ModuleDecompile {
             e2 = wind.get((i + 1) % size);
             e3 = e1.add(bedge);
 
-            Vector3f tv1 = e2.sub(e1).normalize();
+            // e2.sub(e1) results in mirrored texture
+            Vector3f tv1 = e1.sub(e2).normalize();
 
             // use null vector if the result is invalid
             if (!tv1.isValid()) {

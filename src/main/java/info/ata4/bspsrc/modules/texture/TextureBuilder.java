@@ -31,9 +31,10 @@ public class TextureBuilder {
     private static final float EPS_PERP = 0.02f;
 
     // surface/brush flags
-    private static EnumSet<SurfaceFlag> SURF_FLAGS_CLIP = EnumSet.of(SurfaceFlag.SURF_NOLIGHT, SurfaceFlag.SURF_NODRAW);
-    private static EnumSet<SurfaceFlag> SURF_FLAGS_AREAPORTAL = EnumSet.of(SurfaceFlag.SURF_NOLIGHT);
-    private static EnumSet<BrushFlag> BRUSH_FLAGS_AREAPORTAL = EnumSet.of(BrushFlag.CONTENTS_AREAPORTAL);
+    private static final EnumSet<SurfaceFlag> SURF_FLAGS_CLIP = EnumSet.of(SurfaceFlag.SURF_NOLIGHT, SurfaceFlag.SURF_NODRAW);
+    private static final EnumSet<SurfaceFlag> SURF_FLAGS_AREAPORTAL = EnumSet.of(SurfaceFlag.SURF_NOLIGHT);
+    private static final EnumSet<BrushFlag> BRUSH_FLAGS_AREAPORTAL = EnumSet.of(BrushFlag.CONTENTS_AREAPORTAL);
+    private static final EnumSet<SurfaceFlag> SURF_FLAGS_NEEDS_REALIGNMENT = EnumSet.of(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_SKY, SurfaceFlag.SURF_SKY2D);
 
     private final BspData bsp;
     private final TextureSource texsrc;
@@ -62,8 +63,8 @@ public class TextureBuilder {
         texture = new Texture();
         texture.setOriginalTexture(ToolTexture.SKIP);
 
-        // align to preset axes
-        fixPerpendicular();
+        // align to face
+        fixTextureAxes();
 
         // no texinfo
         if (itexinfo == DTexInfo.TEXINFO_NODE) {
@@ -110,8 +111,16 @@ public class TextureBuilder {
 
         // some calculations
         buildLightmapScale();
-        buildUV();
-        fixPerpendicular();
+
+        // fix texture axes for tool texture if necessary
+        if (isToolTextureNeedsRealignment()) {
+            fixTextureAxes();
+        } else {
+            // otherwise build UV from texture vectors and fix perpendicular
+            // texture axes if necessary
+            buildUV();
+            fixPerpendicular();
+        }
 
         return texture;
     }
@@ -190,6 +199,66 @@ public class TextureBuilder {
         return null;
     }
 
+    /**
+     * Checks if the current texture is a tool texture likely to have unsuitable
+     * or invalid texture vectors as a result of texinfo optimization performed
+     * by VBSP, and therefore needs to be realigned.
+     * 
+     * @return {@code true} if it is a tool texture that needs to be realigned,
+     *         {@code false} otherwise.
+     */
+    private boolean isToolTextureNeedsRealignment() {
+        if (ibrush == -1 || ibrushside == -1) {
+            return false;
+        }
+
+        DBrushSide brushSide = bsp.brushSides.get(ibrushside);
+
+        if (brushSide.texinfo == DTexInfo.TEXINFO_NODE) {
+            return false;
+        }
+
+        DBrush brush = bsp.brushes.get(ibrush);
+        Set<BrushFlag> brushFlags = brush.contents;
+        Set<SurfaceFlag> surfFlags = bsp.texinfos.get(brushSide.texinfo).flags;
+
+        return surfFlags.stream().anyMatch(SURF_FLAGS_NEEDS_REALIGNMENT::contains)
+            || brush.isFlaggedAsOccluder()
+            || (brushFlags.equals(BRUSH_FLAGS_AREAPORTAL) && surfFlags.equals(SURF_FLAGS_AREAPORTAL));
+    }
+
+    /**
+     * Calculates new UV axes based on the normal vector of the face.
+     * 
+     * It should produce the same result as face alignment in Hammer.
+     */
+    private void fixTextureAxes() {
+        if (normal == null) {
+            return;
+        }
+
+        // calculate the projections of the surface normal onto the world axes
+        float dotX = Math.abs(Vector3f.BASE_VECTOR_X.dot(normal));
+        float dotY = Math.abs(Vector3f.BASE_VECTOR_Y.dot(normal));
+        float dotZ = Math.abs(Vector3f.BASE_VECTOR_Z.dot(normal));
+
+        Vector3f vdir;
+
+        // if the projection of the surface normal onto the z-axis is greatest
+        if (dotZ > dotX && dotZ > dotY) {
+            // use y-axis as basis
+            vdir = Vector3f.BASE_VECTOR_Y;
+        } else {
+            // otherwise use z-axis as basis
+            vdir = Vector3f.BASE_VECTOR_Z;
+        }
+
+        Vector3f tv1 = normal.cross(vdir).normalize(); // 1st tex vector
+        Vector3f tv2 = normal.cross(tv1).normalize();  // 2nd tex vector
+
+        texture.setUAxis(new TextureAxis(tv1));
+        texture.setVAxis(new TextureAxis(tv2));
+    }
 
     /**
      * Checks for texture axes that are perpendicular to the normal and fixes them.
@@ -199,25 +268,12 @@ public class TextureBuilder {
             return;
         }
 
-        Vector3f texNorm = texture.getVAxis().axis.cross(texture.getUAxis().axis);
+        Vector3f texNorm = texture.getUAxis().axis.cross(texture.getVAxis().axis);
         if (Math.abs(normal.dot(texNorm)) >= EPS_PERP) {
             return;
         }
 
-        // z is z-direction unit vector
-        Vector3f udir = new Vector3f(0, 0, 1);
-
-        // if angle of normal to z axis is less than ~25 degrees
-        if (Math.abs(udir.dot(normal)) > Math.sin(45)) {
-            // use x unit-vector as basis
-            udir = new Vector3f(1, 0, 0);
-        }
-
-        Vector3f tv1 = udir.cross(normal).normalize(); // 1st tex vector
-        Vector3f tv2 = tv1.cross(normal).normalize();  // 2nd tex vector
-
-        texture.setUAxis(new TextureAxis(tv1));
-        texture.setVAxis(new TextureAxis(tv2));
+        fixTextureAxes();
     }
 
     private void buildLightmapScale() {
