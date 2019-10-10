@@ -2,15 +2,17 @@ package info.ata4.bsplib.nmo;
 
 import info.ata4.io.DataReader;
 import info.ata4.io.DataReaders;
+import info.ata4.io.DataWriter;
+import info.ata4.io.DataWriters;
 import info.ata4.io.buffer.ByteBufferUtils;
 import info.ata4.log.LogUtils;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -81,80 +83,42 @@ public class NmoFile {
 	public void writeAsNmos(Path path) throws IOException {
 		L.info("Writing nmos file: " + path);
 
-		//Really bad way to handle things, but i had no other idea how to write in little endian without a ByteBuffer
-		ByteBuffer buffer = ByteBufferUtils.allocate(calculateNmosFileSize())
-				.order(ByteOrder.LITTLE_ENDIAN);
+		try (DataWriter fileWriter = DataWriters.forFile(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+			fileWriter.order(ByteOrder.LITTLE_ENDIAN);
 
-		buffer.put(SIGNATURE);
-		buffer.putInt(VERSION);
+			fileWriter.writeByte(SIGNATURE);
+			fileWriter.writeInt(VERSION);
 
-		buffer.putInt(nodes.size() + extractions.size());
+			fileWriter.writeInt(nodes.size() + extractions.size());
 
-		int xCoordinate = 0;
-		int spacing = 75;
+			int xCoordinate = 0;
+			int spacing = 75;
 
-		for (NmoObjective nmoObjective : nodes) {
-			buffer.put((byte) 1);
-			buffer.putInt(nmoObjective.id);
-			buffer.putInt(xCoordinate);
-			buffer.putInt(0);
-			buffer.put((byte) nmoObjective.comment.length());
-			buffer.put(nmoObjective.comment.getBytes(StandardCharsets.UTF_8));
+			for (NmoObjective nmoObjective : nodes) {
+				fileWriter.writeByte((byte) 1);
+				fileWriter.writeInt(nmoObjective.id);
+				fileWriter.writeInt(xCoordinate);
+				fileWriter.writeInt(0);
+				fileWriter.writeStringPrefixed(nmoObjective.comment, Byte.TYPE, StandardCharsets.UTF_8);
 
-			buffer.putInt(nmoObjective.children.size());
-			nmoObjective.children.forEach(buffer::putInt);
+				fileWriter.writeInt(nmoObjective.children.size());
+				for (Integer child : nmoObjective.children) {
+					fileWriter.writeInt(child);
+				}
 
-			xCoordinate += spacing;
+				xCoordinate += spacing;
+			}
+
+			for (NmoExtraction extraction : extractions) {
+				fileWriter.writeByte((byte) 0);
+				fileWriter.writeInt(extraction.id);
+				fileWriter.writeInt(xCoordinate);
+				fileWriter.writeInt(0);
+				fileWriter.writeInt(0); // unknown
+
+				xCoordinate += spacing;
+			}
 		}
-
-		for (NmoExtraction extraction : extractions) {
-			buffer.put((byte) 0);
-			buffer.putInt(extraction.id);
-			buffer.putInt(xCoordinate);
-			buffer.putInt(0);
-			buffer.putInt(0); // unknown
-
-			xCoordinate += spacing;
-		}
-
-		Files.write(path, buffer.array());
-	}
-
-	/**
-	 * Method for calculating the total size in bytes a nmos file would use.
-	 * <p>
-	 * This is needed because i didn't know a nice way to write in little endian to a file without first writing to a {@link ByteBuffer}
-	 *
-	 * @return the total byte size, a nmos file would use
-	 */
-	private int calculateNmosFileSize() {
-
-		int headerBytes = 9; // 1byte Signature + 4bytes version + 4bytes nodeCount
-
-		int objectivesBytes = nodes.stream()
-				.mapToInt(nmoObjective ->
-						1 + // byte prefix
-						4 + // 4byte id
-						4 + // 4byte x
-						4 + // 4byte y
-						1 + // 1byte string length
-						nmoObjective.comment.length() + // xbytes string
-						4 + // 4byte children count
-						nmoObjective.children.size() * 4 // childrenCount*4bytes childrens
-				)
-				.sum();
-
-		int extractionsBytes = extractions.stream()
-				.mapToInt(extraction ->
-						1 + // byte prefix
-						4 + // 4bytes id
-						4 + // 4bytes x
-						4 + // 4bytes y
-						4 // 4bytes unknown
-				)
-				.sum();
-
-		return headerBytes + objectivesBytes + extractionsBytes;
 	}
 
 	/**
