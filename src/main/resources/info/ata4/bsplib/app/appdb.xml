@@ -1561,4 +1561,31 @@
             nmrih_safezone_supply
         </entities>
     </app>
+    <app name="Insurgency" id="222880">
+        <version min="21" />
+        <!-- There are more insurgency related entities, but I decided to only use distinct ones because those should be enough to detect insurgency maps -->
+        <entities>
+            ins_viewpoint
+            ins_spawnpoint
+            ins_spawnzone
+            ins_blockzone
+            trigger_capture_zone
+            point_controlpoint
+            point_flag
+            ins_rulesproxy
+            logic_push
+            logic_skirmish
+            logic_vip
+            logic_firefight
+            logic_battle
+            logic_elimination
+            logic_hunt
+            logic_checkpoint
+            logic_outpost
+            logic_training
+            obj_weapon_cache
+            obj_destructible
+            obj_destructible_vehicle
+        </entities>
+    </app>
 </apps>
