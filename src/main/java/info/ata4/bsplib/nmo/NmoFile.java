@@ -54,7 +54,7 @@ public class NmoFile {
 		int version = dataReader.readInt();
 
 		if (signature != SIGNATURE)
-			throw new NmoException("Invalid nmo file. Expected file signature '" + signature + "', got '" + signature + "'");
+			throw new NmoException("Invalid nmo file. Expected file signature '" + SIGNATURE + "', got '" + signature + "'");
 		if (version != VERSION)
 			throw new NmoException("Unsupported nmo file version '" + version + "'");
 
