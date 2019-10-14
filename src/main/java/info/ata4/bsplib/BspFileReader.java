@@ -385,6 +385,13 @@ public class BspFileReader {
                     }
                     break;
 
+                case INSURGENCY:
+                    // Insurgency is based of the csgo engine branch so we can use DStaticPropV10CSGO
+                    if (sprpver == 10 && propStaticSize == 76) {
+                        structClass = DStaticPropV10CSGO.class;
+                    }
+                    break;
+
                 default:
                     // check for "lite" version of V11 struct in case it applies
                     // to a game other than BM (or BM wasn't detected/selected)
