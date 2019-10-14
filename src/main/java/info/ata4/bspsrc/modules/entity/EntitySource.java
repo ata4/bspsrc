@@ -191,25 +191,6 @@ public class EntitySource extends ModuleDecompile {
                 }
             }
 
-            // re-use hammerid if possible, otherwise generate a new UID
-            int entID = getHammerID(ent);
-
-            // if we have nmo data re-use extractions ids
-            if (nmo != null) {
-                entID = nmo.extractions.stream()
-                        .filter(extraction -> extraction.name.equals(ent.getTargetName()))
-                        .findAny()
-                        .map(extraction -> extraction.id)
-                        .orElse(entID);
-            }
-
-            if (entID == -1) {
-                entID = vmfmeta.getUID();
-            }
-
-            writer.start("entity");
-            writer.put("id", entID);
-
             // get areaportal numbers
             int portalNum = -1;
             if (isAreaportal) {
@@ -221,6 +202,12 @@ public class EntitySource extends ModuleDecompile {
                         portalNum = Integer.valueOf(portalNumString);
                     } catch (NumberFormatException ex) {
                         portalNum = -1;
+                    }
+
+                    int finalPortalNum = portalNum;
+                    if (bsp.areaportals.stream().noneMatch(areaportal -> areaportal.portalKey == finalPortalNum)) {
+                        L.warning("funct_areaportal entity links to a non existing areaportal, skipping...");
+                        continue;
                     }
 
                     // keep the number when debugging
@@ -249,6 +236,25 @@ public class EntitySource extends ModuleDecompile {
                     }
                 }
             }
+
+            // re-use hammerid if possible, otherwise generate a new UID
+            int entID = getHammerID(ent);
+
+            // if we have nmo data re-use extractions ids
+            if (nmo != null) {
+                entID = nmo.extractions.stream()
+                        .filter(extraction -> extraction.name.equals(ent.getTargetName()))
+                        .findAny()
+                        .map(extraction -> extraction.id)
+                        .orElse(entID);
+            }
+
+            if (entID == -1) {
+                entID = vmfmeta.getUID();
+            }
+
+            writer.start("entity");
+            writer.put("id", entID);
 
             int modelNum = ent.getModelNum();
 

@@ -173,6 +173,11 @@ public class OccluderMapper {
         if (!config.writeOccluders)
             return Collections.emptyMap();
 
+        if (bsp.occluderDatas.size() == 0) {
+            L.info("No occluders to reallocate...");
+            return Collections.emptyMap();
+        }
+
         if (config.occForceMapping) {
             L.info("Forced occluder method: '" + config.occMappingMode + "'");
             return config.occMappingMode.map(this);
@@ -187,10 +192,10 @@ public class OccluderMapper {
                 .sum();
 
         if (occluderFacesNum == occluderBrushFacesNum) {
-            L.info("Equal amount of occluder faces as occluder brush faces. Using '" + OccMappingMode.ORDERED + "' method");
+            L.info("Equal amount of occluder faces and occluder brush faces. Using '" + OccMappingMode.ORDERED + "' method");
             return OccMappingMode.ORDERED.map(this);
         } else {
-            L.info("Unequal amount of occluder faces as occluder brush faces. Falling back to '" + OccMappingMode.MANUAL + "' method");
+            L.info("Unequal amount of occluder faces and occluder brush faces. Falling back to '" + OccMappingMode.MANUAL + "' method");
             return OccMappingMode.MANUAL.map(this);
         }
     }

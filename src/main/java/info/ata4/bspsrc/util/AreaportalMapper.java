@@ -3,10 +3,7 @@ package info.ata4.bspsrc.util;
 import info.ata4.bsplib.struct.BspData;
 import info.ata4.bsplib.struct.DAreaportal;
 import info.ata4.bsplib.struct.DBrush;
-import info.ata4.bsplib.struct.DBrushSide;
 import info.ata4.bsplib.util.VectorUtil;
-import info.ata4.bsplib.vector.Vector2f;
-import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.log.LogUtils;
 
@@ -208,9 +205,14 @@ public class AreaportalMapper {
      *
      * @return A {@code Map} where the keys represent portal ids and values the brush ids
      */
-    public Map<Integer,Integer> getApBrushMapping() {
+    public Map<Integer, Integer> getApBrushMapping() {
         if (!config.writeAreaportals)
             return Collections.emptyMap();
+
+        if (areaportalHelpers.size() == 0) {
+            L.info("No areaportals to reallocate...");
+            return Collections.emptyMap();
+        }
 
         if (config.apForceMapping) {
             L.info("Forced areaportal method: '" + config.apMappingMode + "'");
@@ -218,10 +220,10 @@ public class AreaportalMapper {
         }
 
         if (areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum() == bsp.brushes.stream().filter(DBrush::isAreaportal).count()) {
-            L.info("Equal amount of areaporal entities as areaportal brushes. Using '" + ApMappingMode.ORDERED + "' method");
+            L.info("Equal amount of areaporal entities and areaportal brushes. Using '" + ApMappingMode.ORDERED + "' method");
             return ApMappingMode.ORDERED.map(this);
         } else {
-            L.info("Unequal amount of areaporal entities as areaportal brushes. Falling back to '" + ApMappingMode.MANUAL + "' method");
+            L.info("Unequal amount of areaporal entities and areaportal brushes. Falling back to '" + ApMappingMode.MANUAL + "' method");
             return ApMappingMode.MANUAL.map(this);
         }
     }

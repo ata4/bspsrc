@@ -17,21 +17,12 @@ import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.VmfWriter;
 import info.ata4.bspsrc.modules.ModuleDecompile;
 import info.ata4.bspsrc.modules.VmfMeta;
-import info.ata4.bspsrc.modules.texture.Texture;
-import info.ata4.bspsrc.modules.texture.TextureAxis;
-import info.ata4.bspsrc.modules.texture.TextureBuilder;
-import info.ata4.bspsrc.modules.texture.TextureSource;
-import info.ata4.bspsrc.modules.texture.ToolTexture;
+import info.ata4.bspsrc.modules.texture.*;
 import info.ata4.bspsrc.util.Winding;
 import info.ata4.bspsrc.util.WindingFactory;
 import info.ata4.log.LogUtils;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -471,6 +462,7 @@ public class FaceSource extends ModuleDecompile {
                 return;
             }
         }
+        L.warning("Tried to write non existing areaportal with portalkey " + portalKey);
     }
 
     public void writeAreaportal(DAreaportal ap) {
