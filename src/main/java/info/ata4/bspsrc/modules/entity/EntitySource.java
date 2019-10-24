@@ -63,9 +63,11 @@ public class EntitySource extends ModuleDecompile {
     private final VmfMeta vmfmeta;
 
     // Areaportal to brush mapping
+    private AreaportalMapper areaportalMapper;
     private Map<Integer, Integer> apBrushMap;
 
     // Occluder to brushes mapping;
+    private OccluderMapper occluderMapper;
     private Map<Integer, Set<Integer>> occBrushesMap;
 
     //'No More Room in Hell' Nmo data
@@ -87,10 +89,10 @@ public class EntitySource extends ModuleDecompile {
 
         processEntities();
 
-        AreaportalMapper areaportalMapper = new AreaportalMapper(bsp, config);
+        areaportalMapper = new AreaportalMapper(bsp, config);
         apBrushMap = areaportalMapper.getApBrushMapping();
 
-        OccluderMapper occluderMapper = new OccluderMapper(bsp, config);
+        occluderMapper = new OccluderMapper(bsp, config);
         occBrushesMap = occluderMapper.getOccBrushMapping();
 
         // Because the Texturebuilder needs to know which brush is a occluder we flag them here. (The Texturebuilder needs to know this information, because the brushside that represents the occluder has almost always the wrong tooltexture applied, which we need to fix)
@@ -329,6 +331,10 @@ public class EntitySource extends ModuleDecompile {
                         facesrc.writeAreaportal(portalNum);
                         visgroups.add("Rebuild" + VmfMeta.VISGROUP_SEPERATOR + "areaportals");
                     }
+
+                    if (config.isDebug()) {
+                        visgroups.add("AreaportalID" + VmfMeta.VISGROUP_SEPERATOR + portalNum);
+                    }
                 }
 
                 // retrieve occluder brushes from map
@@ -380,6 +386,11 @@ public class EntitySource extends ModuleDecompile {
             }
 
             writer.end("entity");
+        }
+
+        //If were in debug wer write some additional entities
+        if (config.isDebug()) {
+            areaportalMapper.writeDebugPortals(writer, vmfmeta, facesrc);
         }
     }
 

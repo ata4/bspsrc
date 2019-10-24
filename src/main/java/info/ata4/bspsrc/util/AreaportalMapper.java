@@ -1,15 +1,21 @@
 package info.ata4.bspsrc.util;
 
+import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.struct.BspData;
 import info.ata4.bsplib.struct.DAreaportal;
 import info.ata4.bsplib.struct.DBrush;
 import info.ata4.bsplib.util.VectorUtil;
 import info.ata4.bspsrc.BspSourceConfig;
+import info.ata4.bspsrc.VmfWriter;
+import info.ata4.bspsrc.modules.VmfMeta;
+import info.ata4.bspsrc.modules.geom.FaceSource;
+import info.ata4.bspsrc.modules.texture.ToolTexture;
 import info.ata4.log.LogUtils;
 
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -165,6 +171,39 @@ public class AreaportalMapper {
             brushProbMapping.entrySet().removeIf(entry -> entry.getValue().isEmpty());
         }
 
+        //In debug mode we write all probabilities to the entities for debugging
+        if (config.isDebug()) {
+            //We create a new copy of the porbability map. This is very inefficient, but necessary with the current structure of the algorithm because brushProbMapping is being altered while assigning to areaportals
+            Map<DBrush, Map<AreaportalHelper, Double>> debugBrushProbMapping = areaportalBrushes.stream()
+                    .collect(Collectors.toMap(dBrush -> dBrush, this::areaportalBrushProb));
+
+            for (Entity entity : bsp.entities) {
+                if (!entity.getClassName().startsWith("func_areaportal"))
+                    continue;
+
+                try {
+                    Integer brushIndex = brushMapping.get(Integer.valueOf(entity.getValue("portalnumber")));
+                    if (brushIndex == null)
+                        continue;
+
+                    DBrush brush = bsp.brushes.get(brushIndex);
+                    Map<AreaportalHelper, Double> probabilities = debugBrushProbMapping.get(brush);
+
+                    if (probabilities == null)
+                        continue;
+
+                    probabilities.forEach((areaportal, percentage) -> entity.setValue(
+                            "areaportalProb" + areaportal.portalID.stream()
+                                    .map(Object::toString)
+                                    .collect(Collectors.joining(", ", "[", "]")),
+                            percentage
+                    ));
+                } catch (NumberFormatException e) {
+                    L.log(Level.FINE, "func_areaportal portalnumber property is missing or invalid", e);
+                }
+            }
+        }
+
         return brushMapping;
     }
 
@@ -225,6 +264,27 @@ public class AreaportalMapper {
         } else {
             L.info("Unequal amount of areaporal entities and areaportal brushes. Falling back to '" + ApMappingMode.MANUAL + "' method");
             return ApMappingMode.MANUAL.map(this);
+        }
+    }
+
+    /**
+     * Writes debug entities, that represent the original areaportals from the bsp
+     */
+    public void writeDebugPortals(VmfWriter writer, VmfMeta vmfMeta, FaceSource faceSource) {
+        for (AreaportalHelper areaportalHelper : areaportalHelpers) {
+            writer.start("entity");
+            writer.put("id", vmfMeta.getUID());
+            writer.put("classname", "func_detail");
+            writer.put("areaportalIDs", areaportalHelper.portalID.stream().map(Object::toString).collect(Collectors.joining(", ")));
+
+            faceSource.writePolygon(areaportalHelper.winding, ToolTexture.SKIP, true);
+            vmfMeta.writeMetaVisgroups(
+                    areaportalHelper.portalID.stream()
+                            .map(id -> "AreaportalID" + VmfMeta.VISGROUP_SEPERATOR +  id)
+                            .collect(Collectors.toList())
+            );
+
+            writer.end("entity");
         }
     }
 
