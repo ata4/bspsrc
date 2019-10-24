@@ -106,20 +106,21 @@ public class AreaportalMapper {
         Map<DBrush, Map<AreaportalHelper, Double>> brushProbMapping = areaportalBrushes.stream()
                 .collect(Collectors.toMap(dBrush -> dBrush, this::areaportalBrushProb));
 
-//        Map<Integer, Set<Integer>> debug = brushProbMapping.entrySet().stream()
-//                .map(entry -> new AbstractMap.SimpleEntry<Integer, Set<Integer>>(areaportalBrushes.indexOf(entry.getKey()), entry.getValue().entrySet().stream()
-//                        .max(Comparator.comparingDouble(Entry::getValue))
-//                        .map(apEntry -> apEntry.getKey().portalID)
-//                        .orElse(null)))
-//                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
         // Remove every brush entry if it doesn't have areaportals mapped to it. (Not sure if this could actually happen here)
         brushProbMapping.entrySet().removeIf(dBrushMapEntry -> dBrushMapEntry.getValue().isEmpty());
 
         // Final brush mapping. Key represent areaportal ids, values represent index in bsp.brushes
         HashMap<Integer, Integer> brushMapping = new HashMap<>();
+
+        Map<DBrush, Map<AreaportalHelper, Double>> mappingQueue = new HashMap<>();
+        Comparator<Entry<DBrush, Map<AreaportalHelper, Double>>> mappingQueueComparator = Comparator.comparingDouble(entry -> entry.getValue().entrySet().stream()
+                .max(Comparator.comparingDouble(Entry::getValue))
+                .map(Entry::getValue)
+                .get());
+
         while (!brushProbMapping.isEmpty()) {
-            TreeMap<DBrush, Map<AreaportalHelper, Double>> mappingQueue = new TreeMap<>(Comparator.comparingInt(areaportalBrushes::indexOf));
+            // Clear our mapping queue before every iteration
+            mappingQueue.clear();
 
             // Get all brush mappings that only have one available areaportal to map to. These can be safely mapped as they don't create conflicts with other areaportal brushes (At least they shouldn't theoretically)
             mappingQueue.putAll(brushProbMapping.entrySet().stream()
@@ -129,37 +130,41 @@ public class AreaportalMapper {
             if (mappingQueue.isEmpty()) {
                 // We ended up with only brushes that can't be mapped distinctively so we guess one to map by using the mapping with the highest probability
                 brushProbMapping.entrySet().stream()
-                        .max(Comparator.comparingDouble(entry -> entry.getValue().entrySet().stream()
-                                .max(Comparator.comparingDouble(Entry::getValue))
-                                .map(Entry::getValue)
-                                .orElseThrow(RuntimeException::new)))
+                        .max(mappingQueueComparator)
                         .ifPresent(entry -> mappingQueue.put(entry.getKey(), entry.getValue()));
             }
 
             // Now mapped those brushes we selected earlier
-            for (Entry<DBrush, Map<AreaportalHelper, Double>> entry : mappingQueue.entrySet()) {
-                DBrush dBrush = entry.getKey();
-                Map<AreaportalHelper, Double> apHelperProbMap = entry.getValue();
+            mappingQueue.entrySet().stream()
+                    .sorted(mappingQueueComparator)
+                    .forEachOrdered(entry -> {
+                        DBrush dBrush = entry.getKey();
+                        AreaportalHelper apHelper = entry.getValue().entrySet().stream()
+                                .max(Comparator.comparingDouble(Entry::getValue))
+                                .map(Entry::getKey)
+                                .get();
 
-                if (!apHelperProbMap.isEmpty()) {
-                    AreaportalHelper apHelper = apHelperProbMap.keySet().iterator().next();
-                    int portalID = apHelper.portalID.first();
+                        if (!apHelper.portalID.isEmpty()) {
+                            int portalID = apHelper.portalID.first();
 
-                    // When we map a brush to the specific areaportal id, we need to make sure no other brush is mapped to it as well. -> Iterate over every brush mapping and remove the areaportal id if present
-                    brushProbMapping.entrySet().stream()
-                            .flatMap(dBrushMapEntry -> dBrushMapEntry.getValue().keySet().stream())
-                            .forEach(areaportalHelper -> areaportalHelper.portalID.removeIf(integer -> integer == portalID));
+                            // When we map a brush to the specific areaportal id, we need to make sure no other brush is mapped to it as well. -> Iterate over every brush mapping and remove the areaportal id if present
+                            brushProbMapping.entrySet().stream()
+                                    .flatMap(dBrushMapEntry -> dBrushMapEntry.getValue().keySet().stream())
+                                    .forEach(areaportalHelper -> areaportalHelper.portalID.removeIf(integer -> integer == portalID));
 
-                    // This could cause Areaportalhelpers to be empty (of portal ids), so we remove every entry with those
-                    brushProbMapping.forEach((key, value) -> value.entrySet().removeIf(apEntry -> apEntry.getKey().portalID.isEmpty()));
+                            // This could cause Areaportalhelpers to be empty (of portal ids), so we remove every entry with those
+                            brushProbMapping.forEach((key, value) -> value.entrySet().removeIf(apEntry -> apEntry.getKey().portalID.isEmpty()));
 
-                    // Finally put our new mapping in the map
-                    brushMapping.put(portalID, bsp.brushes.indexOf(dBrush));
-                }
-                brushProbMapping.remove(dBrush);
-            }
+                            // Finally put our new mapping in the map
+                            brushMapping.put(portalID, bsp.brushes.indexOf(dBrush));
+                        } else {
+                            L.warning("Couldn't find valid Areaportal mapping for brush " + bsp.brushes.indexOf(dBrush));
+                        }
 
-            // After every iteration we remove every entry that doesn't have a possible entry anymore. (This could for example happen if the algorithm makes mistake)
+                        brushProbMapping.remove(dBrush);
+                    });
+
+            // After each iteration we remove every entry that doesn't have a possible entry anymore. (This could for example happen if the algorithm makes mistake)
             brushProbMapping.entrySet().removeIf(entry -> entry.getValue().isEmpty());
         }
 
