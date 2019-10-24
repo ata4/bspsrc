@@ -89,9 +89,9 @@ public class OccluderMapper {
      *
      * @return A {@code Map} where the keys represent an occluder an the values a list of brush ids
      */
-    private Map<Integer, List<Integer>> manualMapping() {
+    private Map<Integer, Set<Integer>> manualMapping() {
         // Map all occluders to a list of representing brushes
-        Map<Integer, List<Integer>> occBrushMapping = bsp.occluderDatas.stream()
+        Map<Integer, Set<Integer>> occBrushMapping = bsp.occluderDatas.stream()
                 .collect(Collectors.toMap(dOccluderData -> bsp.occluderDatas.indexOf(dOccluderData), this::mapOccluder));
 
         // Remove every occluder mapping that has 0 brushes assigned, because we couldn't find a mapping
@@ -110,7 +110,7 @@ public class OccluderMapper {
      * @param dOccluderData occluder to find brushes for
      * @return a Integer list of brush indexes
      */
-    private List<Integer> mapOccluder(DOccluderData dOccluderData) {
+    private Set<Integer> mapOccluder(DOccluderData dOccluderData) {
         return bsp.occluderPolyDatas.subList(dOccluderData.firstpoly, dOccluderData.firstpoly + dOccluderData.polycount).stream()
                 .map(dOccluderPolyData -> nonWorldBrushes.stream()
                         .filter(dBrush -> bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
@@ -119,7 +119,7 @@ public class OccluderMapper {
                 .filter(Optional::isPresent)
                 .map(dBrush -> bsp.brushes.indexOf(dBrush.get()))
                 .filter(index -> index != -1)   //Shouldn't happen, but just in case 'indexOf' returns -1 we filter these out here
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -158,12 +158,12 @@ public class OccluderMapper {
      *
      * @return A {@code Map} with occluder ids as keys and and a List of Integers as values
      */
-    private Map<Integer, List<Integer>> orderedMapping() {
+    private Map<Integer, Set<Integer>> orderedMapping() {
         // Get the min amount of occluder faces that can be process#
         // This should always be limited by the amount of occluderData but we test nonetheless
         long min = Math.min(occluderFaces.values().stream().mapToInt(i -> i).sum(), bsp.occluderDatas.stream().mapToInt(occluder -> occluder.polycount).sum());
 
-        HashMap<Integer, List<Integer>> occBrushMap = new HashMap<>();
+        HashMap<Integer, Set<Integer>> occBrushMap = new HashMap<>();
 
         // Convert the amount of occluderfaces we can process into actual occluders (occluders can have multiple faces)
         int minOccluders = 0;
@@ -182,7 +182,7 @@ public class OccluderMapper {
         int occBrushIndex = 0;
         int remaining = 0;
         for (int i = 0; i < minOccluders; i++) {
-            ArrayList<Integer> occBrushes = new ArrayList<>();
+            Set<Integer> occBrushes = new HashSet<>();
 
             int j = bsp.occluderDatas.get(i).polycount;
             while (j > 0) {
@@ -220,7 +220,7 @@ public class OccluderMapper {
      *
      * @return A {@code Map} where the keys represent occluder ids and values a list of brush ids
      */
-    public Map<Integer, List<Integer>> getOccBrushMapping() {
+    public Map<Integer, Set<Integer>> getOccBrushMapping() {
         if (!config.writeOccluders)
             return Collections.emptyMap();
 
@@ -250,13 +250,13 @@ public class OccluderMapper {
         MANUAL(OccluderMapper::manualMapping),
         ORDERED(OccluderMapper::orderedMapping);
 
-        private Function<OccluderMapper, Map<Integer, List<Integer>>> mapper;
+        private Function<OccluderMapper, Map<Integer, Set<Integer>>> mapper;
 
-        OccMappingMode(Function<OccluderMapper, Map<Integer, List<Integer>>> mapper) {
+        OccMappingMode(Function<OccluderMapper, Map<Integer, Set<Integer>>> mapper) {
             this.mapper = mapper;
         }
 
-        public Map<Integer, List<Integer>> map(OccluderMapper occMapper) {
+        public Map<Integer, Set<Integer>> map(OccluderMapper occMapper) {
             return mapper.apply(occMapper);
         }
 

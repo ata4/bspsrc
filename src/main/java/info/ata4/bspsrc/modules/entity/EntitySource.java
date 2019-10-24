@@ -62,10 +62,10 @@ public class EntitySource extends ModuleDecompile {
     private final VmfMeta vmfmeta;
 
     // Areaportal to brush mapping
-    Map<Integer, Integer> apBrushMap;
+    private Map<Integer, Integer> apBrushMap;
 
     // Occluder to brushes mapping;
-    Map<Integer, List<Integer>> occBrushesMap;
+    private Map<Integer, Set<Integer>> occBrushesMap;
 
     //'No More Room in Hell' Nmo data
     private NmoFile nmo;
