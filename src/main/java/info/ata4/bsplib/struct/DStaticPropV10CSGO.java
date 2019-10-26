@@ -11,6 +11,7 @@ package info.ata4.bsplib.struct;
 
 import info.ata4.io.DataReader;
 import info.ata4.io.DataWriter;
+
 import java.io.IOException;
 
 /**
@@ -37,5 +38,17 @@ public class DStaticPropV10CSGO extends DStaticPropV9 {
     public void write(DataWriter out) throws IOException {
         super.write(out);
         out.writeInt(unknown);
+    }
+
+    /**
+     * @return Always {@code false}, because DStaticPropV10CSGO doesn't use ScreenSpaceFade anymore and its flag is now used for 'RenderInFastReflection'
+     */
+    @Override
+    public boolean hasScreenSpaceFadeInPixels() {
+        return false;
+    }
+
+    public boolean hasRenderInFastReflection() {
+        return super.hasScreenSpaceFadeInPixels();
     }
 }

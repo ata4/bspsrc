@@ -38,8 +38,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static info.ata4.bsplib.app.SourceAppID.COUNTER_STRIKE_GO;
-
 /**
  * Decompiling module to write point and brush entities converted from various lumps.
  * 
@@ -651,15 +649,7 @@ public class EntitySource extends ModuleDecompile {
             writer.put("fademaxdist", pst4.fademax);
             writer.put("solid", pst4.solid);
             writer.put("model", bsp.staticPropName.get(pst4.propType));
-
-            //Csgo no longer uses the screenspacefade flag for 'Screen space fade' but for 'Render in fastreflection'
-            if (pst4.hasScreenSpaceFadeInPixels()) {
-                if (bspFile.getSourceApp().getAppID() == COUNTER_STRIKE_GO) {
-                    writer.put("drawinfastreflection", pst4.hasScreenSpaceFadeInPixels());
-                } else {
-                    writer.put("screenspacefade", pst4.hasScreenSpaceFadeInPixels());
-                }
-            }
+            writer.put("screenspacefade", pst4.hasScreenSpaceFadeInPixels());
 
             // store coordinates and targetname of the lighing origin for later
             if (pst4.usesLightingOrigin()) {
@@ -747,6 +737,10 @@ public class EntitySource extends ModuleDecompile {
                             diffMod.r, diffMod.g, diffMod.b));
                     writer.put("renderamt", diffMod.a);
                 }
+            }
+
+            if (pst instanceof DStaticPropV10CSGO) {
+                writer.put("drawinfastreflection", ((DStaticPropV10CSGO) pst).hasRenderInFastReflection());
             }
 
             if (pst instanceof DStaticPropV11CSGO) {
