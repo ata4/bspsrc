@@ -36,10 +36,10 @@ public class TextureSource extends ModuleRead {
     private static final Logger L = LogUtils.getLogger();
 
     // regex patterns for texture name fixing
-    private final Pattern originPattern = Pattern.compile("_(-?\\d+)_(-?\\d+)_(-?\\d+)?$"); // cubemap position
-    private final Pattern wvtPatchPattern = Pattern.compile("_wvt_patch$"); // world vertex patch
-    private final Pattern waterPatchPattern = Pattern.compile("_depth_(-?\\d+)$"); // water texture patch
-    private final Pattern mapPattern;
+    private final Pattern originPattern = Pattern.compile("_(-?\\d+)_(-?\\d+)_(-?\\d+)?"); // cubemap position
+    private final Pattern wvtPatchPattern = Pattern.compile("_wvt_patch"); // world vertex patch
+    private final Pattern waterPatchPattern = Pattern.compile("_depth_(-?\\d+)"); // water texture patch
+    private final Matcher mapMatcher;
 
     // ID mappings
     private Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<>();
@@ -53,7 +53,8 @@ public class TextureSource extends ModuleRead {
     public TextureSource(BspFileReader reader) {
         super(reader);
 
-        mapPattern = Pattern.compile("^maps/" + reader.getBspFile().getName() + "/");
+        Pattern mapPattern = Pattern.compile("^maps/" + reader.getBspFile().getName() + "/");
+        mapMatcher = mapPattern.matcher("");
 
         reader.loadTexInfo();
         reader.loadTexData();
@@ -74,43 +75,26 @@ public class TextureSource extends ModuleRead {
     private void processTextureNames() {
         for (int i = 0; i < bsp.texnames.size(); i++) {
             String textureOld = bsp.texnames.get(i);
-            String textureNew = textureOld;
+            String textureNew = canonizeTextureName(textureOld);
 
-            textureNew = canonizeTextureName(textureNew);
-
-            // search for "maps/<mapname>" prefix
-            Matcher matcher = mapPattern.matcher(textureNew);
+            Matcher matcher = wvtPatchPattern.matcher(textureNew);
             if (matcher.find()) {
-                // remove it
-                textureNew = matcher.replaceFirst("");
+                textureNew = removeMapPrefix(matcher.replaceFirst(""));
+            }
+            matcher = waterPatchPattern.matcher(textureNew);
+            if (matcher.find()) {
+                textureNew = removeMapPrefix(matcher.replaceFirst(""));
+            }
+            matcher = originPattern.matcher(textureNew);
+            if (matcher.find()) {
+                int cx = Integer.valueOf(matcher.group(1));
+                int cy = Integer.valueOf(matcher.group(2));
+                int cz = Integer.valueOf(matcher.group(3));
 
-                // search for "_wvt_patch" suffix
-                matcher = wvtPatchPattern.matcher(textureNew);
-                if (matcher.find()) {
-                    // remove it
-                    textureNew = matcher.replaceFirst("");
-                }
+                setCubemapForTexname(i, cx, cy, cz);
 
-                // search for "_depth_xxx" suffix
-                matcher = waterPatchPattern.matcher(textureNew);
-                if (matcher.find()) {
-                    // remove it
-                    textureNew = matcher.replaceFirst("");
-                }
-
-                // search for origin coordinates
-                matcher = originPattern.matcher(textureNew);
-                if (matcher.find()) {
-                    // get origin
-                    int cx = Integer.valueOf(matcher.group(1));
-                    int cy = Integer.valueOf(matcher.group(2));
-                    int cz = Integer.valueOf(matcher.group(3));
-
-                    setCubemapForTexname(i, cx, cy, cz);
-
-                    // remove origin coordinates
-                    textureNew = matcher.replaceFirst("");
-                }
+                // remove origin coordinates
+                textureNew = removeMapPrefix(matcher.replaceFirst(""));
             }
 
             // log differences
@@ -120,6 +104,14 @@ public class TextureSource extends ModuleRead {
 
             texnamesFixed.add(textureNew);
         }
+    }
+
+    private String removeMapPrefix(String input) {
+        mapMatcher.reset(input);
+        if (mapMatcher.find())
+            return mapMatcher.replaceFirst("");
+        else
+            return input;
     }
 
     private void setCubemapForTexname(int itexname, int cx, int cy, int cz) {
