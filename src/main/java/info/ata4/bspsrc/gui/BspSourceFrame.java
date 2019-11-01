@@ -18,8 +18,6 @@ import info.ata4.bspsrc.BspSource;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.gui.util.EnumToolTexture;
 import info.ata4.bspsrc.modules.geom.BrushMode;
-import info.ata4.bspsrc.util.AreaportalMapper;
-import info.ata4.bspsrc.util.OccluderMapper;
 import info.ata4.bspsrc.util.SourceFormat;
 import info.ata4.log.LogUtils;
 import info.ata4.util.gui.FileDrop;
@@ -134,7 +132,8 @@ public class BspSourceFrame extends javax.swing.JFrame {
 
         // check boxes
         checkBoxAreaportal.setSelected(config.writeAreaportals);
-        checkBoxApChangeMM.setSelected(config.apForceMapping);
+        checkBoxForceApMode.setSelected(config.apForceManualMapping);
+        checkBoxForceOccMode.setSelected(config.occForceManualMapping);
         checkBoxCubemap.setSelected(config.writeCubemaps);
         checkBoxDebugMode.setSelected(config.isDebug());
         checkBoxDetail.setSelected(config.writeDetails);
@@ -162,7 +161,6 @@ public class BspSourceFrame extends javax.swing.JFrame {
         comboBoxFaceTex.setSelectedIndex(0);
         comboBoxMapFormat.setSelectedIndex(0);
         comboBoxSourceFormat.setSelectedIndex(0);
-        comboBoxApMapping.setSelectedIndex(0);
 
         // misc
         listFilesModel.removeAllElements();
@@ -435,11 +433,8 @@ public class BspSourceFrame extends javax.swing.JFrame {
         checkBoxEnableEntities = new javax.swing.JCheckBox();
         jpEntityMapping = new javax.swing.JPanel();
         jpAreaportalMapping = new javax.swing.JPanel();
-        checkBoxApChangeMM = new javax.swing.JCheckBox();
-        comboBoxApMapping = new javax.swing.JComboBox<>();
-        jpOccluderMapping = new javax.swing.JPanel();
-        checkBoxOccChangeMM = new javax.swing.JCheckBox();
-        comboBoxOccMapping = new javax.swing.JComboBox<>();
+        checkBoxForceApMode = new javax.swing.JCheckBox();
+        checkBoxForceOccMode = new javax.swing.JCheckBox();
         panelTextures = new javax.swing.JPanel();
         labelFaceTex = new javax.swing.JLabel();
         labelBackfaceTex = new javax.swing.JLabel();
@@ -784,24 +779,24 @@ public class BspSourceFrame extends javax.swing.JFrame {
 
         jpEntityMapping.setName("Mapping"); // NOI18N
 
-        jpAreaportalMapping.setBorder(javax.swing.BorderFactory.createTitledBorder("Areaportal"));
+        jpAreaportalMapping.setBorder(javax.swing.BorderFactory.createTitledBorder("Force Manual Method"));
         jpAreaportalMapping.setName(""); // NOI18N
-        jpAreaportalMapping.setPreferredSize(new java.awt.Dimension(135, 68));
+        jpAreaportalMapping.setPreferredSize(new java.awt.Dimension(135, 48));
 
-        checkBoxApChangeMM.setText("Force mapping");
-        checkBoxApChangeMM.setToolTipText("This forces the mapping of areaportal to brushes to be made manual. Only check this if you're getting trouble with the default mapping methode");
-        checkBoxApChangeMM.setActionCommand("forceManualMapping");
-        checkBoxApChangeMM.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                checkBoxApChangeMMStateChanged(evt);
+        checkBoxForceApMode.setText("Areaportals");
+        checkBoxForceApMode.setToolTipText("This forces the mapping of areaportals to brushes, to be made manually. Only check this if you're getting errors with the default mapping method!");
+        checkBoxForceApMode.setActionCommand("forceManualMapping");
+        checkBoxForceApMode.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkBoxForceApModeItemStateChanged(evt);
             }
         });
 
-        comboBoxApMapping.setModel(new DefaultComboBoxModel<>(AreaportalMapper.ApMappingMode.values()));
-        comboBoxApMapping.setEnabled(checkBoxApChangeMM.isSelected());
-        comboBoxApMapping.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboBoxApMappingActionPerformed(evt);
+        checkBoxForceOccMode.setText("Occluders");
+        checkBoxForceOccMode.setToolTipText("This forces the mapping of occluders to brushes, to be made manually. Only check this if you're getting errors with the default mapping method!");
+        checkBoxForceOccMode.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkBoxForceOccModeItemStateChanged(evt);
             }
         });
 
@@ -809,50 +804,15 @@ public class BspSourceFrame extends javax.swing.JFrame {
         jpAreaportalMapping.setLayout(jpAreaportalMappingLayout);
         jpAreaportalMappingLayout.setHorizontalGroup(
             jpAreaportalMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(checkBoxApChangeMM, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
-            .addComponent(comboBoxApMapping, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(checkBoxForceOccMode, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(checkBoxForceApMode, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
         );
         jpAreaportalMappingLayout.setVerticalGroup(
             jpAreaportalMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jpAreaportalMappingLayout.createSequentialGroup()
-                .addComponent(checkBoxApChangeMM)
+                .addComponent(checkBoxForceApMode)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(comboBoxApMapping, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
-        jpOccluderMapping.setBorder(javax.swing.BorderFactory.createTitledBorder("Occluder"));
-        jpOccluderMapping.setPreferredSize(new java.awt.Dimension(135, 46));
-
-        checkBoxOccChangeMM.setText("Force mapping");
-        checkBoxOccChangeMM.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                checkBoxOccChangeMMStateChanged(evt);
-            }
-        });
-
-        comboBoxOccMapping.setModel(new DefaultComboBoxModel<>(OccluderMapper.OccMappingMode.values()));
-        comboBoxOccMapping.setEnabled(checkBoxOccChangeMM.isSelected());
-        comboBoxOccMapping.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboBoxOccMappingActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jpOccluderMappingLayout = new javax.swing.GroupLayout(jpOccluderMapping);
-        jpOccluderMapping.setLayout(jpOccluderMappingLayout);
-        jpOccluderMappingLayout.setHorizontalGroup(
-            jpOccluderMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jpOccluderMappingLayout.createSequentialGroup()
-                .addComponent(checkBoxOccChangeMM, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
-                .addContainerGap())
-            .addComponent(comboBoxOccMapping, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jpOccluderMappingLayout.setVerticalGroup(
-            jpOccluderMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jpOccluderMappingLayout.createSequentialGroup()
-                .addComponent(checkBoxOccChangeMM)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(comboBoxOccMapping, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(checkBoxForceOccMode))
         );
 
         javax.swing.GroupLayout jpEntityMappingLayout = new javax.swing.GroupLayout(jpEntityMapping);
@@ -861,19 +821,15 @@ public class BspSourceFrame extends javax.swing.JFrame {
             jpEntityMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jpEntityMappingLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jpAreaportalMapping, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2)
-                .addComponent(jpOccluderMapping, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jpAreaportalMapping, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(155, Short.MAX_VALUE))
         );
         jpEntityMappingLayout.setVerticalGroup(
             jpEntityMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jpEntityMappingLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jpEntityMappingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jpOccluderMapping, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-                    .addComponent(jpAreaportalMapping, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(121, Short.MAX_VALUE))
+                .addComponent(jpAreaportalMapping, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(120, Short.MAX_VALUE))
         );
 
         tabbedPaneOptions.addTab("Entity mapping", jpEntityMapping);
@@ -1114,43 +1070,23 @@ public class BspSourceFrame extends javax.swing.JFrame {
         config.writeLadders = checkBoxLadder.isSelected();
     }//GEN-LAST:event_checkBoxLadderActionPerformed
 
-    private void comboBoxApMappingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxApMappingActionPerformed
-        config.apMappingMode = (AreaportalMapper.ApMappingMode) comboBoxApMapping.getSelectedItem();
-    }//GEN-LAST:event_comboBoxApMappingActionPerformed
-
-    private void comboBoxOccMappingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxOccMappingActionPerformed
-        config.occMappingMode = (OccluderMapper.OccMappingMode) comboBoxOccMapping.getSelectedItem();
-    }//GEN-LAST:event_comboBoxOccMappingActionPerformed
-
     private void checkBoxAreaportalStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkBoxAreaportalStateChanged
         config.writeAreaportals = checkBoxAreaportal.isSelected();
-        checkBoxApChangeMM.setEnabled(checkBoxAreaportal.isSelected());
-        
-        if (!checkBoxAreaportal.isSelected()) {
-            checkBoxApChangeMM.setSelected(false);
-            config.apForceMapping = false;
-        }
+        checkBoxForceApMode.setEnabled(checkBoxAreaportal.isSelected());
     }//GEN-LAST:event_checkBoxAreaportalStateChanged
 
     private void checkBoxOccluderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkBoxOccluderStateChanged
         config.writeOccluders = checkBoxOccluder.isSelected();
-        checkBoxOccChangeMM.setEnabled(checkBoxOccluder.isSelected());
-        
-        if (!checkBoxOccluder.isSelected()) {
-            checkBoxOccChangeMM.setSelected(false);
-            config.occForceMapping = false;
-        }
+        checkBoxForceOccMode.setEnabled(checkBoxOccluder.isSelected());
     }//GEN-LAST:event_checkBoxOccluderStateChanged
 
-    private void checkBoxApChangeMMStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkBoxApChangeMMStateChanged
-        config.apForceMapping = checkBoxApChangeMM.isSelected();
-        comboBoxApMapping.setEnabled(checkBoxApChangeMM.isSelected());
-    }//GEN-LAST:event_checkBoxApChangeMMStateChanged
+    private void checkBoxForceApModeItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_checkBoxForceApModeItemStateChanged
+        config.apForceManualMapping = checkBoxForceApMode.isSelected();
+    }//GEN-LAST:event_checkBoxForceApModeItemStateChanged
 
-    private void checkBoxOccChangeMMStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_checkBoxOccChangeMMStateChanged
-        config.occForceMapping = checkBoxOccChangeMM.isSelected();
-        comboBoxOccMapping.setEnabled(checkBoxOccChangeMM.isSelected());
-    }//GEN-LAST:event_checkBoxOccChangeMMStateChanged
+    private void checkBoxForceOccModeItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_checkBoxForceOccModeItemStateChanged
+        config.occForceManualMapping = checkBoxForceOccMode.isSelected();
+    }//GEN-LAST:event_checkBoxForceOccModeItemStateChanged
 
     private void checkBoxEnableEntitiesActionPerformed(java.awt.event.ActionEvent evt) {                                                       
         config.setWriteEntities(checkBoxEnableEntities.isSelected());
@@ -1337,7 +1273,6 @@ public class BspSourceFrame extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroupBrushMode;
     private javax.swing.JButton buttonRemove;
     private javax.swing.JButton buttonRemoveAll;
-    private javax.swing.JCheckBox checkBoxApChangeMM;
     private javax.swing.JCheckBox checkBoxAreaportal;
     private javax.swing.JCheckBox checkBoxCameras;
     private javax.swing.JCheckBox checkBoxCubemap;
@@ -1350,22 +1285,20 @@ public class BspSourceFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox checkBoxFixCubemapTex;
     private javax.swing.JCheckBox checkBoxFixRotation;
     private javax.swing.JCheckBox checkBoxFixToolTex;
+    private javax.swing.JCheckBox checkBoxForceApMode;
+    private javax.swing.JCheckBox checkBoxForceOccMode;
     private javax.swing.JCheckBox checkBoxLadder;
     private javax.swing.JCheckBox checkBoxLoadLumpFile;
-    private javax.swing.JCheckBox checkBoxOccChangeMM;
     private javax.swing.JCheckBox checkBoxOccluder;
     private javax.swing.JCheckBox checkBoxOverlay;
     private javax.swing.JCheckBox checkBoxPropStatic;
     private javax.swing.JCheckBox checkBoxVisgroups;
-    private javax.swing.JComboBox<AreaportalMapper.ApMappingMode> comboBoxApMapping;
     private javax.swing.JComboBox comboBoxBackfaceTex;
     private javax.swing.JComboBox comboBoxFaceTex;
     private javax.swing.JComboBox comboBoxMapFormat;
-    private javax.swing.JComboBox<OccluderMapper.OccMappingMode> comboBoxOccMapping;
     private javax.swing.JComboBox comboBoxSourceFormat;
     private javax.swing.JPanel jpAreaportalMapping;
     private javax.swing.JPanel jpEntityMapping;
-    private javax.swing.JPanel jpOccluderMapping;
     private javax.swing.JLabel labelBackfaceTex;
     private javax.swing.JLabel labelDnDTip;
     private javax.swing.JLabel labelFaceTex;
