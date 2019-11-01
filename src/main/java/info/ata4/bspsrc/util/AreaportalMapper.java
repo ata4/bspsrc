@@ -253,9 +253,9 @@ public class AreaportalMapper {
             return Collections.emptyMap();
         }
 
-        if (config.apForceMapping) {
-            L.info("Forced areaportal method: '" + config.apMappingMode + "'");
-            return config.apMappingMode.map(this);
+        if (config.apForceManualMapping) {
+            L.info("Forced manual areaportal mapping method");
+            return ApMappingMode.MANUAL.map(this);
         }
 
         if (areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum() == bsp.brushes.stream().filter(DBrush::isAreaportal).count()) {

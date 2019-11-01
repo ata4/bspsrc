@@ -532,10 +532,8 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jpAreaportalMapping" min="-2" pref="143" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
-                      <Component id="jpOccluderMapping" min="-2" pref="143" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jpAreaportalMapping" min="-2" pref="145" max="-2" attributes="0"/>
+                      <EmptySpace pref="155" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -543,11 +541,8 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="jpOccluderMapping" pref="68" max="32767" attributes="0"/>
-                          <Component id="jpAreaportalMapping" max="32767" attributes="0"/>
-                      </Group>
-                      <EmptySpace pref="121" max="32767" attributes="0"/>
+                      <Component id="jpAreaportalMapping" min="-2" pref="69" max="-2" attributes="0"/>
+                      <EmptySpace pref="120" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -557,113 +552,51 @@
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="Areaportal"/>
+                    <TitledBorder title="Force Manual Method"/>
                   </Border>
                 </Property>
                 <Property name="name" type="java.lang.String" value="" noResource="true"/>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[135, 68]"/>
+                  <Dimension value="[135, 48]"/>
                 </Property>
               </Properties>
 
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="checkBoxApChangeMM" pref="131" max="32767" attributes="0"/>
-                      <Component id="comboBoxApMapping" alignment="0" max="32767" attributes="0"/>
+                      <Component id="checkBoxForceOccMode" max="32767" attributes="0"/>
+                      <Component id="checkBoxForceApMode" alignment="0" pref="133" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="checkBoxApChangeMM" min="-2" max="-2" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <Component id="checkBoxForceApMode" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="comboBoxApMapping" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkBoxForceOccMode" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JCheckBox" name="checkBoxApChangeMM">
+                <Component class="javax.swing.JCheckBox" name="checkBoxForceApMode">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Force mapping"/>
-                    <Property name="toolTipText" type="java.lang.String" value="This forces the mapping of areaportal to brushes to be made manual. Only check this if you&apos;re getting trouble with the default mapping methode"/>
+                    <Property name="text" type="java.lang.String" value="Areaportals"/>
+                    <Property name="toolTipText" type="java.lang.String" value="This forces the mapping of areaportals to brushes, to be made manually. Only check this if you&apos;re getting errors with the default mapping method!"/>
                     <Property name="actionCommand" type="java.lang.String" value="forceManualMapping"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="checkBoxApChangeMMStateChanged"/>
+                    <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="checkBoxForceApModeItemStateChanged"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JComboBox" name="comboBoxApMapping">
+                <Component class="javax.swing.JCheckBox" name="checkBoxForceOccMode">
                   <Properties>
-                    <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="new DefaultComboBoxModel&lt;&gt;(AreaportalMapper.ApMappingMode.values())" type="code"/>
-                    </Property>
+                    <Property name="text" type="java.lang.String" value="Occluders"/>
+                    <Property name="toolTipText" type="java.lang.String" value="This forces the mapping of occluders to brushes, to be made manually. Only check this if you&apos;re getting errors with the default mapping method!"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboBoxApMappingActionPerformed"/>
+                    <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="checkBoxForceOccModeItemStateChanged"/>
                   </Events>
-                  <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="comboBoxApMapping.setEnabled(checkBoxApChangeMM.isSelected());"/>
-                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;AreaportalMapper.ApMappingMode&gt;"/>
-                  </AuxValues>
-                </Component>
-              </SubComponents>
-            </Container>
-            <Container class="javax.swing.JPanel" name="jpOccluderMapping">
-              <Properties>
-                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="Occluder"/>
-                  </Border>
-                </Property>
-                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[135, 46]"/>
-                </Property>
-              </Properties>
-
-              <Layout>
-                <DimensionLayout dim="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Component id="checkBoxOccChangeMM" pref="125" max="32767" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                      <Component id="comboBoxOccMapping" max="32767" attributes="0"/>
-                  </Group>
-                </DimensionLayout>
-                <DimensionLayout dim="1">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="checkBoxOccChangeMM" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
-                          <Component id="comboBoxOccMapping" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-              </Layout>
-              <SubComponents>
-                <Component class="javax.swing.JCheckBox" name="checkBoxOccChangeMM">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Force mapping"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="checkBoxOccChangeMMStateChanged"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JComboBox" name="comboBoxOccMapping">
-                  <Properties>
-                    <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="new DefaultComboBoxModel&lt;&gt;(OccluderMapper.OccMappingMode.values())" type="code"/>
-                    </Property>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboBoxOccMappingActionPerformed"/>
-                  </Events>
-                  <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="comboBoxOccMapping.setEnabled(checkBoxOccChangeMM.isSelected());"/>
-                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;OccluderMapper.OccMappingMode&gt;"/>
-                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>

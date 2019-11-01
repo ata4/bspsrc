@@ -178,9 +178,9 @@ public class OccluderMapper {
             return Collections.emptyMap();
         }
 
-        if (config.occForceMapping) {
-            L.info("Forced occluder method: '" + config.occMappingMode + "'");
-            return config.occMappingMode.map(this);
+        if (config.occForceManualMapping) {
+            L.info("Forced manual occluder mapping method");
+            return OccMappingMode.MANUAL.map(this);
         }
 
         int occluderFacesNum = potentialOccluderBrushes.values().stream()
