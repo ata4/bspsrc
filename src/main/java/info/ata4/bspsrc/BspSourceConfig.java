@@ -45,6 +45,7 @@ public final class BspSourceConfig implements Serializable {
     public boolean nullOutput = false;
     public boolean skipProt = false;
     public boolean unpackEmbedded = false;
+    public boolean smartUnpack = true;
     public float backfaceDepth = 1;
     public int maxCubemapSides = 8;
     public int maxOverlaySides = 64;

@@ -36,9 +36,10 @@ public class TextureSource extends ModuleRead {
     private static final Logger L = LogUtils.getLogger();
 
     // regex patterns for texture name fixing
-    private final Pattern originPattern = Pattern.compile("_(-?\\d+)_(-?\\d+)_(-?\\d+)?"); // cubemap position
-    private final Pattern wvtPatchPattern = Pattern.compile("_wvt_patch"); // world vertex patch
-    private final Pattern waterPatchPattern = Pattern.compile("_depth_(-?\\d+)"); // water texture patch
+    private static final Pattern originPattern = Pattern.compile("_(-?\\d+)_(-?\\d+)_(-?\\d+)?"); // cubemap position
+    private static final Pattern wvtPatchPattern = Pattern.compile("_wvt_patch"); // world vertex patch
+    private static final Pattern waterPatchPattern = Pattern.compile("_depth_(-?\\d+)"); // water texture patch
+
     private final Matcher mapMatcher;
 
     // ID mappings
@@ -208,5 +209,12 @@ public class TextureSource extends ModuleRead {
 
     public void setFixToolTextures(boolean fixToolTextures) {
         this.fixToolTextures = fixToolTextures;
+    }
+
+    public static boolean isPatchedMaterial(String s) {
+        return originPattern.matcher(s).find()
+                || wvtPatchPattern.matcher(s).find()
+                || waterPatchPattern.matcher(s).find();
+
     }
 }

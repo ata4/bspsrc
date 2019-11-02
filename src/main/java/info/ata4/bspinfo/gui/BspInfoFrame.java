@@ -16,6 +16,7 @@ import info.ata4.bspinfo.gui.models.LumpTableModel;
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.BspFileFilter;
 import info.ata4.bsplib.BspFileReader;
+import info.ata4.bsplib.PakFile;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.lump.LumpType;
@@ -33,9 +34,12 @@ import info.ata4.util.gui.FileExtensionFilter;
 import info.ata4.util.gui.components.ByteSizeCellRenderer;
 import info.ata4.util.gui.components.DecimalFormatCellRenderer;
 import info.ata4.util.gui.components.ProgressCellRenderer;
-import java.awt.Cursor;
-import java.awt.Image;
-import java.awt.Toolkit;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.swing.*;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -47,10 +51,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.*;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -1325,7 +1325,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         }
 
         try {
-            bspFile.getPakFile().unpack(dest.toPath(), names);
+            bspFile.getPakFile().unpack(dest.toPath(), PakFile.nameFilter(names));
 
             JOptionPane.showMessageDialog(this, "Successfully extracted " + names.size() + " embedded files.");
         } catch (IOException ex) {

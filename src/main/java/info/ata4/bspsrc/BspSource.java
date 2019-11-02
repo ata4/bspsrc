@@ -12,17 +12,19 @@ package info.ata4.bspsrc;
 
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.BspFileReader;
+import info.ata4.bsplib.PakFile;
+import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.nmo.NmoException;
 import info.ata4.bsplib.nmo.NmoFile;
-import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bspsrc.modules.BspDecompiler;
 import info.ata4.log.LogUtils;
+import org.apache.commons.io.output.NullOutputStream;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.output.NullOutputStream;
 
 /**
  * Main control class for all decompiling modules.
@@ -111,7 +113,7 @@ public class BspSource implements Runnable {
             // extract embedded files
             if (config.unpackEmbedded) {
                 try {
-                    bsp.getPakFile().unpack(entry.getPakDir().toPath());
+                    bsp.getPakFile().unpack(entry.getPakDir().toPath(), path -> !config.smartUnpack || !PakFile.isVBSPGeneratedFile().test(path));
                 } catch (IOException ex) {
                     L.log(Level.WARNING, "Can't extract embedded files", ex);
                 }
