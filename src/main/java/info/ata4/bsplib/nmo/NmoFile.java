@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  * Nmo files are used in the game 'No More Room in Hell' for storing information for their 'Objectives' game mode.
  * <p>
  * Specifically, they store a Set of 'Objectives'/ 'AntiObjectives'/ 'Extractions' referencing specific entities in the bsp.
- * @see <a href="https://wiki.nomoreroominhell.com/Objectives_Setup">https://wiki.nomoreroominhell.com/Objectives_Setup"</a>
+ * @see <a href="https://wiki.nomoreroominhell.com/Objectives_Setup">https://wiki.nomoreroominhell.com/Objectives_Setup</a>
  */
 public class NmoFile {
 
@@ -76,7 +76,7 @@ public class NmoFile {
 	/**
 	 * Writes the nmo information as a nmos file.
 	 *
-	 * @see <a href="https://wiki.nomoreroominhell.com/Objectives_Setup">https://wiki.nomoreroominhell.com/Objectives_Setup"</a>
+	 * @see <a href="https://wiki.nomoreroominhell.com/Objectives_Setup">https://wiki.nomoreroominhell.com/Objectives_Setup</a>
 	 * @param path A {@link Path} denoting where to write the nmos file
 	 * @throws IOException if the file can't be written
 	 */
