@@ -16,6 +16,7 @@ import info.ata4.log.LogUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -35,12 +36,17 @@ public class TextureSource extends ModuleRead {
     // logger
     private static final Logger L = LogUtils.getLogger();
 
-    // regex patterns for texture name fixing
-    private static final Pattern originPattern = Pattern.compile("_(-?\\d+)_(-?\\d+)_(-?\\d+)?"); // cubemap position
-    private static final Pattern wvtPatchPattern = Pattern.compile("_wvt_patch"); // world vertex patch
-    private static final Pattern waterPatchPattern = Pattern.compile("_depth_(-?\\d+)"); // water texture patch
+    // regex capturing group names
+    private static final String PREFIX_GROUP = "prefix";
+    private static final String SUFFIX_GROUP = "suffix";
+    private static final String CUBEMAP_X_GROUP = "x";
+    private static final String CUBEMAP_Y_GROUP = "y";
+    private static final String CUBEMAP_Z_GROUP = "z";
 
-    private final Matcher mapMatcher;
+    // regex patterns for texture name fixing
+    private final Pattern originPattern; // cubemap position
+    private final Pattern wvtPatchPattern; // world vertex patch
+    private final Pattern waterPatchPattern; // water texture patch
 
     // ID mappings
     private Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<>();
@@ -54,8 +60,11 @@ public class TextureSource extends ModuleRead {
     public TextureSource(BspFileReader reader) {
         super(reader);
 
-        Pattern mapPattern = Pattern.compile("^maps/" + reader.getBspFile().getName() + "/");
-        mapMatcher = mapPattern.matcher("");
+        String bspFileName = reader.getBspFile().getName();
+
+        originPattern = compileOriginPattern(bspFileName);
+        wvtPatchPattern = compileWvtPatchPattern(bspFileName);
+        waterPatchPattern = compileWaterPatchPattern(bspFileName);
 
         reader.loadTexInfo();
         reader.loadTexData();
@@ -80,22 +89,25 @@ public class TextureSource extends ModuleRead {
 
             Matcher matcher = wvtPatchPattern.matcher(textureNew);
             if (matcher.find()) {
-                textureNew = removeMapPrefix(matcher.replaceFirst(""));
+                textureNew = removeMatchedPrefixSuffix(matcher, textureNew);
             }
             matcher = waterPatchPattern.matcher(textureNew);
             if (matcher.find()) {
-                textureNew = removeMapPrefix(matcher.replaceFirst(""));
+                textureNew = removeMatchedPrefixSuffix(matcher, textureNew);
             }
             matcher = originPattern.matcher(textureNew);
             if (matcher.find()) {
-                int cx = Integer.valueOf(matcher.group(1));
-                int cy = Integer.valueOf(matcher.group(2));
-                int cz = Integer.valueOf(matcher.group(3));
+                try {
+                    int cx = Integer.valueOf(matcher.group(CUBEMAP_X_GROUP));
+                    int cy = Integer.valueOf(matcher.group(CUBEMAP_Y_GROUP));
+                    int cz = Integer.valueOf(matcher.group(CUBEMAP_Z_GROUP));
 
-                setCubemapForTexname(i, cx, cy, cz);
+                    setCubemapForTexname(i, cx, cy, cz);
+                } catch (NumberFormatException e) {
+                    L.log(Level.WARNING, "Error parsing cubemap position from regex. Matcher: " + matcher.pattern().pattern() + ", input: " + textureNew, e);
+                }
 
-                // remove origin coordinates
-                textureNew = removeMapPrefix(matcher.replaceFirst(""));
+                textureNew = removeMatchedPrefixSuffix(matcher, textureNew);
             }
 
             // log differences
@@ -107,12 +119,16 @@ public class TextureSource extends ModuleRead {
         }
     }
 
-    private String removeMapPrefix(String input) {
-        mapMatcher.reset(input);
-        if (mapMatcher.find())
-            return mapMatcher.replaceFirst("");
-        else
+    private String removeMatchedPrefixSuffix(Matcher matcher, String input) {
+        String prefix = matcher.group(PREFIX_GROUP);
+        String suffix = matcher.group(SUFFIX_GROUP);
+
+        if (prefix == null || suffix == null) {
+            L.log(Level.WARNING, "Passed matcher to 'removeMatchedPrefixSuffix' without either a prefix or suffix capturing group. This means my code sucks. Matcher: " + matcher.pattern().pattern(), new Exception());
             return input;
+        }
+
+        return input.replace(prefix, "").replace(suffix, "");
     }
 
     private void setCubemapForTexname(int itexname, int cx, int cy, int cz) {
@@ -211,10 +227,23 @@ public class TextureSource extends ModuleRead {
         this.fixToolTextures = fixToolTextures;
     }
 
-    public static boolean isPatchedMaterial(String s) {
-        return originPattern.matcher(s).find()
+    private static Pattern compileOriginPattern(String bspFileName) {
+        return Pattern.compile(String.format("(?<%s>maps/%s/).+(?<%s>_(?<%s>-?\\d+)_(?<%s>-?\\d+)_(?<%s>-?\\d+))", PREFIX_GROUP, bspFileName, SUFFIX_GROUP, CUBEMAP_X_GROUP, CUBEMAP_Y_GROUP, CUBEMAP_Z_GROUP));
+    }
+    private static Pattern compileWvtPatchPattern(String bspFileName) {
+        return Pattern.compile(String.format("(?<%s>maps/%s/).+(?<%s>_wvt_patch)", PREFIX_GROUP, bspFileName, SUFFIX_GROUP));
+    }
+    private static Pattern compileWaterPatchPattern(String bspFileName) {
+        return Pattern.compile(String.format("(?<%s>maps/%s/).+(?<%s>_depth_(-?\\d+))", PREFIX_GROUP, bspFileName, SUFFIX_GROUP));
+    }
+
+    public static Predicate<String> isPatchedMaterial(String bspFileName) {
+        Pattern originPattern = compileOriginPattern(bspFileName);
+        Pattern wvtPatchPattern = compileWvtPatchPattern(bspFileName);
+        Pattern waterPatchPattern = compileWaterPatchPattern(bspFileName);
+
+        return s -> originPattern.matcher(s).find()
                 || wvtPatchPattern.matcher(s).find()
                 || waterPatchPattern.matcher(s).find();
-
     }
 }
