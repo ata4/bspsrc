@@ -128,11 +128,13 @@ public class PakFile {
         return paths::contains;
     }
 
-    public static Predicate<Path> isVBSPGeneratedFile() {
+    public static Predicate<Path> isVBSPGeneratedFile(String bspFileName) {
+        Predicate<String> isPatchedMaterial = TextureSource.isPatchedMaterial(bspFileName);
+
         return path -> {
             String s = path.getFileName().toString();
 
-            return TextureSource.isPatchedMaterial(s)
+            return isPatchedMaterial.test(s)
                     || vhvPattern.matcher(s).matches()
                     || cubemapVtfPattern.matcher(s).matches()
                     || s.equalsIgnoreCase("cubemapdefault.vtf")
