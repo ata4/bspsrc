@@ -129,16 +129,13 @@ public class PakFile {
     }
 
     public static Predicate<Path> isVBSPGeneratedFile(String bspFileName) {
-        Predicate<String> isPatchedMaterial = TextureSource.isPatchedMaterial(bspFileName);
+        return TextureSource.isPatchedMaterial(bspFileName).or(path -> {
+            String fileName = path.getFileName().toString();
 
-        return path -> {
-            String s = path.getFileName().toString();
-
-            return isPatchedMaterial.test(s)
-                    || vhvPattern.matcher(s).matches()
-                    || cubemapVtfPattern.matcher(s).matches()
-                    || s.equalsIgnoreCase("cubemapdefault.vtf")
-                    || s.equalsIgnoreCase("cubemapdefault.hdr.vtf");
-        };
+            return vhvPattern.matcher(fileName).matches()
+                    || cubemapVtfPattern.matcher(fileName).matches()
+                    || fileName.equalsIgnoreCase("cubemapdefault.vtf")
+                    || fileName.equalsIgnoreCase("cubemapdefault.hdr.vtf");
+        });
     }
 }
