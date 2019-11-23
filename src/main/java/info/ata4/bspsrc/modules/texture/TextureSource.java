@@ -38,8 +38,7 @@ public class TextureSource extends ModuleRead {
     private static final Logger L = LogUtils.getLogger();
 
     // regex capturing group names
-    private static final String PREFIX_GROUP = "prefix";
-    private static final String SUFFIX_GROUP = "suffix";
+    private static final String CONTENT_GROUP = "content";
     private static final String CUBEMAP_X_GROUP = "x";
     private static final String CUBEMAP_Y_GROUP = "y";
     private static final String CUBEMAP_Z_GROUP = "z";
@@ -78,10 +77,13 @@ public class TextureSource extends ModuleRead {
      * Converts environment-mapped texture names to original texture names and
      * performs some cleanups. It also assigns cubemap IDs to texname IDs which
      * is later used to create the "sides" properties of env_cubemap entities.
-     * 
-     * Following operations will be performed:
-     * - chop "maps/mapname/" from start of names
-     * - chop "_n_n_n or _n_n_n_depth_n from end of names
+     *
+     * <p>Following operations will be performed:
+     * <ul>
+     *     <li>chop {@code maps/mapname/.../_n_n_n} from names</li>
+     *     <li>chop {@code maps/mapname/.../_depth_n} from names</li>
+     *     <li>chop {@code maps/mapname/.../_wvt_patch} from names</li>
+     * </ul>
      */
     private void processTextureNames() {
         for (int i = 0; i < bsp.texnames.size(); i++) {
@@ -90,11 +92,11 @@ public class TextureSource extends ModuleRead {
 
             Matcher matcher = wvtPatchPattern.matcher(textureNew);
             if (matcher.find()) {
-                textureNew = removeMatchedPrefixSuffix(matcher, textureNew);
+                textureNew = removeMatchedPrefixSuffix(matcher);
             }
             matcher = waterPatchPattern.matcher(textureNew);
             if (matcher.find()) {
-                textureNew = removeMatchedPrefixSuffix(matcher, textureNew);
+                textureNew = removeMatchedPrefixSuffix(matcher);
             }
             matcher = originPattern.matcher(textureNew);
             if (matcher.find()) {
@@ -108,7 +110,7 @@ public class TextureSource extends ModuleRead {
                     L.log(Level.WARNING, "Error parsing cubemap position from regex. Matcher: " + matcher.pattern().pattern() + ", input: " + textureNew, e);
                 }
 
-                textureNew = removeMatchedPrefixSuffix(matcher, textureNew);
+                textureNew = removeMatchedPrefixSuffix(matcher);
             }
 
             // log differences
@@ -120,16 +122,8 @@ public class TextureSource extends ModuleRead {
         }
     }
 
-    private String removeMatchedPrefixSuffix(Matcher matcher, String input) {
-        String prefix = matcher.group(PREFIX_GROUP);
-        String suffix = matcher.group(SUFFIX_GROUP);
-
-        if (prefix == null || suffix == null) {
-            L.log(Level.WARNING, "Passed matcher to 'removeMatchedPrefixSuffix' without either a prefix or suffix capturing group. This means my code sucks. Matcher: " + matcher.pattern().pattern(), new Exception());
-            return input;
-        }
-
-        return input.replace(prefix, "").replace(suffix, "");
+    private String removeMatchedPrefixSuffix(Matcher matcher) {
+        return matcher.replaceFirst("${" + CONTENT_GROUP + "}");
     }
 
     private void setCubemapForTexname(int itexname, int cx, int cy, int cz) {
@@ -229,13 +223,13 @@ public class TextureSource extends ModuleRead {
     }
 
     private static Pattern compileOriginPattern(String bspFileName) {
-        return Pattern.compile(String.format("(?<%s>maps/%s/).+(?<%s>_(?<%s>-?\\d+)_(?<%s>-?\\d+)_(?<%s>-?\\d+))", PREFIX_GROUP, bspFileName, SUFFIX_GROUP, CUBEMAP_X_GROUP, CUBEMAP_Y_GROUP, CUBEMAP_Z_GROUP));
+        return Pattern.compile(String.format("maps/%s/(?<%s>.+)_(?<%s>-?\\d+)_(?<%s>-?\\d+)_(?<%s>-?\\d+)", bspFileName, CONTENT_GROUP, CUBEMAP_X_GROUP, CUBEMAP_Y_GROUP, CUBEMAP_Z_GROUP));
     }
     private static Pattern compileWvtPatchPattern(String bspFileName) {
-        return Pattern.compile(String.format("(?<%s>maps/%s/).+(?<%s>_wvt_patch)", PREFIX_GROUP, bspFileName, SUFFIX_GROUP));
+        return Pattern.compile(String.format("maps/%s/(?<%s>.+)_wvt_patch", bspFileName, CONTENT_GROUP));
     }
     private static Pattern compileWaterPatchPattern(String bspFileName) {
-        return Pattern.compile(String.format("(?<%s>maps/%s/).+(?<%s>_depth_(-?\\d+))", PREFIX_GROUP, bspFileName, SUFFIX_GROUP));
+        return Pattern.compile(String.format("maps/%s/(?<%s>.+)_depth_-?\\d+", bspFileName, CONTENT_GROUP));
     }
 
     public static Predicate<Path> isPatchedMaterial(String bspFileName) {
