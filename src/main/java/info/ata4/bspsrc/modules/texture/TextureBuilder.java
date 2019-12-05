@@ -182,6 +182,11 @@ public class TextureBuilder {
                 }
             }
 
+            // In csgo a ladder isn't guaranteed to have 'isDetail()'
+            if (brush.isLadder()) {
+                return ToolTexture.INVISLADDER;
+            }
+
             // nodraw
             return ToolTexture.NODRAW;
         }
