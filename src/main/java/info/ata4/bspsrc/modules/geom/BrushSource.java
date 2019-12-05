@@ -11,6 +11,7 @@
 package info.ata4.bspsrc.modules.geom;
 
 import info.ata4.bsplib.BspFileReader;
+import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.struct.DBrush;
 import info.ata4.bsplib.struct.DBrushSide;
 import info.ata4.bsplib.struct.DModel;
@@ -27,11 +28,8 @@ import info.ata4.bspsrc.util.BspTreeStats;
 import info.ata4.bspsrc.util.Winding;
 import info.ata4.bspsrc.util.WindingFactory;
 import info.ata4.log.LogUtils;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -152,7 +150,7 @@ public class BrushSource extends ModuleDecompile {
             DBrush brush = bsp.brushes.get(i);
 
             // skip details
-            if (config.writeDetails && brush.isSolid() && brush.isDetail()) {
+            if (config.writeDetails && brush.isFuncDetail(bspFile.getSourceApp().getAppID())) {
                 continue;
             }
 
@@ -161,8 +159,10 @@ public class BrushSource extends ModuleDecompile {
                 continue;
             }
 
-            // skip ladders
-            if (config.writeLadders && brush.isLadder()) {
+            // only skip ladders if game not csgo
+            // csgo handles ladders as normal brushes, so we don't need to skip them here
+            if (config.writeLadders && brush.isLadder()
+                    && bspFile.getSourceApp().getAppID() != SourceAppID.COUNTER_STRIKE_GO) {
                 continue;
             }
 

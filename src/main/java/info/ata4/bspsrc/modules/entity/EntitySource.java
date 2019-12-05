@@ -407,7 +407,7 @@ public class EntitySource extends ModuleDecompile {
                 DBrush brush = bsp.brushes.get(i);
 
                 // skip non-detail/non-solid brushes
-                if (!brush.isSolid() || !brush.isDetail()) {
+                if (!brush.isFuncDetail(bspFile.getSourceApp().getAppID())) {
                     continue;
                 }
 

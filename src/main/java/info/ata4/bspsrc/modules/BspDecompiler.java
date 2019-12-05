@@ -23,6 +23,7 @@ import info.ata4.bspsrc.modules.geom.FaceSource;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.util.WindingFactory;
 import info.ata4.log.LogUtils;
+
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -179,7 +180,8 @@ public class BspDecompiler extends ModuleDecompile {
                 entsrc.writeCubemaps();
             }
 
-            if (config.writeLadders) {
+            // Only write func_ladder if game is not csgo. Cso doesn't use the func_ladder entity
+            if (config.writeLadders && bspFile.getSourceApp().getAppID() != SourceAppID.COUNTER_STRIKE_GO) {
                 entsrc.writeLadders();
             }
         }
