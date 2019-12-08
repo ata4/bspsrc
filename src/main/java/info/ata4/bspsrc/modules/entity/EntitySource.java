@@ -15,7 +15,9 @@ import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.entity.EntityIO;
 import info.ata4.bsplib.entity.KeyValue;
+import info.ata4.bsplib.nmo.NmoAntiObjective;
 import info.ata4.bsplib.nmo.NmoFile;
+import info.ata4.bsplib.nmo.NmoObjective;
 import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.BspSourceConfig;
@@ -37,10 +39,11 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Decompiling module to write point and brush entities converted from various lumps.
- * 
+ *
  * Based on several entity building methods from Vmex
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
@@ -122,7 +125,7 @@ public class EntitySource extends ModuleDecompile {
         // only cause errors
         boolean fixRot = config.fixEntityRot && instances;
 
-        List<String> visgroups = new ArrayList<>();
+        List<VmfMeta.Visgroup> visgroups = new ArrayList<>();
 
         for (Entity ent : bsp.entities) {
             visgroups.clear();
@@ -324,14 +327,20 @@ public class EntitySource extends ModuleDecompile {
                 if (isAreaportal && portalNum != -1) {
                     if (config.brushMode == BrushMode.BRUSHPLANES && apBrushMap.containsKey(portalNum)) {
                         brushsrc.writeBrush(apBrushMap.get(portalNum));
-                        visgroups.add("Reallocated" + VmfMeta.VISGROUP_SEPERATOR + "areaportals");
+                        visgroups.add(vmfmeta.visgroups()
+                                .getVisgroup("Reallocated")
+                                .getVisgroup("Areaportals"));
                     } else {
                         facesrc.writeAreaportal(portalNum);
-                        visgroups.add("Rebuild" + VmfMeta.VISGROUP_SEPERATOR + "areaportals");
+                        visgroups.add(vmfmeta.visgroups()
+                                .getVisgroup("Rebuild")
+                                .getVisgroup("Areaportals"));
                     }
 
                     if (config.isDebug()) {
-                        visgroups.add("AreaportalID" + VmfMeta.VISGROUP_SEPERATOR + portalNum);
+                        visgroups.add(vmfmeta.visgroups()
+                                .getVisgroup("AreaportalID")
+                                .getVisgroup(String.valueOf(portalNum)));
                     }
                 }
 
@@ -341,10 +350,14 @@ public class EntitySource extends ModuleDecompile {
                         for (int brushId: occBrushesMap.get(occluderNum)) {
                             brushsrc.writeBrush(brushId);
                         }
-                        visgroups.add("Reallocated" + VmfMeta.VISGROUP_SEPERATOR + "occluders");
+                        visgroups.add(vmfmeta.visgroups()
+                                .getVisgroup("Reallocated")
+                                .getVisgroup("Occluders"));
                     } else {
                         facesrc.writeOccluder(occluderNum);
-                        visgroups.add("Rebuild" + VmfMeta.VISGROUP_SEPERATOR + "occluders");
+                        visgroups.add(vmfmeta.visgroups()
+                                .getVisgroup("Rebuild")
+                                .getVisgroup("Occluders"));
                     }
                 }
             }
@@ -354,28 +367,33 @@ public class EntitySource extends ModuleDecompile {
                 Matcher m = INSTANCE_PREFIX.matcher(ent.getTargetName());
 
                 if (m.find()) {
-                    visgroups.add(m.group(1));
+                    visgroups.add(vmfmeta.visgroups()
+                            .getVisgroup("Instances")
+                            .getVisgroup(m.group(1)));
                 }
             }
 
             // add protection flags to visgroup
             if (bspprot.isProtectedEntity(ent)) {
-                visgroups.add("VMEX flagged entities");
+                visgroups.add(vmfmeta.visgroups().getVisgroup("VMEX flagged entities"));
             }
 
             // when we have nmo data, add objectives visgroups
             if (nmo != null && ent.getTargetName() != null) {
                 nmo.nodes.stream()
-                        .filter(objective -> objective.entityName.equals(ent.getTargetName()))
-                        .forEach(objective -> visgroups.add("Objectives" + VmfMeta.VISGROUP_SEPERATOR + objective.name));
-
-                nmo.nodes.stream()
-                        .filter(objective -> objective.entities.stream().anyMatch(entitiyName -> entitiyName.equals(ent.getTargetName())))
-                        .forEach(objective -> visgroups.add("Objectives" + VmfMeta.VISGROUP_SEPERATOR + objective.name));
+                        .filter(objective -> Stream.concat(objective.entities.stream(), Stream.of(objective.entityName))
+                                .anyMatch(entitiyName -> entitiyName.equals(ent.getTargetName())))
+                        .forEach(objective -> visgroups.add(vmfmeta.visgroups()
+                                .getVisgroup("Objectives")
+                                .getVisgroup(objective.name)));
 
                 nmo.antiNodes.stream()
-                        .filter(anti -> anti.entities.stream().anyMatch(entitiyName -> entitiyName.equals(ent.getTargetName())))
-                        .forEach(anti -> visgroups.add("Objectives" + VmfMeta.VISGROUP_SEPERATOR + "anti" + VmfMeta.VISGROUP_SEPERATOR + anti.name));
+                        .filter(anti -> anti.entities.stream()
+                                .anyMatch(entitiyName -> entitiyName.equals(ent.getTargetName())))
+                        .forEach(anti -> visgroups.add(vmfmeta.visgroups()
+                                .getVisgroup("Objectives")
+                                .getVisgroup("anti")
+                                .getVisgroup(anti.name)));
             }
 
             // write visgroup metadata if filled
@@ -482,7 +500,7 @@ public class EntitySource extends ModuleDecompile {
     /**
      * Transfers the next group of touching bounding volumes from a set of loose
      * bounding volumes.
-     * 
+     *
      * @param src input bounding volumes
      * @param thresh touching threshold
      * @return set of bounding volumes that have been removed from src
@@ -1053,14 +1071,27 @@ public class EntitySource extends ModuleDecompile {
     }
 
     /**
-     * Sets nmo data. Causes referenced 'objectives/antiObjectives' entities to be written in visgroups and extraction entity to reuse nmo entity id
+     * Sets nmo data. Causes referenced 'objectives/antiObjectives' entities to be written in visgroups
+     * and extraction entity to reuse nmo entity id
      * @param nmoData the nmo data
      */
     public void setNmo(NmoFile nmoData) {
         this.nmo = nmoData;
 
-        nmoData.nodes.forEach(nmoObjective -> vmfmeta.reserveVisgroupId("Objectives" + VmfMeta.VISGROUP_SEPERATOR + nmoObjective.name, nmoObjective.id));
-        nmoData.antiNodes.forEach(nmoAntiObjective -> vmfmeta.reserveVisgroupId("Objectives" + VmfMeta.VISGROUP_SEPERATOR + "anti" + VmfMeta.VISGROUP_SEPERATOR + nmoAntiObjective.name, nmoAntiObjective.id));
+        for (NmoObjective nmoObjective : nmoData.nodes) {
+            try {
+                vmfmeta.reserveVisgroupId(nmoObjective.id, "Objectives", nmoObjective.name);
+            } catch (VmfMeta.VisgroupException e) {
+                L.log(Level.SEVERE, "Error reserving visgroup ids for Nmrih Objectives", e);
+            }
+        }
+        for (NmoAntiObjective nmoAntiObjective : nmoData.antiNodes) {
+            try {
+                vmfmeta.reserveVisgroupId(nmoAntiObjective.id, "Objectives", "anti", nmoAntiObjective.name);
+            } catch (VmfMeta.VisgroupException e) {
+                L.log(Level.SEVERE, "Error reserving visgroup ids for Nmrih Objectives", e);
+            }
+        }
         nmoData.extractions.forEach(extraction -> vmfmeta.getUIDBlackList().add(extraction.id));
     }
 }

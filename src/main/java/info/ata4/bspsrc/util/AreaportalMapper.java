@@ -275,12 +275,16 @@ public class AreaportalMapper {
             writer.start("entity");
             writer.put("id", vmfMeta.getUID());
             writer.put("classname", "func_detail");
-            writer.put("areaportalIDs", areaportalHelper.portalID.stream().map(Object::toString).collect(Collectors.joining(", ")));
+            writer.put("areaportalIDs", areaportalHelper.portalID.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", ")));
 
             faceSource.writePolygon(areaportalHelper.winding, ToolTexture.SKIP, true);
             vmfMeta.writeMetaVisgroups(
                     areaportalHelper.portalID.stream()
-                            .map(id -> "AreaportalID" + VmfMeta.VISGROUP_SEPERATOR +  id)
+                            .map(id -> vmfMeta.visgroups()
+                                    .getVisgroup("AreaportalID")
+                                    .getVisgroup(String.valueOf(id)))
                             .collect(Collectors.toList())
             );
 
