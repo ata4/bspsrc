@@ -16,6 +16,8 @@ import info.ata4.bspsrc.modules.entity.Camera;
 import info.ata4.log.LogUtils;
 import info.ata4.util.AlphanumComparator;
 
+import java.awt.*;
+import java.util.List;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +33,8 @@ public class VmfMeta extends ModuleDecompile {
 
     // logger
     private static final Logger L = LogUtils.getLogger();
+
+    private static final Random RANDOM = new Random();
 
     // UID mappings
     private Map<Integer, Integer> faceUIDs = new HashMap<>();
@@ -215,6 +219,11 @@ public class VmfMeta extends ModuleDecompile {
 
         writer.put("name", visgroup.name);
         writer.put("visgroupid", visgroup.id);
+        writer.put("color", String.format("%s %s %s",
+                visgroup.getColor().getRed(),
+                visgroup.getColor().getBlue(),
+                visgroup.getColor().getGreen()));
+
         visgroup.visgroups.forEach(this::writeVisgroup);
 
         writer.end("visgroup");
@@ -371,6 +380,8 @@ public class VmfMeta extends ModuleDecompile {
     {
         private final String name;
         private final int id;
+        private Color color;
+
         private final Visgroup parent;
         private final SortedSet<Visgroup> visgroups = new TreeSet<>(Comparator.comparing(vg -> vg.name, AlphanumComparator.COMPARATOR));
 
@@ -382,6 +393,7 @@ public class VmfMeta extends ModuleDecompile {
             }
 
             this.name = name;
+            this.color = getNewVisgroupColor();
             this.parent = parent;
 
             if (parent != null) {
@@ -450,6 +462,16 @@ public class VmfMeta extends ModuleDecompile {
             return Stream.concat(Stream.of(this), visgroups.stream().flatMap(Visgroup::visgroupStream));
         }
 
+        public Visgroup setColor(Color color) {
+            Objects.requireNonNull(color);
+            this.color = color;
+            return this;
+        }
+
+        public Color getColor() {
+            return color;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -463,6 +485,13 @@ public class VmfMeta extends ModuleDecompile {
         @Override
         public int hashCode() {
             return id;
+        }
+
+        private Color getNewVisgroupColor() {
+            float hue = RANDOM.nextFloat();
+            float saturation = RANDOM.nextFloat() * 0.8f + 0.1f;
+            float luminance = RANDOM.nextFloat() * 0.4f + 0.5f;
+            return Color.getHSBColor(hue, saturation, luminance);
         }
     }
 
