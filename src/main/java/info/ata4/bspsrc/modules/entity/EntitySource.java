@@ -33,6 +33,9 @@ import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.util.*;
 import info.ata4.log.LogUtils;
 
+import java.awt.*;
+import java.util.List;
+import java.util.Queue;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -124,6 +127,28 @@ public class EntitySource extends ModuleDecompile {
         // this option is unnecessary for BSP files without instances, it will
         // only cause errors
         boolean fixRot = config.fixEntityRot && instances;
+
+        // Initialise visgroup colors
+        VmfMeta.Visgroup reallocatedVg = vmfmeta
+                .visgroups()
+                .getVisgroup("Reallocated")
+                .setColor(Color.GREEN);
+
+        VmfMeta.Visgroup rebuildVg = vmfmeta
+                .visgroups()
+                .getVisgroup("Rebuild")
+                .setColor(Color.RED);
+
+        VmfMeta.Visgroup reallocatedAreaportalVg = reallocatedVg.getVisgroup("Areaportal")
+                .setColor(Color.CYAN);
+        VmfMeta.Visgroup rebuildAreaportalVg = rebuildVg.getVisgroup("Areaportal")
+                .setColor(Color.CYAN.darker());
+
+        VmfMeta.Visgroup reallocatedOccluderVg = reallocatedVg.getVisgroup("Occluder")
+                .setColor(Color.MAGENTA);
+        VmfMeta.Visgroup rebuildOccluderVg = rebuildVg.getVisgroup("Occluder")
+                .setColor(Color.MAGENTA.darker());
+
 
         List<VmfMeta.Visgroup> visgroups = new ArrayList<>();
 
@@ -327,14 +352,10 @@ public class EntitySource extends ModuleDecompile {
                 if (isAreaportal && portalNum != -1) {
                     if (config.brushMode == BrushMode.BRUSHPLANES && apBrushMap.containsKey(portalNum)) {
                         brushsrc.writeBrush(apBrushMap.get(portalNum));
-                        visgroups.add(vmfmeta.visgroups()
-                                .getVisgroup("Reallocated")
-                                .getVisgroup("Areaportals"));
+                        visgroups.add(reallocatedAreaportalVg);
                     } else {
                         facesrc.writeAreaportal(portalNum);
-                        visgroups.add(vmfmeta.visgroups()
-                                .getVisgroup("Rebuild")
-                                .getVisgroup("Areaportals"));
+                        visgroups.add(rebuildAreaportalVg);
                     }
 
                     if (config.isDebug()) {
@@ -350,14 +371,10 @@ public class EntitySource extends ModuleDecompile {
                         for (int brushId: occBrushesMap.get(occluderNum)) {
                             brushsrc.writeBrush(brushId);
                         }
-                        visgroups.add(vmfmeta.visgroups()
-                                .getVisgroup("Reallocated")
-                                .getVisgroup("Occluders"));
+                        visgroups.add(reallocatedOccluderVg);
                     } else {
                         facesrc.writeOccluder(occluderNum);
-                        visgroups.add(vmfmeta.visgroups()
-                                .getVisgroup("Rebuild")
-                                .getVisgroup("Occluders"));
+                        visgroups.add(rebuildOccluderVg);
                     }
                 }
             }
