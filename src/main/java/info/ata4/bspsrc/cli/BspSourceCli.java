@@ -75,7 +75,6 @@ public class BspSourceCli {
         initOptions();
     }
 
-    @SuppressWarnings("static-access")
     private void initOptions() {
         BspSourceConfig config = new BspSourceConfig();
 
@@ -84,18 +83,17 @@ public class BspSourceCli {
         optsMain.addOption(versionOpt = new Option("v", "Print version info."));
         optsMain.addOption(debugOpt = new Option("d", "Enable debug mode. Increases verbosity and adds additional data to the VMF file."));
         optsMain.addOption(recursiveOpt = new Option("r", "Decompile all files found in the given directory."));
-        optsMain.addOption(outputOpt = OptionBuilder
+        optsMain.addOption(outputOpt = Option.builder("o")
                 .hasArg()
-                .withArgName("file")
-                .withDescription("Override output path for VMF file(s). Treated as directory if multiple BSP files are provided. \ndefault: <mappath>/<mapname>_d.vmf")
-                .withType(String.class)
-                .create('o'));
-        optsMain.addOption(fileListOpt = OptionBuilder
+                .argName("file")
+                .desc("Override output path for VMF file(s). Treated as directory if multiple BSP files are provided. \ndefault: <mappath>/<mapname>_d.vmf")
+                .build());
+
+        optsMain.addOption(fileListOpt = Option.builder("l")
                 .hasArg()
-                .withArgName("file")
-                .withDescription("Use a text files with paths as input BSP file list.")
-                .withType(String.class)
-                .create('l'));
+                .argName("file")
+                .desc("Use a text files with paths as input BSP file list.")
+                .build());
 
         // entity options
         optsEntity.addOption(npentsOpt = new Option("no_point_ents", "Don't write any point entities."));
@@ -112,36 +110,36 @@ public class BspSourceCli {
         // world brush options
         optsWorld.addOption(nbrushOpt = new Option("no_brushes", "Don't write any world brushes."));
         optsWorld.addOption(ndispOpt = new Option("no_disps", "Don't write displacement surfaces."));
-        optsWorld.addOption(bmodeOpt = OptionBuilder
+        optsWorld.addOption(bmodeOpt = Option.builder("brushmode")
                 .hasArg()
-                .withArgName("enum")
-                .withDescription("Brush decompiling mode:\n" +
+                .argName("enum")
+                .desc("Brush decompiling mode:\n" +
                         BrushMode.BRUSHPLANES.name() + "   - brushes and planes\n" +
                         BrushMode.ORIGFACE.name() + "      - original faces only\n" +
                         BrushMode.ORIGFACE_PLUS.name() + " - original + split faces\n" +
                         BrushMode.SPLITFACE.name() + "     - split faces only\n" +
                         "default: " + config.brushMode.name())
-                .create("brushmode"));
-        optsWorld.addOption(thicknOpt = OptionBuilder
+                .build());
+        optsWorld.addOption(thicknOpt = Option.builder("thickness")
                 .hasArg()
-                .withArgName("float")
-                .withDescription("Thickness of brushes created from flat faces in units.\n" +
+                .argName("float")
+                .desc("Thickness of brushes created from flat faces in units.\n" +
                         "default: " + config.backfaceDepth)
-                .create("thickness"));
+                .build());
 
         // texture options
         optsTexture.addOption(ntexfixOpt = new Option("no_texfix", "Don't fix texture names."));
         optsTexture.addOption(ntooltexfixOpt = new Option("no_tooltexfix", "Don't fix tool textures."));
-        optsTexture.addOption(ftexOpt = OptionBuilder
+        optsTexture.addOption(ftexOpt = Option.builder("facetex")
                 .hasArg()
-                .withArgName("string")
-                .withDescription("Replace all face textures with this one.")
-                .create("facetex"));
-        optsTexture.addOption(bftexOpt = OptionBuilder
+                .argName("string")
+                .desc("Replace all face textures with this one.")
+                .build());
+        optsTexture.addOption(bftexOpt = Option.builder("bfacetex")
                 .hasArg()
-                .withArgName("string")
-                .withDescription("Replace all back-face textures with this one. Used in face-based decompiling modes only.")
-                .create("bfacetex"));
+                .argName("string")
+                .desc("Replace all back-face textures with this one. Used in face-based decompiling modes only.")
+                .build());
 
         // other options
         optsOther.addOption(nvmfOpt = new Option("no_vmf", "Don't write any VMF files, read BSP only."));
@@ -150,22 +148,22 @@ public class BspSourceCli {
         optsOther.addOption(listappidsOpt = new Option("appids", "List all available application IDs"));
         optsOther.addOption(nvisgrpOpt = new Option("no_visgroups", "Don't group entities from instances into visgroups."));
         optsOther.addOption(ncamsOpt = new Option("no_cams", "Don't create Hammer cameras above each player spawn."));
-        optsOther.addOption(appidOpt = OptionBuilder
+        optsOther.addOption(appidOpt = Option.builder("appid")
                 .hasArg()
-                .withArgName("string/int")
-                .withDescription("Overrides game detection by using " +
+                .argName("string/int")
+                .desc("Overrides game detection by using " +
                         "this Steam Application ID instead.\n" +
                         "Use -appids to list all known app-IDs.")
-                .create("appid"));
-        optsOther.addOption(formatOpt = OptionBuilder
+                .build());
+        optsOther.addOption(formatOpt = Option.builder("format")
                 .hasArg()
-                .withArgName("enum")
-                .withDescription("Sets the VMF format used for the decompiled maps:\n" +
+                .argName("enum")
+                .desc("Sets the VMF format used for the decompiled maps:\n" +
                         SourceFormat.AUTO.name() + " - " + SourceFormat.AUTO + "\n" +
                         SourceFormat.OLD.name() + "  - " + SourceFormat.OLD + "\n" +
                         SourceFormat.NEW.name() + "  - " + SourceFormat.NEW + "\n" +
                         "default: " + config.sourceFormat.name())
-                .create("format"));
+                .build());
 
         // all options
         optsAll.addOptions(optsMain);
