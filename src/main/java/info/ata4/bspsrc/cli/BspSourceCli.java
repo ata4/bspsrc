@@ -19,16 +19,21 @@ import info.ata4.bspsrc.modules.geom.BrushMode;
 import info.ata4.bspsrc.util.SourceFormat;
 import info.ata4.log.LogUtils;
 import org.apache.commons.cli.*;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Helper class for CLI parsing and handling.
@@ -59,7 +64,7 @@ public class BspSourceCli {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         LogUtils.configure();
 
         try {
@@ -166,14 +171,14 @@ public class BspSourceCli {
                 .build());
 
         // all options
-        optsAll.addOptions(optsMain);
-        optsAll.addOptions(optsEntity);
-        optsAll.addOptions(optsWorld);
-        optsAll.addOptions(optsTexture);
-        optsAll.addOptions(optsOther);
+        optsAll.addOptions(optsMain)
+                .addOptions(optsEntity)
+                .addOptions(optsWorld)
+                .addOptions(optsTexture)
+                .addOptions(optsOther);
     }
 
-    private void run(String[] args) throws ParseException {
+    private void run(String[] args) throws IOException, BspSourceCliParseException, ParseException {
         if (args.length == 0) {
             printHelp();
             return;
@@ -182,20 +187,13 @@ public class BspSourceCli {
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = parser.parse(optsAll, args);
 
-        // help
         if(commandLine.hasOption(helpOpt.getOpt())) {
             printHelp();
             return;
-        }
-
-        // version
-        if (commandLine.hasOption(versionOpt.getOpt())) {
+        } else if (commandLine.hasOption(versionOpt.getOpt())) {
             printVersion();
             return;
-        }
-
-        // list app-ids
-        if (commandLine.hasOption(listappidsOpt.getOpt())) {
+        } else if (commandLine.hasOption(listappidsOpt.getOpt())) {
             printAppIDs();
             return;
         }
@@ -250,34 +248,28 @@ public class BspSourceCli {
      *
      * @param cl Command line arguments
      */
-    public BspSourceConfig getConfig(CommandLine cl) {
+    public BspSourceConfig getConfig(CommandLine cl) throws IOException, BspSourceCliParseException {
         BspSourceConfig config = new BspSourceConfig();
 
-        File outputFile = null;
-        Set<BspFileEntry> files = config.getFileSet();
+        Set<BspFileEntry> files = new HashSet<>();
 
         // main options
         config.setDebug(cl.hasOption(debugOpt.getOpt()));
 
+        File outputFile;
         if (cl.hasOption(outputOpt.getOpt())) {
             outputFile = new File(cl.getOptionValue(outputOpt.getOpt()));
+        } else {
+            outputFile = null;
         }
 
         boolean recursive = cl.hasOption(recursiveOpt.getOpt());
 
         if (cl.hasOption(fileListOpt.getOpt())) {
-            try {
-                List<String> filePaths = FileUtils.readLines(new File(cl.getOptionValue(fileListOpt.getOpt())));
-                File finalOutputFile1 = outputFile;
-                files.addAll(
-                        filePaths.stream()
-                                .map(File::new)
-                                .map(filePath -> finalOutputFile1 == null ? new BspFileEntry(filePath) : new BspFileEntry(filePath, finalOutputFile1))
-                                .collect(Collectors.toSet())
-                );
-            } catch (IOException ex) {
-                throw new RuntimeException("Can't read file list", ex);
-            }
+            Files.readAllLines(Paths.get(cl.getOptionValue(fileListOpt.getOpt()))).stream()
+                    .map(File::new)
+                    .map(filePath -> new BspFileEntry(filePath, outputFile))
+                    .forEach(files::add);
         }
 
         // entity options
@@ -298,38 +290,24 @@ public class BspSourceCli {
         if (cl.hasOption(bmodeOpt.getOpt())) {
             String modeStr = cl.getOptionValue(bmodeOpt.getOpt());
 
-            try {
-                config.brushMode = BrushMode.valueOf(modeStr);
-            } catch (IllegalArgumentException ex) {
-                // try again as ordinal enum value
-                try {
-                    int mode = Integer.valueOf(modeStr.toUpperCase());
-                    config.brushMode = BrushMode.fromOrdinal(mode);
-                } catch (IllegalArgumentException ex2) {
-                    throw new RuntimeException("Invalid brush mode");
-                }
-            }
+            config.brushMode = parseEnum(BrushMode.class, modeStr)
+                    .orElseThrow(() -> new BspSourceCliParseException("Invalid brush mode: " + modeStr));
         }
 
         if (cl.hasOption(formatOpt.getOpt())) {
             String formatStr = cl.getOptionValue(formatOpt.getOpt());
 
-            try {
-                config.sourceFormat = SourceFormat.valueOf(formatStr);
-            } catch (IllegalArgumentException ex) {
-                // try again as ordinal enum value
-                try {
-                    int format = Integer.valueOf(formatStr.toUpperCase());
-                    config.sourceFormat = SourceFormat.fromOrdinal(format);
-                } catch (IllegalArgumentException ex2) {
-                    throw new RuntimeException("Invalid source format");
-                }
-            }
+            config.sourceFormat = parseEnum(SourceFormat.class, formatStr)
+                    .orElseThrow(() -> new BspSourceCliParseException("Invalid source format: " + formatStr));
         }
 
         if (cl.hasOption(thicknOpt.getOpt())) {
-            float thickness = Float.valueOf(cl.getOptionValue(thicknOpt.getOpt()));
-            config.backfaceDepth = thickness;
+            String thicknessStr = cl.getOptionValue(thicknOpt.getOpt());
+            try {
+                config.backfaceDepth = Float.parseFloat(thicknessStr);
+            } catch (NumberFormatException e) {
+                throw new BspSourceCliParseException("Invalid thickness: " + thicknessStr);
+            }
         }
 
         // texture options
@@ -356,40 +334,47 @@ public class BspSourceCli {
             String appidStr = cl.getOptionValue(appidOpt.getOpt()).toUpperCase();
 
             try {
-                int appid = Integer.valueOf(appidStr);
+                int appid = Integer.parseInt(appidStr);
                 config.defaultApp = SourceAppDB.getInstance().fromID(appid);
-            } catch (IllegalArgumentException ex2) {
-                throw new RuntimeException("Invalid default App-ID");
+            } catch (NumberFormatException e) {
+                throw new BspSourceCliParseException("Invalid App-ID: " + appidStr);
             }
         }
 
         // get non-recognized arguments, these are the BSP input files
         String[] argsLeft = cl.getArgs();
 
-        if (argsLeft.length == 1 && outputFile != null) {
-            files.add(new BspFileEntry(new File(argsLeft[0]), outputFile));
-        } else {
-            for (String arg : argsLeft) {
-                File file = new File(arg);
+        for (String arg : argsLeft) {
+            Path path = Paths.get(arg);
 
-                if (file.isDirectory()) {
-                    Collection<File> subFiles = FileUtils.listFiles(file, new String[]{"bsp"}, recursive);
-
-                    File finalOutputFile = outputFile;
-                    files.addAll(
-                            subFiles.stream()
-                                    .map(bspFile -> finalOutputFile == null ? new BspFileEntry(bspFile) : new BspFileEntry(bspFile, finalOutputFile))
-                                    .collect(Collectors.toSet())
-                    );
-                } else {
-                    if (outputFile != null)
-                        files.add(new BspFileEntry(file, outputFile));
-                    else
-                        files.add(new BspFileEntry(file));
+            if (Files.isDirectory(path)) {
+                PathMatcher bspPathMatcher = path.getFileSystem().getPathMatcher("blob:*.bsp");
+                try (Stream<Path> pathStream = Files.walk(path, recursive ? Integer.MAX_VALUE : 0)) {
+                    pathStream
+                            .filter(filePath -> Files.isRegularFile(filePath))
+                            .filter(bspPathMatcher::matches)
+                            .map(filePath -> new BspFileEntry(filePath.toFile(), outputFile))
+                            .forEach(files::add);
                 }
+            } else {
+                files.add(new BspFileEntry(path.toFile(), outputFile));
             }
         }
 
+        config.addFiles(files);
+
         return config;
+    }
+
+    private static <E extends Enum<E>> Optional<E> parseEnum(Class<E> eClass, String value) {
+        try {
+            return Optional.of(Enum.valueOf(eClass, value));
+        } catch (IllegalArgumentException e) {
+            try {
+                return Optional.of(eClass.getEnumConstants()[Integer.parseInt(value)]);
+            } catch (ArrayIndexOutOfBoundsException | NumberFormatException e1) {}
+        }
+
+        return Optional.empty();
     }
 }

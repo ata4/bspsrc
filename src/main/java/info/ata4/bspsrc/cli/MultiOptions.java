@@ -9,7 +9,6 @@
  */
 package info.ata4.bspsrc.cli;
 
-import java.util.Collection;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -21,14 +20,8 @@ import org.apache.commons.cli.Options;
 public class MultiOptions extends Options {
 
     public MultiOptions addOptions(Options options) {
-        if (options == null) {
-            return this;
-        }
-
-        Collection opts = options.getOptions();
-
-        for (Object opt : opts) {
-            addOption((Option) opt);
+        if (options != null) {
+            options.getOptions().forEach(this::addOption);
         }
 
         return this;

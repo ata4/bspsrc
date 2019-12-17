@@ -18,6 +18,7 @@ import info.ata4.log.LogUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -52,13 +53,13 @@ public final class BspSourceConfig implements Serializable {
     public boolean detailMerge = true;
     public float detailMergeThresh = 1;
     public boolean apForceManualMapping = false;
+    public boolean occForceManualMapping = false;
     public boolean writeAreaportals = true;
     public boolean writeBrushEntities = true;
     public boolean writeCameras = true;
     public boolean writeCubemaps = true;
     public boolean writeDetails = true;
     public boolean writeDisp = true;
-    public boolean occForceManualMapping = false;
     public boolean writeOccluders = true;
     public boolean writeOverlays = true;
     public boolean writePointEntities = true;
@@ -98,8 +99,19 @@ public final class BspSourceConfig implements Serializable {
         }
     }
 
+    public void setFileSet(Set<BspFileEntry> entries) {
+        this.files = new HashSet<>(entries);
+    }
+
+    /**
+     * @return an unmodifiable set of all BspFileEntry objects
+     */
     public Set<BspFileEntry> getFileSet() {
-        return files;
+        return Collections.unmodifiableSet(files);
+    }
+
+    public void addFiles(Set<BspFileEntry> files) {
+        this.files.addAll(files);
     }
 
     public boolean isWriteEntities() {

@@ -28,9 +28,10 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.io.File;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -333,15 +334,8 @@ public class BspSourceFrame extends javax.swing.JFrame {
 
             @Override
             public void run() {
-                // clear files in config, then add everything from the list
-                Set<BspFileEntry> files = config.getFileSet();
-                files.clear();
-
-                Enumeration<BspFileEntry> bspListFiles = listFilesModel.elements();
-
-                while (bspListFiles.hasMoreElements()) {
-                    files.add(bspListFiles.nextElement());
-                }
+                // overwrite files in config
+                config.setFileSet(new HashSet<>(Collections.list(listFilesModel.elements())));
 
                 // clear old output
                 logFrame.clear();
