@@ -9,10 +9,10 @@
  */
 package info.ata4.bspsrc;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
 import java.util.Objects;
-
-import org.apache.commons.io.FilenameUtils;
 
 /**
  *
@@ -29,12 +29,15 @@ public class BspFileEntry {
     private File nmosFile;
 
     public BspFileEntry(File bspFile) {
-        this(bspFile, replaceExtension(bspFile, "_d.vmf"));
+        this(bspFile, null);
     }
 
     public BspFileEntry(File bspFile, File vmfFile) {
     	Objects.requireNonNull(bspFile);
-    	Objects.requireNonNull(vmfFile);
+
+    	if (vmfFile == null) {
+    	    vmfFile = replaceExtension(bspFile, "_d.vmf");
+        }
 
     	this.bspFile = bspFile;
     	this.vmfFile = vmfFile;
