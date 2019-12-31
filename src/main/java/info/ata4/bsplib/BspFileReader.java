@@ -419,7 +419,7 @@ public class BspFileReader {
 
             // check if the size is correct
             if (structClass != null) {
-                int propStaticSizeActual = structClass.newInstance().getSize();
+                int propStaticSizeActual = structClass.getDeclaredConstructor().newInstance().getSize();
                 if (propStaticSizeActual != propStaticSize) {
                     L.log(Level.WARNING, "Static prop struct size mismatch: expected {0}, got {1} (using {2})",
                             new Object[]{propStaticSize, propStaticSizeActual, structClass.getSimpleName()});
@@ -443,7 +443,7 @@ public class BspFileReader {
             bspData.staticProps = new ArrayList<>(propStaticCount);
 
             for (int i = 0; i < propStaticCount; i++) {
-                DStaticProp sp = structClass.newInstance();
+                DStaticProp sp = structClass.getDeclaredConstructor().newInstance();
                 sp.read(in);
 
                 if (numFillBytes > 0) {
@@ -461,7 +461,7 @@ public class BspFileReader {
             checkRemaining(in);
         } catch (IOException ex) {
             lumpError(sprpLump, ex);
-        } catch (InstantiationException | IllegalAccessException ex) {
+        } catch (ReflectiveOperationException ex) {
             L.log(Level.SEVERE, "Lump struct class error", ex);
         }
     }
@@ -866,13 +866,13 @@ public class BspFileReader {
         DataReader in = DataReaders.forByteBuffer(lump.getBuffer());
 
         try {
-            final int structSize = struct.newInstance().getSize();            
+            final int structSize = struct.getDeclaredConstructor().newInstance().getSize();
             final int packetCount = lump.getLength() / structSize;
 
             List<E> packets = new ArrayList<>(packetCount);
 
             for (int i = 0; i < packetCount; i++) {
-                E packet = struct.newInstance();
+                E packet = struct.getDeclaredConstructor().newInstance();
 
                 long pos = in.position();
                 packet.read(in);
@@ -890,7 +890,7 @@ public class BspFileReader {
             return packets;
         } catch (IOException ex) {
             lumpError(lump, ex);
-        } catch (IllegalAccessException | InstantiationException ex) {
+        } catch (ReflectiveOperationException ex) {
             L.log(Level.SEVERE, "Lump struct class error", ex);
         }
 
