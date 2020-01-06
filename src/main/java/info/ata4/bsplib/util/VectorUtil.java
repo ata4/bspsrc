@@ -16,27 +16,36 @@ public class VectorUtil {
 		DPlane occluderPlane = bsp.planes.get(occluderPolyData.planenum);
 		DPlane brushSidePlane = bsp.planes.get(brushSide.pnum);
 
-		if (shareSamePlane(occluderPlane, brushSidePlane))
-			return internalMatchingAreaPercentage(WindingFactory.fromOccluder(bsp, occluderPolyData), WindingFactory.fromSide(bsp, brush, brushSide));
-		else
+		if (shareSamePlane(occluderPlane, brushSidePlane)) {
+			return internalMatchingAreaPercentage(
+					WindingFactory.fromOccluder(bsp, occluderPolyData).removeDegenerated(),
+					WindingFactory.fromSide(bsp, brush, brushSide).removeDegenerated()
+			);
+		} else {
 			return 0;
+		}
 	}
 
 	public static double matchingAreaPercentage(DAreaportal areaportal, DBrush brush, DBrushSide brushSide, BspData bsp) {
-
 		DPlane areaportalPlane = bsp.planes.get(areaportal.planenum);
 		DPlane brushSidePlane = bsp.planes.get(brushSide.pnum);
 
-		if (shareSamePlane(areaportalPlane, brushSidePlane))
-			return internalMatchingAreaPercentage(WindingFactory.fromAreaportal(bsp, areaportal), WindingFactory.fromSide(bsp, brush, brushSide));
-		else
+		if (shareSamePlane(areaportalPlane, brushSidePlane)) {
+			return internalMatchingAreaPercentage(
+					WindingFactory.fromAreaportal(bsp, areaportal).removeDegenerated(),
+					WindingFactory.fromSide(bsp, brush, brushSide).removeDegenerated()
+			);
+		} else {
 			return 0;
+		}
 	}
 
 	public static boolean shareSamePlane(DPlane p1, DPlane p2) {
+		//TODO: PLEASE, CAN SOMEONE WITH ACTUAL KNOWLEDGE REPLACE THIS CODE? I CAN'T LOOK AT IT ANY LONGER
 		//TODO: I have no idea how you would actually mathematically compute the error margin, so im just using a guessed one here (0.001)
 		//TODO: Maybe remove 'EPS_DEGEN'. I have no idea if this is needed here or how you should even use it
-		return p1.normal.normalize().cross(p2.normal.normalize()).length() < 0.001 && Math.abs(p1.dist - p2.dist * (p1.normal.dot(p2.normal) >= 1 ? 1 : -1)) < Winding.EPS_DEGEN;
+		return p1.normal.normalize().cross(p2.normal.normalize()).length() < 0.001
+				&& Math.abs(p1.dist - p2.dist * (p1.normal.dot(p2.normal) >= 1 ? 1 : -1)) < Winding.EPS_DEGEN;
 	}
 
 	/**
@@ -48,6 +57,10 @@ public class VectorUtil {
 	 * @return A probability in form of a double ranging from 0 to 1
 	 */
 	private static double internalMatchingAreaPercentage(Winding w1, Winding w2) {
+		// In case the provided windings are invalid, return 0!
+		if (w1.size() < 3 || w2.size() < 3 || w1.isHuge() || w2.isHuge())
+			return 0;
+
 		Vector3f[] plane = w1.buildPlane();
 		Vector3f vec1 = plane[1].sub(plane[0]);
 		Vector3f vec2 = plane[2].sub(plane[0]);
