@@ -96,6 +96,12 @@ public class AreaportalMapper {
                 .collect(Collectors.toList()));
     }
 
+    public boolean hasValidGeometry(int portalId) {
+        return areaportalHelpers.stream()
+                .filter(apHelper -> !apHelper.winding.isEmpty())
+                .anyMatch(apHelper -> apHelper.portalID.contains(portalId));
+    }
+
     /**
      * Maps areaportal brushes to the likeliest areaportal entity it represents
      * <p></p>

@@ -224,24 +224,36 @@ public class EntitySource extends ModuleDecompile {
             if (isAreaportal) {
                 String portalNumString = ent.getValue("portalnumber");
 
-                // extract portal number
-                if (portalNumString != null) {
-                    try {
-                        portalNum = Integer.valueOf(portalNumString);
-                    } catch (NumberFormatException ex) {
-                        portalNum = -1;
-                    }
+                if (portalNumString == null) {
+                    L.warning(String.format(
+                            "%s is missing 'portalnumber' attribute, skipping...",
+                            className
+                    ));
+                    continue;
+                }
 
-                    int finalPortalNum = portalNum;
-                    if (bsp.areaportals.stream().noneMatch(areaportal -> areaportal.portalKey == finalPortalNum)) {
-                        L.warning("funct_areaportal entity links to a non existing areaportal, skipping...");
-                        continue;
-                    }
+                try {
+                    portalNum = Integer.parseInt(portalNumString);
+                } catch (NumberFormatException e) {
+                    L.warning(String.format(
+                            "Can't parse %s 'portalnumber' attribute: '%s', skipping...",
+                            className,
+                            portalNumString
+                    ));
+                    continue;
+                }
 
-                    // keep the number when debugging
-                    if (!config.isDebug()) {
-                        ent.removeValue("portalnumber");
-                    }
+                if (!areaportalMapper.hasValidGeometry(portalNum)) {
+                    L.warning(String.format(
+                            "%s links to non existing areaportal or has invalid geometry, skipping...",
+                            className
+                    ));
+                    continue;
+                }
+
+                // keep the number when debugging
+                if (!config.isDebug()) {
+                    ent.removeValue("portalnumber");
                 }
             }
 
@@ -250,18 +262,28 @@ public class EntitySource extends ModuleDecompile {
             if (isOccluder) {
                 String occluderNumString = ent.getValue("occludernumber");
 
-                // extract occluder number
-                if (occluderNumString != null) {
-                    try {
-                        occluderNum = Integer.valueOf(occluderNumString);
-                    } catch (NumberFormatException ex) {
-                        occluderNum = -1;
-                    }
+                if (occluderNumString == null) {
+                    L.warning(String.format(
+                            "%s is missing 'occludernumber' attribute, skipping...",
+                            className
+                    ));
+                    continue;
+                }
 
-                    // keep the number when debugging
-                    if (!config.isDebug()) {
-                        ent.removeValue("occludernumber");
-                    }
+                try {
+                    occluderNum = Integer.parseInt(occluderNumString);
+                } catch (NumberFormatException ex) {
+                    L.warning(String.format(
+                            "Can't parse %s 'occludernumber' attribute: '%s', skipping...",
+                            className,
+                            occluderNumString
+                    ));
+                    continue;
+                }
+
+                // keep the number when debugging
+                if (!config.isDebug()) {
+                    ent.removeValue("occludernumber");
                 }
             }
 
