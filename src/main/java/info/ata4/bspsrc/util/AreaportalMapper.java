@@ -74,17 +74,13 @@ public class AreaportalMapper {
             // If there is no AreaportalHelper that represents this portal, we create one
             // If there is already an AreaportalHelper representing this portal, we just add the portalID to it
             if (matchingApHelper.isPresent()) {
-                matchingApHelper.get().portalID.add((int) dAreaportal.portalKey);
+                matchingApHelper.get().addPortalId(dAreaportal.portalKey);
             } else {
-                AreaportalHelper areaportalHelper = new AreaportalHelper();
-                areaportalHelper.winding = WindingFactory.fromAreaportal(bsp, dAreaportal);
-                areaportalHelper.portalID.add((int) dAreaportal.portalKey);
-                areaportalHelpers.add(areaportalHelper);
+                AreaportalHelper apHelper = new AreaportalHelper(WindingFactory.fromAreaportal(bsp, dAreaportal));
+                apHelper.addPortalId(dAreaportal.portalKey);
+                areaportalHelpers.add(apHelper);
             }
         }
-
-        // Sort the list of areaportal helpers by their first portal id. This is not necessary but could help if the manual mapping makes mistakes
-        areaportalHelpers.sort(Comparator.comparingInt(apHelper -> apHelper.portalID.first()));
     }
 
     /**
@@ -222,7 +218,7 @@ public class AreaportalMapper {
     private Map<AreaportalHelper, Double> areaportalBrushProb(DBrush dBrush) {
         return bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
                 .flatMap(brushSide -> areaportalHelpers.stream()
-                        .map(apHelper -> new AbstractMap.SimpleEntry<>(new AreaportalHelper(apHelper), VectorUtil.matchingAreaPercentage(apHelper.getFirstDAreaportal(), dBrush, brushSide, bsp)))
+                        .map(apHelper -> new AbstractMap.SimpleEntry<>(new AreaportalHelper(apHelper), VectorUtil.matchingAreaPercentage(apHelper, dBrush, brushSide, bsp)))
                         .filter(entry -> entry.getValue() != 0)
                 )
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
@@ -321,24 +317,43 @@ public class AreaportalMapper {
     /**
      * A little areaportal helper class for simplicity
      */
-    private class AreaportalHelper {
+    public class AreaportalHelper {
 
         //All areaportal entities assigned to this helper. All areaportals are sorted by their portalID!
-        public final TreeSet<Integer> portalID = new TreeSet<>();
-        public Winding winding;
+        private final TreeSet<Integer> portalID = new TreeSet<>();
+        public final Winding winding;
 
-        public AreaportalHelper() {}
+        private final HashSet<Integer> planeIndices = new HashSet<>();
+
+        public AreaportalHelper(Winding winding) {
+            Objects.requireNonNull(winding);
+            this.winding = winding;
+        }
 
         public AreaportalHelper(AreaportalHelper apHelper) {
             portalID.addAll(apHelper.portalID);
             winding = apHelper.winding;
+            planeIndices.addAll(apHelper.planeIndices);
         }
 
-        public DAreaportal getFirstDAreaportal() {
-            return bsp.areaportals.stream()
-                    .filter(areaportal -> areaportal.portalKey == portalID.first())
-                    .findAny()
-                    .orElseThrow(() -> new RuntimeException("Areaportalhelper points to non existing dAreaportal " + portalID.first()));
+        public void addPortalId(int portalId) {
+            Set<Integer> planeNums = bsp.areaportals.stream()
+                    .filter(dAreaportal -> dAreaportal.portalKey == portalId)
+                    .map(dAreaportal -> dAreaportal.planenum)
+                    .collect(Collectors.toSet());
+
+            if (planeNums.isEmpty()) {
+                throw new IllegalArgumentException("Specified portalkey doesn't exist");
+            } else {
+                portalID.add(portalId);
+                planeIndices.addAll(planeNums);
+            }
+        }
+
+        public Set<Integer> getPlaneIndices() {
+            //Should never be more than 2
+            assert planeIndices.size() <= 2;
+            return Collections.unmodifiableSet(planeIndices);
         }
 
         @Override

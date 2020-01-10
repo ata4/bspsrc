@@ -1,8 +1,12 @@
 package info.ata4.bsplib.util;
 
-import info.ata4.bsplib.struct.*;
+import info.ata4.bsplib.struct.BspData;
+import info.ata4.bsplib.struct.DBrush;
+import info.ata4.bsplib.struct.DBrushSide;
+import info.ata4.bsplib.struct.DOccluderPolyData;
 import info.ata4.bsplib.vector.Vector2f;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.bspsrc.util.AreaportalMapper;
 import info.ata4.bspsrc.util.Winding;
 import info.ata4.bspsrc.util.WindingFactory;
 
@@ -13,10 +17,7 @@ import java.util.stream.IntStream;
 public class VectorUtil {
 
 	public static double matchingAreaPercentage(DOccluderPolyData occluderPolyData, DBrush brush, DBrushSide brushSide, BspData bsp) {
-		DPlane occluderPlane = bsp.planes.get(occluderPolyData.planenum);
-		DPlane brushSidePlane = bsp.planes.get(brushSide.pnum);
-
-		if (shareSamePlane(occluderPlane, brushSidePlane)) {
+		if (occluderPolyData.planenum == brushSide.pnum) {
 			return internalMatchingAreaPercentage(
 					WindingFactory.fromOccluder(bsp, occluderPolyData).removeDegenerated(),
 					WindingFactory.fromSide(bsp, brush, brushSide).removeDegenerated()
@@ -26,26 +27,17 @@ public class VectorUtil {
 		}
 	}
 
-	public static double matchingAreaPercentage(DAreaportal areaportal, DBrush brush, DBrushSide brushSide, BspData bsp) {
-		DPlane areaportalPlane = bsp.planes.get(areaportal.planenum);
-		DPlane brushSidePlane = bsp.planes.get(brushSide.pnum);
+	public static double matchingAreaPercentage(AreaportalMapper.AreaportalHelper apHelper, DBrush brush, DBrushSide brushSide, BspData bsp) {
+		Set<Integer> planeNums = apHelper.getPlaneIndices();
 
-		if (shareSamePlane(areaportalPlane, brushSidePlane)) {
+		if (planeNums.contains(brushSide.pnum)) {
 			return internalMatchingAreaPercentage(
-					WindingFactory.fromAreaportal(bsp, areaportal).removeDegenerated(),
+					apHelper.winding.removeDegenerated(),
 					WindingFactory.fromSide(bsp, brush, brushSide).removeDegenerated()
 			);
 		} else {
 			return 0;
 		}
-	}
-
-	public static boolean shareSamePlane(DPlane p1, DPlane p2) {
-		//TODO: PLEASE, CAN SOMEONE WITH ACTUAL KNOWLEDGE REPLACE THIS CODE? I CAN'T LOOK AT IT ANY LONGER
-		//TODO: I have no idea how you would actually mathematically compute the error margin, so im just using a guessed one here (0.001)
-		//TODO: Maybe remove 'EPS_DEGEN'. I have no idea if this is needed here or how you should even use it
-		return p1.normal.normalize().cross(p2.normal.normalize()).length() < 0.001
-				&& Math.abs(p1.dist - p2.dist * (p1.normal.dot(p2.normal) >= 1 ? 1 : -1)) < Winding.EPS_DEGEN;
 	}
 
 	/**
