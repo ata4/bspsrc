@@ -16,7 +16,6 @@ import info.ata4.bspinfo.gui.models.LumpTableModel;
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.BspFileFilter;
 import info.ata4.bsplib.BspFileReader;
-import info.ata4.bsplib.PakFile;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.lump.LumpType;
@@ -1325,7 +1324,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         }
 
         try {
-            bspFile.getPakFile().unpack(dest.toPath(), PakFile.nameFilter(names));
+            bspFile.getPakFile().unpack(dest.toPath(), names::contains);
 
             JOptionPane.showMessageDialog(this, "Successfully extracted " + names.size() + " embedded files.");
         } catch (IOException ex) {

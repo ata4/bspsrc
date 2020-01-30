@@ -15,7 +15,6 @@ import info.ata4.bspsrc.modules.ModuleRead;
 import info.ata4.log.LogUtils;
 import org.apache.commons.io.FilenameUtils;
 
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -232,14 +231,13 @@ public class TextureSource extends ModuleRead {
         return Pattern.compile(String.format("maps/%s/(?<%s>.+)_depth_-?\\d+", bspFileName, CONTENT_GROUP));
     }
 
-    public static Predicate<Path> isPatchedMaterial(String bspFileName) {
+    public static Predicate<String> isPatchedMaterial(String bspFileName) {
         Pattern originPattern = compileOriginPattern(bspFileName);
         Pattern wvtPatchPattern = compileWvtPatchPattern(bspFileName);
         Pattern waterPatchPattern = compileWaterPatchPattern(bspFileName);
 
-
-        return path -> {
-            String canonizedName = canonizeTextureName(path.toString());
+        return fileName -> {
+            String canonizedName = canonizeTextureName(fileName);
             return originPattern.matcher(canonizedName).find()
                         || wvtPatchPattern.matcher(canonizedName).find()
                         || waterPatchPattern.matcher(canonizedName).find();

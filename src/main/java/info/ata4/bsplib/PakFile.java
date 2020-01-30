@@ -19,17 +19,11 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.List;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Class to read BSP-embedded zip files (pakiles).
@@ -69,25 +63,19 @@ public class PakFile {
         }
     }
 
-    public void unpack(Path dest, Predicate<Path> nameFilter) throws IOException {
+    public void unpack(Path dest, Predicate<String> fileFilter) throws IOException {
         Files.createDirectories(dest);
 
         try (ZipArchiveInputStream zis = getArchiveInputStream()) {
             for (ZipArchiveEntry ze; (ze = zis.getNextZipEntry()) != null;) {
-                Path zipPath;
-                try {
-                    zipPath = Paths.get(ze.getName());
-                } catch (InvalidPathException e) {
-                    L.log(Level.WARNING, "Couldn't resolve ZipArchiveEntry path", e);
-                    continue;
-                }
+                String entryName = ze.getName();
 
-                if (!nameFilter.test(zipPath)) {
+                if (!fileFilter.test(entryName)) {
                     continue;
                 }
 
                 // create file path for zip entry and canonize it
-                Path entryFile = dest.resolve(zipPath).normalize();
+                Path entryFile = dest.resolve(entryName).normalize();
 
                 // don't allow file path to exit the extraction directory
                 if (!entryFile.startsWith(dest)) {
@@ -113,29 +101,29 @@ public class PakFile {
         }
     }
 
-    public static Predicate<Path> nameFilter(Collection<String> names) {
-        List<Path> paths = names.stream()
-                .flatMap(s -> {
-                    try {
-                        return Stream.of(Paths.get(s));
-                    } catch (InvalidPathException e) {
-                        L.log(Level.WARNING, "Error converting string to path", e);
-                        return Stream.empty();
-                    }
-                })
-                .collect(Collectors.toList());
-
-        return paths::contains;
-    }
-
-    public static Predicate<Path> isVBSPGeneratedFile(String bspFileName) {
-        return TextureSource.isPatchedMaterial(bspFileName).or(path -> {
-            String fileName = path.getFileName().toString();
-
-            return vhvPattern.matcher(fileName).matches()
-                    || cubemapVtfPattern.matcher(fileName).matches()
-                    || fileName.equalsIgnoreCase("cubemapdefault.vtf")
-                    || fileName.equalsIgnoreCase("cubemapdefault.hdr.vtf");
-        });
+    /**
+     * Matches the specified {@code embeddedFileName} to a list of vbsp generated file name signatures:
+     *
+     * <ul>
+     *     <li>Patched materials: {@link TextureSource#isPatchedMaterial(String)}
+     *     <li>.vhv files: {@link #vhvPattern}
+     *     <li>cubemap data: {@link #cubemapVtfPattern}
+     *     <li>"cubemapdefault.vtf"
+     *     <li>"cubemapdefault.hdr.vtf"
+     *
+     *
+     * @param bspFileName The bsp file name
+     * @param embeddedFileName The embedded file name
+     * @return {@code true} if the specified {@code embeddedFileName} matches a vbsp generated file name,
+     *         otherwise {@code false}
+     */
+    public static boolean isVBSPGeneratedFile(String bspFileName, String embeddedFileName) {
+        return TextureSource
+                .isPatchedMaterial(bspFileName)
+                .or(fileName -> vhvPattern.matcher(fileName).matches()
+                        || cubemapVtfPattern.matcher(fileName).matches()
+                        || fileName.equalsIgnoreCase("cubemapdefault.vtf")
+                        || fileName.equalsIgnoreCase("cubemapdefault.hdr.vtf"))
+                .test(embeddedFileName);
     }
 }
