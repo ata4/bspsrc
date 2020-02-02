@@ -90,17 +90,21 @@ public class VectorUtil {
 		List<Vector2f> intersectionPolygon = VectorUtil.orderVertices(intersectingVertices);
 
 		double intersectionArea = VectorUtil.polygonArea(intersectionPolygon);
+		// error margin
+		if (intersectionArea < 1)
+			intersectionArea = 0;
+
 		double w1Area = VectorUtil.polygonArea(w1Polygon);
 
-		// actually intersectionArea / w1Area should never be greater 1, but i don't know why I have written that, so im just gonna leave that here
-		return intersectionArea / w1Area > 1 ? 0 : Math.abs(intersectionArea / w1Area);
+		return Math.min(intersectionArea / w1Area, 1);
 	}
 
 	//https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
 	public static boolean isInsideConvexPolygon(Vector2f p, List<Vector2f> polygon) {
 		return IntStream.range(0, polygon.size())
 				.mapToObj(i -> new Vector2f[]{polygon.get(i), polygon.get((i + 1) % polygon.size())})
-				.filter(edge -> (edge[0].y > p.y) != (edge[1].y > p.y) && (p.x < (edge[1].x - edge[0].x) * (p.y - edge[0].y) / (edge[1].y - edge[0].y) + edge[0].x))
+				.filter(edge -> (edge[0].y > p.y) != (edge[1].y > p.y)
+						&& (p.x < (edge[1].x - edge[0].x) * (p.y - edge[0].y) / (edge[1].y - edge[0].y) + edge[0].x))
 				.limit(2)
 				.count() % 2 == 1;
 	}
@@ -141,10 +145,10 @@ public class VectorUtil {
 	}
 
 	public static double polygonArea(List<Vector2f> polygon) {
-		return IntStream.range(0, polygon.size())
+		return Math.abs(IntStream.range(0, polygon.size())
 				.mapToObj(i -> new Vector2f[]{polygon.get(i), polygon.get((i + 1) % polygon.size())})
 				.mapToDouble(edge -> (edge[0].x + edge[1].x) * (edge[0].y - edge[1].y))
-				.sum() / 2;
+				.sum() / 2);
 	}
 
 	public static List<Vector2f> orderVertices(Collection<Vector2f> vertices) {
