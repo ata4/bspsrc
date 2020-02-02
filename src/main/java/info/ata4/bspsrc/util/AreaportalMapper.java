@@ -1,6 +1,6 @@
 package info.ata4.bspsrc.util;
 
-import info.ata4.bsplib.entity.Entity;
+import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.struct.BspData;
 import info.ata4.bsplib.struct.DAreaportal;
 import info.ata4.bsplib.struct.DBrush;
@@ -11,6 +11,7 @@ import info.ata4.bspsrc.modules.VmfMeta;
 import info.ata4.bspsrc.modules.geom.FaceSource;
 import info.ata4.bspsrc.modules.texture.ToolTexture;
 import info.ata4.log.LogUtils;
+import info.ata4.util.JavaUtil;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -19,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Class for mapping areaportal entities to their original brushes
@@ -100,126 +102,177 @@ public class AreaportalMapper {
 
     /**
      * Maps areaportal brushes to the likeliest areaportal entity it represents
-     * <p></p>
-     * This is done by comparing the brush to all available areaportals and determining how much they 'overlap'.
-     * This means if a brush doesn't have a brush side that's on the same plane as the areaportal, the probability is automatically 0.
-     * If there is a brush side that is on the same plane, the probability is computed by 'sharedSurfaceArea / areaportalSurfaceArea'
+     *
+     * <p>This is done by comparing the brush to all available areaportals and determining how much they 'overlap'. This
+     * means if a brush doesn't have a brush side that's on the same plane as the areaportal, the probability is
+     * automatically 0. If there is a brush side that is on the same plane, the probability is computed by
+     * 'sharedSurfaceArea / areaportalSurfaceArea'
      *
      * @return A {@code Map} where the keys represent areaportal ids and the values brush ids
      */
     private Map<Integer, Integer> manualMapping() {
-        Map<DBrush, Map<AreaportalHelper, Double>> brushProbMapping = areaportalBrushes.stream()
-                .collect(Collectors.toMap(dBrush -> dBrush, this::areaportalBrushProb));
+        Set<BrushProbabilitiesMapping> brushProbMappings = areaportalBrushes.stream()
+                .map(dBrush -> new BrushProbabilitiesMapping(dBrush, areaportalBrushProb(dBrush)))
+                .filter(mapping -> !mapping.isEmpty())
+                .collect(Collectors.toSet());
 
-        // Remove every brush entry if it doesn't have areaportals mapped to it. (Not sure if this could actually happen here)
-        brushProbMapping.entrySet().removeIf(dBrushMapEntry -> dBrushMapEntry.getValue().isEmpty());
+        // Only used if debug enabled
+        Map<Integer, KeyValue> debugEntityInformation = new HashMap<>();
 
-        // Final brush mapping. Key represent areaportal ids, values represent index in bsp.brushes
-        HashMap<Integer, Integer> brushMapping = new HashMap<>();
+        // Final brush mapping that will be returned at the end
+        // Key represent areaportal ids, values represent index in bsp.brushes
+        HashMap<Integer, Integer> finalBrushMapping = new HashMap<>();
 
-        Map<DBrush, Map<AreaportalHelper, Double>> mappingQueue = new HashMap<>();
-        Comparator<Entry<DBrush, Map<AreaportalHelper, Double>>> mappingQueueComparator = Comparator.comparingDouble(entry -> entry.getValue().entrySet().stream()
-                .max(Comparator.comparingDouble(Entry::getValue))
-                .map(Entry::getValue)
-                .get());
+        while (!brushProbMappings.isEmpty()) {
+            // Get a brush that has only ONE mapping. In a perfect world, we can be sure that they are 100% matches
+            Optional<BrushMapping> opBrushMapping = brushProbMappings.stream()
+                    .map(BrushProbabilitiesMapping::getOnlyMapping)
+                    .flatMap(JavaUtil::streamOpt)
+                    .max(Comparator.comparingDouble(brushMapping -> brushMapping.probability));
 
-        while (!brushProbMapping.isEmpty()) {
-            // Clear our mapping queue before every iteration
-            mappingQueue.clear();
-
-            // Get all brush mappings that only have one available areaportal to map to. These can be safely mapped as they don't create conflicts with other areaportal brushes (At least they shouldn't theoretically)
-            mappingQueue.putAll(brushProbMapping.entrySet().stream()
-                    .filter(dBrushMapEntry -> dBrushMapEntry.getValue().size() == 1)
-                    .collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
-
-            if (mappingQueue.isEmpty()) {
-                // We ended up with only brushes that can't be mapped distinctively so we guess one to map by using the mapping with the highest probability
-                brushProbMapping.entrySet().stream()
-                        .max(mappingQueueComparator)
-                        .ifPresent(entry -> mappingQueue.put(entry.getKey(), entry.getValue()));
+            // If we dont have any 'distinct' mappings, we just get the one with the highest probability
+            if (!opBrushMapping.isPresent()) {
+                opBrushMapping = brushProbMappings.stream()
+                        .flatMap(BrushProbabilitiesMapping::stream)
+                        .max(Comparator.comparingDouble(mapping -> mapping.probability));
             }
 
-            // Now mapped those brushes we selected earlier
-            mappingQueue.entrySet().stream()
-                    .sorted(mappingQueueComparator)
-                    .forEachOrdered(entry -> {
-                        DBrush dBrush = entry.getKey();
-                        AreaportalHelper apHelper = entry.getValue().entrySet().stream()
-                                .max(Comparator.comparingDouble(Entry::getValue))
-                                .map(Entry::getKey)
-                                .get();
+            // At this part we should have a mapping...
+            if (!opBrushMapping.isPresent()) {
+                // How did we end up here?? Shouldn't be possible
+                L.warning("Internal error occurred reallocating areaportals");
+                assert false;
+                break;
+            }
 
-                        if (!apHelper.portalID.isEmpty()) {
-                            int portalID = apHelper.portalID.first();
 
-                            // When we map a brush to the specific areaportal id, we need to make sure no other brush is mapped to it as well. -> Iterate over every brush mapping and remove the areaportal id if present
-                            brushProbMapping.entrySet().stream()
-                                    .flatMap(dBrushMapEntry -> dBrushMapEntry.getValue().keySet().stream())
-                                    .forEach(areaportalHelper -> areaportalHelper.portalID.removeIf(integer -> integer == portalID));
+            BrushMapping brushMapping = opBrushMapping.get();
 
-                            // This could cause Areaportalhelpers to be empty (of portal ids), so we remove every entry with those
-                            brushProbMapping.forEach((key, value) -> value.entrySet().removeIf(apEntry -> apEntry.getKey().portalID.isEmpty()));
+            // Get an id that isn't already used
+            OptionalInt opApId = brushMapping.apHelper.getFirstNonOverlappingId(finalBrushMapping.keySet());
+            if (!opApId.isPresent()) {
+                // Again how did we end up here? Shouldn't be possible
+                L.warning("Internal error occurred reallocating areaportals");
+                assert false;
+                break;
+            }
 
-                            // Finally put our new mapping in the map
-                            brushMapping.put(portalID, bsp.brushes.indexOf(dBrush));
-                        } else {
-                            L.warning("Couldn't find valid Areaportal mapping for brush " + bsp.brushes.indexOf(dBrush));
-                        }
+            int areaportalId = opApId.getAsInt();
+            int brushIndex = bsp.brushes.indexOf(brushMapping.brush);
 
-                        brushProbMapping.remove(dBrush);
-                    });
+            finalBrushMapping.put(areaportalId, brushIndex);
+            L.log(Level.FINEST, String.format("Mapped brush %d to areaportal %d[%s] with a probability of %.2g",
+                    brushIndex,
+                    areaportalId,
+                    brushMapping.apHelper.portalID.stream()
+                            .map(Object::toString)
+                            .collect(Collectors.joining(", ")),
+                    brushMapping.probability));
 
-            // After each iteration we remove every entry that doesn't have a possible entry anymore. (This could for example happen if the algorithm makes mistake)
-            brushProbMapping.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+            debugEntityInformation.put(areaportalId, new KeyValue(
+                    brushMapping.apHelper.portalID.stream()
+                            .map(Object::toString)
+                            .collect(Collectors.joining(", ", "areaportal_prob[", "]")),
+                    String.valueOf(brushMapping.probability)
+            ));
+
+            // Remove the BrushProbabilitiesMapping of the brush that got the areaportal assigned
+            brushProbMappings.removeIf(mapping -> mapping.brush == brushMapping.brush);
+
+            // Remove every brush -> areaportalHelper mapping if the areaportalHelper doesn't contain any unused
+            // areaportal ids anymore
+            brushProbMappings.forEach(mapping ->
+                    mapping.probabilities.keySet().removeIf(areaportalHelper ->
+                            !areaportalHelper.getFirstNonOverlappingId(finalBrushMapping.keySet()).isPresent()));
+
+            // Remove every BrushProbabilitiesMapping if it doesn't contain any brush -> areaportalHelper
+            // mapping anymore
+            brushProbMappings.removeIf(BrushProbabilitiesMapping::isEmpty);
         }
 
         //In debug mode we write all probabilities to the entities for debugging
         if (config.isDebug()) {
-            //We create a new copy of the porbability map. This is very inefficient, but necessary with the current structure of the algorithm because brushProbMapping is being altered while assigning to areaportals
-            Map<DBrush, Map<AreaportalHelper, Double>> debugBrushProbMapping = areaportalBrushes.stream()
-                    .collect(Collectors.toMap(dBrush -> dBrush, this::areaportalBrushProb));
-
-            for (Entity entity : bsp.entities) {
-                if (!entity.getClassName().startsWith("func_areaportal"))
-                    continue;
-
-                try {
-                    Integer brushIndex = brushMapping.get(Integer.valueOf(entity.getValue("portalnumber")));
-                    if (brushIndex == null)
-                        continue;
-
-                    DBrush brush = bsp.brushes.get(brushIndex);
-                    Map<AreaportalHelper, Double> probabilities = debugBrushProbMapping.get(brush);
-
-                    if (probabilities == null)
-                        continue;
-
-                    probabilities.forEach((areaportal, percentage) -> entity.setValue(
-                            "areaportalProb" + areaportal.portalID.stream()
-                                    .map(Object::toString)
-                                    .collect(Collectors.joining(", ", "[", "]")),
-                            percentage
-                    ));
-                } catch (NumberFormatException e) {
-                    L.log(Level.FINE, "func_areaportal portalnumber property is missing or invalid", e);
-                }
-            }
+            bsp.entities.stream()
+                    .filter(entity -> entity.getClassName().startsWith("func_areaportal"))
+                    .forEach(entity -> {
+                        try {
+                            int portalId = Integer.parseInt(entity.getValue("portalnumber"));
+                            entity.setValue(debugEntityInformation.getOrDefault(
+                                    portalId,
+                                    new KeyValue("areaportal_prob[]", "0")
+                            ));
+                        } catch (NumberFormatException e) {
+                            L.log(Level.FINE, "func_areaportal portalnumber property is missing or invalid", e);
+                        }
+                    });
         }
 
-        return brushMapping;
+        return finalBrushMapping;
+    }
+
+    /**
+     * Helper class representing every possible areaportal mapping for a specific brush
+     */
+    private static final class BrushProbabilitiesMapping {
+        public final DBrush brush;
+        public final Map<AreaportalHelper, Double> probabilities;
+
+        private BrushProbabilitiesMapping(DBrush brush, Map<AreaportalHelper, Double> probabilities) {
+            this.brush = Objects.requireNonNull(brush);
+            this.probabilities = Objects.requireNonNull(probabilities);
+        }
+
+        private boolean isEmpty() {
+            return probabilities.isEmpty();
+        }
+
+        private Optional<BrushMapping> getOnlyMapping() {
+            if (probabilities.size() > 1)
+                return Optional.empty();
+
+            return probabilities.entrySet().stream()
+                    .findAny()
+                    .map(this::brushMappingFromEntry);
+        }
+
+        public Stream<BrushMapping> stream() {
+            return probabilities.entrySet().stream()
+                    .map(this::brushMappingFromEntry);
+        }
+
+        private BrushMapping brushMappingFromEntry(Map.Entry<AreaportalHelper, Double> entry) {
+            return new BrushMapping(brush, entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * Helper class representing a specific mapping between a brush and an areaportal
+     */
+    private static final class BrushMapping {
+        public final DBrush brush;
+        public final AreaportalHelper apHelper;
+        public final double probability;
+
+        public BrushMapping(DBrush brush, AreaportalHelper apHelper, double probability) {
+            this.brush = Objects.requireNonNull(brush);
+            this.apHelper = Objects.requireNonNull(apHelper);
+            this.probability = probability;
+        }
     }
 
     /**
      * Returns all possible areaportals this brush could represent, each with a percentage as their likelihood
      *
      * @param dBrush An areaportal brush
-     * @return A {@code Map} with <b>copys</b> of {@link AreaportalHelper}'s as keys and and a percantage(0 < p <= 1) as likelihood
+     * @return a {@code Map} with {@link AreaportalHelper}'s as keys and and a percantage (0 < p <= 1) as likelihood
      */
     private Map<AreaportalHelper, Double> areaportalBrushProb(DBrush dBrush) {
         return bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
                 .flatMap(brushSide -> areaportalHelpers.stream()
-                        .map(apHelper -> new AbstractMap.SimpleEntry<>(new AreaportalHelper(apHelper), VectorUtil.matchingAreaPercentage(apHelper, dBrush, brushSide, bsp)))
-                        .filter(entry -> entry.getValue() != 0)
+                        .map(apHelper -> new AbstractMap.SimpleEntry<>(apHelper,
+                                VectorUtil.matchingAreaPercentage(apHelper, dBrush, brushSide, bsp)))
+                        .filter(entry -> entry.getValue() > 0)
+                        .limit(1) // We limit to 1 because of safety even though there should only be one where entry.getValue() > 0
                 )
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
@@ -260,7 +313,7 @@ public class AreaportalMapper {
             return ApMappingMode.MANUAL.map(this);
         }
 
-        if (areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum() == bsp.brushes.stream().filter(DBrush::isAreaportal).count()) {
+        if (areaportalHelpers.stream().mapToInt(value -> value.portalID.size()).sum() == areaportalBrushes.size()) {
             L.info("Equal amount of areaporal entities and areaportal brushes. Using '" + ApMappingMode.ORDERED + "' method");
             return ApMappingMode.ORDERED.map(this);
         } else {
@@ -330,12 +383,6 @@ public class AreaportalMapper {
             this.winding = winding;
         }
 
-        public AreaportalHelper(AreaportalHelper apHelper) {
-            portalID.addAll(apHelper.portalID);
-            winding = apHelper.winding;
-            planeIndices.addAll(apHelper.planeIndices);
-        }
-
         public void addPortalId(int portalId) {
             Set<Integer> planeNums = bsp.areaportals.stream()
                     .filter(dAreaportal -> dAreaportal.portalKey == portalId)
@@ -354,6 +401,18 @@ public class AreaportalMapper {
             //Should never be more than 2
             assert planeIndices.size() <= 2;
             return Collections.unmodifiableSet(planeIndices);
+        }
+
+        /**
+         *
+         * @param collection A Collection of integer ids
+         * @return the first id of this areaportal helper, that is not in the specified collection
+         */
+        public OptionalInt getFirstNonOverlappingId(Collection<Integer> collection) {
+            return portalID.stream()
+                    .filter(id -> !collection.contains(id))
+                    .mapToInt(i -> i)
+                    .findFirst();
         }
 
         @Override
