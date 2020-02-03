@@ -278,15 +278,15 @@ public class AreaportalMapper {
     }
 
     private Map<Integer, Integer> orderedMapping() {
-        int areaportalIDCount = areaportalHelpers.stream()
-                .mapToInt(apHelper -> apHelper.portalID.size())
-                .sum();
-
         int areaportalBrushCount = areaportalBrushes.size();
+        List<Integer> areaportalIds = areaportalHelpers.stream()
+                .flatMap(areaportalHelper -> areaportalHelper.portalID.stream())
+                .sorted()
+                .collect(Collectors.toList());
 
-        return IntStream.range(0, Math.min(areaportalIDCount, areaportalBrushCount))
+        return IntStream.range(0, Math.min(areaportalIds.size(), areaportalBrushCount))
                 .boxed()
-                .collect(Collectors.toMap(i -> i + 1, i -> bsp.brushes.indexOf(areaportalBrushes.get(i))));
+                .collect(Collectors.toMap(areaportalIds::get, i -> bsp.brushes.indexOf(areaportalBrushes.get(i))));
     }
 
 
