@@ -12,14 +12,14 @@ package info.ata4.bspinfo.gui.models;
 import info.ata4.bsplib.BspFile;
 import info.ata4.log.LogUtils;
 import info.ata4.util.gui.ListTableModel;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 
 /**
  *
@@ -38,13 +38,11 @@ public class EmbeddedTableModel extends ListTableModel {
     public EmbeddedTableModel(BspFile bspFile) {
         this();
 
-        try (ZipArchiveInputStream zis = bspFile.getPakFile().getArchiveInputStream()) {
-            ZipArchiveEntry ze;
-            while ((ze = zis.getNextZipEntry()) != null) {
-                List<Object> row = new ArrayList<>();
-                row.add(ze.getName());
-                row.add(ze.getSize());
-                addRow(row);
+        try (ZipFile zip = bspFile.getPakFile().getZipFile()) {
+            Enumeration<ZipArchiveEntry> enumeration = zip.getEntries();
+            while (enumeration.hasMoreElements()) {
+                ZipArchiveEntry ze = enumeration.nextElement();
+                addRow(Arrays.asList(ze.getName(), ze.getSize()));
             }
         } catch (IOException ex) {
             L.log(Level.WARNING, "Can't read pak");

@@ -16,19 +16,17 @@ import info.ata4.bsplib.struct.DBrush;
 import info.ata4.bsplib.struct.DBrushSide;
 import info.ata4.bsplib.struct.DPlane;
 import info.ata4.bsplib.vector.Vector3f;
+import info.ata4.bspsrc.modules.geom.BrushUtils;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.modules.texture.ToolTexture;
-import info.ata4.bspsrc.util.AABB;
-import info.ata4.bspsrc.modules.geom.BrushUtils;
-import info.ata4.bspsrc.util.WindingFactory;
 import info.ata4.log.LogUtils;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 
 /**
  * A module to check if the map has been protected by the mapper with at least
@@ -344,14 +342,10 @@ public class BspProtection extends ModuleRead {
             return;
         }
 
-        try (ZipArchiveInputStream zis = bspFile.getPakFile().getArchiveInputStream()) {
-            ZipArchiveEntry ze;
-            while ((ze = zis.getNextZipEntry()) != null) {
-                if (ze.getName().equals(BSPPROTECT_FILE)) {
-                    L.fine("Found encrypted entities!");
-                    encryptedEnt = true;
-                    break;
-                }
+        try (ZipFile zip = bspFile.getPakFile().getZipFile()) {
+            if (zip.getEntries(BSPPROTECT_FILE).iterator().hasNext()) {
+                L.fine("Found encrypted entities!");
+                encryptedEnt = true;
             }
         } catch (IOException ex) {
             L.log(Level.WARNING, "Couldn't read pakfile", ex);
