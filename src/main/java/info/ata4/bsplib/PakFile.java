@@ -9,17 +9,22 @@
  */
 package info.ata4.bsplib;
 
+import info.ata4.bsplib.io.LzmaUtil;
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bspsrc.modules.texture.TextureSource;
+import info.ata4.io.buffer.ByteBufferChannel;
 import info.ata4.log.LogUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.compress.archivers.zip.ZipMethod;
+import org.tukaani.xz.LZMAInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Enumeration;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +32,7 @@ import java.util.regex.Pattern;
 
 /**
  * Class to read BSP-embedded zip files (pakiles).
- * 
+ *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class PakFile {
@@ -43,8 +48,9 @@ public class PakFile {
         pakLump = bspFile.getLump(LumpType.LUMP_PAKFILE);
     }
 
-    public ZipArchiveInputStream getArchiveInputStream() {
-        return new ZipArchiveInputStream(pakLump.getInputStream(), "Cp437", false);
+    public ZipFile getZipFile() throws IOException {
+        return new ZipFile(new ByteBufferChannel(pakLump.getBuffer()),
+                "PakLump", "Cp437", false);
     }
 
     public void unpack(Path dest) throws IOException {
@@ -66,8 +72,9 @@ public class PakFile {
     public void unpack(Path dest, Predicate<String> fileFilter) throws IOException {
         Files.createDirectories(dest);
 
-        try (ZipArchiveInputStream zis = getArchiveInputStream()) {
-            for (ZipArchiveEntry ze; (ze = zis.getNextZipEntry()) != null;) {
+        try (ZipFile zipFile = getZipFile()) {
+            for (Enumeration<ZipArchiveEntry> enumeration = zipFile.getEntries(); enumeration.hasMoreElements();) {
+                ZipArchiveEntry ze = enumeration.nextElement();
                 String entryName = ze.getName();
 
                 if (!fileFilter.test(entryName)) {
@@ -79,26 +86,49 @@ public class PakFile {
 
                 // don't allow file path to exit the extraction directory
                 if (!entryFile.startsWith(dest)) {
-                    L.log(Level.WARNING, "Skipped {0} (path traversal attempt)", ze.getName());
+                    L.log(Level.WARNING, "Skipped {0} (path traversal attempt)", entryName);
                     continue;
-                }
-
-                // create missing parent directory
-                if (Files.notExists(entryFile.getParent())) {
-                    Files.createDirectories(entryFile.getParent());
                 }
 
                 // don't overwrite any files
                 if (Files.exists(entryFile)) {
-                    L.log(Level.WARNING, "Skipped {0} (exists)", ze.getName());
+                    L.log(Level.WARNING, "Skipped {0} (exists)", entryName);
                     continue;
                 }
 
-                L.log(Level.INFO, "Extracting {0}", ze.getName());
+                if (zipFile.canReadEntryData(ze)) {
+                    try (InputStream stream = zipFile.getInputStream(ze)) {
+                        extract(stream, entryFile, entryName);
+                    }
+                } else if (ZipMethod.getMethodByCode(ze.getMethod()) == ZipMethod.LZMA) {
+                    try (InputStream rawStream = zipFile.getRawInputStream(ze)) {
+                        long uncompressedSize;
+                        if ((ze.getRawFlag() & (1 << 1)) != 0) {
+                            // If the entry uses EOS marker, use -1 to indicate
+                            uncompressedSize = -1;
+                        } else {
+                            uncompressedSize = ze.getSize();
+                        }
 
-                Files.copy(zis, entryFile);
+                        try (LZMAInputStream lzmaStream = LzmaUtil.fromZipEntry(rawStream, uncompressedSize)) {
+                            extract(lzmaStream, entryFile, entryName);
+                        }
+                    }
+                } else {
+                    L.warning(String.format("Cannot extract unsupported: %s| method: %s(%s)| encryption: %b",
+                            entryName,
+                            ZipMethod.getMethodByCode(ze.getMethod()),
+                            ze.getMethod(),
+                            ze.getGeneralPurposeBit().usesEncryption()));
+                }
             }
         }
+    }
+
+    private static void extract(InputStream stream, Path path, String entryName) throws IOException {
+        L.log(Level.INFO, "Extracting {0}", entryName);
+        Files.createDirectories(path.getParent());
+        Files.copy(stream, path);
     }
 
     /**

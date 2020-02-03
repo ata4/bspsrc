@@ -14,16 +14,17 @@ import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpFile;
 import info.ata4.bsplib.lump.LumpType;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.io.IOUtils;
+
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.io.IOUtils;
+import java.util.Iterator;
 
 /**
  * BSPProtect map decrypter.
@@ -154,16 +155,11 @@ public class BspUnprotect {
     }
 
     private byte[] readEncryptedEntities() {
-        try (ZipArchiveInputStream zis = bspFile.getPakFile().getArchiveInputStream()) {
-            ZipArchiveEntry ze;
-
-            while ((ze = zis.getNextZipEntry()) != null) {
-                if (ze.getName().equals(BSPPROTECT_FILE)) {
-                    ByteArrayOutputStream os = new ByteArrayOutputStream();
-                    IOUtils.copy(zis, os);
-                    return os.toByteArray();
-                }
-            }  
+        try (ZipFile zip = bspFile.getPakFile().getZipFile()) {
+            Iterator<ZipArchiveEntry> iterator = zip.getEntries(BSPPROTECT_FILE).iterator();
+            if (iterator.hasNext()) {
+                return IOUtils.toByteArray(zip.getInputStream(iterator.next()));
+            }
         } catch (IOException ex) {
             throw new RuntimeException("Couldn't read pakfile", ex);
         }

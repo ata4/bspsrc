@@ -16,28 +16,32 @@ import info.ata4.io.buffer.ByteBufferOutputStream;
 import info.ata4.io.lzma.LzmaDecoderProps;
 import info.ata4.io.lzma.LzmaEncoderProps;
 import info.ata4.log.LogUtils;
+import lzma.LzmaDecoder;
+import lzma.LzmaEncoder;
+import org.apache.commons.io.IOUtils;
+import org.tukaani.xz.LZMAInputStream;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import lzma.LzmaDecoder;
-import lzma.LzmaEncoder;
 
 /**
  * LZMA encoding and decoding helper class.
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class LzmaBuffer {
+public class LzmaUtil {
 
     private static final Logger L = LogUtils.getLogger();
 
     public final static int LZMA_ID = StringMacroUtils.makeID("LZMA");
     public final static int HEADER_SIZE = 17;
 
-    private LzmaBuffer() {
+    private LzmaUtil() {
     }
 
     public static ByteBuffer uncompress(ByteBuffer buffer) throws IOException {
@@ -143,5 +147,32 @@ public class LzmaBuffer {
 
         // check if this buffer is compressed
         return bb.remaining() >= HEADER_SIZE && bb.getInt() == LZMA_ID;
+    }
+
+    public static LZMAInputStream fromZipEntry(InputStream rawInputStream, long uncompressedSize) throws IOException {
+        // Lzma compressed zip is not supported by common-compress, so we do it manually
+        // View https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT for specifications
+        // (4.4.4 general purpose bit flag, 5.8 LZMA - Method 14)
+        ByteBuffer buffer = ByteBuffer.wrap(IOUtils.readFully(rawInputStream, 9))
+                .order(ByteOrder.LITTLE_ENDIAN);
+
+        // Lzma version used to compress this data
+        int majorVersion = buffer.get();
+        int minorVersion = buffer.get();
+
+        // Byte count of the following data represent as an unsigned short.
+        // Should be = 5 (propByte + dictSize)
+        int size = buffer.getShort() & 0xffff;
+        if (size != 5) {
+            L.warning(String.format("Unsupported lzma header size %ds. Version: %d.%d",
+                    size, majorVersion, minorVersion));
+        }
+
+        byte propByte = buffer.get();
+
+        // Dictionary size is an unsigned 32-bit little endian integer.
+        int dictSize = buffer.getInt();
+
+        return new LZMAInputStream(rawInputStream, uncompressedSize, propByte, dictSize);
     }
 }

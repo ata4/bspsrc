@@ -10,7 +10,7 @@
 
 package info.ata4.bsplib.lump;
 
-import info.ata4.bsplib.io.LzmaBuffer;
+import info.ata4.bsplib.io.LzmaUtil;
 import info.ata4.io.buffer.ByteBufferInputStream;
 import info.ata4.io.buffer.ByteBufferOutputStream;
 import info.ata4.log.LogUtils;
@@ -66,7 +66,7 @@ public abstract class AbstractLump {
     public void setBuffer(ByteBuffer buf) {
         buffer = buf;
         buffer.rewind();
-        setCompressed(LzmaBuffer.isCompressed(buffer));
+        setCompressed(LzmaUtil.isCompressed(buffer));
     }
 
     public InputStream getInputStream() {
@@ -107,7 +107,7 @@ public abstract class AbstractLump {
         }
 
         try {
-            buffer = LzmaBuffer.compress(buffer);
+            buffer = LzmaUtil.compress(buffer);
         } catch (IOException ex) {
             L.log(Level.SEVERE, "Couldn't compress lump " + this, ex);
         }
@@ -121,7 +121,7 @@ public abstract class AbstractLump {
         }
 
         try {
-            buffer = LzmaBuffer.uncompress(buffer);
+            buffer = LzmaUtil.uncompress(buffer);
         } catch (IOException ex) {
             L.log(Level.SEVERE, "Couldn't uncompress lump " + this, ex);
         }

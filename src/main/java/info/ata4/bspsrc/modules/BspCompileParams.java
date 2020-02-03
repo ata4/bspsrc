@@ -13,14 +13,16 @@ import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bsplib.struct.LevelFlag;
 import info.ata4.log.LogUtils;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 
 /**
  *
@@ -45,9 +47,11 @@ public class BspCompileParams extends ModuleRead {
         boolean stale = false;
         boolean hasVhv = false;
 
-        try (ZipArchiveInputStream zis = bspFile.getPakFile().getArchiveInputStream()) {
-            ZipArchiveEntry ze;
-            while ((ze = zis.getNextZipEntry()) != null) {
+        try (ZipFile zip = bspFile.getPakFile().getZipFile()) {
+            Enumeration<ZipArchiveEntry> enumeration = zip.getEntries();
+            while (enumeration.hasMoreElements()) {
+                ZipArchiveEntry ze = enumeration.nextElement();
+
                 // check for stale.txt, which marks possibly screwed up maps
                 if (ze.getName().equals("stale.txt")) {
                     stale = true;

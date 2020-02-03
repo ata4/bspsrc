@@ -13,7 +13,7 @@ package info.ata4.bsplib;
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppDB;
 import static info.ata4.bsplib.app.SourceAppID.*;
-import info.ata4.bsplib.io.LzmaBuffer;
+import info.ata4.bsplib.io.LzmaUtil;
 import info.ata4.bsplib.lump.*;
 import info.ata4.bsplib.util.StringMacroUtils;
 import info.ata4.io.DataReader;
@@ -791,7 +791,7 @@ public class BspFile {
             }
 
             // don't compress if the result will always be bigger than uncompressed
-            if (l.getLength() <= LzmaBuffer.HEADER_SIZE) {
+            if (l.getLength() <= LzmaUtil.HEADER_SIZE) {
                 continue;
             }
 
@@ -803,7 +803,7 @@ public class BspFile {
 
         for (GameLump gl : gameLumps) {
             // don't compress if the result will always be bigger than uncompressed
-            if (gl.getLength() <= LzmaBuffer.HEADER_SIZE) {
+            if (gl.getLength() <= LzmaUtil.HEADER_SIZE) {
                 continue;
             }
 
