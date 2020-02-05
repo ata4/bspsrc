@@ -60,11 +60,6 @@
         <!-- Dependencies from jitpack.io -->
         <dependency>
             <groupId>com.github.ata4</groupId>
-            <artifactId>lzmajio</artifactId>
-            <version>3a3e05009e</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.ata4</groupId>
             <artifactId>ioutils</artifactId>
             <version>b1f26588b5</version>
         </dependency>
