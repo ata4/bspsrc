@@ -12,14 +12,11 @@ package info.ata4.bsplib.io;
 
 import info.ata4.bsplib.util.StringMacroUtils;
 import info.ata4.io.buffer.ByteBufferInputStream;
-import info.ata4.io.buffer.ByteBufferOutputStream;
-import info.ata4.io.lzma.LzmaDecoderProps;
-import info.ata4.io.lzma.LzmaEncoderProps;
 import info.ata4.log.LogUtils;
-import lzma.LzmaDecoder;
-import lzma.LzmaEncoder;
 import org.apache.commons.io.IOUtils;
+import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.LZMAInputStream;
+import org.tukaani.xz.LZMAOutputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -58,42 +55,22 @@ public class LzmaUtil {
         // read more from the header
         int actualSize = bbc.getInt();
         int lzmaSize = bbc.getInt();
-        byte[] propsData = new byte[5];
-        bbc.get(propsData);
+
+        // properties data
+        byte probByte = bbc.get();
+        int dictSize = bbc.getInt();
 
         int lzmaSizeBuf = bbc.limit() - HEADER_SIZE;
 
         // check the size of the compressed buffer
         if (lzmaSizeBuf != lzmaSize) {
-            L.log(Level.WARNING, "Difference in LZMA data length: found {0} bytes, expected {1}", new Object[]{lzmaSizeBuf, lzmaSize});
+            L.log(Level.WARNING, "Difference in LZMA data length: found {0} bytes, expected {1}",
+                    new Object[]{lzmaSizeBuf, lzmaSize});
         }
 
-        ByteBuffer bbu = ByteBuffer.allocateDirect(actualSize);
-
-        try (
-            ByteBufferInputStream is = new ByteBufferInputStream(bbc);
-            ByteBufferOutputStream os = new ByteBufferOutputStream(bbu);        
-        ) {
-            LzmaDecoder decoder = new LzmaDecoder();
-
-            // set properties
-            LzmaDecoderProps props = new LzmaDecoderProps();
-            props.setIncludeSize(false);
-            props.fromArray(propsData);
-
-            props.apply(decoder);
-
-            // decompress buffer
-            if (!decoder.code(is, os, actualSize)) {
-                throw new IOException("Error in LZMA stream");
-            }
+        try (LZMAInputStream lzmaIn = new LZMAInputStream(new ByteBufferInputStream(bbc), actualSize, probByte, dictSize)) {
+            return ByteBuffer.wrap(IOUtils.toByteArray(lzmaIn)).order(bo);
         }
-
-        // reset buffer
-        bbu.order(bo);
-        bbu.rewind();
-
-        return bbu;
     }
 
     public static ByteBuffer compress(ByteBuffer buffer) throws IOException {
@@ -101,22 +78,17 @@ public class LzmaUtil {
         ByteBuffer bbu = buffer.duplicate();
         bbu.rewind();
 
-        LzmaEncoderProps props = new LzmaEncoderProps();
-        props.setIncludeSize(false);
+        LZMA2Options options = new LZMA2Options();
         byte[] lzma;
-
+        int props;
         try (
-            ByteBufferInputStream is = new ByteBufferInputStream(bbu);
-            ByteArrayOutputStream os = new ByteArrayOutputStream(bbu.limit() / 8);
+                InputStream bufferIn = new ByteBufferInputStream(bbu);
+                ByteArrayOutputStream arrayOut = new ByteArrayOutputStream();
+                LZMAOutputStream lzmaOut = new LZMAOutputStream(arrayOut, options, false)
         ) {
-            LzmaEncoder encoder = new LzmaEncoder();
-
-            props.apply(encoder);
-
-            // compress buffer
-            encoder.code(is, os);
-
-            lzma = os.toByteArray();
+            IOUtils.copy(bufferIn, lzmaOut);
+            lzma = arrayOut.toByteArray();
+            props = lzmaOut.getProps();
         }
 
         int size = HEADER_SIZE + lzma.length;
@@ -128,7 +100,8 @@ public class LzmaUtil {
         bbc.putInt(LZMA_ID);
         bbc.putInt(bbu.limit());
         bbc.putInt(lzma.length);
-        bbc.put(props.toArray());
+        bbc.put((byte) props);
+        bbc.putInt(options.getDictSize());
 
         // write lzma data
         bbc.put(lzma);
