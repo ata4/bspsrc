@@ -84,7 +84,7 @@ public class PakFile {
                 // create file path for zip entry and canonize it
                 Path entryFile = dest.resolve(entryName).normalize();
 
-                // don't allow file path to exit the extraction directory
+                // don't allow file path to exit outside the extraction directory
                 if (!entryFile.startsWith(dest)) {
                     L.log(Level.WARNING, "Skipped {0} (path traversal attempt)", entryName);
                     continue;
