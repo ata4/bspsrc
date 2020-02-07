@@ -150,8 +150,8 @@ public class PakFile {
     public static boolean isVBSPGeneratedFile(String bspFileName, String embeddedFileName) {
         return TextureSource
                 .isPatchedMaterial(bspFileName)
-                .or(fileName -> vhvPattern.matcher(fileName).matches()
-                        || cubemapVtfPattern.matcher(fileName).matches()
+                .or(fileName -> vhvPattern.matcher(fileName).find()
+                        || cubemapVtfPattern.matcher(fileName).find()
                         || fileName.equalsIgnoreCase("cubemapdefault.vtf")
                         || fileName.equalsIgnoreCase("cubemapdefault.hdr.vtf"))
                 .test(embeddedFileName);
