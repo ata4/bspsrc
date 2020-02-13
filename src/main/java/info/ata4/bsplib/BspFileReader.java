@@ -290,7 +290,7 @@ public class BspFileReader {
 
             HashMap<Integer, Vector3f> scaling = new HashMap<>();
             // extra data for Vindictus
-            if (appID == VINDICTUS && sprpver == 6) {
+            if (appID == VINDICTUS && sprpver > 5) {
                 int scalingCount = in.readInt();
                 for (int i = 0; i < scalingCount; i++) {
                     scaling.put(in.readInt(), Vector3f.read(in));
@@ -344,10 +344,13 @@ public class BspFileReader {
                     break;
 
                 case VINDICTUS:
-                    // newer maps report v6 even though the size is still 60, probably because they additionally have a
-                    // scaling attribute which however is not saved in the actual prop itself
+                    // newer maps report v6 even though their structure is identical to DStaticPropV5, probably because
+                    // they additional have scaling array saved before the static prop array
+                    // Consequently, their v7 seems to be a standard DStaticPropV6 with an additional scaling array
                     if (sprpver == 6 && propStaticSize == 60) {
                         structClass = DStaticPropV6VIN.class;
+                    } else if (sprpver == 7 && propStaticSize == 64) {
+                        structClass = DStaticPropV7VIN.class;
                     }
                     break;
 
@@ -450,8 +453,8 @@ public class BspFileReader {
                     in.seek(numFillBytes, CURRENT);
                 }
 
-                if (scaling.containsKey(i) && sp instanceof DStaticPropV6VIN)
-                    ((DStaticPropV6VIN) sp).scaling = scaling.get(i);
+                if (scaling.containsKey(i) && sp instanceof DStaticPropVinScaling)
+                    ((DStaticPropVinScaling) sp).setScaling(scaling.get(i));
 
                 bspData.staticProps.add(sp);
             }
