@@ -743,10 +743,8 @@ public class BspFile {
     }
 
     /**
-     * Returns the lump for the given lump type.
-     *
-     * @param type
-     * @return lump
+     * @param type The searched for {@link LumpType}
+     * @return the {@link Lump} for the given {@link LumpType}.
      */
     public Lump getLump(LumpType type) {
         return lumps.get(type.getIndex());
