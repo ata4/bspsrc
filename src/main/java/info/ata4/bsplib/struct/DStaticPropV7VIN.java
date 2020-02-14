@@ -2,6 +2,8 @@ package info.ata4.bsplib.struct;
 
 import info.ata4.bsplib.vector.Vector3f;
 
+import java.util.Objects;
+
 public class DStaticPropV7VIN extends DStaticPropV6 implements DStaticPropVinScaling {
 
     public Vector3f scaling = new Vector3f(1, 1, 1);
@@ -13,6 +15,6 @@ public class DStaticPropV7VIN extends DStaticPropV6 implements DStaticPropVinSca
 
     @Override
     public void setScaling(Vector3f scaling) {
-        this.scaling = scaling;
+        this.scaling = Objects.requireNonNull(scaling);
     }
 }
