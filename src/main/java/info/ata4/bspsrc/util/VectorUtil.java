@@ -1,4 +1,4 @@
-package info.ata4.bsplib.util;
+package info.ata4.bspsrc.util;
 
 import info.ata4.bsplib.struct.BspData;
 import info.ata4.bsplib.struct.DBrush;
@@ -6,9 +6,6 @@ import info.ata4.bsplib.struct.DBrushSide;
 import info.ata4.bsplib.struct.DOccluderPolyData;
 import info.ata4.bsplib.vector.Vector2f;
 import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.bspsrc.util.AreaportalMapper;
-import info.ata4.bspsrc.util.Winding;
-import info.ata4.bspsrc.util.WindingFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
