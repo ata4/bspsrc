@@ -1,7 +1,6 @@
 package info.ata4.bspsrc.util;
 
 import info.ata4.bsplib.struct.*;
-import info.ata4.bsplib.util.VectorUtil;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.log.LogUtils;
 

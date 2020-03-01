@@ -4,7 +4,6 @@ import info.ata4.bsplib.entity.KeyValue;
 import info.ata4.bsplib.struct.BspData;
 import info.ata4.bsplib.struct.DAreaportal;
 import info.ata4.bsplib.struct.DBrush;
-import info.ata4.bsplib.util.VectorUtil;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.VmfWriter;
 import info.ata4.bspsrc.modules.VmfMeta;
