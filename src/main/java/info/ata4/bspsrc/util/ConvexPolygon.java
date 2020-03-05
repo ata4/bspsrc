@@ -86,19 +86,20 @@ public class ConvexPolygon extends AbstractList<Vector2f> {
 
     /**
      * Test if the specified position is inside this convex polygon.
+     * <p>A position is also considered to be inside this polygon, if it's
+     * directly on one of its edges
      *
      * @param position The specific position
      * @return true if the specified position is inside the convex polygon
-     *
-     * @see <a href="https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html">
-     *     https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html</a>
      */
     public boolean containsPosition(Vector2f position) {
         return Arrays.stream(edges)
-                .filter(edge -> (edge.start.y > position.y) != (edge.end.y > position.y)
-                        && (position.x < (edge.end.x - edge.start.x) * (position.y - edge.start.y)
-                        / (edge.end.y - edge.start.y) + edge.start.x))
-                .count() % 2 == 1;
+                .map(edge -> edge.getDirectionVector().cross(position.sub(edge.start)))
+                .filter(cross -> cross != 0)
+                .map(cross -> cross > 0)
+                .distinct()
+                .limit(2)
+                .count() <= 1;
     }
 
     /**
