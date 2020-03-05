@@ -39,11 +39,11 @@ public class VectorUtil {
 	}
 
 	/**
-	 * Returns the touching area of two Winding's in percent to w1 (0-1)
-	 * <p><b>This assumes that the 2 windings already lie in the same plane!!!</b></p>
+	 * Returns the intersecting area of two Windings in percentage to w1 total area (0-1)
+	 * <p><b>This assumes that the 2 windings already lie in the same plane!!!
 	 *
-	 * @param w1 the areaportal this brush is compared to
-	 * @param w2 a winding representing the brush side
+	 * @param w1 the first winding
+	 * @param w2 the second winding
 	 * @return A probability in form of a double ranging from 0 to 1
 	 */
 	private static double internalMatchingAreaPercentage(Winding w1, Winding w2) {
