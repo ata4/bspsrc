@@ -62,20 +62,20 @@ public class VmfMeta extends ModuleDecompile {
     public VmfMeta(BspFileReader reader, VmfWriter writer) {
         super(reader, writer);
 
-        if (bsp.entities.isEmpty())
-        {
-            L.warning("Couldn't get Worldspawn-entity, because entity list is empty " +
-                    "(Probably because map uses external lump files). The map may be missing " +
-                    "some information like skybox or detail sprites...");
+        worldspawn = bsp.entities.stream()
+                .filter(entity -> entity.getClassName().equalsIgnoreCase("worldspawn"))
+                .findAny()
+                .orElseGet(() -> {
+                    L.warning("Couldn't find worldspawn entity. This may be due to the map having stripped " +
+                            "entities. Some information like skybox and detail sprites will be missing, " +
+                            "because these are saved in the worldspawn entity");
 
-            worldspawn = new Entity("worldspawn");
-        } else {
-            worldspawn = bsp.entities.get(0);
+                    return new Entity("worldspawn");
+                });
 
-            // check for existing map comment
-            if (worldspawn.getValue("comment") != null) {
-                L.log(Level.INFO, "Map comment: {0}", worldspawn.getValue("comment"));
-            }
+        // print existing map comment
+        if (worldspawn.getValue("comment") != null) {
+            L.log(Level.INFO, "Map comment: {0}", worldspawn.getValue("comment"));
         }
     }
 
