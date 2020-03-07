@@ -84,7 +84,7 @@ public class BspDecompiler extends ModuleDecompile {
         }
 
         // set comment
-        vmfmeta.setComment("Decompiled by BSPSource v" + BspSource.VERSION + " from " + bspFile.getName());
+        vmfmeta.appendComment("Decompiled by BSPSource v" + BspSource.VERSION + " from " + bspFile.getName());
 
         // start worldspawn
         vmfmeta.writeWorldHeader();

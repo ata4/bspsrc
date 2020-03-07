@@ -58,14 +58,17 @@ public class VmfMeta extends ModuleDecompile {
     private List<Camera> cameras = new ArrayList<>();
 
     private Entity worldspawn;
-    private String comment;
 
     public VmfMeta(BspFileReader reader, VmfWriter writer) {
         super(reader, writer);
 
         if (bsp.entities.isEmpty())
         {
-            L.warning("Couldn't get Worldspawn-entity, because entity list is empty (Probably because map uses external lump files). The map may be missing some information like skybox or detail sprites...");
+            L.warning("Couldn't get Worldspawn-entity, because entity list is empty " +
+                    "(Probably because map uses external lump files). The map may be missing " +
+                    "some information like skybox or detail sprites...");
+
+            worldspawn = new Entity("worldspawn");
         } else {
             worldspawn = bsp.entities.get(0);
 
@@ -168,12 +171,12 @@ public class VmfMeta extends ModuleDecompile {
         return dispinfoUIDs.put(idispinfo, id);
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void appendComment(String comment) {
+        worldspawn.setValue("comment", getComment().map(s -> s + " | ").orElse("") + comment);
     }
 
-    public String getComment() {
-        return comment;
+    public Optional<String> getComment() {
+        return Optional.ofNullable(worldspawn.getValue("comment"));
     }
 
     /**
@@ -182,14 +185,7 @@ public class VmfMeta extends ModuleDecompile {
     public void writeWorldHeader() {
         writer.start("world");
         writer.put("id", getUID());
-        if (worldspawn != null)
-            writer.put(worldspawn);
-
-        // write comment
-        if (comment != null) {
-            writer.put("comment", comment);
-        }
-
+        writer.put(worldspawn);
         writer.put("classname", "worldspawn");
     }
 
