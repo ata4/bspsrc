@@ -18,7 +18,7 @@ public class ConvexPolygon extends AbstractList<Vector2f> {
 
     public ConvexPolygon(Vector2f... vertices) {
         if (vertices.length < 3) {
-            throw new IllegalArgumentException("Vertices array must have atleast 3 vertices");
+            throw new IllegalArgumentException("Vertices array must have at least 3 vertices");
         }
 
         this.vertices = vertices.clone();
