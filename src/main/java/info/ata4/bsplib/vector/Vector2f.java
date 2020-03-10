@@ -107,6 +107,16 @@ public class Vector2f extends VectorXf {
 	}
 
 	/**
+	 * Z-Component of the cross product with the 2 vectors lying on a 3d xy-plane
+	 *
+	 * @param that the vector to take a cross product
+	 * @return the z component of the cross-product vector
+	 */
+	public float cross(Vector2f that) {
+		return this.x * that.y - that.x * this.y;
+	}
+
+	/**
 	 * Vector normalisation: ^this
 	 *
 	 * @return the normalised vector
