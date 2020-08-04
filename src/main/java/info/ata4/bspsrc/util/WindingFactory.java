@@ -9,14 +9,10 @@
  */
 package info.ata4.bspsrc.util;
 
-import info.ata4.bsplib.struct.BspData;
-import info.ata4.bsplib.struct.DAreaportal;
-import info.ata4.bsplib.struct.DBrush;
-import info.ata4.bsplib.struct.DBrushSide;
-import info.ata4.bsplib.struct.DFace;
-import info.ata4.bsplib.struct.DOccluderPolyData;
-import info.ata4.bsplib.struct.DPlane;
+import info.ata4.bsplib.struct.*;
 import info.ata4.bsplib.vector.Vector3f;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +27,7 @@ import java.util.stream.Collectors;
 public class WindingFactory {
 
     private static Map<DFace, Winding> faceCache = new HashMap<>();
-    private static Map<Integer, Winding> brushSideCache = new HashMap<>();
+    private static Map<Map.Entry<DBrush, DBrushSide>, Winding> brushSideCache = new HashMap<>();
     private static Map<DAreaportal, Winding> areaportalCache = new HashMap<>();
     private static Map<DOccluderPolyData, Winding> occluderCache = new HashMap<>();
     private static Map<DPlane, Winding> planeCache = new HashMap<>();
@@ -95,12 +91,9 @@ public class WindingFactory {
      * @return Winding for the brush side
      */
     public static Winding fromSide(BspData bsp, DBrush brush, DBrushSide bside) {
-        int cacheHash = 5;
-        cacheHash = cacheHash * 14 + brush.hashCode();
-        cacheHash = cacheHash * 8 + bside.hashCode();
-
-        if (brushSideCache.containsKey(cacheHash)) {
-            return brushSideCache.get(cacheHash);
+        ImmutablePair<DBrush, DBrushSide> key = ImmutablePair.of(brush, bside);
+        if (brushSideCache.containsKey(key)) {
+            return brushSideCache.get(key);
         }
 
         int iplane = bside.pnum;
@@ -137,7 +130,7 @@ public class WindingFactory {
             throw new IllegalArgumentException("Brush side is not part of brush!");
         }
 
-        brushSideCache.put(cacheHash, w);
+        brushSideCache.put(key, w);
 
         // return the clipped winding
         return w;
