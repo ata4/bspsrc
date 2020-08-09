@@ -707,6 +707,9 @@ public class EntitySource extends ModuleDecompile {
             writer.put("solid", pst4.solid);
             writer.put("model", bsp.staticPropName.get(pst4.propType));
             writer.put("screenspacefade", pst4.hasScreenSpaceFadeInPixels());
+            writer.put("ignorenormals", pst4.hasIgnoreNormals());
+            writer.put("disableselfshadowing", pst4.hasNoSelfShadowing());
+            writer.put("disablevertexlighting", pst4.hasNoPerVertexLighting());
 
             // store coordinates and targetname of the lighing origin for later
             if (pst4.usesLightingOrigin()) {
@@ -727,15 +730,12 @@ public class EntitySource extends ModuleDecompile {
             if (pst instanceof DStaticPropV5) {
                 DStaticPropV5 pst5 = (DStaticPropV5) pst;
                 writer.put("fadescale", pst5.forcedFadeScale);
-                writer.put("disableselfshadowing", pst5.hasNoSelfShadowing());
-                writer.put("disablevertexlighting", pst5.hasNoPerVertexLighting());
             }
 
             if (pst instanceof DStaticPropV6) {
                 DStaticPropV6 pst6 = (DStaticPropV6) pst;
                 writer.put("maxdxlevel", pst6.maxDXLevel);
                 writer.put("mindxlevel", pst6.minDXLevel);
-                writer.put("ignorenormals", pst6.hasIgnoreNormals());
             }
 
             if (pst instanceof DStaticPropVinScaling) {
