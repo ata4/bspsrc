@@ -1,6 +1,7 @@
 package info.ata4.bspsrc.modules.texture.tooltextures;
 
 import info.ata4.bsplib.app.SourceAppID;
+import info.ata4.bspsrc.modules.texture.tooltextures.definitions.CsgoToolTextureDefinitions;
 import info.ata4.bspsrc.modules.texture.tooltextures.definitions.CssToolTextureDefinition;
 import info.ata4.bspsrc.modules.texture.tooltextures.definitions.SourceToolTextureDefinition;
 
@@ -19,6 +20,12 @@ public enum ToolTextureSet {
             SourceAppID.COUNTER_STRIKE_SOURCE,
             SOURCE_2013.builder()
                     .putToolTextureDefinitions(CssToolTextureDefinition.getAll())
+                    .build()
+    ),
+    COUNTER_STRIKE_GO(
+            SourceAppID.COUNTER_STRIKE_GO,
+            SOURCE_2013.builder()
+                    .putToolTextureDefinitions(CsgoToolTextureDefinitions.getAll())
                     .build()
     );
 
