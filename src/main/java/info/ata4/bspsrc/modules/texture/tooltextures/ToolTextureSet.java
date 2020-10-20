@@ -1,6 +1,7 @@
 package info.ata4.bspsrc.modules.texture.tooltextures;
 
 import info.ata4.bsplib.app.SourceAppID;
+import info.ata4.bspsrc.modules.texture.tooltextures.definitions.CssToolTextureDefinition;
 import info.ata4.bspsrc.modules.texture.tooltextures.definitions.SourceToolTextureDefinition;
 
 import java.util.Arrays;
@@ -13,7 +14,13 @@ import java.util.Map;
  */
 public enum ToolTextureSet {
 
-    SOURCE_2013(SourceAppID.UNKNOWN, SourceToolTextureDefinition.getAll());
+    SOURCE_2013(SourceAppID.UNKNOWN, SourceToolTextureDefinition.getAll()),
+    COUNTER_STRIKE_SOURCE(
+            SourceAppID.COUNTER_STRIKE_SOURCE,
+            SOURCE_2013.builder()
+                    .putToolTextureDefinitions(CssToolTextureDefinition.getAll())
+                    .build()
+    );
 
     private final int appId;
     private final Map<String, ToolTextureDefinition> toolTextureDefinitions;
