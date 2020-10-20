@@ -46,4 +46,23 @@ public final class ToolTexture {
     //CSGO Only
     public static final String CSGO_GRENADECLIP = "tools/toolsgrenadeclip";
     public static final String CSGO_DRONECLIP = "tools/toolsdroneclip";
+
+    public static final String CSGO_CLIP_CONCRETE = "tools/toolsclip_concrete";
+    public static final String CSGO_CLIP_DIRT = "tools/toolsclip_dirt";
+    public static final String CSGO_CLIP_GLASS = "tools/toolsclip_glass";
+    public static final String CSGO_CLIP_GRASS = "tools/toolsclip_grass";
+    public static final String CSGO_CLIP_GRAVEL = "tools/toolsclip_gravel";
+    public static final String CSGO_CLIP_METAL = "tools/toolsclip_metal";
+    public static final String CSGO_CLIP_METAL_SAND_BARREL = "tools/toolsclip_metal_sand_barrel";
+    public static final String CSGO_CLIP_METALGRATE = "tools/toolsclip_metalgrate";
+    public static final String CSGO_CLIP_METALVEHICEL = "tools/toolsclip_metalvehicle";
+    public static final String CSGO_CLIP_PLASTIC = "tools/toolsclip_plastic";
+    public static final String CSGO_CLIP_RUBBER = "tools/toolsclip_rubber";
+    public static final String CSGO_CLIP_RUBBERTIRE = "tools/toolsclip_rubbertire";
+    public static final String CSGO_CLIP_SAND = "tools/toolsclip_sand";
+    public static final String CSGO_CLIP_SNOW = "tools/toolsclip_snow";
+    public static final String CSGO_CLIP_TILE = "tools/toolsclip_tile";
+    public static final String CSGO_CLIP_WOOD = "tools/toolsclip_wood";
+    public static final String CSGO_CLIP_WOOD_BASKET = "tools/toolsclip_wood_basket";
+    public static final String CSGO_CLIP_WOOD_CRATE = "tools/toolsclip_wood_crate";
 }
