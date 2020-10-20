@@ -27,6 +27,7 @@ public final class ToolTexture {
     public static final String INVIS = "tools/toolsinvisible";
     public static final String ORANGE = "dev/dev_measuregeneric01";
     public static final String SKIP = "tools/toolsskip";
+    public static final String HINT = "tools/toolshint";
     public static final String CLIP = "tools/toolsclip";
     public static final String PLAYERCLIP = "tools/toolsplayerclip";
     public static final String NPCCLIP = "tools/toolsnpcclip";
@@ -38,6 +39,9 @@ public final class ToolTexture {
     public static final String DOTTED = "tools/toolsdotted";
     public static final String OCCLUDER = "tools/toolsoccluder";
     public static final String TRIGGER = "tools/toolstrigger";
+    public static final String FOG = "tools/toolsfog";
+    public static final String SKYBOX = "tools/toolsskybox";
+    public static final String SKYBOX2D = "tools/toolsskybox2d";
 
     //CSGO Only
     public static final String CSGO_GRENADECLIP = "tools/toolsgrenadeclip";
