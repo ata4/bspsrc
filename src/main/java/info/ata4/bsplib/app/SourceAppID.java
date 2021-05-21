@@ -22,6 +22,7 @@ public class SourceAppID {
     public static final int UNKNOWN = 0;
     public static final int VINDICTUS = -100;
     public static final int HALF_LIFE_2 = 220;
+    public static final int COUNTER_STRIKE_SOURCE = 240;
     public static final int LEFT_4_DEAD = 500;
     public static final int LEFT_4_DEAD_2 = 550;
     public static final int DARK_MESSIAH = 2100;

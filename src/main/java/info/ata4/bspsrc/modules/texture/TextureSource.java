@@ -12,6 +12,7 @@ package info.ata4.bspsrc.modules.texture;
 
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bspsrc.modules.ModuleRead;
+import info.ata4.bspsrc.modules.texture.tooltextures.ToolTextureSet;
 import info.ata4.log.LogUtils;
 import org.apache.commons.io.FilenameUtils;
 
@@ -55,6 +56,8 @@ public class TextureSource extends ModuleRead {
     // settings
     private boolean fixTextureNames;
     private boolean fixToolTextures;
+    private ToolTextureMatcher toolTextureMatcher =
+            new ToolTextureMatcher(ToolTextureSet.forGame(bspFile.getSourceApp().getAppID()));
 
     public TextureSource(BspFileReader reader) {
         super(reader);
@@ -146,7 +149,7 @@ public class TextureSource extends ModuleRead {
     }
 
     public TextureBuilder getTextureBuilder() {
-        return new TextureBuilder(this, bsp, bspFile.getSourceApp().getAppID());
+        return new TextureBuilder(this, bsp, toolTextureMatcher);
     }
 
     public void addBrushSideID(int itexname, int side) {

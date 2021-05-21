@@ -18,8 +18,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static info.ata4.bsplib.app.SourceAppID.COUNTER_STRIKE_GO;
-
 /**
  * A builder to create Texture objects.
  * 
@@ -31,15 +29,13 @@ public class TextureBuilder {
     private static final float EPS_PERP = 0.02f;
 
     // surface/brush flags
-    private static final EnumSet<SurfaceFlag> SURF_FLAGS_CLIP = EnumSet.of(SurfaceFlag.SURF_NOLIGHT, SurfaceFlag.SURF_NODRAW);
     private static final EnumSet<SurfaceFlag> SURF_FLAGS_AREAPORTAL = EnumSet.of(SurfaceFlag.SURF_NOLIGHT);
     private static final EnumSet<BrushFlag> BRUSH_FLAGS_AREAPORTAL = EnumSet.of(BrushFlag.CONTENTS_AREAPORTAL);
     private static final EnumSet<SurfaceFlag> SURF_FLAGS_NEEDS_REALIGNMENT = EnumSet.of(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_SKY, SurfaceFlag.SURF_SKY2D);
 
     private final BspData bsp;
     private final TextureSource texsrc;
-
-    private final int appID;
+    private final ToolTextureMatcher toolTextureMatcher;
 
     private Texture texture;
     private Vector3f origin;
@@ -53,10 +49,10 @@ public class TextureBuilder {
     private int ibrush = -1;
     private int ibrushside = -1;
 
-    TextureBuilder(TextureSource texsrc, BspData bsp, int appID) {
+    TextureBuilder(TextureSource texsrc, BspData bsp, ToolTextureMatcher toolTextureMatcher) {
         this.texsrc = texsrc;
         this.bsp = bsp;
-        this.appID = appID;
+        this.toolTextureMatcher = toolTextureMatcher;
     }
 
     public Texture build() {
@@ -98,7 +94,7 @@ public class TextureBuilder {
         String textureOverride = texsrc.getFixedTextureNames().get(texdata.texname);
 
         if (texsrc.isFixToolTextures()) {
-            String textureFix = fixToolTexture();
+            String textureFix = fixToolTexture(textureOverride);
 
             if (textureFix != null) {
                 textureOverride = textureFix;
@@ -125,7 +121,7 @@ public class TextureBuilder {
         return texture;
     }
 
-    private String fixToolTexture() {
+    private String fixToolTexture(String originalTextureName) {
         if (ibrush == -1 || ibrushside == -1) {
             return null;
         }
@@ -133,75 +129,20 @@ public class TextureBuilder {
         DBrush brush = bsp.brushes.get(ibrush);
         DBrushSide brushSide = bsp.brushSides.get(ibrushside);
 
-        Set<SurfaceFlag> surfFlags;
+        // fix occluder textures
+        if (brush.isFlaggedAsOccluder() && !originalTextureName.equalsIgnoreCase(ToolTexture.NODRAW))
+            return ToolTexture.OCCLUDER;
 
+        Set<BrushFlag> brushFlags = brush.contents;
+        Set<SurfaceFlag> surfFlags;
         if (brushSide.texinfo == DTexInfo.TEXINFO_NODE) {
             surfFlags = EnumSet.noneOf(SurfaceFlag.class);
         } else {
             surfFlags = bsp.texinfos.get(brushSide.texinfo).flags;
         }
 
-        Set<BrushFlag> brushFlags = brush.contents;
-
-        // fix clip textures
-        if (surfFlags.equals(SURF_FLAGS_CLIP)) {
-            if (brush.isDetail()) {
-                // clip
-                if (brush.isPlayerClip() && brush.isNpcClip()) {
-                    return ToolTexture.CLIP;
-                }
-
-                // player clip
-                if (brush.isPlayerClip()) {
-                    return ToolTexture.PLAYERCLIP;
-                }
-
-                // NPC clip
-                if (brush.isNpcClip()) {
-                    return ToolTexture.NPCCLIP;
-                }
-
-                // block line of sight
-                if (brush.isBlockLos()) {
-                    return ToolTexture.BLOCKLOS;
-                }
-
-                // block light, tested in csgo, portal 2, garrysmod, black mesa - 03.09.2019
-                if (brush.isOpaque()) {
-                    return ToolTexture.BLOCKLIGHT;
-                }
-
-                if (appID == COUNTER_STRIKE_GO) {
-                    if (brush.isCurrent90()) {
-                        return ToolTexture.CSGO_GRENADECLIP;
-                    }
-
-                    if (brush.isCurrent180()) {
-                        return ToolTexture.CSGO_DRONECLIP;
-                    }
-                }
-            }
-
-            // In csgo a ladder isn't guaranteed to have 'isDetail()'
-            if (brush.isLadder()) {
-                return ToolTexture.INVISLADDER;
-            }
-
-            // nodraw
-            return ToolTexture.NODRAW;
-        }
-
-        // fix areaportal textures
-        if (brushFlags.equals(BRUSH_FLAGS_AREAPORTAL) && surfFlags.equals(SURF_FLAGS_AREAPORTAL)) {
-            return ToolTexture.AREAPORTAL;
-        }
-
-        // fix occluder textures
-        String textureName = bsp.texnames.get(texture.getData().texname);
-        if (brush.isFlaggedAsOccluder() && !textureName.equalsIgnoreCase(ToolTexture.NODRAW))
-            return ToolTexture.OCCLUDER;
-
-        return null;
+        return toolTextureMatcher.fixToolTexture(originalTextureName, surfFlags, brushFlags)
+                .orElse(null);
     }
 
     /**
