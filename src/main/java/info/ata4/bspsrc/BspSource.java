@@ -174,7 +174,7 @@ public class BspSource implements Runnable {
     private VmfWriter getVmfWriter(File vmfFile) throws IOException {
         // write to file or omit output?
         if (config.nullOutput) {
-            return new VmfWriter(new NullOutputStream());
+            return new VmfWriter(NullOutputStream.NULL_OUTPUT_STREAM);
         } else {
             return new VmfWriter(vmfFile);
         }
