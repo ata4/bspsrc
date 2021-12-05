@@ -268,12 +268,13 @@ public class AreaportalMapper {
     private Map<AreaportalHelper, Double> areaportalBrushProb(DBrush dBrush) {
         return bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
                 .flatMap(brushSide -> areaportalHelpers.stream()
-                        .map(apHelper -> new AbstractMap.SimpleEntry<>(apHelper,
-                                VectorUtil.matchingAreaPercentage(apHelper, dBrush, brushSide, bsp)))
+                        .map(apHelper -> new AbstractMap.SimpleEntry<>(
+                                apHelper,
+                                VectorUtil.matchingAreaPercentage(apHelper, dBrush, brushSide, bsp)
+                        ))
                         .filter(entry -> entry.getValue() > 0)
-                        .limit(1) // We limit to 1 because of safety even though there should only be one where entry.getValue() > 0
                 )
-                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+                .collect(Collectors.toMap(Entry::getKey, Entry::getValue, Math::max));
     }
 
     private Map<Integer, Integer> orderedMapping() {
