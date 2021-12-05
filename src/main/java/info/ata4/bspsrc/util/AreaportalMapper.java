@@ -429,7 +429,7 @@ public class AreaportalMapper {
         @Override
         public int hashCode() {
             int result = portalID.hashCode();
-            result = 31 * result + (winding != null ? winding.hashCode() : 0);
+            result = 31 * result + winding.hashCode();
             return result;
         }
     }
