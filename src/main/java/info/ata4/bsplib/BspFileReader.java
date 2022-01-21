@@ -170,51 +170,47 @@ public class BspFileReader {
         L.fine(String.format("%d edges", bspData.edges.size()));
     }
 
-    private void loadFaces(boolean orig) {
-        if ((orig && bspData.origFaces != null) || (!orig && bspData.faces != null)) {
-            return;
-        }
-
-        Function<Integer, Supplier<? extends DFace>> dStructSupplierCreator = lumpVersion -> {
-            switch (appID) {
-                case VAMPIRE_BLOODLINES:
-                    return DFaceVTMB::new;
-                case VINDICTUS:
-                    if (lumpVersion == 2)
-                        return DFaceVinV2::new;
-                    else
-                        return DFaceVinV1::new;
-                default:
-                    switch (bspFile.getVersion()) {
-                        case 17:
-                            return DFaceBSP17::new;
-                        case 18:
-                            return DFaceBSP18::new;
-                        default:
-                            return DFace::new;
-                    }
-            }
-        };
-
-        if (orig) {
-            bspData.origFaces = readDStructChunksLump(LumpType.LUMP_ORIGINALFACES, dStructSupplierCreator);
-        } else {
-            // use LUMP_FACES_HDR if LUMP_FACES is empty
-            if (bspFile.getLump(LumpType.LUMP_FACES).getLength() == 0) {
-                bspData.faces = readDStructChunksLump(LumpType.LUMP_FACES_HDR, dStructSupplierCreator);
-            } else {
-                bspData.faces = readDStructChunksLump(LumpType.LUMP_FACES, dStructSupplierCreator);
-            }
+    private Supplier<? extends DFace> faceDStructSupplier(int lumpVersion) {
+        switch (appID) {
+            case VAMPIRE_BLOODLINES:
+                return DFaceVTMB::new;
+            case VINDICTUS:
+                if (lumpVersion == 2)
+                    return DFaceVinV2::new;
+                else
+                    return DFaceVinV1::new;
+            default:
+                switch (bspFile.getVersion()) {
+                    case 17:
+                        return DFaceBSP17::new;
+                    case 18:
+                        return DFaceBSP18::new;
+                    default:
+                        return DFace::new;
+                }
         }
     }
 
     public void loadFaces() {
-        loadFaces(false);
+        if (bspData.faces != null) {
+            return;
+        }
+
+        // use LUMP_FACES_HDR if LUMP_FACES is empty
+        if (bspFile.getLump(LumpType.LUMP_FACES).getLength() == 0)
+            bspData.faces = readDStructChunksLump(LumpType.LUMP_FACES_HDR, this::faceDStructSupplier);
+        else
+            bspData.faces = readDStructChunksLump(LumpType.LUMP_FACES, this::faceDStructSupplier);
+
         L.fine(String.format("%d faces", bspData.faces.size()));
     }
 
     public void loadOriginalFaces() {
-        loadFaces(true);
+        if (bspData.origFaces != null) {
+            return;
+        }
+
+        bspData.origFaces = readDStructChunksLump(LumpType.LUMP_ORIGINALFACES, this::faceDStructSupplier);
         L.fine(String.format("%d original faces", bspData.origFaces.size()));
     }
 
