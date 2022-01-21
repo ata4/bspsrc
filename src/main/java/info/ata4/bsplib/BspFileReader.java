@@ -10,29 +10,24 @@
 
 package info.ata4.bsplib;
 
-import info.ata4.bsplib.app.SourceApp;
-import info.ata4.bsplib.app.SourceAppDB;
-import info.ata4.bsplib.app.SourceAppID;
-import info.ata4.bsplib.entity.Entity;
-import info.ata4.bsplib.io.EntityInputStream;
+import info.ata4.bsplib.io.lumpreader.*;
 import info.ata4.bsplib.lump.AbstractLump;
 import info.ata4.bsplib.lump.GameLump;
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bsplib.struct.*;
-import info.ata4.bsplib.vector.Vector3f;
-import info.ata4.io.DataReader;
-import info.ata4.io.DataReaders;
 import info.ata4.log.LogUtils;
-import info.ata4.util.EnumConverter;
 
 import java.io.IOException;
-import java.util.*;
+import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static info.ata4.bsplib.app.SourceAppID.*;
-import static info.ata4.io.Seekable.Origin.CURRENT;
 
 /**
  * All-purpose BSP file and lump reader.
@@ -46,10 +41,7 @@ public class BspFileReader {
     // BSP headers and data
     private final BspFile bspFile;
     private final BspData bspData;
-    private int appID;
-
-    // statistical stuff
-    private Set<String> entityClasses = new TreeSet<>();
+    private final int appID;
 
     public BspFileReader(BspFile bspFile, BspData bspData) throws IOException {
         this.bspFile = bspFile;
@@ -109,7 +101,8 @@ public class BspFileReader {
             return;
         }
 
-        bspData.planes = loadLump(LumpType.LUMP_PLANES, DPlane.class);
+        bspData.planes = readDStructChunksLump(LumpType.LUMP_PLANES, DPlane::new);
+        L.fine(String.format("%d planes", bspData.planes.size()));
     }
 
     public void loadBrushes() {
@@ -117,7 +110,8 @@ public class BspFileReader {
             return;
         }
 
-        bspData.brushes = loadLump(LumpType.LUMP_BRUSHES, DBrush.class);
+        bspData.brushes = readDStructChunksLump(LumpType.LUMP_BRUSHES, DBrush::new);
+        L.fine(String.format("%d brushes", bspData.brushes.size()));
     }
 
     public void loadBrushSides() {
@@ -125,17 +119,20 @@ public class BspFileReader {
             return;
         }
 
-        Class struct = DBrushSide.class;
+        Supplier<? extends DBrushSide> dStructSupplier;
 
         if (appID == VINDICTUS) {
-            struct = DBrushSideVin.class;
+            dStructSupplier = DBrushSideVin::new;
         } else if (bspFile.getVersion() >= 21 && appID != LEFT_4_DEAD_2) {
             // newer BSP files have a slightly different struct that is still reported
             // as version 0
-            struct = DBrushSideV2.class;
+	        dStructSupplier = DBrushSideV2::new;
+        } else {
+	        dStructSupplier = DBrushSide::new;
         }
 
-        bspData.brushSides = loadLump(LumpType.LUMP_BRUSHSIDES, struct);
+        bspData.brushSides = readDStructChunksLump(LumpType.LUMP_BRUSHSIDES, dStructSupplier);
+        L.fine(String.format("%d brush sides", bspData.brushSides.size()));
     }
 
     public void loadVertices() {
@@ -143,7 +140,8 @@ public class BspFileReader {
             return;
         }
 
-        bspData.verts = loadLump(LumpType.LUMP_VERTEXES, DVertex.class);
+        bspData.verts = readDStructChunksLump(LumpType.LUMP_VERTEXES, DVertex::new);
+        L.fine(String.format("%d vertices", bspData.verts.size()));
     }
 
     public void loadClipPortalVertices() {
@@ -151,7 +149,8 @@ public class BspFileReader {
             return;
         }
 
-        bspData.clipPortalVerts = loadLump(LumpType.LUMP_CLIPPORTALVERTS, DVertex.class);
+        bspData.clipPortalVerts = readDStructChunksLump(LumpType.LUMP_CLIPPORTALVERTS, DVertex::new);
+        L.fine(String.format("%d areaportal vertices", bspData.clipPortalVerts.size()));
     }
 
     public void loadEdges() {
@@ -159,13 +158,16 @@ public class BspFileReader {
             return;
         }
 
-        Class struct = DEdge.class;
+        Supplier<? extends DEdge> struct;
 
-        if (appID == VINDICTUS) {
-            struct = DEdgeVin.class;
-        }
+	    if (appID == VINDICTUS) {
+		    struct = DEdgeVin::new;
+	    } else {
+		    struct = DEdge::new;
+	    }
 
-        bspData.edges = loadLump(LumpType.LUMP_EDGES, struct);
+        bspData.edges = readDStructChunksLump(LumpType.LUMP_EDGES, struct);
+        L.fine(String.format("%d edges", bspData.edges.size()));
     }
 
     private void loadFaces(boolean orig) {
@@ -173,50 +175,47 @@ public class BspFileReader {
             return;
         }
 
-        Class struct = DFace.class;
-
-        switch (appID) {
-            case VAMPIRE_BLOODLINES:
-                struct = DFaceVTMB.class;
-                break;
-            case VINDICTUS:
-                LumpType lt = orig ? LumpType.LUMP_ORIGINALFACES : LumpType.LUMP_FACES;
-                int facesver = getLump(lt).getVersion();
-                if (facesver == 2) {
-                    struct = DFaceVinV2.class;
-                } else {
-                    struct = DFaceVinV1.class;
-                }   break;
-            default:
-                switch (bspFile.getVersion()) {
-                    case 17:
-                        struct = DFaceBSP17.class;
-                        break;
-
-                    case 18:
-                        struct = DFaceBSP18.class;
-                        break;
-                }   break;
-        }
+        Function<Integer, Supplier<? extends DFace>> dStructSupplierCreator = lumpVersion -> {
+            switch (appID) {
+                case VAMPIRE_BLOODLINES:
+                    return DFaceVTMB::new;
+                case VINDICTUS:
+                    if (lumpVersion == 2)
+                        return DFaceVinV2::new;
+                    else
+                        return DFaceVinV1::new;
+                default:
+                    switch (bspFile.getVersion()) {
+                        case 17:
+                            return DFaceBSP17::new;
+                        case 18:
+                            return DFaceBSP18::new;
+                        default:
+                            return DFace::new;
+                    }
+            }
+        };
 
         if (orig) {
-            bspData.origFaces = loadLump(LumpType.LUMP_ORIGINALFACES, struct);
+            bspData.origFaces = readDStructChunksLump(LumpType.LUMP_ORIGINALFACES, dStructSupplierCreator);
         } else {
             // use LUMP_FACES_HDR if LUMP_FACES is empty
-            if (getLump(LumpType.LUMP_FACES).getLength() == 0) {
-                bspData.faces = loadLump(LumpType.LUMP_FACES_HDR, struct);
+            if (bspFile.getLump(LumpType.LUMP_FACES).getLength() == 0) {
+                bspData.faces = readDStructChunksLump(LumpType.LUMP_FACES_HDR, dStructSupplierCreator);
             } else {
-                bspData.faces = loadLump(LumpType.LUMP_FACES, struct);
+                bspData.faces = readDStructChunksLump(LumpType.LUMP_FACES, dStructSupplierCreator);
             }
         }
     }
 
     public void loadFaces() {
         loadFaces(false);
+        L.fine(String.format("%d faces", bspData.faces.size()));
     }
 
     public void loadOriginalFaces() {
         loadFaces(true);
+        L.fine(String.format("%d original faces", bspData.origFaces.size()));
     }
 
     public void loadModels() {
@@ -224,13 +223,16 @@ public class BspFileReader {
             return;
         }
 
-        Class struct = DModel.class;
+        Supplier<? extends DModel> dStructSupplier;
 
-        if (appID == DARK_MESSIAH) {
-            struct = DModelDM.class;
-        }
+	    if (appID == DARK_MESSIAH) {
+		    dStructSupplier = DModelDM::new;
+	    } else {
+		    dStructSupplier = DModel::new;
+	    }
 
-        bspData.models = loadLump(LumpType.LUMP_MODELS, struct);
+        bspData.models = readDStructChunksLump(LumpType.LUMP_MODELS, dStructSupplier);
+        L.fine(String.format("%d models", bspData.models.size()));
     }
 
     public void loadSurfaceEdges() {
@@ -238,235 +240,28 @@ public class BspFileReader {
             return;
         }
 
-        bspData.surfEdges = loadIntegerLump(LumpType.LUMP_SURFEDGES);
+        bspData.surfEdges = readLump(LumpType.LUMP_SURFEDGES, new IntegerChunksLumpReader());
+        L.fine(String.format("%d surface edges", bspData.surfEdges.size()));
     }
 
     public void loadStaticProps() {
-        if (bspData.staticProps != null && bspData.staticPropName != null) {
+        if (bspData.staticProps != null && bspData.staticPropName != null && bspData.staticPropLeaf != null) {
             return;
         }
 
-        L.fine("Loading static props");
+        StaticPropLumpReader.StaticPropData staticPropData = readGameLump(
+                "sprp",
+                lumpVersion -> new StaticPropLumpReader(lumpVersion, appID),
+                StaticPropLumpReader.StaticPropData::new
+        );
 
-        GameLump sprpLump = bspFile.getGameLump("sprp");
+        bspData.staticPropName = staticPropData.names;
+        bspData.staticProps = staticPropData.props;
+        bspData.staticPropLeaf = staticPropData.leafs;
 
-        if (sprpLump == null) {
-            // static prop lump not available
-            bspData.staticProps = new ArrayList<>();
-            return;
-        }
-
-        DataReader in = DataReaders.forByteBuffer(sprpLump.getBuffer());
-        int sprpver = sprpLump.getVersion();
-
-        try {
-            final int padsize = 128;
-            final int psnames = in.readInt();
-
-            L.log(Level.FINE, "Static prop names: {0}", psnames);
-
-            bspData.staticPropName = new ArrayList<>(psnames);
-
-            for (int i = 0; i < psnames; i++) {
-                bspData.staticPropName.add(in.readStringFixed(padsize));
-            }
-
-            // model path strings in Zeno Clash
-            if (appID == ZENO_CLASH) {
-                int psextra = in.readInt();
-                in.seek(psextra * padsize, CURRENT);
-            }
-
-            // StaticPropLeafLump_t
-            final int propleaves = in.readInt();
-
-            L.log(Level.FINE, "Static prop leaves: {0}", propleaves);
-
-            bspData.staticPropLeaf = new ArrayList<>(propleaves);
-
-            for (int i = 0; i < propleaves; i++) {
-                bspData.staticPropLeaf.add(in.readUnsignedShort());
-            }
-
-            HashMap<Integer, Vector3f> scaling = new HashMap<>();
-            // extra data for Vindictus
-            if (appID == VINDICTUS && sprpver > 5) {
-                int scalingCount = in.readInt();
-                for (int i = 0; i < scalingCount; i++) {
-                    scaling.put(in.readInt(), Vector3f.read(in));
-                }
-            }
-
-            // StaticPropLump_t
-            final int propStaticCount = in.readInt();
-
-            // don't try to read static props if there are none
-            if (propStaticCount == 0) {
-                bspData.staticProps = Collections.emptyList();
-                return;
-            }
-
-            // calculate static prop struct size
-            final int propStaticSize = (int) in.remaining() / propStaticCount;
-
-            Class<? extends DStaticProp> structClass = null;
-
-            // special cases where derivative lump structures are used
-            switch (appID) {
-                case THE_SHIP:
-                    if (propStaticSize == 188) {
-                        structClass = DStaticPropV5Ship.class;
-                    }
-                    break;
-
-                case BLOODY_GOOD_TIME:
-                    if (propStaticSize == 192) {
-                        structClass = DStaticPropV6BGT.class;
-                    }
-                    break;
-
-                case ZENO_CLASH:
-                    if (propStaticSize == 68) {
-                        structClass = DStaticPropV7ZC.class;
-                    }
-                    break;
-
-                case DARK_MESSIAH:
-                    if (propStaticSize == 136) {
-                        structClass = DStaticPropV6DM.class;
-                    }
-                    break;
-
-                case DEAR_ESTHER:
-                    if (propStaticSize == 76) {
-                        structClass = DStaticPropV9DE.class;
-                    }
-                    break;
-
-                case VINDICTUS:
-                    // newer maps report v6 even though their structure is identical to DStaticPropV5, probably because
-                    // they additional have scaling array saved before the static prop array
-                    // Consequently, their v7 seems to be a standard DStaticPropV6 with an additional scaling array
-                    if (sprpver == 6 && propStaticSize == 60) {
-                        structClass = DStaticPropV6VIN.class;
-                    } else if (sprpver == 7 && propStaticSize == 64) {
-                        structClass = DStaticPropV7VIN.class;
-                    }
-                    break;
-
-                case LEFT_4_DEAD:
-                    // old L4D maps use v7 that is incompatible to the newer
-                    // Source 2013 v7
-                    if (sprpver == 7 && propStaticSize == 68) {
-                        structClass = DStaticPropV7L4D.class;
-                    }
-                    break;
-
-                case TEAM_FORTRESS_2:
-                    // there's been a short period where TF2 used v7, which later
-                    // became v10 in all Source 2013 game
-                    if (sprpver == 7 && propStaticSize == 72) {
-                        structClass = DStaticPropV10.class;
-                    }
-                    break;
-
-                case COUNTER_STRIKE_GO:
-                    //  (custom v10 for CS:GO, not compatible with Source 2013 v10)  CS:GO now uses v11  since the addition of uniform prop scaling
-                    if (sprpver == 10) {
-                        structClass = DStaticPropV10CSGO.class;
-                    } else if (sprpver == 11) {
-                        structClass = DStaticPropV11CSGO.class;
-                    }
-                    break;
-
-                case BLACK_MESA:
-                    // different structures used by Black Mesa
-                    if (sprpver == 10 && propStaticSize == 72) {
-                        structClass = DStaticPropV10.class;
-                    } else if (sprpver == 11) {
-                        if (propStaticSize == 76) {
-                            structClass = DStaticPropV11lite.class;
-                        } else if (propStaticSize == 80) {
-                            structClass = DStaticPropV11.class;
-                        }
-                    }
-                    break;
-
-                case INSURGENCY:
-                    // Insurgency is based of the csgo engine branch so we can use DStaticPropV10CSGO
-                    if (sprpver == 10 && propStaticSize == 76) {
-                        structClass = DStaticPropV10CSGO.class;
-                    }
-                    break;
-
-                default:
-                    // check for "lite" version of V11 struct in case it applies
-                    // to a game other than BM (or BM wasn't detected/selected)
-                    if (sprpver == 11 && propStaticSize == 76) {
-                        structClass = DStaticPropV11lite.class;
-                    }
-                    break;
-            }
-
-            // get structure class for the static prop lump version if it's not
-            // a special case
-            if (structClass == null) {
-                try {
-                    String className = DStaticProp.class.getName();
-                    structClass = (Class<? extends DStaticProp>) Class.forName(className + "V" + sprpver);
-                } catch (ClassNotFoundException ex) {
-                    L.log(Level.WARNING, "Couldn''t find static prop struct for version {0}", sprpver);
-                    structClass = null;
-                }
-            }
-
-            // check if the size is correct
-            if (structClass != null) {
-                int propStaticSizeActual = structClass.getDeclaredConstructor().newInstance().getSize();
-                if (propStaticSizeActual != propStaticSize) {
-                    L.log(Level.WARNING, "Static prop struct size mismatch: expected {0}, got {1} (using {2})",
-                            new Object[]{propStaticSize, propStaticSizeActual, structClass.getSimpleName()});
-                    structClass = null;
-                }
-            }
-
-            // if the correct class is still unknown at this point, fall back to
-            // a very basic version that should hopefully work in most situations
-            // (note: this will not work well if the struct is based on the V10
-            // struct from the Source 2013 or the TF2 Source engine branches,
-            // in which case the flags attribute will contain garbage data)
-            int numFillBytes = 0;
-            if (structClass == null) {
-                L.log(Level.WARNING, "Falling back to static prop v4");
-
-                structClass = DStaticPropV4.class;
-                numFillBytes = propStaticSize - 56;
-            }
-
-            bspData.staticProps = new ArrayList<>(propStaticCount);
-
-            for (int i = 0; i < propStaticCount; i++) {
-                DStaticProp sp = structClass.getDeclaredConstructor().newInstance();
-                sp.read(in);
-
-                if (numFillBytes > 0) {
-                    in.seek(numFillBytes, CURRENT);
-                }
-
-                if (scaling.containsKey(i) && sp instanceof DStaticPropVinScaling)
-                    ((DStaticPropVinScaling) sp).setScaling(scaling.get(i));
-
-                bspData.staticProps.add(sp);
-            }
-
-            L.log(Level.FINE, "Static props: {0}", propStaticCount);
-
-            checkRemaining(in);
-        } catch (IOException ex) {
-            lumpError(sprpLump, ex);
-        } catch (ReflectiveOperationException ex) {
-            L.log(Level.SEVERE, "Lump struct class error", ex);
-        }
+        L.fine(String.format("%d static prop names", staticPropData.names.size()));
+        L.fine(String.format("%d static props", staticPropData.props.size()));
+        L.fine(String.format("%d static prop leafs", staticPropData.leafs.size()));
     }
 
     public void loadCubemaps() {
@@ -474,7 +269,8 @@ public class BspFileReader {
             return;
         }
 
-        bspData.cubemaps = loadLump(LumpType.LUMP_CUBEMAPS, DCubemapSample.class);
+        bspData.cubemaps = readDStructChunksLump(LumpType.LUMP_CUBEMAPS, DCubemapSample::new);
+        L.fine(String.format("%d cubemaps", bspData.cubemaps.size()));
     }
 
     public void loadDispInfos() {
@@ -482,31 +278,32 @@ public class BspFileReader {
             return;
         }
 
-        Class struct = DDispInfo.class;
+        Supplier<? extends DDispInfo> dStructSupplier = DDispInfo::new;
         int bspv = bspFile.getVersion();
 
         // the lump version is useless most of the time, use the AppID instead
         switch (appID) {
             case VINDICTUS:
-                struct = DDispInfoVin.class;
+                dStructSupplier = DDispInfoVin::new;
                 break;
 
             case HALF_LIFE_2:
                 if (bspv == 17) {
-                    struct = DDispInfoBSP17.class;
+                    dStructSupplier = DDispInfoBSP17::new;
                 }
                 break;
 
             case DOTA_2_BETA:
                 if (bspv == 22) {
-                    struct = DDispInfoBSP22.class;
+                    dStructSupplier = DDispInfoBSP22::new;
                 } else if (bspv >= 23) {
-                    struct = DDispInfoBSP23.class;
+                    dStructSupplier = DDispInfoBSP23::new;
                 }
                 break;
         }
 
-        bspData.dispinfos = loadLump(LumpType.LUMP_DISPINFO, struct);
+        bspData.dispinfos = readDStructChunksLump(LumpType.LUMP_DISPINFO, dStructSupplier);
+        L.fine(String.format("%d displacement infos", bspData.dispinfos.size()));
     }
 
     public void loadDispVertices() {
@@ -514,7 +311,8 @@ public class BspFileReader {
             return;
         }
 
-        bspData.dispverts = loadLump(LumpType.LUMP_DISP_VERTS, DDispVert.class);
+        bspData.dispverts = readDStructChunksLump(LumpType.LUMP_DISP_VERTS, DDispVert::new);
+        L.fine(String.format("%d displacement vertices", bspData.dispverts.size()));
     }
 
     public void loadDispTriangleTags() {
@@ -522,7 +320,8 @@ public class BspFileReader {
             return;
         }
 
-        bspData.disptris = loadLump(LumpType.LUMP_DISP_TRIS, DDispTri.class);
+        bspData.disptris = readDStructChunksLump(LumpType.LUMP_DISP_TRIS, DDispTri::new);
+        L.fine(String.format("%d displacement triangles", bspData.disptris.size()));
     }
 
     public void loadDispMultiBlend() {
@@ -538,7 +337,8 @@ public class BspFileReader {
         else
             lumpType = LumpType.LUMP_DISP_MULTIBLEND;
 
-        bspData.dispmultiblend = loadLump(lumpType, DDispMultiBlend.class);
+        bspData.dispmultiblend = readDStructChunksLump(lumpType, DDispMultiBlend::new);
+        L.fine(String.format("%d displacement multiblend", bspData.dispmultiblend.size()));
     }
 
     public void loadTexInfo() {
@@ -546,13 +346,16 @@ public class BspFileReader {
             return;
         }
 
-        Class struct = DTexInfo.class;
+        Supplier<? extends DTexInfo> dStructSupplier;
 
         if (appID == DARK_MESSIAH) {
-            struct = DTexInfoDM.class;
+            dStructSupplier = DTexInfoDM::new;
+        } else {
+            dStructSupplier = DTexInfo::new;
         }
 
-        bspData.texinfos = loadLump(LumpType.LUMP_TEXINFO, struct);
+        bspData.texinfos = readDStructChunksLump(LumpType.LUMP_TEXINFO, dStructSupplier);
+        L.fine(String.format("%d texture infos", bspData.texinfos.size()));
     }
 
     public void loadTexData() {
@@ -560,60 +363,20 @@ public class BspFileReader {
             return;
         }
 
-        bspData.texdatas = loadLump(LumpType.LUMP_TEXDATA, DTexData.class);
+        bspData.texdatas = readDStructChunksLump(LumpType.LUMP_TEXDATA, DTexData::new);
+        L.fine(String.format("%d texture data", bspData.texdatas.size()));
+
         loadTexDataStrings();  // load associated texdata strings
     }
 
     private void loadTexDataStrings() {
-        L.log(Level.FINE, "Loading {0}", LumpType.LUMP_TEXDATA_STRING_DATA);
-
-        byte[] stringData;
-
-        Lump lump = getLump(LumpType.LUMP_TEXDATA_STRING_DATA);
-        DataReader in = DataReaders.forByteBuffer(lump.getBuffer());
-
-        try {
-            final int tdsds = lump.getLength();
-            stringData = new byte[tdsds];
-            in.readBytes(stringData);
-            checkRemaining(in);
-        } catch (IOException ex) {
-            lumpError(lump, ex);
+        if (bspData.texnames != null) {
             return;
         }
 
-        L.log(Level.FINE, "Loading {0}", LumpType.LUMP_TEXDATA_STRING_TABLE);
-
-        lump = getLump(LumpType.LUMP_TEXDATA_STRING_TABLE);
-        in = DataReaders.forByteBuffer(lump.getBuffer());
-
-        try {
-            final int size = 4;
-            final int tdsts = lump.getLength() / size;
-
-            bspData.texnames = new ArrayList<>(tdsts);
-
-            tdst:
-            for (int i = 0; i < tdsts; i++) {
-                int ofs = in.readInt();
-                int ofsNull;
-
-                // find null byte offset
-                for (ofsNull = ofs; ofsNull < stringData.length; ofsNull++) {
-                    if (stringData[ofsNull] == 0) {
-                        // build string from string data array
-                        bspData.texnames.add(new String(stringData, ofs, ofsNull - ofs));
-                        continue tdst;
-                    }
-                }
-            }
-
-            L.log(Level.FINE, "Texture data strings: {0}", tdsts);
-
-            checkRemaining(in);
-        } catch (IOException ex) {
-            lumpError(lump, ex);
-        }
+        List<Integer> stringTableData = readLump(LumpType.LUMP_TEXDATA_STRING_TABLE, new IntegerChunksLumpReader());
+        bspData.texnames = readLump(LumpType.LUMP_TEXDATA_STRING_DATA, new TexdataStringLumpReader(stringTableData));
+        L.fine(String.format("%d texture names", bspData.texnames.size()));
     }
 
     public void loadEntities() {
@@ -621,35 +384,9 @@ public class BspFileReader {
             return;
         }
 
-        L.log(Level.FINE, "Loading {0}", LumpType.LUMP_ENTITIES);
-
-        Lump lump = getLump(LumpType.LUMP_ENTITIES);
-
-        try (EntityInputStream entReader = new EntityInputStream(lump.getInputStream())) {
-            // allow escaped quotes for VTBM
-            entReader.setAllowEscSeq(bspFile.getVersion() == 17);            
-            bspData.entities = new ArrayList<>();
-
-            entityClasses.clear();
-            Entity ent;
-            while ((ent = entReader.readEntity()) != null) {
-                bspData.entities.add(ent);
-                entityClasses.add(ent.getClassName());
-            }
-
-            // detect appID with heuristics to handle special BSP formats if it's
-            // still unknown or undefined at this point
-            if (appID == UNKNOWN) {
-                SourceAppDB appDB = SourceAppDB.getInstance();
-                SourceApp app = appDB.find(bspFile.getName(), bspFile.getVersion(), entityClasses);
-                bspFile.setSourceApp(app);
-                appID = app.getAppID();
-            }
-        } catch (IOException ex) {
-            L.log(Level.SEVERE, "Couldn''t read entity lump", ex);
-        }
-
-        L.log(Level.FINE, "Entities: {0}", bspData.entities.size());
+        boolean allowEscSeq = bspFile.getVersion() == 17;
+        bspData.entities = readLump(LumpType.LUMP_ENTITIES, new EntityLumpReader(allowEscSeq));
+        L.fine(String.format("%d entities", bspData.entities.size()));
     }
 
     public void loadNodes() {
@@ -657,14 +394,16 @@ public class BspFileReader {
             return;
         }
 
-        Class struct = DNode.class;
+        Supplier<? extends DNode> dStructSupplier;
 
         if (appID == VINDICTUS) {
-            // use special struct for Vindictus
-            struct = DNodeVin.class;
+            dStructSupplier = DNodeVin::new;
+        } else {
+            dStructSupplier = DNode::new;
         }
 
-        bspData.nodes = loadLump(LumpType.LUMP_NODES, struct);
+        bspData.nodes = readDStructChunksLump(LumpType.LUMP_NODES, dStructSupplier);
+        L.fine(String.format("%d nodes", bspData.nodes.size()));
     }
 
     public void loadLeaves() {
@@ -672,19 +411,21 @@ public class BspFileReader {
             return;
         }
 
-        Class struct = DLeafV1.class;
+        Function<Integer, Supplier<? extends DLeaf>> dStructSupplierCreator = lumpVersion -> {
+            if (appID == VINDICTUS) {
+                // use special struct for Vindictus
+                return DLeafVin::new;
+            } else if (lumpVersion == 0 && bspFile.getVersion() == 19) {
+                // read AmbientLighting, it was used in initial Half-Life 2 maps
+                // only and doesn't exist in newer or older versions
+                return DLeafV0::new;
+            } else {
+                return DLeafV1::new;
+            }
+        };
 
-        if (appID == VINDICTUS) {
-            // use special struct for Vindictus
-            struct = DLeafVin.class;
-        } else if (getLump(LumpType.LUMP_LEAFS).getVersion() == 0
-                && bspFile.getVersion() == 19) {
-            // read AmbientLighting, it was used in initial Half-Life 2 maps 
-            // only and doesn't exist in newer or older versions
-            struct = DLeafV0.class;
-        }
-
-        bspData.leaves = loadLump(LumpType.LUMP_LEAFS, struct);
+        bspData.leaves = readDStructChunksLump(LumpType.LUMP_LEAFS, dStructSupplierCreator);
+        L.fine(String.format("%d leaves", bspData.leaves.size()));
     }
 
     public void loadLeafFaces() {
@@ -692,7 +433,11 @@ public class BspFileReader {
             return;
         }
 
-        bspData.leafFaces = loadIntegerLump(LumpType.LUMP_LEAFFACES, appID != VINDICTUS);
+        LumpReader<List<Integer>> lumpReader =
+                appID != VINDICTUS ? new UShortChunksLumpReader() : new IntegerChunksLumpReader();
+
+        bspData.leafFaces = readLump(LumpType.LUMP_LEAFFACES, lumpReader);
+        L.fine(String.format("%d leaf faces", bspData.leafFaces.size()));
     }
 
     public void loadLeafBrushes() {
@@ -700,7 +445,11 @@ public class BspFileReader {
             return;
         }
 
-        bspData.leafBrushes = loadIntegerLump(LumpType.LUMP_LEAFBRUSHES, appID != VINDICTUS);
+        LumpReader<List<Integer>> lumpReader =
+                appID != VINDICTUS ? new UShortChunksLumpReader() : new IntegerChunksLumpReader();
+
+        bspData.leafBrushes = readLump(LumpType.LUMP_LEAFBRUSHES, lumpReader);
+        L.fine(String.format("%d leaf brushes", bspData.leafBrushes.size()));
     }
 
     public void loadOverlays() {
@@ -708,19 +457,23 @@ public class BspFileReader {
             return;
         }
 
-        Class struct = DOverlay.class;
+        Supplier<? extends DOverlay> dStructSupplier;
 
         if (appID == VINDICTUS) {
-            struct = DOverlayVin.class;
+            dStructSupplier = DOverlayVin::new;
         } else if (appID == DOTA_2_BETA) {
-            struct = DOverlayDota2.class;
+            dStructSupplier = DOverlayDota2::new;
+        } else {
+            dStructSupplier = DOverlay::new;
         }
 
-        bspData.overlays = loadLump(LumpType.LUMP_OVERLAYS, struct);
+        bspData.overlays = readDStructChunksLump(LumpType.LUMP_OVERLAYS, dStructSupplier);
+        L.fine(String.format("%d overlays", bspData.overlays.size()));
 
         // read fade distances
         if (bspData.overlayFades == null) {
-            bspData.overlayFades = loadLump(LumpType.LUMP_OVERLAY_FADES, DOverlayFade.class);
+            bspData.overlayFades = readDStructChunksLump(LumpType.LUMP_OVERLAY_FADES, DOverlayFade::new);
+            L.fine(String.format("%d overlay fades", bspData.overlayFades.size()));
         }
 
         // read CPU/GPU levels
@@ -729,7 +482,9 @@ public class BspFileReader {
             if (appID == BLACK_MESA)
                 bspData.overlaySysLevels = Collections.emptyList();
             else
-                bspData.overlaySysLevels = loadLump(LumpType.LUMP_OVERLAY_SYSTEM_LEVELS, DOverlaySystemLevel.class);
+                bspData.overlaySysLevels = readDStructChunksLump(LumpType.LUMP_OVERLAY_SYSTEM_LEVELS, DOverlaySystemLevel::new);
+
+            L.fine(String.format("%d overlay sys levels", bspData.overlaySysLevels.size()));
         }
     }
 
@@ -738,13 +493,16 @@ public class BspFileReader {
             return;
         }
 
-        Class struct = DAreaportal.class;
+        Supplier<? extends DAreaportal> dStructSupplier;
 
         if (appID == VINDICTUS) {
-            struct = DAreaportalVin.class;
+            dStructSupplier = DAreaportalVin::new;
+        } else {
+            dStructSupplier = DAreaportal::new;
         }
 
-        bspData.areaportals = loadLump(LumpType.LUMP_AREAPORTALS, struct);
+        bspData.areaportals = readDStructChunksLump(LumpType.LUMP_AREAPORTALS, dStructSupplier);
+        L.fine(String.format("%d areaportals", bspData.areaportals.size()));
     }
 
     public void loadOccluders() {
@@ -752,65 +510,40 @@ public class BspFileReader {
             return;
         }
 
-        L.log(Level.FINE, "Loading {0}", LumpType.LUMP_OCCLUSION);
+        Function<Integer, LumpReader<? extends OcclusionLumpReader.OcclusionData<? extends DOccluderData>>>
+                lumpReaderCreator = lumpVersion -> {
 
-        Lump lump = getLump(LumpType.LUMP_OCCLUSION);
-        DataReader in = DataReaders.forByteBuffer(lump.getBuffer());
+            int alteredLumpVersion = lumpVersion;
 
-        try {
-            // load occluder data
-            final int occluders = lump.getLength() == 0 ? 0 : in.readInt();
-            bspData.occluderDatas = new ArrayList<>(occluders);
-
-            for (int i = 0; i < occluders; i++) {
-                int lumpVersion = lump.getVersion();
-
-                // Contagion maps report lump version 0, but they're actually
-                // using 1
-                if (bspFile.getSourceApp().getAppID() == SourceAppID.CONTAGION) {
-                    lumpVersion = 1;
-                }
-
-                DOccluderData od;
-
-                if (lumpVersion > 0) {
-                    od = new DOccluderDataV1();
-                } else {
-                    od = new DOccluderData();
-                }
-
-                od.read(in);
-                bspData.occluderDatas.add(od);
+            // Contagion maps report lump version 0, but they're actually
+            // using 1
+            if (bspFile.getSourceApp().getAppID() == CONTAGION) {
+                alteredLumpVersion = 1;
             }
 
-            L.log(Level.FINE, "Occluders: {0}", occluders);
-
-            // load occluder polys
-            final int occluderPolys = lump.getLength() == 0 ? 0 : in.readInt();
-            bspData.occluderPolyDatas = new ArrayList<>(occluderPolys);
-
-            for (int i = 0; i < occluderPolys; i++) {
-                DOccluderPolyData opd = new DOccluderPolyData();
-                opd.read(in);
-                bspData.occluderPolyDatas.add(opd);
+            Supplier<? extends DOccluderData> dStructSupplier;
+            if (alteredLumpVersion == 0) {
+                dStructSupplier = DOccluderData::new;
+            } else {
+                dStructSupplier = DOccluderDataV1::new;
             }
 
-            L.log(Level.FINE, "Occluder polygons: {0}", occluderPolys);
+            return new OcclusionLumpReader<>(dStructSupplier);
+        };
 
-            // load occluder vertices
-            final int occluderVertices = lump.getLength() == 0 ? 0 : in.readInt();
-            bspData.occluderVerts = new ArrayList<>(occluderVertices);
+        OcclusionLumpReader.OcclusionData<? extends DOccluderData> occlusionData = readLump(
+                LumpType.LUMP_OCCLUSION,
+                lumpReaderCreator,
+                OcclusionLumpReader.OcclusionData::new
+        );
 
-            for (int i = 0; i < occluderVertices; i++) {
-                bspData.occluderVerts.add(in.readInt());
-            }
+        bspData.occluderDatas = occlusionData.dOccluderData;
+        bspData.occluderPolyDatas = occlusionData.dOccluderPolyData;
+        bspData.occluderVerts = occlusionData.vertexIndices;
 
-            L.log(Level.FINE, "Occluder vertices: {0}", occluderVertices);
-
-            checkRemaining(in);
-        } catch (IOException ex) {
-            lumpError(lump, ex);
-        }
+        L.fine(String.format("%d occluders", bspData.occluderDatas.size()));
+        L.fine(String.format("%d occluder poly data", bspData.occluderPolyDatas.size()));
+        L.fine(String.format("%d occluder vertices", bspData.occluderVerts.size()));
     }
 
     public void loadFlags() {
@@ -818,25 +551,8 @@ public class BspFileReader {
             return;
         }
 
-        L.log(Level.FINE, "Loading {0}", LumpType.LUMP_MAP_FLAGS);
-
-        Lump lump = getLump(LumpType.LUMP_MAP_FLAGS);
-
-        if (lump.getLength() == 0) {
-            return;
-        }
-
-        DataReader in = DataReaders.forByteBuffer(lump.getBuffer());
-
-        try {
-            bspData.mapFlags = EnumConverter.fromInteger(LevelFlag.class, in.readInt());
-
-            L.log(Level.FINE, "Map flags: {0}", bspData.mapFlags);
-
-            checkRemaining(in);
-        } catch (IOException ex) {
-            lumpError(lump, ex);
-        }
+        bspData.mapFlags = readLump(LumpType.LUMP_MAP_FLAGS, new MapFlagsLumpReader());
+        L.fine(String.format("map flags: %s", bspData.mapFlags));
     }
 
     public void loadPrimitives() {
@@ -844,7 +560,8 @@ public class BspFileReader {
             return;
         }
 
-        bspData.prims = loadLump(LumpType.LUMP_PRIMITIVES, DPrimitive.class);
+        bspData.prims = readDStructChunksLump(LumpType.LUMP_PRIMITIVES, DPrimitive::new);
+        L.fine(String.format("%d primitives", bspData.prims.size()));
     }
 
     public void loadPrimIndices() {
@@ -852,7 +569,8 @@ public class BspFileReader {
             return;
         }
 
-        bspData.primIndices = loadIntegerLump(LumpType.LUMP_PRIMINDICES, true);
+        bspData.primIndices = readLump(LumpType.LUMP_PRIMINDICES, new UShortChunksLumpReader());
+        L.fine(String.format("%d primitives indices", bspData.primIndices.size()));
     }
 
     public void loadPrimVerts() {
@@ -860,129 +578,148 @@ public class BspFileReader {
             return;
         }
 
-        bspData.primVerts = loadLump(LumpType.LUMP_PRIMVERTS, DVertex.class);
+        bspData.primVerts = readDStructChunksLump(LumpType.LUMP_PRIMVERTS, DVertex::new);
+        L.fine(String.format("%d primitives vertices", bspData.primVerts.size()));
     }
 
-    private <E extends DStruct> List<E> loadLump(LumpType lumpType, Class<E> struct) {
-        // don't try to read lumps that aren't supported
+
+    /**
+     * Overloaded method for {@link #readDStructChunksLump(LumpType, Function)}.
+     * Useful when the {@link DStruct} {@link Supplier} ist lump version independent.
+     *
+     * @see #readDStructChunksLump(LumpType, Function)
+     */
+    private <T extends DStruct> List<T> readDStructChunksLump(
+            LumpType lumpType,
+            Supplier<? extends T> dStructSupplier
+    ) {
+        return readDStructChunksLump(
+                lumpType,
+                integer -> dStructSupplier
+        );
+    }
+
+    /**
+     * Reads the lump specified by {@code lumpType} with a {@link DStructChunksLumpReader<T>}
+     * and returns the result.
+     *
+     * @param lumpType the type of lump to read
+     * @param dStructSupplierCreator creator function, that creates a {@link DStruct} {@link Supplier} for
+     * a specific lump version
+     * @param <T> the type of {@link DStruct}
+     *
+     * @return a list of read {@link DStruct}s
+     */
+    private <T extends DStruct> List<T> readDStructChunksLump(
+            LumpType lumpType,
+            Function<? super Integer, Supplier<? extends T>> dStructSupplierCreator
+    ) {
+        return readLump(
+                lumpType,
+                lumpVersion -> new DStructChunksLumpReader<>(dStructSupplierCreator.apply(lumpVersion)),
+                Collections::emptyList
+        );
+    }
+
+    /**
+     * Reads the lump specified by {@code lumpType} with the {@link LumpReader} specified by {@code lumpReader}
+     * and returns the result.
+     *
+     * @param lumpType the type of lump to read
+     * @param lumpReader the {@link LumpReader} used to read the lump
+     * @param <T> the lumpReaders result type
+     *
+     * @return the result produced by the lumpReader
+     * @see #readLump(LumpType, Function, Supplier)
+     */
+    private <T> T readLump(
+            LumpType lumpType,
+            LumpReader<? extends T> lumpReader
+    ) {
+        return readLump(
+                lumpType,
+                lumpVersion -> lumpReader,
+                lumpReader::defaultData
+        );
+    }
+
+    /**
+     * Reads the lump specified by {@code lumpType} with a {@link LumpReader} created by
+     * passing the lump version to the function specified by {@code lumpReader}.
+     *
+     * @param lumpType the type of lump to read
+     * @param lumpReaderCreator a function, that creates a suitable {@link LumpReader} for a specified lump version
+     * @param defaultDataSupplier a supplier used to create a default data object, in case the lump cannot be read
+     * @param <T> the lumpReaders result type
+     *
+     * @return the result produced by the lumpReader
+     */
+    private <T> T readLump(
+            LumpType lumpType,
+            Function<? super Integer, ? extends LumpReader<? extends T>> lumpReaderCreator,
+            Supplier<? extends T> defaultDataSupplier
+    ) {
         if (!bspFile.canReadLump(lumpType)) {
-            return Collections.emptyList();
+            L.warning(String.format("Tried reading lump '%s', but it is not supported by the bsp's version", lumpType));
+            return defaultDataSupplier.get();
         }
 
-        Lump lump = getLump(lumpType);
+        Lump lump = bspFile.getLump(lumpType);
+        LumpReader<? extends T> lumpReader = lumpReaderCreator.apply(lump.getVersion());
+        return readAbstractLump(lump, lumpReader);
+    }
 
+    /**
+     * Same as {@link #readLump(LumpType, Function, Supplier)} but for gameLumps
+     *
+     * @see #readLump(LumpType, Function, Supplier)
+     */
+    private <T> T readGameLump(
+            String sid,
+            Function<Integer, ? extends LumpReader<? extends T>> lumpReaderCreator,
+            Supplier<? extends T> defaultDataSupplier
+    ) {
+        GameLump gameLump = bspFile.getGameLump(sid);
+        if (gameLump == null) {
+            L.warning(String.format("Tried reading game lump '%s', but it was not present in the bsp", sid));
+            return defaultDataSupplier.get();
+        }
+
+        LumpReader<? extends T> lumpReader = lumpReaderCreator.apply(gameLump.getVersion());
+        return readAbstractLump(gameLump, lumpReader);
+    }
+
+    /**
+     * Reads the specfied lump with the specified lumpReader and returns the result.
+     *
+     * @param lump the lump to read
+     * @param lumpReader the lumpReader used to read the lump content
+     * @param <T> the lumpReaders result type
+     *
+     * @return the result produced by the lumpReader
+     */
+    private <T> T readAbstractLump(AbstractLump lump, LumpReader<? extends T> lumpReader) {
         // don't try to read empty lumps
         if (lump.getLength() == 0) {
-            return Collections.emptyList();
+            L.warning(String.format("Lump %s is empty", lump));
+            return lumpReader.defaultData();
         }
 
-        L.log(Level.FINE, "Loading {0}", lumpType);
+        L.fine(String.format("Reading %s", lump));
 
-        DataReader in = DataReaders.forByteBuffer(lump.getBuffer());
+        ByteBuffer buffer = lump.getBuffer();
+        buffer.rewind();
 
+        T returnData;
         try {
-            final int structSize = struct.getDeclaredConstructor().newInstance().getSize();
-            final int packetCount = lump.getLength() / structSize;
-
-            List<E> packets = new ArrayList<>(packetCount);
-
-            for (int i = 0; i < packetCount; i++) {
-                E packet = struct.getDeclaredConstructor().newInstance();
-
-                long pos = in.position();
-                packet.read(in);
-                if (in.position() - pos != packet.getSize()) {
-                    throw new IOException("Bytes read: " + pos + "; expected: " + packet.getSize());
-                }
-
-                packets.add(packet);
-            }
-
-            checkRemaining(in);
-
-            L.log(Level.FINE, "{0} {1} objects", new Object[]{packets.size(), struct.getSimpleName()});
-
-            return packets;
-        } catch (IOException ex) {
-            lumpError(lump, ex);
-        } catch (ReflectiveOperationException ex) {
-            L.log(Level.SEVERE, "Lump struct class error", ex);
+            returnData = lumpReader.read(buffer);
+        } catch (Exception e) {
+            L.log(Level.WARNING, String.format("An error occurred while trying to read lump %s", lump), e);
+            returnData = lumpReader.defaultData();
         }
 
-        return null;
-    }
-
-    private List<Integer> loadIntegerLump(LumpType lumpType, boolean unsignedShort) {
-        L.log(Level.FINE, "Loading {0}", lumpType);
-
-        Lump lump = getLump(lumpType);
-        DataReader in = DataReaders.forByteBuffer(lump.getBuffer());
-
-        try {
-            final int size = unsignedShort ? 2 : 4;
-            final int arraySize = lump.getLength() / size;
-
-            List<Integer> list = new ArrayList<>(arraySize);
-
-            for (int i = 0; i < arraySize; i++) {
-                if (unsignedShort) {
-                    list.add(in.readUnsignedShort());
-                } else {
-                    list.add(in.readInt());
-                }
-            }
-
-            L.log(Level.FINE, "{0} Integer objects", arraySize);
-
-            checkRemaining(in);
-
-            return list;
-        } catch (IOException ex) {
-            lumpError(lump, ex);
-        }
-
-        return null;
-    }
-
-    private List<Integer> loadIntegerLump(LumpType lumpType) {
-        return loadIntegerLump(lumpType, false);
-    }
-
-    private void lumpError(AbstractLump lump, IOException ex) {
-        L.log(Level.SEVERE, "Lump reading error in " + lump, ex);
-    }
-
-    /**
-     * Checks the byte buffer for remaining bytes. Should always be called when
-     * no remaining bytes are expected.
-     *
-     * @throws IOException if remaining bytes are found
-     */
-    private void checkRemaining(DataReader in) throws IOException {
-        if (in.hasRemaining()) {          
-            throw new IOException(in.remaining()
-                    + " bytes remaining");
-        }
-    }
-
-    /**
-     * Returns the lump for the given lump type
-     *
-     * @param type
-     * @throws IllegalArgumentException if the current BSP doesn't support this lump type
-     * @return
-     */
-    private Lump getLump(LumpType type) {
-        return bspFile.getLump(type);
-    }
-
-    /**
-     * Returns the set of unique entity classes that was generated by {@link #loadEntities}
-     *
-     * @return set of entity class names, null if {@link #loadEntities} hasn't been called yet
-     */
-    public Set<String> getEntityClassSet() {
-        return Collections.unmodifiableSet(entityClasses);
+        L.fine(String.format("Finished reading %s", lump));
+        return returnData;
     }
 
     public BspFile getBspFile() {

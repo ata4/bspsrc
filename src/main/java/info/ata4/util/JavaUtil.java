@@ -1,6 +1,6 @@
 package info.ata4.util;
 
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -12,5 +12,12 @@ public class JavaUtil {
         return optional
                 .map(Stream::of)
                 .orElseGet(Stream::empty);
+    }
+
+    /**
+     * @see List#copyOf(Collection)
+     */
+    public static <E> List<E> listCopyOf(Collection<? extends E> collection) {
+        return Collections.unmodifiableList(new ArrayList<>(collection));
     }
 }
