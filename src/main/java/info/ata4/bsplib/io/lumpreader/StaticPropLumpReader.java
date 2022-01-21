@@ -9,19 +9,15 @@ import info.ata4.io.DataReaders;
 import info.ata4.log.LogUtils;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static info.ata4.bsplib.app.SourceAppID.*;
 import static info.ata4.io.Seekable.Origin.CURRENT;
 import static info.ata4.util.JavaUtil.listCopyOf;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Lump reader for {@link LumpType#LUMP_AREAPORTALS}
@@ -120,166 +116,89 @@ public class StaticPropLumpReader implements LumpReader<StaticPropLumpReader.Sta
 		// calculate static prop struct size
 		final int propStaticSize = (int) (reader.remaining() / propStaticCount);
 
-		Supplier<? extends DStaticProp> dStaticPropSupplier = null;
+		Supplier<? extends DStaticProp> dStaticPropSupplier = staticPropStructDescriptors.stream()
+				.filter(descriptor -> descriptor.version == sprpVersion)
+				.filter(descriptor -> descriptor.appId == -1 || descriptor.appId == appId)
+				.filter(descriptor -> descriptor.size == propStaticSize)
+				.max(Comparator.comparing(descriptor -> descriptor.appId != -1)) // favor game specific staticprop structs
+				.<Supplier<? extends DStaticProp>>map(descriptor -> descriptor.structSupplier)
+				.orElseGet(() -> {
+					L.warning(String.format("Couldn't find static prop struct for appId %d, version %d, size %d",
+							appId, sprpVersion, propStaticSize));
 
-		// special cases where derivative lump structures are used
-		switch (appId) {
-			case THE_SHIP:
-				if (propStaticSize == 188) {
-					dStaticPropSupplier = DStaticPropV5Ship::new;
-				}
-				break;
+					L.warning("Falling back to static prop v4");
+					return () -> new DStaticPropV4Padded(propStaticSize);
+				});
 
-			case BLOODY_GOOD_TIME:
-				if (propStaticSize == 192) {
-					dStaticPropSupplier = DStaticPropV6BGT::new;
-				}
-				break;
-
-			case ZENO_CLASH:
-				if (propStaticSize == 68) {
-					dStaticPropSupplier = DStaticPropV7ZC::new;
-				}
-				break;
-
-			case DARK_MESSIAH:
-				if (propStaticSize == 136) {
-					dStaticPropSupplier = DStaticPropV6DM::new;
-				}
-				break;
-
-			case DEAR_ESTHER:
-				if (propStaticSize == 76) {
-					dStaticPropSupplier = DStaticPropV9DE::new;
-				}
-				break;
-
-			case VINDICTUS:
-				// newer maps report v6 even though their structure is identical to DStaticPropV5, probably because
-				// they additional have scaling array saved before the static prop array
-				// Consequently, their v7 seems to be a standard DStaticPropV6 with an additional scaling array
-				if (sprpVersion == 6 && propStaticSize == 60) {
-					dStaticPropSupplier = DStaticPropV6VIN::new;
-				} else if (sprpVersion == 7 && propStaticSize == 64) {
-					dStaticPropSupplier = DStaticPropV7VIN::new;
-				}
-				break;
-
-			case LEFT_4_DEAD:
-				// old L4D maps use v7 that is incompatible to the newer
-				// Source 2013 v7
-				if (sprpVersion == 7 && propStaticSize == 68) {
-					dStaticPropSupplier = DStaticPropV7L4D::new;
-				}
-				break;
-
-			case TEAM_FORTRESS_2:
-				// there's been a short period where TF2 used v7, which later
-				// became v10 in all Source 2013 game
-				if (sprpVersion == 7 && propStaticSize == 72) {
-					dStaticPropSupplier = DStaticPropV10::new;
-				}
-				break;
-
-			case COUNTER_STRIKE_GO:
-				//  (custom v10 for CS:GO, not compatible with Source 2013 v10)
-				//  CS:GO now uses v11  since the addition of uniform prop scaling
-				if (sprpVersion == 10) {
-					dStaticPropSupplier = DStaticPropV10CSGO::new;
-				} else if (sprpVersion == 11) {
-					dStaticPropSupplier = DStaticPropV11CSGO::new;
-				}
-				break;
-
-			case BLACK_MESA:
-				// different structures used by Black Mesa
-				if (sprpVersion == 10 && propStaticSize == 72) {
-					dStaticPropSupplier = DStaticPropV10::new;
-				} else if (sprpVersion == 11) {
-					if (propStaticSize == 76) {
-						dStaticPropSupplier = DStaticPropV11lite::new;
-					} else if (propStaticSize == 80) {
-						dStaticPropSupplier = DStaticPropV11::new;
-					}
-				}
-				break;
-
-			case INSURGENCY:
-				// Insurgency is based of the csgo engine branch so we can use DStaticPropV10CSGO
-				if (sprpVersion == 10 && propStaticSize == 76) {
-					dStaticPropSupplier = DStaticPropV10CSGO::new;
-				}
-				break;
-
-			default:
-				// check for "lite" version of V11 struct in case it applies
-				// to a game other than BM (or BM wasn't detected/selected)
-				if (sprpVersion == 11 && propStaticSize == 76) {
-					dStaticPropSupplier = DStaticPropV11lite::new;
-				}
-				break;
-		}
-
-		// get structure class for the static prop lump version if it's not
-		// a special case
-		if (dStaticPropSupplier == null) {
-			try {
-				String className = DStaticProp.class.getName();
-				Class<? extends DStaticProp> dStaticPropClass =
-						(Class<? extends DStaticProp>) Class.forName(className + "V" + sprpVersion);
-				dStaticPropSupplier = () -> {
-					try {
-						return dStaticPropClass.getDeclaredConstructor().newInstance();
-					} catch (InstantiationException | IllegalAccessException | InvocationTargetException
-							| NoSuchMethodException e) {
-						throw new RuntimeException(e);
-					}
-				};
-			} catch (ClassNotFoundException ex) {
-				L.log(Level.WARNING, "Couldn't find static prop struct for version {0}", sprpVersion);
-			}
-		}
-
-		// check if the size is correct
-		if (dStaticPropSupplier != null) {
-			DStaticProp dStaticProp = dStaticPropSupplier.get();
-			int propStaticSizeActual = dStaticProp.getSize();
-			if (propStaticSizeActual != propStaticSize) {
-				L.log(Level.WARNING, "Static prop struct size mismatch: expected {0}, got {1} (using {2})",
-						new Object[]{propStaticSize, propStaticSizeActual, dStaticProp.getClass().getSimpleName()});
-				dStaticPropSupplier = null;
-			}
-		}
-
-		// if the correct class is still unknown at this point, fall back to
-		// a very basic version that should hopefully work in most situations
-		// (note: this will not work well if the struct is based on the V10
-		// struct from the Source 2013 or the TF2 Source engine branches,
-		// in which case the flags attribute will contain garbage data)
-		if (dStaticPropSupplier == null) {
-			L.log(Level.WARNING, "Falling back to static prop v4");
-
-			dStaticPropSupplier = () -> new DStaticPropV4() {
-				@Override
-				public int getSize() {
-					return propStaticSize;
-				}
-
-				@Override
-				public void read(DataReader in) throws IOException {
-					super.read(in);
-					in.seek(propStaticSize - super.getSize(), CURRENT);
-				}
-			};
-		}
-
-		Supplier<? extends DStaticProp> finalDStaticPropSupplier = dStaticPropSupplier;
 		return DataReaderUtil.readChunks(
 				reader,
-				r -> DataReaderUtil.readDStruct(r, finalDStaticPropSupplier.get()),
+				r -> DataReaderUtil.readDStruct(r, dStaticPropSupplier.get()),
 				propStaticCount
 		);
 	}
+
+	private static class DStaticPropV4Padded extends DStaticPropV4 {
+
+		private final int propStaticSize;
+
+		public DStaticPropV4Padded(int propStaticSize) {
+			this.propStaticSize = propStaticSize;
+		}
+
+		@Override
+		public int getSize() {
+			return propStaticSize;
+		}
+
+		@Override
+		public void read(DataReader in) throws IOException {
+			super.read(in);
+			in.seek(propStaticSize - super.getSize(), CURRENT);
+		}
+	}
+
+	private static class StaticPropStructDescriptor {
+
+		public final Supplier<? extends DStaticProp> structSupplier;
+		public final int version;
+		public final int appId;
+
+		public final int size;
+
+		private StaticPropStructDescriptor(Supplier<? extends DStaticProp> structSupplier, int version) {
+			this(structSupplier, version, -1);
+		}
+
+		private StaticPropStructDescriptor(Supplier<? extends DStaticProp> structSupplier, int version, int appId) {
+			this.structSupplier = requireNonNull(structSupplier);
+			this.version = version;
+			this.appId = appId;
+
+			this.size = structSupplier.get().getSize();
+		}
+	}
+
+	private final List<StaticPropStructDescriptor> staticPropStructDescriptors = Arrays.asList(
+			new StaticPropStructDescriptor(DStaticPropV4::new, 4),
+			new StaticPropStructDescriptor(DStaticPropV5::new, 5),
+			new StaticPropStructDescriptor(DStaticPropV5Ship::new, 5, THE_SHIP),
+			new StaticPropStructDescriptor(DStaticPropV6::new, 6),
+			new StaticPropStructDescriptor(DStaticPropV6BGT::new, 6, BLOODY_GOOD_TIME),
+			new StaticPropStructDescriptor(DStaticPropV6DM::new, 6, DARK_MESSIAH),
+			new StaticPropStructDescriptor(DStaticPropV6VIN::new, 6, VINDICTUS),
+			new StaticPropStructDescriptor(DStaticPropV7L4D::new, 7, LEFT_4_DEAD),
+			new StaticPropStructDescriptor(DStaticPropV7VIN::new, 7, VINDICTUS),
+			new StaticPropStructDescriptor(DStaticPropV7ZC::new, 7, ZENO_CLASH),
+			new StaticPropStructDescriptor(DStaticPropV8::new, 8),
+			new StaticPropStructDescriptor(DStaticPropV9::new, 9),
+			new StaticPropStructDescriptor(DStaticPropV9DE::new, 9, DEAR_ESTHER),
+			new StaticPropStructDescriptor(DStaticPropV10::new, 10),
+			new StaticPropStructDescriptor(DStaticPropV10CSGO::new, 10, COUNTER_STRIKE_GO),
+			new StaticPropStructDescriptor(DStaticPropV11::new, 11),
+			new StaticPropStructDescriptor(DStaticPropV11CSGO::new, 11, COUNTER_STRIKE_GO),
+			new StaticPropStructDescriptor(DStaticPropV11lite::new, 11, BLACK_MESA)
+	);
+
 
 	@Override
 	public StaticPropData defaultData() {
@@ -287,6 +206,7 @@ public class StaticPropLumpReader implements LumpReader<StaticPropLumpReader.Sta
 	}
 
 	public static class StaticPropData {
+
 		public final List<String> names;
 		public final List<Integer> leafs;
 		public final List<? extends DStaticProp> props;
