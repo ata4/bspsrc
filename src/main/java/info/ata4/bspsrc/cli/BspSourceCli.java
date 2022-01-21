@@ -368,10 +368,10 @@ public class BspSourceCli {
             Path path = Paths.get(arg);
 
             if (Files.isDirectory(path)) {
-                PathMatcher bspPathMatcher = path.getFileSystem().getPathMatcher("blob:*.bsp");
+                PathMatcher bspPathMatcher = path.getFileSystem().getPathMatcher("glob:*.bsp");
                 try (Stream<Path> pathStream = Files.walk(path, recursive ? Integer.MAX_VALUE : 0)) {
                     pathStream
-                            .filter(filePath -> Files.isRegularFile(filePath))
+                            .filter(Files::isRegularFile)
                             .filter(bspPathMatcher::matches)
                             .map(filePath -> new BspFileEntry(filePath.toFile(), outputFile))
                             .forEach(files::add);
