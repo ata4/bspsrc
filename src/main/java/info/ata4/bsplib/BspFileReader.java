@@ -196,8 +196,8 @@ public class BspFileReader {
             return;
         }
 
-        // use LUMP_FACES_HDR if LUMP_FACES is empty
-        if (bspFile.getLump(LumpType.LUMP_FACES).getLength() == 0)
+        // prioritize LUMP_FACES_HDR over LUMP_FACES
+        if (bspFile.getLump(LumpType.LUMP_FACES_HDR).getLength() != 0)
             bspData.faces = readDStructChunksLump(LumpType.LUMP_FACES_HDR, this::faceDStructSupplier);
         else
             bspData.faces = readDStructChunksLump(LumpType.LUMP_FACES, this::faceDStructSupplier);
