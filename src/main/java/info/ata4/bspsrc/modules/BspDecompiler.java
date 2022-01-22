@@ -69,14 +69,7 @@ public class BspDecompiler extends ModuleDecompile {
     public void start() {
         // fix texture names
         texsrc.setFixTextureNames(config.fixCubemapTextures);
-
-        // VTBM has too many crucial game-specific tool textures that would break,
-        // so override the user selection
-        if (bspFile.getSourceApp().getAppID() == SourceAppID.VAMPIRE_BLOODLINES) {
-            texsrc.setFixToolTextures(false);
-        } else {
-            texsrc.setFixToolTextures(config.fixToolTextures);
-        }
+        texsrc.setFixToolTextures(config.fixToolTextures);
 
         // check for protection and warn if the map has been protected
         if (!config.skipProt) {
