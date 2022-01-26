@@ -10,6 +10,9 @@
 
 package info.ata4.bsplib;
 
+import info.ata4.bsplib.app.SourceApp;
+import info.ata4.bsplib.app.SourceAppDB;
+import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.io.lumpreader.*;
 import info.ata4.bsplib.lump.AbstractLump;
 import info.ata4.bsplib.lump.GameLump;
@@ -22,10 +25,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static info.ata4.bsplib.app.SourceAppID.*;
 
@@ -41,12 +46,10 @@ public class BspFileReader {
     // BSP headers and data
     private final BspFile bspFile;
     private final BspData bspData;
-    private final int appID;
 
     public BspFileReader(BspFile bspFile, BspData bspData) throws IOException {
         this.bspFile = bspFile;
         this.bspData = bspData;
-        this.appID = bspFile.getSourceApp().getAppID();
 
         if (bspFile.getFile() == null) {
             // "Gah! Hear me, man? Gah!"
@@ -61,6 +64,10 @@ public class BspFileReader {
 
     public BspFileReader(BspFile bspFile) throws IOException {
         this(bspFile, new BspData());
+    }
+
+    private int appId() {
+        return bspFile.getSourceApp().getAppID();
     }
 
     /**
@@ -121,9 +128,9 @@ public class BspFileReader {
 
         Supplier<? extends DBrushSide> dStructSupplier;
 
-        if (appID == VINDICTUS) {
+        if (appId() == VINDICTUS) {
             dStructSupplier = DBrushSideVin::new;
-        } else if (bspFile.getVersion() >= 21 && appID != LEFT_4_DEAD_2) {
+        } else if (bspFile.getVersion() >= 21 && appId() != LEFT_4_DEAD_2) {
             // newer BSP files have a slightly different struct that is still reported
             // as version 0
 	        dStructSupplier = DBrushSideV2::new;
@@ -160,7 +167,7 @@ public class BspFileReader {
 
         Supplier<? extends DEdge> struct;
 
-	    if (appID == VINDICTUS) {
+	    if (appId() == VINDICTUS) {
 		    struct = DEdgeVin::new;
 	    } else {
 		    struct = DEdge::new;
@@ -171,7 +178,7 @@ public class BspFileReader {
     }
 
     private Supplier<? extends DFace> faceDStructSupplier(int lumpVersion) {
-        switch (appID) {
+        switch (appId()) {
             case VAMPIRE_BLOODLINES:
                 return DFaceVTMB::new;
             case VINDICTUS:
@@ -221,7 +228,7 @@ public class BspFileReader {
 
         Supplier<? extends DModel> dStructSupplier;
 
-	    if (appID == DARK_MESSIAH) {
+	    if (appId() == DARK_MESSIAH) {
 		    dStructSupplier = DModelDM::new;
 	    } else {
 		    dStructSupplier = DModel::new;
@@ -247,7 +254,7 @@ public class BspFileReader {
 
         StaticPropLumpReader.StaticPropData staticPropData = readGameLump(
                 "sprp",
-                lumpVersion -> new StaticPropLumpReader(lumpVersion, appID),
+                lumpVersion -> new StaticPropLumpReader(lumpVersion, appId()),
                 StaticPropLumpReader.StaticPropData::new
         );
 
@@ -278,7 +285,7 @@ public class BspFileReader {
         int bspv = bspFile.getVersion();
 
         // the lump version is useless most of the time, use the AppID instead
-        switch (appID) {
+        switch (appId()) {
             case VINDICTUS:
                 dStructSupplier = DDispInfoVin::new;
                 break;
@@ -328,7 +335,7 @@ public class BspFileReader {
         // black mesa uses the LUMP_OVERLAY_SYSTEM_LEVELS lump to store multiblend information.
         // the original purpose of that lump is no longer used
         LumpType lumpType;
-        if (appID == BLACK_MESA)
+        if (appId() == BLACK_MESA)
             lumpType = LumpType.LUMP_OVERLAY_SYSTEM_LEVELS;
         else
             lumpType = LumpType.LUMP_DISP_MULTIBLEND;
@@ -344,7 +351,7 @@ public class BspFileReader {
 
         Supplier<? extends DTexInfo> dStructSupplier;
 
-        if (appID == DARK_MESSIAH) {
+        if (appId() == DARK_MESSIAH) {
             dStructSupplier = DTexInfoDM::new;
         } else {
             dStructSupplier = DTexInfo::new;
@@ -383,6 +390,18 @@ public class BspFileReader {
         boolean allowEscSeq = bspFile.getVersion() == 17;
         bspData.entities = readLump(LumpType.LUMP_ENTITIES, new EntityLumpReader(allowEscSeq));
         L.fine(String.format("%d entities", bspData.entities.size()));
+
+        Set<String> entityClasses = bspData.entities.stream()
+                .map(Entity::getClassName)
+                .collect(Collectors.toSet());
+
+        // detect appID with heuristics to handle special BSP formats if it's
+        // still unknown or undefined at this point
+        if (appId() == UNKNOWN) {
+            SourceAppDB appDB = SourceAppDB.getInstance();
+            SourceApp app = appDB.find(bspFile.getName(), bspFile.getVersion(), entityClasses);
+            bspFile.setSourceApp(app);
+        }
     }
 
     public void loadNodes() {
@@ -392,7 +411,7 @@ public class BspFileReader {
 
         Supplier<? extends DNode> dStructSupplier;
 
-        if (appID == VINDICTUS) {
+        if (appId() == VINDICTUS) {
             dStructSupplier = DNodeVin::new;
         } else {
             dStructSupplier = DNode::new;
@@ -408,7 +427,7 @@ public class BspFileReader {
         }
 
         Function<Integer, Supplier<? extends DLeaf>> dStructSupplierCreator = lumpVersion -> {
-            if (appID == VINDICTUS) {
+            if (appId() == VINDICTUS) {
                 // use special struct for Vindictus
                 return DLeafVin::new;
             } else if (lumpVersion == 0 && bspFile.getVersion() == 19) {
@@ -430,7 +449,7 @@ public class BspFileReader {
         }
 
         LumpReader<List<Integer>> lumpReader =
-                appID != VINDICTUS ? new UShortChunksLumpReader() : new IntegerChunksLumpReader();
+                appId() != VINDICTUS ? new UShortChunksLumpReader() : new IntegerChunksLumpReader();
 
         bspData.leafFaces = readLump(LumpType.LUMP_LEAFFACES, lumpReader);
         L.fine(String.format("%d leaf faces", bspData.leafFaces.size()));
@@ -442,7 +461,7 @@ public class BspFileReader {
         }
 
         LumpReader<List<Integer>> lumpReader =
-                appID != VINDICTUS ? new UShortChunksLumpReader() : new IntegerChunksLumpReader();
+                appId() != VINDICTUS ? new UShortChunksLumpReader() : new IntegerChunksLumpReader();
 
         bspData.leafBrushes = readLump(LumpType.LUMP_LEAFBRUSHES, lumpReader);
         L.fine(String.format("%d leaf brushes", bspData.leafBrushes.size()));
@@ -455,9 +474,9 @@ public class BspFileReader {
 
         Supplier<? extends DOverlay> dStructSupplier;
 
-        if (appID == VINDICTUS) {
+        if (appId() == VINDICTUS) {
             dStructSupplier = DOverlayVin::new;
-        } else if (appID == DOTA_2_BETA) {
+        } else if (appId() == DOTA_2_BETA) {
             dStructSupplier = DOverlayDota2::new;
         } else {
             dStructSupplier = DOverlay::new;
@@ -475,7 +494,7 @@ public class BspFileReader {
         // read CPU/GPU levels
         if (bspData.overlaySysLevels == null) {
             // black mesa uses this lump for displacement multiblend
-            if (appID == BLACK_MESA)
+            if (appId() == BLACK_MESA)
                 bspData.overlaySysLevels = Collections.emptyList();
             else
                 bspData.overlaySysLevels = readDStructChunksLump(LumpType.LUMP_OVERLAY_SYSTEM_LEVELS, DOverlaySystemLevel::new);
@@ -491,7 +510,7 @@ public class BspFileReader {
 
         Supplier<? extends DAreaportal> dStructSupplier;
 
-        if (appID == VINDICTUS) {
+        if (appId() == VINDICTUS) {
             dStructSupplier = DAreaportalVin::new;
         } else {
             dStructSupplier = DAreaportal::new;
