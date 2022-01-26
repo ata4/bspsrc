@@ -181,22 +181,30 @@ public class StaticPropLumpReader implements LumpReader<StaticPropLumpReader.Sta
 	private final List<StaticPropStructDescriptor> staticPropStructDescriptors = Arrays.asList(
 			new StaticPropStructDescriptor(DStaticPropV4::new, 4),
 			new StaticPropStructDescriptor(DStaticPropV5::new, 5),
-			new StaticPropStructDescriptor(DStaticPropV5Ship::new, 5, THE_SHIP),
 			new StaticPropStructDescriptor(DStaticPropV6::new, 6),
-			new StaticPropStructDescriptor(DStaticPropV6BGT::new, 6, BLOODY_GOOD_TIME),
-			new StaticPropStructDescriptor(DStaticPropV6DM::new, 6, DARK_MESSIAH),
-			new StaticPropStructDescriptor(DStaticPropV6VIN::new, 6, VINDICTUS),
-			new StaticPropStructDescriptor(DStaticPropV7L4D::new, 7, LEFT_4_DEAD),
-			new StaticPropStructDescriptor(DStaticPropV7VIN::new, 7, VINDICTUS),
-			new StaticPropStructDescriptor(DStaticPropV7ZC::new, 7, ZENO_CLASH),
 			new StaticPropStructDescriptor(DStaticPropV8::new, 8),
 			new StaticPropStructDescriptor(DStaticPropV9::new, 9),
-			new StaticPropStructDescriptor(DStaticPropV9DE::new, 9, DEAR_ESTHER),
 			new StaticPropStructDescriptor(DStaticPropV10::new, 10),
-			new StaticPropStructDescriptor(DStaticPropV10CSGO::new, 10, COUNTER_STRIKE_GO),
+			new StaticPropStructDescriptor(DStaticPropV11lite::new, 11),
 			new StaticPropStructDescriptor(DStaticPropV11::new, 11),
+			new StaticPropStructDescriptor(DStaticPropV5Ship::new, 5, THE_SHIP),
+			new StaticPropStructDescriptor(DStaticPropV6BGT::new, 6, BLOODY_GOOD_TIME),
+			new StaticPropStructDescriptor(DStaticPropV7ZC::new, 7, ZENO_CLASH),
+			new StaticPropStructDescriptor(DStaticPropV6DM::new, 6, DARK_MESSIAH),
+			new StaticPropStructDescriptor(DStaticPropV9DE::new, 9, DEAR_ESTHER),
+			// vindictus:
+			// newer maps report v6 even though their structure is identical to DStaticPropV5, probably because
+			// they additional have scaling array saved before the static prop array
+			// Consequently, their v7 seems to be a standard DStaticPropV6 with an additional scaling array
+			new StaticPropStructDescriptor(DStaticPropV6VIN::new, 6, VINDICTUS),
+			new StaticPropStructDescriptor(DStaticPropV7VIN::new, 7, VINDICTUS),
+			new StaticPropStructDescriptor(DStaticPropV7L4D::new, 7, LEFT_4_DEAD),
+			// there's been a short period where TF2 used v7, which later became v10 in all Source 2013 game
+			new StaticPropStructDescriptor(DStaticPropV10::new, 7, TEAM_FORTRESS_2),
+			new StaticPropStructDescriptor(DStaticPropV10CSGO::new, 10, COUNTER_STRIKE_GO),
 			new StaticPropStructDescriptor(DStaticPropV11CSGO::new, 11, COUNTER_STRIKE_GO),
-			new StaticPropStructDescriptor(DStaticPropV11lite::new, 11, BLACK_MESA)
+			// Insurgency is based of the csgo engine branch, so we can use DStaticPropV10CSGO
+			new StaticPropStructDescriptor(DStaticPropV10CSGO::new, 10, INSURGENCY)
 	);
 
 
