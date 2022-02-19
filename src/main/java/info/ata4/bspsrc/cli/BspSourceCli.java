@@ -368,7 +368,7 @@ public class BspSourceCli {
             Path path = Paths.get(arg);
 
             if (Files.isDirectory(path)) {
-                PathMatcher bspPathMatcher = path.getFileSystem().getPathMatcher("glob:*.bsp");
+                PathMatcher bspPathMatcher = path.getFileSystem().getPathMatcher("glob:**.bsp");
                 try (Stream<Path> pathStream = Files.walk(path, recursive ? Integer.MAX_VALUE : 0)) {
                     pathStream
                             .filter(Files::isRegularFile)
