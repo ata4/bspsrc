@@ -272,7 +272,7 @@ public class AreaportalMapper {
                                 apHelper,
                                 VectorUtil.matchingAreaPercentage(apHelper, dBrush, brushSide, bsp)
                         ))
-                        .filter(entry -> entry.getValue() > 0)
+                        .filter(entry -> entry.getValue() > 0) // TODO: should use some epsilon
                 )
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue, Math::max));
     }
