@@ -172,7 +172,11 @@ public class VmfMeta extends ModuleDecompile {
     }
 
     public void appendComment(String comment) {
-        worldspawn.setValue("comment", getComment().map(s -> s + " | ").orElse("") + comment);
+        String previousComment = getComment()
+                .map(s -> s + " | ")
+                .orElse("");
+
+        worldspawn.setValue("comment", previousComment + comment);
     }
 
     public Optional<String> getComment() {
