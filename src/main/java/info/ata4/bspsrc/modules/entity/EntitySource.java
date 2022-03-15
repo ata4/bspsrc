@@ -67,12 +67,14 @@ public class EntitySource extends ModuleDecompile {
     private final VmfMeta vmfmeta;
 
     // Areaportal to brush mapping
-    private AreaportalMapper areaportalMapper;
-    private Map<Integer, Integer> apBrushMap;
+    private final AreaportalMapper areaportalMapper;
+    // A map mapping areaportal ids to their supposed brush id
+    private final Map<Integer, Integer> apBrushMap;
 
     // Occluder to brushes mapping;
-    private OccluderMapper occluderMapper;
-    private Map<Integer, Set<Integer>> occBrushesMap;
+    private final OccluderMapper occluderMapper;
+    // A map mapping occluder ids to their supposed brush ids
+    private final Map<Integer, Set<Integer>> occBrushesMap;
 
     //'No More Room in Hell' Nmo data
     private NmoFile nmo;
@@ -112,10 +114,10 @@ public class EntitySource extends ModuleDecompile {
      * - detail brushes
      * Those are written by separate methods because of their different data models.
      *
-     * @see writeCubeMaps
-     * @see writeOverlays
-     * @see writeStaticProps
-     * @see writeDetails
+     * @see #writeCubemaps
+     * @see #writeOverlays
+     * @see #writeStaticProps
+     * @see #writeDetails
      */
     public void writeEntities() {
         L.info("Writing entities");

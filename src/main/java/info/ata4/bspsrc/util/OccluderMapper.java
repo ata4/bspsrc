@@ -166,7 +166,7 @@ public class OccluderMapper {
      * This is possible because vBsp seems to compile the occluders in order.
      * If this is not the case we use {@code manualMapping} to manually map the occluders to their brushes
      *
-     * @return A {@code Map} where the keys represent occluder ids and values a list of brush ids
+     * @return A {@code Map} where the keys represent occluder ids and values a set of brush ids
      */
     public Map<Integer, Set<Integer>> getOccBrushMapping() {
         if (!config.writeOccluders)
