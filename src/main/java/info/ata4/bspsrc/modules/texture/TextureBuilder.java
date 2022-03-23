@@ -64,6 +64,14 @@ public class TextureBuilder {
 
         // no texinfo
         if (itexinfo == DTexInfo.TEXINFO_NODE) {
+            // still try to fix textures even if we have no texinfo (Some tooltextures in css seem to have no texinfo)
+            // this is really just a simple fix, which might need to be revisited later if more information
+            // to cases like this is available.
+            // Also, just passing an empty string as the original texture here, is kinda a crude way of using
+            // the existing api
+            if (texsrc.isFixToolTextures())
+                texture.setOverrideTexture(fixToolTexture(""));
+
             return texture;
         }
 
