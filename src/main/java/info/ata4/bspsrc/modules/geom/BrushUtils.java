@@ -34,7 +34,7 @@ public class BrushUtils {
      */
     public static AABB getBounds(BspData bsp, DBrush brush) {
         // add bounds of all brush sides
-        AABB bounds = new AABB();
+        AABB bounds = AABB.ZERO;
         for (int i = 0; i < brush.numside; i++) {
             bounds = bounds.include(WindingFactory.fromSide(bsp, brush, i).getBounds());
         }
