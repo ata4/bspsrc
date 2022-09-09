@@ -40,7 +40,7 @@ public class BspSource implements Runnable {
 
     private static final Logger L = LogUtils.getLogger();
 
-    public static final String VERSION = "1.4.2-rc.1";
+    public static final String VERSION = "1.4.2";
 
     private final BspSourceConfig config;
 
