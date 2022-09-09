@@ -19,6 +19,7 @@ import info.ata4.bspsrc.VmfWriter;
 import info.ata4.bspsrc.modules.entity.EntitySource;
 import info.ata4.bspsrc.modules.geom.BrushMode;
 import info.ata4.bspsrc.modules.geom.BrushSource;
+import info.ata4.bspsrc.modules.geom.BrushUtils;
 import info.ata4.bspsrc.modules.geom.FaceSource;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.util.WindingFactory;
@@ -51,6 +52,7 @@ public class BspDecompiler extends ModuleDecompile {
         super(reader, writer);
 
         WindingFactory.clearCache();
+        BrushUtils.clearCache();
 
         this.config = config;
 
