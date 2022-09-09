@@ -12,7 +12,10 @@ package info.ata4.bspsrc.modules.geom;
 import info.ata4.bsplib.struct.BspData;
 import info.ata4.bsplib.struct.DBrush;
 import info.ata4.bspsrc.util.AABB;
+import info.ata4.bspsrc.util.Winding;
 import info.ata4.bspsrc.util.WindingFactory;
+
+import java.util.stream.IntStream;
 
 /**
  * Brush utility class.
@@ -34,10 +37,9 @@ public class BrushUtils {
      */
     public static AABB getBounds(BspData bsp, DBrush brush) {
         // add bounds of all brush sides
-        AABB bounds = AABB.ZERO;
-        for (int i = 0; i < brush.numside; i++) {
-            bounds = bounds.include(WindingFactory.fromSide(bsp, brush, i).getBounds());
-        }
-        return bounds;
+        return IntStream.range(0, brush.numside)
+                .mapToObj(i -> WindingFactory.fromSide(bsp, brush, i))
+                .map(Winding::getBounds)
+                .reduce(AABB.ZERO, AABB::include);
     }
 }
