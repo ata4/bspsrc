@@ -73,6 +73,19 @@ public class BrushSource extends ModuleDecompile {
     }
 
     /**
+     * @return {@code true}, if the specified brush was a func_detail entity
+     */
+    public boolean isFuncDetail(DBrush dBrush) {
+        if (bspFile.getSourceApp().getAppID() == SourceAppID.COUNTER_STRIKE_GO) {
+            // Note: For the game csgo, ladders can also be considered to be func_detail
+            //       even though their solid flag is always false
+            return (dBrush.isSolid() || dBrush.isLadder()) && dBrush.isDetail();
+        } else {
+            return dBrush.isSolid() && dBrush.isDetail();
+        }
+    }
+
+    /**
      * Returns the brush side VMF ID for the corresponding brush side index.
      * The brush side must have been previously written via
      * {@link #writeSide writeSide}.
@@ -150,7 +163,7 @@ public class BrushSource extends ModuleDecompile {
             DBrush brush = bsp.brushes.get(i);
 
             // skip details
-            if (config.writeDetails && brush.isFuncDetail(bspFile.getSourceApp().getAppID())) {
+            if (config.writeDetails && isFuncDetail(brush)) {
                 continue;
             }
 

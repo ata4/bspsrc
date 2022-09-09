@@ -457,7 +457,7 @@ public class EntitySource extends ModuleDecompile {
         L.info("Writing func_details");
 
         Set<DBrush> funcDetailBrushes = bsp.brushes.stream()
-                .filter(dBrush -> dBrush.isFuncDetail(bspFile.getSourceApp().getAppID()))
+                .filter(brushsrc::isFuncDetail)
                 .filter(dBrush -> !bspprot.isProtectedBrush(dBrush))
                 .collect(Collectors.toSet());
 

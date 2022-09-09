@@ -10,7 +10,6 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.bsplib.app.SourceAppID;
 import info.ata4.io.DataReader;
 import info.ata4.io.DataWriter;
 import info.ata4.util.EnumConverter;
@@ -89,16 +88,6 @@ public class DBrush implements DStruct {
 
     public boolean isCurrent90() {
         return contents.contains(BrushFlag.CONTENTS_CURRENT_90);
-    }
-
-    public boolean isFuncDetail(int appId) {
-        if (appId == SourceAppID.COUNTER_STRIKE_GO) {
-            // Note: For the game csgo, ladders can also be considered to be func_detail
-            //       even though their solid flag is always false
-            return (isSolid() || isLadder()) && isDetail();
-        } else {
-            return isSolid() && isDetail();
-        }
     }
 
     @Override
