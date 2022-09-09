@@ -35,7 +35,6 @@ import info.ata4.log.LogUtils;
 
 import java.awt.*;
 import java.util.List;
-import java.util.Queue;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -457,71 +456,63 @@ public class EntitySource extends ModuleDecompile {
     public void writeDetails() {
         L.info("Writing func_details");
 
+        Set<DBrush> funcDetailBrushes = bsp.brushes.stream()
+                .filter(dBrush -> dBrush.isFuncDetail(bspFile.getSourceApp().getAppID()))
+                .filter(dBrush -> !bspprot.isProtectedBrush(dBrush))
+                .collect(Collectors.toSet());
+
+        Set<Set<DBrush>> funcDetailBrushGroups;
+
         if (config.detailMerge) {
-            Set<AABB> detailBounds = new HashSet<>();
-            Map<AABB, Integer> detailIndices = new HashMap<>();
+            int newGroupId = 0;
+            Map<DBrush, Integer> brushGroups = new HashMap<>();
+            for (DBrush funcDetailBrush : funcDetailBrushes) {
+                AABB brushBounds = BrushUtils.getBounds(bsp, funcDetailBrush);
+                AABB extendedBounds = brushBounds.expand(config.detailMergeThresh);
 
-            // add all detail brushes to queue
-            for (int i = 0; i < bsp.brushes.size(); i++) {
-                DBrush brush = bsp.brushes.get(i);
+                // get all ids of groups that touch this brush
+                Set<Integer> intersectingGroupIds = new HashSet<>();
+                brushGroups.forEach((dBrush, groupId) -> {
+                    if (!intersectingGroupIds.contains(groupId)) {
+                        AABB otherBrushBounds = BrushUtils.getBounds(bsp, dBrush);
+                        if (extendedBounds.intersectsWith(otherBrushBounds)) {
+                            intersectingGroupIds.add(groupId);
+                        }
+                    }
+                });
 
-                // skip non-detail/non-solid brushes
-                if (!brush.isFuncDetail(bspFile.getSourceApp().getAppID())) {
-                    continue;
+                if (!intersectingGroupIds.isEmpty()) {
+                    int finalNewGroupId = newGroupId;
+                    brushGroups.replaceAll((dBrush, groupId) -> {
+                        return intersectingGroupIds.contains(groupId) ? finalNewGroupId : groupId;
+                    });
                 }
-
-                // skip VMEX protector brushes
-                if (bspprot.isProtectedBrush(brush)) {
-                    continue;
-                }
-
-                // get bounding box of the detail brush
-                AABB bounds = BrushUtils.getBounds(bsp, brush);
-
-                // writeBrush() expects brush indices, so map it to the AABB
-                detailBounds.add(bounds);
-                detailIndices.put(bounds, i);
+                brushGroups.put(funcDetailBrush, newGroupId++);
             }
 
-            while (!detailBounds.isEmpty()) {
-                // get next group of merged brush AABBs
-                Set<AABB> detailBoundsGroup = mergeNearestNeighborAABB(
-                        detailBounds, config.detailMergeThresh);
-
-                // write brush group as func_detail to VMF
-                writer.start("entity");
-                writer.put("id", vmfmeta.getUID());
-                writer.put("classname", "func_detail");
-
-                for (AABB bounds : detailBoundsGroup) {
-                    brushsrc.writeBrush(detailIndices.get(bounds));
-                }
-
-                writer.end("entity");
-            }
+            Map<Integer, Set<DBrush>> inverseBrushGroups = new HashMap<>();
+            brushGroups.forEach((dBrush, groupId) -> inverseBrushGroups.computeIfAbsent(groupId, HashSet::new).add(dBrush));
+            funcDetailBrushGroups = new HashSet<>(inverseBrushGroups.values());
         } else {
-            for (int i = 0; i < bsp.brushes.size(); i++) {
-                DBrush brush = bsp.brushes.get(i);
-
-                // skip non-detail/non-solid brushes
-                if (!brush.isSolid() || !brush.isDetail()) {
-                    continue;
-                }
-
-                // skip VMEX protector brushes
-                if (bspprot.isProtectedBrush(brush)) {
-                    continue;
-                }
-
-                writer.start("entity");
-                writer.put("id", vmfmeta.getUID());
-                writer.put("classname", "func_detail");
-                brushsrc.writeBrush(i);
-
-                writer.end("entity");
-            }
+            funcDetailBrushGroups = funcDetailBrushes.stream()
+                    .map(Collections::singleton)
+                    .collect(Collectors.toSet());
         }
 
+        for (Set<DBrush> funcDetailBrushGroup : funcDetailBrushGroups) {
+            writer.start("entity");
+            writer.put("id", vmfmeta.getUID());
+            writer.put("classname", "func_detail");
+
+            funcDetailBrushGroup.stream()
+                    .map(bsp.brushes::indexOf)
+                    .forEach(brushsrc::writeBrush);
+
+            writer.end("entity");
+        }
+
+        // TODO: doesn't this cause all protected brushes to be written as func_detail
+        //  (and therefore also causing some brushes to be written twice)?
         // write protector brushes separately
         List<DBrush> protBrushes = bspprot.getProtectedBrushes();
         if (!protBrushes.isEmpty()) {
@@ -536,51 +527,6 @@ public class EntitySource extends ModuleDecompile {
 
             writer.end("entity");
         }
-    }
-
-    /**
-     * Transfers the next group of touching bounding volumes from a set of loose
-     * bounding volumes.
-     *
-     * @param src input bounding volumes
-     * @param thresh touching threshold
-     * @return set of bounding volumes that have been removed from src
-     */
-    private Set<AABB> mergeNearestNeighborAABB(Set<AABB> src, float thresh) {
-        // pop next AABB from src
-        Iterator<AABB> iter = src.iterator();
-        List<AABB> first = Collections.singletonList(iter.next());
-        iter.remove();
-
-        Queue<AABB> pending = new ArrayDeque<>(first);
-        Set<AABB> group = new HashSet<>(first);
-
-        // do while there are pending AABBs
-        while (!pending.isEmpty()) {
-            // get next pending AABB
-            AABB current = pending.remove();
-
-            // expand AABB slightly so it can touch other AABBs more reliably
-            AABB currentTest = current.expand(thresh);
-
-            iter = src.iterator();
-            while (iter.hasNext()) {
-                // get next AABB
-                AABB other = iter.next();
-
-                // is it touching the target AABB?
-                if (other.intersectsWith(currentTest)) {
-                    // add it as pending...
-                    pending.add(other);
-
-                    // ...and transfer to group
-                    iter.remove();
-                    group.add(other);
-                }
-            }
-        }
-
-        return group;
     }
 
     /**
