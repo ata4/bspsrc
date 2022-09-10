@@ -57,7 +57,7 @@ public class TextureSource extends ModuleRead {
     private boolean fixTextureNames;
     private boolean fixToolTextures;
     private ToolTextureMatcher toolTextureMatcher =
-            new ToolTextureMatcher(ToolTextureSet.forGame(bspFile.getSourceApp().getAppId()));
+            new ToolTextureMatcher(ToolTextureSet.forGame(bspFile.getAppId()));
 
     public TextureSource(BspFileReader reader) {
         super(reader);

@@ -11,9 +11,8 @@
 package info.ata4.bspsrc.gui;
 
 import info.ata4.bsplib.BspFileFilter;
-import info.ata4.bsplib.app.SourceApp;
-import info.ata4.bsplib.app.SourceAppBuilder;
 import info.ata4.bsplib.app.SourceAppDB;
+import info.ata4.bsplib.app.SourceAppId;
 import info.ata4.bspsrc.BspFileEntry;
 import info.ata4.bspsrc.BspSource;
 import info.ata4.bspsrc.BspSourceConfig;
@@ -29,10 +28,7 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.io.File;
 import java.net.URL;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -101,22 +97,31 @@ public class BspSourceFrame extends javax.swing.JFrame {
         return new DefaultComboBoxModel<>(EnumToolTexture.values());
     }
 
+    private static class MapFormatEntry {
+        public final int appId;
+        public final String name;
+
+        private MapFormatEntry(int appId, String name) {
+            this.appId = appId;
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
     public ComboBoxModel getAppIDModel() {
-        DefaultComboBoxModel<SourceApp> cbmodel = new DefaultComboBoxModel<>();
-        List<SourceApp> apps = SourceAppDB.getInstance().getAppList();
+        DefaultComboBoxModel<MapFormatEntry> cbmodel = new DefaultComboBoxModel<>();
+        Map<Integer, String> apps = SourceAppDB.getInstance().getAppList();
 
-        apps.stream()
-            .sorted((SourceApp a1, SourceApp a2) -> a1.getName().compareTo(a2.getName()))
-            .forEach(app -> cbmodel.addElement(app));
+        apps.entrySet().stream()
+                .map(entry -> new MapFormatEntry(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparing(MapFormatEntry::toString))
+                .forEach(cbmodel::addElement);
 
-        // TODO: This definitely needs changing
-        cbmodel.insertElementAt(
-                new SourceAppBuilder()
-                        .setName("Automatic")
-                        .setAppId(0)
-                        .build(),
-                0
-        );
+        cbmodel.insertElementAt(new MapFormatEntry(SourceAppId.UNKNOWN, "Automatic"), 0);
 
         return cbmodel;
     }
@@ -1249,7 +1254,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
     }
 
     private void comboBoxMapFormatActionPerformed(java.awt.event.ActionEvent evt) {                                                  
-        config.defaultApp = (SourceApp) comboBoxMapFormat.getSelectedItem();
+        config.defaultAppId = ((MapFormatEntry) comboBoxMapFormat.getSelectedItem()).appId;
     }                                                 
 
     private void checkBoxEnableWorldBrushesActionPerformed(java.awt.event.ActionEvent evt) {                                                           

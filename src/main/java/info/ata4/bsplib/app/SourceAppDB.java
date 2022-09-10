@@ -12,6 +12,8 @@ package info.ata4.bsplib.app;
 import info.ata4.bsplib.app.definitions.*;
 import info.ata4.log.LogUtils;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,8 +68,6 @@ public class SourceAppDB {
             ZenoClashDef.APP,
             ZombiePanicSourceDef.APP
     );
-    private final Map<Integer, SourceApp> appMap = appList.stream()
-            .collect(Collectors.toMap(SourceApp::getAppId, sourceApp -> sourceApp));
 
     public static SourceAppDB getInstance() {
         if (instance == null) {
@@ -75,17 +75,6 @@ public class SourceAppDB {
         }
 
         return instance;
-    }
-
-    /**
-     * Returns the source app for a Steam AppID.
-     * 
-     * @param appId Steam AppID
-     * @return the app identifier for the ID or SourceApp.UNKNOWN if it couldn't
-     * be found.
-     */
-    public SourceApp fromId(int appId) {
-        return appMap.getOrDefault(appId, SourceApp.UNKNOWN);
     }
 
     /**
@@ -97,7 +86,7 @@ public class SourceAppDB {
      * @param classNames Complete set of entity class names
      * @return
      */
-    public SourceApp find(String bspName, int bspVersion, Set<String> classNames) {
+    public int find(String bspName, int bspVersion, Set<String> classNames) {
         class SourceAppScore {
             public final SourceApp app;
             public final float score;
@@ -117,7 +106,8 @@ public class SourceAppDB {
                 .max(Comparator.comparing(appScore -> appScore.score))
                 .filter(appScore -> appScore.score > 0)
                 .map(appScore -> appScore.app)
-                .orElse(SourceApp.UNKNOWN);
+                .map(SourceApp::getAppId)
+                .orElse(SourceAppId.UNKNOWN);
     }
 
     private float calculateAppScore(SourceApp app, String bspName, int bspVersion, Set<String> classNames) {
@@ -126,12 +116,33 @@ public class SourceAppDB {
                 + (app.checkName(bspName).orElse(false) ? app.getPointsFilePattern() : 0);
     }
 
+    public Optional<String> getName(int appId) {
+        return appList.stream()
+                .filter(app -> app.getAppId() == appId)
+                .findAny()
+                .map(SourceApp::getName);
+    }
+
     /**
-     * Returns the list of all Source apps from the database.
-     * 
-     * @return list of Source apps
+     * @return a map of app IDs to game names
      */
-    public List<SourceApp> getAppList() {
-        return Collections.unmodifiableList(appList);
+    public Map<Integer, String> getAppList() {
+        return appList.stream()
+                .collect(Collectors.toMap(SourceApp::getAppId, SourceApp::getName));
+    }
+
+    public static URI getSteamStoreURI(int appId) {
+        // don't return the URI for unknown or custom appIDs
+        if (appId <= 0) {
+            return null;
+        }
+
+        try {
+            return new URI(String.format("http://store.steampowered.com/app/%d/", appId));
+        } catch (URISyntaxException ex) {
+            L.log(Level.WARNING, "", ex);
+            // this really shouldn't happen...
+            return null;
+        }
     }
 }

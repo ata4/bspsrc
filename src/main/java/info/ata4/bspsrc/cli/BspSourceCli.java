@@ -10,7 +10,6 @@
 
 package info.ata4.bspsrc.cli;
 
-import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bspsrc.BspFileEntry;
 import info.ata4.bspsrc.BspSource;
@@ -27,7 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -250,11 +249,8 @@ public class BspSourceCli {
     private void printAppIDs() {
         System.out.printf("%6s  %s\n", "ID", "Name");
 
-        List<SourceApp> apps = SourceAppDB.getInstance().getAppList();
-
-        for (SourceApp app : apps) {
-            System.out.printf("%6d  %s\n", app.getAppId(), app.getName());
-        }
+        Map<Integer, String> apps = SourceAppDB.getInstance().getAppList();
+        apps.forEach((appId, name) -> System.out.printf("%6d  %s\n", appId, name));
     }
 
     /**
@@ -354,8 +350,7 @@ public class BspSourceCli {
             String appidStr = cl.getOptionValue(appidOpt.getOpt()).toUpperCase();
 
             try {
-                int appid = Integer.parseInt(appidStr);
-                config.defaultApp = SourceAppDB.getInstance().fromId(appid);
+                config.defaultAppId = Integer.parseInt(appidStr);
             } catch (NumberFormatException e) {
                 throw new BspSourceCliParseException("Invalid App-ID: " + appidStr);
             }

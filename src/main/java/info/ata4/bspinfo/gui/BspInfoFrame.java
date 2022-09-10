@@ -16,7 +16,7 @@ import info.ata4.bspinfo.gui.models.LumpTableModel;
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.BspFileFilter;
 import info.ata4.bsplib.BspFileReader;
-import info.ata4.bsplib.app.SourceApp;
+import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.lump.LumpType;
 import info.ata4.bsplib.struct.BspData;
@@ -205,12 +205,12 @@ public class BspInfoFrame extends javax.swing.JFrame {
                         textFieldComment.setText(worldspawn.getValue("comment"));
                     }
 
-                    SourceApp app = bspFile.getSourceApp();
+                    int appId = bspFile.getAppId();
 
-                    textFieldAppID.setText(app.getAppId() > 0 ? String.valueOf(app.getAppId()) : "n/a");
-                    textFieldGame.setText(app.getName());
+                    textFieldAppID.setText(appId > 0 ? String.valueOf(appId) : "n/a");
+                    textFieldGame.setText(SourceAppDB.getInstance().getName(appId).orElse("Unknown"));
 
-                    URI steamStoreURI = app.getSteamStoreURI();
+                    URI steamStoreURI = SourceAppDB.getSteamStoreURI(appId);
 
                     if (steamStoreURI != null) {
                         linkLabelAppURL.setURI("Steam store link", steamStoreURI);

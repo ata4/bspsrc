@@ -10,7 +10,7 @@
 
 package info.ata4.bspsrc;
 
-import info.ata4.bsplib.app.SourceApp;
+import info.ata4.bsplib.app.SourceAppId;
 import info.ata4.bspsrc.modules.geom.BrushMode;
 import info.ata4.bspsrc.util.SourceFormat;
 import info.ata4.log.LogUtils;
@@ -34,7 +34,7 @@ public final class BspSourceConfig implements Serializable {
     // logger
     private static final Logger L = LogUtils.getLogger();
 
-    public SourceApp defaultApp = SourceApp.UNKNOWN;
+    public int defaultAppId = SourceAppId.UNKNOWN;
     public BrushMode brushMode = BrushMode.BRUSHPLANES;
     public SourceFormat sourceFormat = SourceFormat.AUTO;
     public String backfaceTexture = "";

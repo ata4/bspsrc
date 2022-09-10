@@ -176,7 +176,7 @@ public class BspDecompiler extends ModuleDecompile {
             }
 
             // Only write func_ladder if game is not csgo. Cso doesn't use the func_ladder entity
-            if (config.writeLadders && bspFile.getSourceApp().getAppId() != SourceAppId.COUNTER_STRIKE_GO) {
+            if (config.writeLadders && bspFile.getAppId() != SourceAppId.COUNTER_STRIKE_GO) {
                 entsrc.writeLadders();
             }
         }

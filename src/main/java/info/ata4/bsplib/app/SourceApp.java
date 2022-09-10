@@ -11,8 +11,6 @@ package info.ata4.bsplib.app;
 
 import info.ata4.log.LogUtils;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -31,10 +29,6 @@ import static java.util.Objects.requireNonNull;
 public class SourceApp {
 
     private static final Logger L = LogUtils.getLogger();
-    public static final SourceApp UNKNOWN = new SourceAppBuilder()
-            .setName("Unknown")
-            .setAppId(SourceAppId.UNKNOWN)
-            .build();
 
     private final String name;
     private final int appId;
@@ -95,21 +89,6 @@ public class SourceApp {
 
     public float getPointsFilePattern() {
         return pointsFilePattern;
-    }
-
-    public URI getSteamStoreURI() {
-        // don't return the URI for unknown or custom appIDs
-        if (this == SourceApp.UNKNOWN || appId < 0) {
-            return null;
-        }
-
-        try {
-            return new URI(String.format("http://store.steampowered.com/app/%d/", appId));
-        } catch (URISyntaxException ex) {
-            L.log(Level.WARNING, "", ex);
-            // this really shouldn't happen...
-            return null;
-        }
     }
 
     /**

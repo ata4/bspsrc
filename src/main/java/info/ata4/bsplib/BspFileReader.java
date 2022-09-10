@@ -10,7 +10,6 @@
 
 package info.ata4.bsplib;
 
-import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bsplib.entity.Entity;
 import info.ata4.bsplib.io.lumpreader.*;
@@ -67,7 +66,7 @@ public class BspFileReader {
     }
 
     private int appId() {
-        return bspFile.getSourceApp().getAppId();
+        return bspFile.getAppId();
     }
 
     /**
@@ -398,9 +397,8 @@ public class BspFileReader {
         // detect appID with heuristics to handle special BSP formats if it's
         // still unknown or undefined at this point
         if (appId() == UNKNOWN) {
-            SourceAppDB appDB = SourceAppDB.getInstance();
-            SourceApp app = appDB.find(bspFile.getName(), bspFile.getVersion(), entityClasses);
-            bspFile.setSourceApp(app);
+            int appId = SourceAppDB.getInstance().find(bspFile.getName(), bspFile.getVersion(), entityClasses);
+            bspFile.setAppId(appId);
         }
     }
 
@@ -532,7 +530,7 @@ public class BspFileReader {
 
             // Contagion maps report lump version 0, but they're actually
             // using 1
-            if (bspFile.getSourceApp().getAppId() == CONTAGION) {
+            if (bspFile.getAppId() == CONTAGION) {
                 alteredLumpVersion = 1;
             }
 
