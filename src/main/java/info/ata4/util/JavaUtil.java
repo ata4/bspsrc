@@ -20,4 +20,11 @@ public class JavaUtil {
     public static <E> List<E> listCopyOf(Collection<? extends E> collection) {
         return Collections.unmodifiableList(new ArrayList<>(collection));
     }
+
+    /**
+     * @see Set#copyOf(Collection)
+     */
+    public static <E> Set<E> setCopyOf(Collection<? extends E> collection) {
+        return Collections.unmodifiableSet(new HashSet<>(collection));
+    }
 }

@@ -207,7 +207,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
                     SourceApp app = bspFile.getSourceApp();
 
-                    textFieldAppID.setText(app.getAppID() > 0 ? String.valueOf(app.getAppID()) : "n/a");
+                    textFieldAppID.setText(app.getAppId() > 0 ? String.valueOf(app.getAppId()) : "n/a");
                     textFieldGame.setText(app.getName());
 
                     URI steamStoreURI = app.getSteamStoreURI();

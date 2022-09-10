@@ -67,7 +67,7 @@ public class BspFileReader {
     }
 
     private int appId() {
-        return bspFile.getSourceApp().getAppID();
+        return bspFile.getSourceApp().getAppId();
     }
 
     /**
@@ -532,7 +532,7 @@ public class BspFileReader {
 
             // Contagion maps report lump version 0, but they're actually
             // using 1
-            if (bspFile.getSourceApp().getAppID() == CONTAGION) {
+            if (bspFile.getSourceApp().getAppId() == CONTAGION) {
                 alteredLumpVersion = 1;
             }
 

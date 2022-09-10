@@ -131,7 +131,7 @@ public class BspSource implements Runnable {
 
         // load NMO if game is 'No More Room in Hell'
         NmoFile nmo = null;
-        if (reader.getBspFile().getSourceApp().getAppID() == SourceAppID.NO_MORE_ROOM_IN_HELL) {
+        if (reader.getBspFile().getSourceApp().getAppId() == SourceAppID.NO_MORE_ROOM_IN_HELL) {
             if (nmoFile.exists()) {
                 try {
                     nmo = new NmoFile();

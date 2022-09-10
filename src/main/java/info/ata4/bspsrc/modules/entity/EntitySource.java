@@ -939,7 +939,7 @@ public class EntitySource extends ModuleDecompile {
 
             // replace escaped quotes for VTMB so they can be loaded with the
             // inofficial SDK Hammer
-            if (bspFile.getSourceApp().getAppID() == SourceAppID.VAMPIRE_BLOODLINES) {
+            if (bspFile.getSourceApp().getAppId() == SourceAppID.VAMPIRE_BLOODLINES) {
                 for (Map.Entry<String, String> kv : ent.getEntrySet()) {
                     String value = kv.getValue();
                     value = value.replace("\\\"", "");

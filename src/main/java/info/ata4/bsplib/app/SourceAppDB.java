@@ -9,13 +9,15 @@
  */
 package info.ata4.bsplib.app;
 
+import info.ata4.bsplib.app.definitions.*;
 import info.ata4.log.LogUtils;
-import java.io.InputStream;
+
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Source engine application database handler.
@@ -27,9 +29,45 @@ public class SourceAppDB {
     private static final Logger L = LogUtils.getLogger();
     private static SourceAppDB instance;
 
-    private List<SourceApp> appList = new ArrayList<>();
-    private Map<Integer, SourceApp> appMap = new HashMap<>();
-    private float score;
+    private final List<SourceApp> appList = Arrays.asList(
+            AlienSwarmDef.APP,
+            BlackMesaDef.APP,
+            BladeSymphonyDef.APP,
+            BloodyGoodTimeDef.APP,
+            ContagionDef.APP,
+            CounterStrikeGlobalOffensiveDef.APP,
+            CounterStrikeSourceDef.APP,
+            CyberDiverDef.APP,
+            DarkMessiahOfMightMagicDef.APP,
+            DayOfDefeatSourceDef.APP,
+            DearEstherDef.APP,
+            Dota2Def.APP,
+            GarrysModDef.APP,
+            HalfLife2DeathmatchDef.APP,
+            HalfLife2Def.APP,
+            HalfLife2EpisodeOneDef.APP,
+            HalfLife2EpisodeTwoDef.APP,
+            HalfLifeSourceDef.APP,
+            InsurgencyDef.APP,
+            Left4Dead2Def.APP,
+            Left4DeadDef.APP,
+            NoMoreRoomInHellDef.APP,
+            Portal2Def.APP,
+            PortalDef.APP,
+            Postal3Def.APP,
+            SiNEpisodesEmergenceDef.APP,
+            SynergyDef.APP,
+            TacticalInterventionDef.APP,
+            TeamFortress2Def.APP,
+            TheShipDef.APP,
+            TitanfallDef.APP,
+            VampireTheMasqueradeBloodlinesDef.APP,
+            VindictusMabinogiHeroesDef.APP,
+            ZenoClashDef.APP,
+            ZombiePanicSourceDef.APP
+    );
+    private final Map<Integer, SourceApp> appMap = appList.stream()
+            .collect(Collectors.toMap(SourceApp::getAppId, sourceApp -> sourceApp));
 
     public static SourceAppDB getInstance() {
         if (instance == null) {
@@ -39,45 +77,15 @@ public class SourceAppDB {
         return instance;
     }
 
-    private SourceAppDB() {
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-
-        try (InputStream is = getClass().getResourceAsStream("appdb.xml")) {
-            SAXParser sp = spf.newSAXParser();
-            SourceAppHandler handler = new SourceAppHandler();
-            sp.parse(is, handler);
-            appList = handler.getAppList();
-
-            // generate ID map for validation and faster access
-            for (SourceApp app : appList) {
-                Integer appID = app.getAppID();
-
-                // warn if we have more than one app for an ID
-                if (appMap.containsKey(appID)) {
-                    L.log(Level.WARNING, "Duplicate App ID {0} for \"{1}\" and \"{2}\"",
-                            new Object[]{appID, appMap.get(appID), app});
-                }
-
-                appMap.put(appID, app);
-            }
-        } catch (Exception ex) {
-            L.log(Level.SEVERE, "Can't load Source application database", ex);
-        }
-    }
-
     /**
      * Returns the source app for a Steam AppID.
      * 
-     * @param appID Steam AppID
+     * @param appId Steam AppID
      * @return the app identifier for the ID or SourceApp.UNKNOWN if it couldn't
      * be found.
      */
-    public SourceApp fromID(int appID) {       
-        if (appMap == null || !appMap.containsKey(appID)) {
-            return SourceApp.UNKNOWN;
-        } else {
-            return appMap.get(appID);
-        }
+    public SourceApp fromId(int appId) {
+        return appMap.getOrDefault(appId, SourceApp.UNKNOWN);
     }
 
     /**
@@ -90,51 +98,32 @@ public class SourceAppDB {
      * @return
      */
     public SourceApp find(String bspName, int bspVersion, Set<String> classNames) {
-        SourceApp candidate = SourceApp.UNKNOWN;
-        score = 0;
+        class SourceAppScore {
+            public final SourceApp app;
+            public final float score;
 
-        if (appList == null) {
-            return candidate;
-        }
-
-        for (SourceApp app : appList) {
-            // skip candidates with wrong version
-            if (app.canCheckVersion() && !app.checkVersion(bspVersion)) {
-                continue;
-            }
-
-            L.log(Level.FINER, "Testing {0}", app.getName());
-
-            float scoreNew = 0;
-
-            // check entity class names
-            if (app.canCheckEntities()) {
-                scoreNew += app.checkEntities(classNames);
-            }
-
-            // check BSP file name pattern
-            if (app.canCheckName()) {
-                scoreNew += app.checkName(bspName);
-            }
-
-            if (scoreNew != 0 && scoreNew > score) {
-                L.log(Level.FINER, "New candidate {0} with a score of {1}", new Object[]{app.getName(), scoreNew});
-                candidate = app;
-                score = scoreNew;
+            SourceAppScore(SourceApp app, float score) {
+                this.app = requireNonNull(app);
+                this.score = score;
             }
         }
 
-        return candidate;
+        return appList.stream()
+                .map(app -> new SourceAppScore(app, calculateAppScore(app, bspName, bspVersion, classNames)))
+                .peek(appScore -> L.log(
+                        Level.FINE,
+                        String.format("App %s has score %f", appScore.app.getName(), appScore.score)
+                ))
+                .max(Comparator.comparing(appScore -> appScore.score))
+                .filter(appScore -> appScore.score > 0)
+                .map(appScore -> appScore.app)
+                .orElse(SourceApp.UNKNOWN);
     }
 
-    /**
-     * Returns the total heuristic score for the last call of
-     * {@link #find(java.lang.String, int, java.util.Set)}.
-     * 
-     * @return total score
-     */
-    public float getScore() {
-        return score;
+    private float calculateAppScore(SourceApp app, String bspName, int bspVersion, Set<String> classNames) {
+        return (app.checkVersion(bspVersion).orElse(true) ? 0 : Float.NEGATIVE_INFINITY)
+                + (app.checkEntities(classNames).orElse(0f) * app.getPointsEntities())
+                + (app.checkName(bspName).orElse(false) ? app.getPointsFilePattern() : 0);
     }
 
     /**

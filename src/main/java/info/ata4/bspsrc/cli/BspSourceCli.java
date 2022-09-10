@@ -253,7 +253,7 @@ public class BspSourceCli {
         List<SourceApp> apps = SourceAppDB.getInstance().getAppList();
 
         for (SourceApp app : apps) {
-            System.out.printf("%6d  %s\n", app.getAppID(), app.getName());
+            System.out.printf("%6d  %s\n", app.getAppId(), app.getName());
         }
     }
 
@@ -355,7 +355,7 @@ public class BspSourceCli {
 
             try {
                 int appid = Integer.parseInt(appidStr);
-                config.defaultApp = SourceAppDB.getInstance().fromID(appid);
+                config.defaultApp = SourceAppDB.getInstance().fromId(appid);
             } catch (NumberFormatException e) {
                 throw new BspSourceCliParseException("Invalid App-ID: " + appidStr);
             }

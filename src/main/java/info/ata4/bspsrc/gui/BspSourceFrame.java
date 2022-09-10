@@ -12,6 +12,7 @@ package info.ata4.bspsrc.gui;
 
 import info.ata4.bsplib.BspFileFilter;
 import info.ata4.bsplib.app.SourceApp;
+import info.ata4.bsplib.app.SourceAppBuilder;
 import info.ata4.bsplib.app.SourceAppDB;
 import info.ata4.bspsrc.BspFileEntry;
 import info.ata4.bspsrc.BspSource;
@@ -108,7 +109,14 @@ public class BspSourceFrame extends javax.swing.JFrame {
             .sorted((SourceApp a1, SourceApp a2) -> a1.getName().compareTo(a2.getName()))
             .forEach(app -> cbmodel.addElement(app));
 
-        cbmodel.insertElementAt(new SourceApp("Automatic", 0), 0);
+        // TODO: This definitely needs changing
+        cbmodel.insertElementAt(
+                new SourceAppBuilder()
+                        .setName("Automatic")
+                        .setAppId(0)
+                        .build(),
+                0
+        );
 
         return cbmodel;
     }

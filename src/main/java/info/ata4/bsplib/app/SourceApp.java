@@ -13,13 +13,15 @@ import info.ata4.log.LogUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+
+import static info.ata4.util.JavaUtil.setCopyOf;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Source engine application identifier.
@@ -29,36 +31,37 @@ import java.util.regex.PatternSyntaxException;
 public class SourceApp {
 
     private static final Logger L = LogUtils.getLogger();
-    public static final SourceApp UNKNOWN = new SourceApp("Unknown", SourceAppID.UNKNOWN);
+    public static final SourceApp UNKNOWN = new SourceAppBuilder()
+            .setName("Unknown")
+            .setAppId(SourceAppID.UNKNOWN)
+            .build();
 
     private final String name;
-    private final int appID;
-    private int versionMin = -1;
-    private int versionMax = -1;
-    private String filePattern;
-    private Pattern filePatternCompiled;
-    private Set<String> entities = new HashSet<>();
-    private float pointsEntities = 20;
-    private float pointsFilePattern = 3;
+    private final int appId;
+    private final int versionMin;
+    private final int versionMax;
+    private final Pattern filePattern;
+    private final Set<String> entities;
+    private final float pointsEntities;
+    private final float pointsFilePattern;
 
-    public SourceApp(String name, int appID) {
-        this.name = name;
-        this.appID = appID;
-    }
-
-    float getPointsEntities() {
-        return pointsEntities;
-    }
-
-    void setPointsEntities(float pointsEntities) {
+    SourceApp(
+            String name,
+            int appId,
+            int versionMin,
+            int versionMax,
+            Pattern filePattern,
+            Set<String> entities,
+            float pointsEntities,
+            float pointsFilePattern
+    ) {
+        this.name = requireNonNull(name);
+        this.appId = appId;
+        this.versionMin = versionMin;
+        this.versionMax = versionMax;
+        this.filePattern = filePattern;
+        this.entities = setCopyOf(entities);
         this.pointsEntities = pointsEntities;
-    }
-
-    float getPointsFilePattern() {
-        return pointsFilePattern;
-    }
-
-    void setPointsFilePattern(float pointsFilePattern) {
         this.pointsFilePattern = pointsFilePattern;
     }
 
@@ -66,156 +69,102 @@ public class SourceApp {
         return name;
     }
 
-    public int getAppID() {
-        return appID;
-    }
-
-    public URI getSteamStoreURI() {
-        // don't return the URI for unknown or custom appIDs
-        if (this == SourceApp.UNKNOWN || appID < 0) {
-            return null;
-        }
-
-        try {
-            return new URI(String.format("http://store.steampowered.com/app/%d/", appID));
-        } catch (URISyntaxException ex) {
-            // this really shouldn't happen...
-            return null;
-        }
-    }
-
-    public String getFilePattern() {
-        return filePattern;
-    }
-
-    public void setFilePattern(String filePattern) {
-        try {
-            this.filePatternCompiled = Pattern.compile(filePattern);
-            this.filePattern = filePattern;
-        } catch (PatternSyntaxException ex) {
-            L.log(Level.WARNING, "Invalid file name pattern", ex);
-        }
-    }
-
-    public Set<String> getEntities() {
-        return entities;
+    public int getAppId() {
+        return appId;
     }
 
     public int getVersionMin() {
         return versionMin;
     }
 
-    public void setVersionMin(int versionMin) {
-        this.versionMin = versionMin;
-    }
-
     public int getVersionMax() {
         return versionMax;
     }
 
-    public void setVersionMax(int versionMax) {
-        this.versionMax = versionMax;
+    public Pattern getFilePattern() {
+        return filePattern;
     }
 
-    public boolean canCheckName() {
-        return filePatternCompiled != null;
+    public Set<String> getEntities() {
+        return entities;
+    }
+
+    public float getPointsEntities() {
+        return pointsEntities;
+    }
+
+    public float getPointsFilePattern() {
+        return pointsFilePattern;
+    }
+
+    public URI getSteamStoreURI() {
+        // don't return the URI for unknown or custom appIDs
+        if (this == SourceApp.UNKNOWN || appId < 0) {
+            return null;
+        }
+
+        try {
+            return new URI(String.format("http://store.steampowered.com/app/%d/", appId));
+        } catch (URISyntaxException ex) {
+            L.log(Level.WARNING, "", ex);
+            // this really shouldn't happen...
+            return null;
+        }
     }
 
     /**
-     * Returns the absolute heuristic score for a BSP file name. If the name
-     * matches the pattern of this app, a score of {@link #getPointsFilePattern()}
-     * will be returned.
-     * 
      * @param name BSP file name to check
-     * @return name match score
+     * @return empty optional if can't check name otherwise true if name matches
      */
-    public float checkName(String name) {
-        if (!canCheckName()) {
-            throw new UnsupportedOperationException();
-        }
-
-        if (filePatternCompiled.matcher(name.toLowerCase(Locale.ROOT)).find()) {
-            L.log(Level.FINER, "File pattern match: {0} on {1}", new Object[]{filePattern, name});
-            return pointsFilePattern;
-        } else {
-            return 0;
-        }
-    }
-
-    /**
-     * Checks if the version can be checked.
-     * 
-     * @return true if the version can be checked
-     */
-    public boolean canCheckVersion() {
-        return versionMin != -1 || versionMax != -1;
+    public Optional<Boolean> checkName(String name) {
+        if (filePattern == null)
+            return Optional.empty();
+        else
+            return Optional.of(filePattern.matcher(name.toLowerCase(Locale.ROOT)).find());
     }
 
     /**
      * Checks if a BSP version number is valid for this app.
      * 
      * @param bspVersion BSP version number to check
-     * @return true if the version is valid for this app
+     * @return empty optional if can't check version otherwise true if the version is valid for this app
      */
-    public boolean checkVersion(int bspVersion) {
-        if (!canCheckVersion()) {
-            throw new UnsupportedOperationException();
+    public Optional<Boolean> checkVersion(int bspVersion) {
+        if (versionMin == -1 && versionMax == -1) {
+            return Optional.empty();
+        } else {
+            return Optional.of((versionMin == -1 || bspVersion >= versionMin)
+                    && (versionMax == -1 || bspVersion <= versionMax));
         }
-
-        // check exact BSP version
-        if (versionMin != -1 && versionMax == -1) {
-            return bspVersion == versionMin;
-        }
-        if (versionMax != -1 && versionMin == -1) {
-            return bspVersion == versionMax;
-        }
-
-        // check BSP version range
-        if (bspVersion > versionMax ||
-                bspVersion < versionMin) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
-     * Checks if the entities can be checked.
-     * 
-     * @return true if the entities can be checked
-     */
-    public boolean canCheckEntities() {
-        return entities != null && !entities.isEmpty();
-    }
-
-    /**
-     * Returns the absolute heuristic score for a set of entity class names.
-     * The more entity classes are found for this app, the higher is the resulting
-     * score. The maximum score can be set with {@link #setPointsEntities(float)}.
-     * 
      * @param classNames
-     * @return entity match score
+     * @return the percentage of matched entity class names
      */
-    public float checkEntities(Set<String> classNames) {
-        if (!canCheckEntities()) {
-            throw new UnsupportedOperationException();
-        }
+    public Optional<Float> checkEntities(Set<String> classNames) {
+        if (entities.isEmpty())
+            return Optional.empty();
 
-        int matches = 0;
+        long matches = classNames.stream()
+                .filter(entities::contains)
+                .peek(s -> L.log(Level.FINER, "Entity match: {0}", s))
+                .count();
 
-        for (String className : classNames) {
-            if (entities.contains(className)) {
-                L.log(Level.FINER, "Entity match: {0}", className);
-                matches++;
-            }
-        }
-
-        // weight the points by entity matches relative to all entity entries
-        return (matches / (float) entities.size()) * pointsEntities;
+        return Optional.of(matches / (float) entities.size());
     }
 
     @Override
     public String toString() {
-        return name;
+        return "SourceApp{"
+                + "name='" + name + '\''
+                + ", appId=" + appId
+                + ", versionMin=" + versionMin
+                + ", versionMax=" + versionMax
+                + ", filePattern=" + filePattern
+                + ", entities=" + entities
+                + ", pointsEntities=" + pointsEntities
+                + ", pointsFilePattern=" + pointsFilePattern
+                + '}';
     }
 }
