@@ -77,7 +77,7 @@ public class BrushSource extends ModuleDecompile {
      */
     public boolean isFuncDetail(DBrush dBrush) {
         boolean potentialNonObjectBrushLadderDetail = BspDecompiler.usesNonObjectBrushLadders(bspFile.getAppId()) && dBrush.isLadder();
-        return (potentialNonObjectBrushLadderDetail || dBrush.isSolid()) && dBrush.isDetail();
+        return (potentialNonObjectBrushLadderDetail || dBrush.isSolid() || dBrush.isTranslucent()) && dBrush.isDetail();
     }
 
     /**
