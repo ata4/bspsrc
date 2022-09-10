@@ -810,7 +810,7 @@ public class EntitySource extends ModuleDecompile {
     public void writeLadders() {
         L.info("Writing func_ladders");
 
-        for (int i = 0; i < bsp.brushes.size(); i++) {
+        for (int i = 0; i < brushsrc.getWorldbrushes(); i++) {
             DBrush brush = bsp.brushes.get(i);
 
             // skip non-ladder brushes
@@ -953,15 +953,18 @@ public class EntitySource extends ModuleDecompile {
                 }
             }
 
-            // func_simpleladder entities are used by the engine only and won't
-            // work when re-compiling, so replace them with empty func_ladder's
-            // instead.
+            // func_simpleladder entities are created by left 4 dead engine branch
+            // we use these to reconstruct func_ladder entities
             if (className.equals("func_simpleladder")) {
                 int modelNum = ent.getModelNum();
+                String hammerId = ent.getValue("hammerid");
 
                 ent.clear();
                 ent.setClassName("func_ladder");
                 ent.setModelNum(modelNum);
+
+                if (hammerId != null)
+                    ent.setValue("hammerid", hammerId);
             }
 
             // fix light entities (except for dynamic lights)
