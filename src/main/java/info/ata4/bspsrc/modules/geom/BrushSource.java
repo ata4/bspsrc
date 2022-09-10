@@ -11,13 +11,13 @@
 package info.ata4.bspsrc.modules.geom;
 
 import info.ata4.bsplib.BspFileReader;
-import info.ata4.bsplib.app.SourceAppId;
 import info.ata4.bsplib.struct.DBrush;
 import info.ata4.bsplib.struct.DBrushSide;
 import info.ata4.bsplib.struct.DModel;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.VmfWriter;
+import info.ata4.bspsrc.modules.BspDecompiler;
 import info.ata4.bspsrc.modules.BspProtection;
 import info.ata4.bspsrc.modules.ModuleDecompile;
 import info.ata4.bspsrc.modules.VmfMeta;
@@ -76,13 +76,8 @@ public class BrushSource extends ModuleDecompile {
      * @return {@code true}, if the specified brush was a func_detail entity
      */
     public boolean isFuncDetail(DBrush dBrush) {
-        if (bspFile.getAppId() == SourceAppId.COUNTER_STRIKE_GO) {
-            // Note: For the game csgo, ladders can also be considered to be func_detail
-            //       even though their solid flag is always false
-            return (dBrush.isSolid() || dBrush.isLadder()) && dBrush.isDetail();
-        } else {
-            return dBrush.isSolid() && dBrush.isDetail();
-        }
+        boolean potentialNonObjectBrushLadderDetail = BspDecompiler.usesNonObjectBrushLadders(bspFile.getAppId()) && dBrush.isLadder();
+        return (potentialNonObjectBrushLadderDetail || dBrush.isSolid()) && dBrush.isDetail();
     }
 
     /**
@@ -172,10 +167,10 @@ public class BrushSource extends ModuleDecompile {
                 continue;
             }
 
-            // only skip ladders if game not csgo
-            // csgo handles ladders as normal brushes, so we don't need to skip them here
+            // only skip ladders if game uses object brush based ladders
+            // see https://developer.valvesoftware.com/wiki/Working_Ladders
             if (config.writeLadders && brush.isLadder()
-                    && bspFile.getAppId() != SourceAppId.COUNTER_STRIKE_GO) {
+                    && !BspDecompiler.usesNonObjectBrushLadders(bspFile.getAppId())) {
                 continue;
             }
 

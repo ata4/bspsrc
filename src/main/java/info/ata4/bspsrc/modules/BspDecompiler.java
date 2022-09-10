@@ -175,8 +175,9 @@ public class BspDecompiler extends ModuleDecompile {
                 entsrc.writeCubemaps();
             }
 
-            // Only write func_ladder if game is not csgo. Cso doesn't use the func_ladder entity
-            if (config.writeLadders && bspFile.getAppId() != SourceAppId.COUNTER_STRIKE_GO) {
+            // Only write func_ladder if game uses object brush based ladders
+            // see https://developer.valvesoftware.com/wiki/Working_Ladders
+            if (config.writeLadders && !usesNonObjectBrushLadders(bspFile.getAppId())) {
                 entsrc.writeLadders();
             }
         }
@@ -187,5 +188,9 @@ public class BspDecompiler extends ModuleDecompile {
      */
     public void setNmoData(NmoFile nmo) {
         entsrc.setNmo(nmo);
+    }
+
+    public static boolean usesNonObjectBrushLadders(int appId) {
+        return appId == SourceAppId.COUNTER_STRIKE_GO;
     }
 }
