@@ -53,7 +53,7 @@ public class SourceAppId {
     public static final int BLADE_SYMPHONY = 225600;
     public static final int CONTAGION = 238430;
     public static final int BLACK_MESA = 362890;
+    public static final int TITANFALL = 1454890;
 
-    public static final int TITANFALL = -400;
     public static final int CYBER_DIVER = -500;
 }
