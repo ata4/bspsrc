@@ -221,12 +221,24 @@ public class BspFile {
             bb = ByteBufferUtils.load(file);
         }
 
-        // make sure we have enough room for reading
-        if (bb.capacity() < HEADER_SIZE) {
+        if (bb.capacity() < 4) {
             throw new BspException("Invalid or missing header");
         }
 
         int ident = bb.getInt();
+
+        if (ident == 0x504B0304 || ident == 0x504B0506 || ident == 0x504B0708) {
+            // loaded file is a zip...
+            // this code is in place because a surprising amount of people try to decompile zip files
+            L.severe("File is a zip archive. Make sure to first extract any bsp file "
+                    + "it might contain and then select these for decompilation.");
+            throw new BspException("Loaded file is a zip archive");
+        }
+
+        // make sure we have enough room for reading
+        if (bb.capacity() < HEADER_SIZE) {
+            throw new BspException("Invalid or missing header");
+        }
 
         if (ident == BSP_ID) {
             // ordinary big-endian ident
