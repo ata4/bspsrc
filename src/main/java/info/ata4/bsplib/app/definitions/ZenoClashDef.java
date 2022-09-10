@@ -2,12 +2,13 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 public class ZenoClashDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Zeno Clash")
-			.setAppId(22200)
+			.setAppId(SourceAppId.ZENO_CLASH)
 			.setVersionMin(20)
 			.setEntities(
 					"NPC_Zeno_FatherMother_Finale",

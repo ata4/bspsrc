@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class BlackMesaDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Black Mesa")
-			.setAppId(362890)
+			.setAppId(SourceAppId.BLACK_MESA)
 			.setVersionMin(20)
 			.setFilePattern(Pattern.compile("^(bm_c[0-5]a[0-5][a-i][1]?)|(dm_.*)$"))
 			.setEntities(

@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class PortalDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Portal")
-			.setAppId(400)
+			.setAppId(SourceAppId.PORTAL)
 			.setVersionMin(20)
 			.setFilePattern(Pattern.compile("^(testchmb_a|escape)_"))
 			.setEntities(

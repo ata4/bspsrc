@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class DarkMessiahOfMightMagicDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Dark Messiah of Might & Magic")
-			.setAppId(2100)
+			.setAppId(SourceAppId.DARK_MESSIAH)
 			.setVersionMin(20)
 			.setFilePattern(Pattern.compile("^l\\d{2}_"))
 			.setEntities(

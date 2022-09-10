@@ -32,7 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static info.ata4.bsplib.app.SourceAppID.*;
+import static info.ata4.bsplib.app.SourceAppId.*;
 
 /**
  * All-purpose BSP file and lump reader.

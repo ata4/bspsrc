@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static info.ata4.bsplib.app.SourceAppID.*;
+import static info.ata4.bsplib.app.SourceAppId.*;
 import static info.ata4.io.Seekable.Origin.CURRENT;
 import static info.ata4.util.JavaUtil.listCopyOf;
 import static java.util.Objects.requireNonNull;

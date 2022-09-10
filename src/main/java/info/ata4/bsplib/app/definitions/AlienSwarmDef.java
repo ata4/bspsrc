@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class AlienSwarmDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Alien Swarm")
-			.setAppId(630)
+			.setAppId(SourceAppId.ALIEN_SWARM)
 			.setVersionMin(21)
 			.setFilePattern(Pattern.compile("^asi-"))
 			.setEntities(

@@ -2,12 +2,13 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 public class TheShipDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("The Ship")
-			.setAppId(2400)
+			.setAppId(SourceAppId.THE_SHIP)
 			.setVersionMin(20)
 			.setEntities(
 					"ai_shipmate",

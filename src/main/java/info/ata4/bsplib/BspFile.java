@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static info.ata4.bsplib.app.SourceAppID.*;
+import static info.ata4.bsplib.app.SourceAppId.*;
 import static info.ata4.io.Seekable.Origin.CURRENT;
 
 /**

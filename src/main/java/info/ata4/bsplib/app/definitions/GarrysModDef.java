@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class GarrysModDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Garry's Mod")
-			.setAppId(4000)
+			.setAppId(SourceAppId.GARRYS_MOD)
 			.setVersionMin(20)
 			// There are very few hard-coded Garry's Mod entities, so priorize the prefix
 			.setPointsFilePattern(5)

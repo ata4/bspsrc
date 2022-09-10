@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class Dota2Def {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Dota 2")
-			.setAppId(570)
+			.setAppId(SourceAppId.DOTA_2_BETA)
 			.setVersionMin(22)
 			.setVersionMax(23)
 			.setFilePattern(Pattern.compile("^(dota|tutorial)_"))

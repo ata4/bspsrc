@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class CounterStrikeGlobalOffensiveDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Counter-Strike: Global Offensive")
-			.setAppId(730)
+			.setAppId(SourceAppId.COUNTER_STRIKE_GO)
 			.setVersionMin(21)
 			.setFilePattern(Pattern.compile("^[de|cs]_"))
 			.setEntities(

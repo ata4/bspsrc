@@ -11,7 +11,7 @@
 package info.ata4.bspsrc.modules.geom;
 
 import info.ata4.bsplib.BspFileReader;
-import info.ata4.bsplib.app.SourceAppID;
+import info.ata4.bsplib.app.SourceAppId;
 import info.ata4.bsplib.struct.DBrush;
 import info.ata4.bsplib.struct.DBrushSide;
 import info.ata4.bsplib.struct.DModel;
@@ -76,7 +76,7 @@ public class BrushSource extends ModuleDecompile {
      * @return {@code true}, if the specified brush was a func_detail entity
      */
     public boolean isFuncDetail(DBrush dBrush) {
-        if (bspFile.getSourceApp().getAppId() == SourceAppID.COUNTER_STRIKE_GO) {
+        if (bspFile.getSourceApp().getAppId() == SourceAppId.COUNTER_STRIKE_GO) {
             // Note: For the game csgo, ladders can also be considered to be func_detail
             //       even though their solid flag is always false
             return (dBrush.isSolid() || dBrush.isLadder()) && dBrush.isDetail();
@@ -175,7 +175,7 @@ public class BrushSource extends ModuleDecompile {
             // only skip ladders if game not csgo
             // csgo handles ladders as normal brushes, so we don't need to skip them here
             if (config.writeLadders && brush.isLadder()
-                    && bspFile.getSourceApp().getAppId() != SourceAppID.COUNTER_STRIKE_GO) {
+                    && bspFile.getSourceApp().getAppId() != SourceAppId.COUNTER_STRIKE_GO) {
                 continue;
             }
 

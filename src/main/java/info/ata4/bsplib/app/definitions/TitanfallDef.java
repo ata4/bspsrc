@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class TitanfallDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Titanfall")
-			.setAppId(-400)
+			.setAppId(SourceAppId.TITANFALL)
 			.setVersionMin(29)
 			.setFilePattern(Pattern.compile("^mp_$"))
 			.setEntities(

@@ -2,12 +2,13 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 public class Postal3Def {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Postal III")
-			.setAppId(10220)
+			.setAppId(SourceAppId.POSTAL_3)
 			.setVersionMin(20)
 			.setEntities(
 					"p3_ai_goal_actbusy",

@@ -13,7 +13,7 @@ package info.ata4.bspsrc;
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.BspFileReader;
 import info.ata4.bsplib.PakFile;
-import info.ata4.bsplib.app.SourceAppID;
+import info.ata4.bsplib.app.SourceAppId;
 import info.ata4.bsplib.nmo.NmoException;
 import info.ata4.bsplib.nmo.NmoFile;
 import info.ata4.bspsrc.modules.BspDecompiler;
@@ -131,7 +131,7 @@ public class BspSource implements Runnable {
 
         // load NMO if game is 'No More Room in Hell'
         NmoFile nmo = null;
-        if (reader.getBspFile().getSourceApp().getAppId() == SourceAppID.NO_MORE_ROOM_IN_HELL) {
+        if (reader.getBspFile().getSourceApp().getAppId() == SourceAppId.NO_MORE_ROOM_IN_HELL) {
             if (nmoFile.exists()) {
                 try {
                     nmo = new NmoFile();

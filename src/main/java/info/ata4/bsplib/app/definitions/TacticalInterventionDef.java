@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class TacticalInterventionDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Tactical Intervention")
-			.setAppId(-300)
+			.setAppId(SourceAppId.TACTICAL_INTERVENTION)
 			.setVersionMin(20)
 			.setVersionMax(21)
 			.setFilePattern(Pattern.compile("^mis_$"))

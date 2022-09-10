@@ -2,12 +2,13 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 public class InsurgencyDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Insurgency")
-			.setAppId(222880)
+			.setAppId(SourceAppId.INSURGENCY)
 			.setVersionMin(21)
 			// There are more insurgency related entities, but I decided to only use distinct
 			// ones because those should be enough to detect insurgency maps

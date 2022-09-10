@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class HalfLife2Def {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Half-Life 2")
-			.setAppId(220)
+			.setAppId(SourceAppId.HALF_LIFE_2)
 			.setVersionMin(17)
 			.setVersionMax(20)
 			.setFilePattern(Pattern.compile("^d[1-3]_"))

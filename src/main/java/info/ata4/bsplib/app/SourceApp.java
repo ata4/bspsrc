@@ -33,7 +33,7 @@ public class SourceApp {
     private static final Logger L = LogUtils.getLogger();
     public static final SourceApp UNKNOWN = new SourceAppBuilder()
             .setName("Unknown")
-            .setAppId(SourceAppID.UNKNOWN)
+            .setAppId(SourceAppId.UNKNOWN)
             .build();
 
     private final String name;

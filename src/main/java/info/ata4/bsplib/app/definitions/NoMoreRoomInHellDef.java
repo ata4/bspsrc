@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class NoMoreRoomInHellDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("No More Room in Hell")
-			.setAppId(224260)
+			.setAppId(SourceAppId.NO_MORE_ROOM_IN_HELL)
 			.setVersionMin(20)
 			.setFilePattern(Pattern.compile("^[nmo|nms]_"))
 			.setEntities(

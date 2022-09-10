@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class Left4DeadDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Left 4 Dead")
-			.setAppId(500)
+			.setAppId(SourceAppId.LEFT_4_DEAD)
 			.setVersionMin(20)
 			.setFilePattern(Pattern.compile("^l4d_"))
 			.setEntities(

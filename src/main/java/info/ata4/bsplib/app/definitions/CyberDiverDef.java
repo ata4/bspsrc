@@ -2,12 +2,13 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 public class CyberDiverDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Cyber Diver")
-			.setAppId(-500)
+			.setAppId(SourceAppId.CYBER_DIVER)
 			.setVersionMin(20)
 			.setEntities(
 					"bs_ammomachine",

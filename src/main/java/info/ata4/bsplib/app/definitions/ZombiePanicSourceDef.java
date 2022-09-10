@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class ZombiePanicSourceDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Zombie Panic! Source")
-			.setAppId(17500)
+			.setAppId(SourceAppId.ZOMBIE_PANIC_SOURCE)
 			.setVersionMin(20)
 			.setFilePattern(Pattern.compile("^zp[aols]_"))
 			.setEntities(

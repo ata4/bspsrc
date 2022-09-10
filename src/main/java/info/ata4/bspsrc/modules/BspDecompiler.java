@@ -11,7 +11,7 @@
 package info.ata4.bspsrc.modules;
 
 import info.ata4.bsplib.BspFileReader;
-import info.ata4.bsplib.app.SourceAppID;
+import info.ata4.bsplib.app.SourceAppId;
 import info.ata4.bsplib.nmo.NmoFile;
 import info.ata4.bspsrc.BspSource;
 import info.ata4.bspsrc.BspSourceConfig;
@@ -176,7 +176,7 @@ public class BspDecompiler extends ModuleDecompile {
             }
 
             // Only write func_ladder if game is not csgo. Cso doesn't use the func_ladder entity
-            if (config.writeLadders && bspFile.getSourceApp().getAppId() != SourceAppID.COUNTER_STRIKE_GO) {
+            if (config.writeLadders && bspFile.getSourceApp().getAppId() != SourceAppId.COUNTER_STRIKE_GO) {
                 entsrc.writeLadders();
             }
         }

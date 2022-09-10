@@ -2,12 +2,13 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 public class BloodyGoodTimeDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Bloody Good Time")
-			.setAppId(2450)
+			.setAppId(SourceAppId.BLOODY_GOOD_TIME)
 			.setVersionMin(20)
 			.setEntities(
 					"info_player_spawn",

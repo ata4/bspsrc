@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class SiNEpisodesEmergenceDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("SiN Episodes: Emergence")
-			.setAppId(1300)
+			.setAppId(SourceAppId.SIN_EPISODES_EMERGENCE)
 			.setVersionMin(19)
 			.setFilePattern(Pattern.compile("^arena_$"))
 			.setEntities(

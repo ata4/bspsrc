@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class Portal2Def {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Portal 2")
-			.setAppId(620)
+			.setAppId(SourceAppId.PORTAL_2)
 			.setVersionMin(21)
 			.setFilePattern(Pattern.compile("^(mp_coop|sp_a[1-5])_"))
 			.setEntities(

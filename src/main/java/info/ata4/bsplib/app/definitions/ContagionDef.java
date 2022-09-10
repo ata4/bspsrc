@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class ContagionDef {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Contagion")
-			.setAppId(238430)
+			.setAppId(SourceAppId.CONTAGION)
 			.setVersionMin(27)
 			.setFilePattern(Pattern.compile("^(ch|ce|cx)_$"))
 			.setEntities(

@@ -2,6 +2,7 @@ package info.ata4.bsplib.app.definitions;
 
 import info.ata4.bsplib.app.SourceApp;
 import info.ata4.bsplib.app.SourceAppBuilder;
+import info.ata4.bsplib.app.SourceAppId;
 
 import java.util.regex.Pattern;
 
@@ -9,7 +10,7 @@ public class TeamFortress2Def {
 
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Team Fortress 2")
-			.setAppId(440)
+			.setAppId(SourceAppId.TEAM_FORTRESS_2)
 			.setVersionMin(20)
 			.setFilePattern(Pattern.compile("^(arena|cp|ctf|pl(r?)|t[cr]|koth|sd|mvm|bc|rd)_"))
 			.setEntities(
