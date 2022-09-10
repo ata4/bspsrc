@@ -45,6 +45,7 @@ public class SourceAppId {
     public static final int ZOMBIE_PANIC_SOURCE = 17500;
     public static final int SYNERGY = 17520;
     public static final int ZENO_CLASH = 22200;
+    public static final int TACTICAL_INTERVENTION = 51100;
     public static final int DEAR_ESTHER = 203810;
     public static final int VINDICTUS = 212160;
     public static final int INSURGENCY = 222880;
@@ -53,7 +54,6 @@ public class SourceAppId {
     public static final int CONTAGION = 238430;
     public static final int BLACK_MESA = 362890;
 
-    public static final int TACTICAL_INTERVENTION = -300;
     public static final int TITANFALL = -400;
     public static final int CYBER_DIVER = -500;
 }
