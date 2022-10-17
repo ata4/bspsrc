@@ -76,7 +76,6 @@ public enum SourceToolTextureDefinition implements ToolTextureDefinition {
     NODRAW(
             ToolTexture.NODRAW,
             new Builder()
-                    .setRequiredFlags(BrushFlag.CONTENTS_SOLID)
                     .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
                     .build()
     ),
