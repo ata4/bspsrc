@@ -25,10 +25,7 @@ import info.ata4.bspsrc.VmfWriter;
 import info.ata4.bspsrc.modules.BspProtection;
 import info.ata4.bspsrc.modules.ModuleDecompile;
 import info.ata4.bspsrc.modules.VmfMeta;
-import info.ata4.bspsrc.modules.geom.BrushMode;
-import info.ata4.bspsrc.modules.geom.BrushSource;
-import info.ata4.bspsrc.modules.geom.BrushUtils;
-import info.ata4.bspsrc.modules.geom.FaceSource;
+import info.ata4.bspsrc.modules.geom.*;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.util.*;
 import info.ata4.log.LogUtils;
@@ -64,6 +61,7 @@ public class EntitySource extends ModuleDecompile {
     private final TextureSource texsrc;
     private final BspProtection bspprot;
     private final VmfMeta vmfmeta;
+    private final BrushSideFaceMapper brushSideFaceMapper;
 
     // Areaportal to brush mapping
     private final AreaportalMapper areaportalMapper;
@@ -83,7 +81,7 @@ public class EntitySource extends ModuleDecompile {
 
     public EntitySource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
             BrushSource brushsrc, FaceSource facesrc, TextureSource texsrc,
-            BspProtection bspprot, VmfMeta vmfmeta) {
+            BspProtection bspprot, VmfMeta vmfmeta, BrushSideFaceMapper brushSideFaceMapper) {
         super(reader, writer);
         this.config = config;
         this.brushsrc = brushsrc;
@@ -91,6 +89,7 @@ public class EntitySource extends ModuleDecompile {
         this.texsrc = texsrc;
         this.bspprot = bspprot;
         this.vmfmeta = vmfmeta;
+        this.brushSideFaceMapper = brushSideFaceMapper;
 
         processEntities();
 
@@ -594,20 +593,20 @@ public class EntitySource extends ModuleDecompile {
             int faceCount = o.getFaceCount();
 
             if (config.brushMode == BrushMode.BRUSHPLANES) {
-                Set<Integer> origFaces = new HashSet<>();
-
-                // collect original faces for this overlay
                 for (int j = 0; j < faceCount; j++) {
-                    int iface = o.ofaces[j];
-                    int ioface = bsp.faces.get(iface).origFace;
-                    if (ioface > 0) {
-                        origFaces.add(ioface);
-                    }
-                }
+                    DFace dFace = bsp.faces.get(o.ofaces[j]);
 
-                // scan brush sides for the original faces
-                for (Integer ioface : origFaces) {
-                    findOverlayFaces(i, ioface, sides);
+                    if (dFace.dispInfo >= 0) {
+                        sides.add(vmfmeta.getDispInfoUID(dFace.dispInfo));
+                    } else {
+                        int origFaceI = dFace.origFace;
+                        if (origFaceI < 0)
+                            continue;
+
+                        for (int brushSideI : brushSideFaceMapper.getBrushSideIndices(origFaceI)) {
+                            sides.add(brushsrc.getBrushSideIDForIndex(brushSideI));
+                        }
+                    }
                 }
             } else {
                 for (int j = 0; j < faceCount; j++) {

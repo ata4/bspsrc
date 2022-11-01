@@ -206,6 +206,33 @@ public class Winding implements List<Vector3f> {
     }
 
     /**
+     * Clips this winding against another winding by projecting it along a normal vector onto the same
+     * plane as this winding and removing/clipping all vertices outside the other winding.
+     * <p>
+     * WARNING: This algorithm is dependent on Winding order.
+     * <p>
+     * TODO: This can be written way better, but it works and I couldn't be bothered
+     *
+     * @param other winding to clip to
+     * @param projNormal a normalized vector specifying the projection direction
+     * @return the clipped winding
+     */
+    public Winding clipWinding(Winding other, Vector3f projNormal) {
+        if (other.size() < 3)
+            return this;
+
+        Winding result = this;
+        for (int i = 0; i < other.size(); i++) {
+            Vector3f edge = other.get(i).sub(other.get((i + 1) % other.size()));
+            Vector3f normal = edge.cross(projNormal).normalize();
+            float dist = normal.dot(other.get(i));
+
+            result = result.clipEpsilon(normal, dist, EPS_SPLIT, true);
+        }
+        return result;
+    }
+
+    /**
      * Removes degenerated vertices from this winding. A vertex is degenerated
      * when its distance to the previous vertex is smaller than {@link EPS_DEGEN}.
      * 

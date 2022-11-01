@@ -17,10 +17,7 @@ import info.ata4.bspsrc.BspSource;
 import info.ata4.bspsrc.BspSourceConfig;
 import info.ata4.bspsrc.VmfWriter;
 import info.ata4.bspsrc.modules.entity.EntitySource;
-import info.ata4.bspsrc.modules.geom.BrushMode;
-import info.ata4.bspsrc.modules.geom.BrushSource;
-import info.ata4.bspsrc.modules.geom.BrushUtils;
-import info.ata4.bspsrc.modules.geom.FaceSource;
+import info.ata4.bspsrc.modules.geom.*;
 import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.bspsrc.util.WindingFactory;
 import info.ata4.log.LogUtils;
@@ -41,6 +38,7 @@ public class BspDecompiler extends ModuleDecompile {
 
     // sub-modules
     private final BspSourceConfig config;
+    private final BrushSideFaceMapper brushSideFaceMapper;
     private final TextureSource texsrc;
     private final BrushSource brushsrc;
     private final FaceSource facesrc;
@@ -59,10 +57,11 @@ public class BspDecompiler extends ModuleDecompile {
         texsrc = new TextureSource(reader);
         bspprot = new BspProtection(reader, texsrc);
         vmfmeta = new VmfMeta(reader, writer);
-        brushsrc = new BrushSource(reader, writer, config, texsrc, bspprot, vmfmeta);
+        brushSideFaceMapper = new BrushSideFaceMapper(reader);
+        brushsrc = new BrushSource(reader, writer, config, texsrc, bspprot, vmfmeta, brushSideFaceMapper);
         facesrc = new FaceSource(reader, writer, config, texsrc, vmfmeta);
         entsrc = new EntitySource(reader, writer, config, brushsrc, facesrc,
-                texsrc, bspprot, vmfmeta);
+                texsrc, bspprot, vmfmeta, brushSideFaceMapper);
     }
 
     /**
@@ -76,6 +75,11 @@ public class BspDecompiler extends ModuleDecompile {
         // check for protection and warn if the map has been protected
         if (!config.skipProt) {
             checkProtection();
+        }
+
+        // we only need these for brushplanes mode
+        if (config.brushMode == BrushMode.BRUSHPLANES) {
+            brushSideFaceMapper.load();
         }
 
         // set comment

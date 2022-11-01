@@ -50,6 +50,7 @@ public class BrushSource extends ModuleDecompile {
     private final TextureSource texsrc;
     private final BspProtection bspprot;
     private final VmfMeta vmfmeta;
+    private final BrushSideFaceMapper brushSideFaceMapper;
 
     // additional model data
     private List<DBrushModel> models = new ArrayList<>();
@@ -62,12 +63,13 @@ public class BrushSource extends ModuleDecompile {
     private Map<Integer, Integer> brushIndexToID = new HashMap<>();
 
     public BrushSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
-            TextureSource texsrc, BspProtection bspprot, VmfMeta vmfmeta) {
+            TextureSource texsrc, BspProtection bspprot, VmfMeta vmfmeta, BrushSideFaceMapper brushSideFaceMapper) {
         super(reader, writer);
         this.config = config;
         this.texsrc = texsrc;
         this.bspprot = bspprot;
         this.vmfmeta = vmfmeta;
+        this.brushSideFaceMapper = brushSideFaceMapper;
 
         assignBrushes();
     }
@@ -341,6 +343,9 @@ public class BrushSource extends ModuleDecompile {
         tb.setBrushIndex(ibrush);
         tb.setBrushSideIndex(ibrushside);
 
+        boolean potentialCompactedTexinf = !brushSideFaceMapper.getOrigFaceIndex(ibrushside).isPresent();
+        tb.setEnableTextureFixing(potentialCompactedTexinf);
+
         Texture texture = tb.build();
 
         // set custom face texture string
@@ -357,6 +362,11 @@ public class BrushSource extends ModuleDecompile {
 
         // map brush side index to brush side ID
         brushSideToID.put(ibrushside, sideID);
+
+        int smoothingGroups = brushSideFaceMapper.getOrigFaceIndex(ibrushside)
+                .map(bsp.origFaces::get)
+                .map(dFace -> dFace.smoothingGroups)
+                .orElse(0);
 
         writer.start("side");
         writer.put("id", sideID);
@@ -393,7 +403,7 @@ public class BrushSource extends ModuleDecompile {
         }
 
         writer.put("plane", e1, e2, e3);
-        writer.put("smoothing_groups", 0);
+        writer.put("smoothing_groups", smoothingGroups);
         writer.put(texture);
 
         writer.end("side");

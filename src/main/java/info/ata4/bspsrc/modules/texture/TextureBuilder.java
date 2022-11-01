@@ -44,6 +44,8 @@ public class TextureBuilder {
     private int ibrush = -1;
     private int ibrushside = -1;
 
+    private boolean enableTextureFixing = false;
+
     TextureBuilder(TextureSource texsrc, BspData bsp, ToolTextureMatcher toolTextureMatcher) {
         this.texsrc = texsrc;
         this.bsp = bsp;
@@ -64,7 +66,7 @@ public class TextureBuilder {
             // to cases like this is available.
             // Also, just passing an empty string as the original texture here, is kinda a crude way of using
             // the existing api
-            if (texsrc.isFixToolTextures())
+            if (texsrc.isFixToolTextures() && enableTextureFixing)
                 texture.setOverrideTexture(fixToolTexture(""));
 
             return texture;
@@ -96,11 +98,13 @@ public class TextureBuilder {
 
         String textureOverride = texsrc.getFixedTextureNames().get(texdata.texname);
 
-        if (texsrc.isFixToolTextures()) {
+        boolean usesFixedTexture = false;
+        if (texsrc.isFixToolTextures() && enableTextureFixing) {
             String textureFix = fixToolTexture(textureOverride);
 
             if (textureFix != null) {
                 textureOverride = textureFix;
+                usesFixedTexture = true;
             }
         }
 
@@ -111,8 +115,12 @@ public class TextureBuilder {
         // some calculations
         buildLightmapScale();
 
+        boolean needsTextureRealignment = usesFixedTexture
+                || texinfo.flags.contains(SurfaceFlag.SURF_SKY)
+                || texinfo.flags.contains(SurfaceFlag.SURF_SKY2D);
+
         // fix texture axes for tool texture if necessary
-        if (isToolTextureNeedsRealignment()) {
+        if (needsTextureRealignment) {
             fixTextureAxes();
         } else {
             // otherwise build UV from texture vectors and fix perpendicular
@@ -146,34 +154,6 @@ public class TextureBuilder {
 
         return toolTextureMatcher.fixToolTexture(originalTextureName, surfFlags, brushFlags)
                 .orElse(null);
-    }
-
-    /**
-     * Checks if the current texture is a tool texture likely to have unsuitable
-     * or invalid texture vectors as a result of texinfo optimization performed
-     * by VBSP, and therefore needs to be realigned.
-     * 
-     * @return {@code true} if it is a tool texture that needs to be realigned,
-     *         {@code false} otherwise.
-     */
-    private boolean isToolTextureNeedsRealignment() {
-        if (ibrush == -1 || ibrushside == -1) {
-            return false;
-        }
-
-        DBrushSide brushSide = bsp.brushSides.get(ibrushside);
-
-        if (brushSide.texinfo == DTexInfo.TEXINFO_NODE) {
-            return false;
-        }
-
-        DBrush brush = bsp.brushes.get(ibrush);
-        Set<BrushFlag> brushFlags = brush.contents;
-        Set<SurfaceFlag> surfFlags = bsp.texinfos.get(brushSide.texinfo).flags;
-
-        return surfFlags.stream().anyMatch(SURF_FLAGS_NEEDS_REALIGNMENT::contains)
-            || brush.isFlaggedAsOccluder()
-            || (brushFlags.equals(BRUSH_FLAGS_AREAPORTAL) && surfFlags.equals(SURF_FLAGS_AREAPORTAL));
     }
 
     /**
@@ -321,5 +301,9 @@ public class TextureBuilder {
 
     public void setTexinfoIndex(short itexinfo) {
         this.itexinfo = itexinfo;
+    }
+
+    public void setEnableTextureFixing(boolean shouldTextureFix) {
+        this.enableTextureFixing = shouldTextureFix;
     }
 }
