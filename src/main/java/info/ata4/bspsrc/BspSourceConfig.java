@@ -50,7 +50,7 @@ public final class BspSourceConfig implements Serializable {
     public float backfaceDepth = 1;
     public int maxCubemapSides = 8;
     public int maxOverlaySides = 64;
-    public boolean detailMerge = true;
+    public boolean detailMerge = false;
     public float detailMergeThresh = 1;
     public boolean apForceManualMapping = false;
     public boolean occForceManualMapping = false;
