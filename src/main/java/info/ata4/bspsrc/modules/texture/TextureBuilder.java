@@ -28,11 +28,6 @@ public class TextureBuilder {
     private static final Logger L = LogUtils.getLogger();
     private static final float EPS_PERP = 0.02f;
 
-    // surface/brush flags
-    private static final EnumSet<SurfaceFlag> SURF_FLAGS_AREAPORTAL = EnumSet.of(SurfaceFlag.SURF_NOLIGHT);
-    private static final EnumSet<BrushFlag> BRUSH_FLAGS_AREAPORTAL = EnumSet.of(BrushFlag.CONTENTS_AREAPORTAL);
-    private static final EnumSet<SurfaceFlag> SURF_FLAGS_NEEDS_REALIGNMENT = EnumSet.of(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_SKY, SurfaceFlag.SURF_SKY2D);
-
     private final BspData bsp;
     private final TextureSource texsrc;
     private final ToolTextureMatcher toolTextureMatcher;
