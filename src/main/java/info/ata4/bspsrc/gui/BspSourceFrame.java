@@ -49,7 +49,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main() {
         LogUtils.configure();
 
         // set the system look and feel
