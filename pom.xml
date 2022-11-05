@@ -5,7 +5,7 @@
     <artifactId>bspsrc</artifactId>
     <groupId>info.ata4.bspsrc</groupId>
     <packaging>jar</packaging>
-    <version>1.4.3-SNAPSHOT</version>
+    <version>1.4.3</version>
     <description>A Source engine map decompile</description>
     <url>https://github.com/ata4/bspsource</url>
 
