@@ -10,17 +10,20 @@
 package info.ata4.bspinfo.gui;
 
 import info.ata4.bsplib.BspFile;
+import info.ata4.bsplib.lump.AbstractLump;
 import info.ata4.bsplib.lump.GameLump;
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpType;
 import info.ata4.log.LogUtils;
-import java.io.File;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -33,60 +36,67 @@ public class BspFileUtils {
     private BspFileUtils() {
     }
 
-    static void extractLump(BspFile bspFile, File destDir, LumpType type) throws IOException {
-        FileUtils.forceMkdir(destDir);
+    public static void extractAbstractLump(AbstractLump lump, Path filePath) throws IOException {
+        Files.createDirectories(filePath.getParent());
 
-        List<Lump> lumps = bspFile.getLumps();
+        L.log(Level.INFO, "Extracting {0}", lump);
 
-        for (Lump lump : lumps) {
-            if (type != null && lump.getType() != type) {
-                continue;
+        try (FileChannel fout = FileChannel.open(
+                filePath,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE
+        )) {
+            ByteBuffer buffer = lump.getBuffer();
+            while (buffer.hasRemaining()) {
+                fout.write(buffer);
             }
-
-            String fileName = String.format("%02d_%s.bin", lump.getIndex(),
-                    lump.getName());
-            File lumpFile = new File(destDir, fileName);
-
-            L.log(Level.INFO, "Extracting {0}", lump);
-
-            try {
-                InputStream is = lump.getInputStream();
-                FileUtils.copyInputStreamToFile(is, lumpFile);
-            } catch (IOException ex) {
-                throw new BspFileException("Can't extract lump", ex);
-            }
+        } catch (IOException ex) {
+            throw new BspFileException("Can't extract lump", ex);
         }
     }
 
-    public static void extractLumps(BspFile bspFile, File destDir) throws IOException {
-        extractLump(bspFile, destDir, null);
+
+    public static void extractLump(Lump lump, Path destDir) throws IOException {
+        String fileName = String.format("%02d_%s.bin", lump.getIndex(), lump.getName());
+        Path filePath = destDir.resolve(fileName);
+
+        extractAbstractLump(lump, filePath);
     }
 
-    static void extractGameLump(BspFile bspFile, File destDir, String type) throws IOException {
-        FileUtils.forceMkdir(destDir);
+    public static void extractLump(BspFile bspFile, LumpType type, Path destDir) throws IOException {
+        Lump lump = bspFile.getLump(type);
+        if (lump == null)
+            return;
 
-        List<GameLump> gameLumps = bspFile.getGameLumps();
+        extractLump(lump, destDir);
+    }
 
-        for (GameLump gameLump : gameLumps) {
-            if (type != null && !gameLump.getName().equalsIgnoreCase(type)) {
-                continue;
-            }
-
-            String fileName = String.format("%s_v%d.bin", gameLump.getName(), gameLump.getVersion());
-            File lumpFile = new File(destDir, fileName);
-
-            L.log(Level.INFO, "Extracting {0}", gameLump);
-
-            try {
-                InputStream is = gameLump.getInputStream();
-                FileUtils.copyInputStreamToFile(is, lumpFile);
-            } catch (IOException ex) {
-                throw new BspFileException("Can't extract lump", ex);
-            }
+    public static void extractLumps(BspFile bspFile, Path destDir) throws IOException {
+        for (Lump lump : bspFile.getLumps()) {
+            extractLump(lump, destDir);
         }
     }
 
-    public static void extractGameLumps(BspFile bspFile, File destDir) throws IOException {
-        extractGameLump(bspFile, destDir, null);
+
+    public static void extractGameLump(GameLump lump, Path destDir) throws IOException {
+        String fileName = String.format("%s_v%d.bin", lump.getName(), lump.getVersion());
+        Path filePath = destDir.resolve(fileName);
+
+        extractAbstractLump(lump, filePath);
+    }
+
+    public static void extractGameLump(BspFile bspFile, String type, Path destDir) throws IOException {
+        GameLump lump = bspFile.getGameLump(type);
+        if (lump == null)
+            return;
+
+        extractGameLump(lump, destDir);
+    }
+
+    public static void extractGameLumps(BspFile bspFile, Path destDir) throws IOException {
+        for (GameLump lump : bspFile.getGameLumps()) {
+            extractGameLump(lump, destDir);
+        }
     }
 }

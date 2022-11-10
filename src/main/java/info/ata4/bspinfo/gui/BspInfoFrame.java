@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1178,7 +1179,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
             return;
         }
 
-        File dest = saveDirectoryChooser.getSelectedFile();
+        Path dest = saveDirectoryChooser.getSelectedFile().toPath();
 
         // set waiting cursor
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -1194,7 +1195,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 LumpType lumpType = LumpType.get(lumpIndex, bspFile.getVersion());
 
                 try {
-                    BspFileUtils.extractLump(bspFile, dest, lumpType);
+                    BspFileUtils.extractLump(bspFile, lumpType, dest);
                     files++;
                 } catch (IOException ex) {
                     L.log(Level.WARNING, "Couldn't extract lump " + lumpType, ex);
@@ -1215,7 +1216,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
             return;
         }
 
-        File dest = saveDirectoryChooser.getSelectedFile();
+        Path dest = saveDirectoryChooser.getSelectedFile().toPath();
 
         // set waiting cursor
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -1244,7 +1245,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
             return;
         }
 
-        File dest = saveDirectoryChooser.getSelectedFile();
+        Path dest = saveDirectoryChooser.getSelectedFile().toPath();
 
         // set waiting cursor
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -1259,7 +1260,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
                 String id = (String) model.getValueAt(index, 0);
 
                 try {
-                    BspFileUtils.extractGameLump(bspFile, dest, id);
+                    BspFileUtils.extractGameLump(bspFile, id, dest);
                     files++;
                 } catch (IOException ex) {
                     L.log(Level.WARNING, "Couldn't extract game lump " + id, ex);
@@ -1280,7 +1281,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
             return;
         }
 
-        File dest = saveDirectoryChooser.getSelectedFile();
+        Path dest = saveDirectoryChooser.getSelectedFile().toPath();
 
         // set waiting cursor
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
