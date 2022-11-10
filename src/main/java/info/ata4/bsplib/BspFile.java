@@ -403,7 +403,6 @@ public class BspFile {
 
             // write buffer data
             ByteBuffer lbb = lump.getBuffer();
-            lbb.rewind();
 
             bb.mark();
             bb.position(lump.getOffset());
@@ -474,8 +473,7 @@ public class BspFile {
 
         Lump entlump = getLump(LumpType.LUMP_ENTITIES);
         ByteBuffer bbEnt = entlump.getBuffer();
-        bbEnt.rewind();
-        bbEnt.limit(bbEnt.capacity() - 1);
+        bbEnt.limit(bbEnt.limit() - 1);
 
         List<ByteBuffer> bbList = new ArrayList<>();
         bbList.add(bbEnt);

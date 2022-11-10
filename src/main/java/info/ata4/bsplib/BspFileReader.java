@@ -21,7 +21,6 @@ import info.ata4.bsplib.struct.*;
 import info.ata4.log.LogUtils;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -720,12 +719,9 @@ public class BspFileReader {
 
         L.fine(String.format("Reading %s", lump));
 
-        ByteBuffer buffer = lump.getBuffer();
-        buffer.rewind();
-
         T returnData;
         try {
-            returnData = lumpReader.read(buffer);
+            returnData = lumpReader.read(lump.getBuffer());
         } catch (Exception e) {
             L.log(Level.WARNING, String.format("An error occurred while trying to read lump %s", lump), e);
             returnData = lumpReader.defaultData();

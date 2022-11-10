@@ -14,6 +14,7 @@ import info.ata4.bsplib.io.LzmaUtil;
 import info.ata4.io.buffer.ByteBufferInputStream;
 import info.ata4.io.buffer.ByteBufferOutputStream;
 import info.ata4.log.LogUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -55,30 +56,30 @@ public abstract class AbstractLump {
     }
 
     /**
-     * Returns the buffer for this lump.
+     * Returns a view of the buffer for this lump.
+     * Changes to it are reflected in the lumps buffer.
      * 
      * @return byte buffer of this lump
      */
     public ByteBuffer getBuffer() {
-        return buffer;
+        return buffer.duplicate().order(buffer.order());
     }
 
+    /**
+     * Set data is the data between current position of this buffer and its limit
+     * @param buf
+     */
     public void setBuffer(ByteBuffer buf) {
-        buffer = buf;
-        buffer.rewind();
+        buffer = buf.duplicate().order(buf.order());
         setCompressed(LzmaUtil.isCompressed(buffer));
     }
 
     public InputStream getInputStream() {
-        ByteBuffer buf = getBuffer();
-        buf.rewind();
-        return new ByteBufferInputStream(buf);
+        return new ByteBufferInputStream(getBuffer());
     }
 
     public OutputStream getOutputStream() {
-        ByteBuffer buf = getBuffer();
-        buf.rewind();
-        return new ByteBufferOutputStream(buf);
+        return new ByteBufferOutputStream(getBuffer());
     }
 
     public void setVersion(int vers) {

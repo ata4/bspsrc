@@ -107,7 +107,6 @@ public class BspUnprotect {
         // copy the worldspawn into the new entity lump
         if (entLump.getLength() > 0) {
             ByteBuffer entBufOld = entLump.getBuffer();
-            entBufOld.rewind();
             entBufOld.limit(entBufOld.limit() - 1); // decrease limit to skip NUL
             entBuf.put(entBufOld);
         }
@@ -138,6 +137,8 @@ public class BspUnprotect {
         } catch (IOException ex) {
             throw new RuntimeException("Couldn't decrypt entity data", ex);
         }
+
+        entBuf.flip();
 
         System.out.println("Writing lump file");
 
