@@ -12,7 +12,6 @@ package info.ata4.bsplib;
 import info.ata4.bsplib.io.LzmaUtil;
 import info.ata4.bsplib.lump.Lump;
 import info.ata4.bsplib.lump.LumpType;
-import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.io.buffer.ByteBufferChannel;
 import info.ata4.log.LogUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -132,28 +131,22 @@ public class PakFile {
     }
 
     /**
-     * Matches the specified {@code embeddedFileName} to a list of vbsp generated file name signatures:
+     * Matches the specified {@code fileName} to a list of vbsp generated file name signatures:
      *
      * <ul>
-     *     <li>Patched materials: {@link TextureSource#isPatchedMaterial(String)}
      *     <li>.vhv files: {@link #vhvPattern}
      *     <li>cubemap data: {@link #cubemapVtfPattern}
      *     <li>"cubemapdefault.vtf"
      *     <li>"cubemapdefault.hdr.vtf"
      *
-     *
-     * @param bspFileName The bsp file name
-     * @param embeddedFileName The embedded file name
-     * @return {@code true} if the specified {@code embeddedFileName} matches a vbsp generated file name,
+     * @param fileName The embedded file name
+     * @return {@code true} if the specified {@code fileName} matches a vbsp generated file name,
      *         otherwise {@code false}
      */
-    public static boolean isVBSPGeneratedFile(String bspFileName, String embeddedFileName) {
-        return TextureSource
-                .isPatchedMaterial(bspFileName)
-                .or(fileName -> vhvPattern.matcher(fileName).find()
-                        || cubemapVtfPattern.matcher(fileName).find()
-                        || fileName.equalsIgnoreCase("cubemapdefault.vtf")
-                        || fileName.equalsIgnoreCase("cubemapdefault.hdr.vtf"))
-                .test(embeddedFileName);
+    public static boolean isVBSPGeneratedFile(String fileName) {
+        return vhvPattern.matcher(fileName).find()
+                || cubemapVtfPattern.matcher(fileName).find()
+                || fileName.endsWith("cubemapdefault.vtf")
+                || fileName.endsWith("cubemapdefault.hdr.vtf");
     }
 }

@@ -18,12 +18,14 @@ import info.ata4.bsplib.app.SourceAppId;
 import info.ata4.bsplib.nmo.NmoException;
 import info.ata4.bsplib.nmo.NmoFile;
 import info.ata4.bspsrc.modules.BspDecompiler;
+import info.ata4.bspsrc.modules.texture.TextureSource;
 import info.ata4.log.LogUtils;
 import org.apache.commons.io.output.NullOutputStream;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -111,13 +113,13 @@ public class BspSource implements Runnable {
                 bsp.loadLumpFiles();
             }
 
+            Predicate<String> fileFilter = filename -> !config.smartUnpack ||
+                    (!PakFile.isVBSPGeneratedFile(filename) && !TextureSource.isPatchedMaterial(filename));
+
             // extract embedded files
             if (config.unpackEmbedded) {
                 try {
-                    bsp.getPakFile().unpack(
-                            entry.getPakDir().toPath(),
-                            fileName -> !config.smartUnpack || !PakFile.isVBSPGeneratedFile(bsp.getName(), fileName)
-                    );
+                    bsp.getPakFile().unpack(entry.getPakDir().toPath(), fileFilter);
                 } catch (IOException ex) {
                     L.log(Level.WARNING, "Can't extract embedded files", ex);
                 }
