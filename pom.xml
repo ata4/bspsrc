@@ -89,7 +89,7 @@
                     <version>3.8.1</version>
                     <configuration>
                         <showDeprecation>true</showDeprecation>
-                        <release>8</release>
+                        <release>19</release>
                     </configuration>
                 </plugin>
                 <plugin>
