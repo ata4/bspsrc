@@ -121,7 +121,15 @@ public class StaticPropLumpReader implements LumpReader<StaticPropLumpReader.Sta
 				.filter(descriptor -> descriptor.appId == -1 || descriptor.appId == appId)
 				.filter(descriptor -> descriptor.size == propStaticSize)
 				.max(Comparator.comparing(descriptor -> descriptor.appId != -1)) // favor game specific staticprop structs
-				.<Supplier<? extends DStaticProp>>map(descriptor -> descriptor.structSupplier)
+				.<Supplier<? extends DStaticProp>>map(descriptor -> {
+					L.info(String.format(
+							"Using '%s' for sprp version %d",
+							descriptor.structSupplier.get().getClass().getSimpleName(),
+							sprpVersion
+					));
+
+					return descriptor.structSupplier;
+				})
 				.orElseGet(() -> {
 					L.warning(String.format("Couldn't find static prop struct for appId %d, version %d, size %d",
 							appId, sprpVersion, propStaticSize));
