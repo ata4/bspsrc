@@ -9,12 +9,12 @@
  */
 package info.ata4.log;
 
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.util.logging.ErrorManager;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import javax.swing.JOptionPane;
 
 /**
  * Log handler for dialog messages.

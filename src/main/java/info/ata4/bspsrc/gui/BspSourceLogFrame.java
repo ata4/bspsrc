@@ -12,6 +12,7 @@ package info.ata4.bspsrc.gui;
 
 import info.ata4.log.ConsoleFormatter;
 import info.ata4.util.gui.TextAreaHandler;
+
 import java.util.logging.Logger;
 
 /**

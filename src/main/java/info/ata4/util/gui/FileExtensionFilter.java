@@ -9,9 +9,9 @@
  */
 package info.ata4.util.gui;
 
-import java.io.File;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
 
 /**
  *

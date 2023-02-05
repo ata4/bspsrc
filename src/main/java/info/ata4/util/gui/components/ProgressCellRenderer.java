@@ -9,10 +9,9 @@
  */
 package info.ata4.util.gui.components;
 
-import java.awt.Component;
-import javax.swing.JProgressBar;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
+import java.awt.*;
 
 /**
  * Progress bar table cell renderer.

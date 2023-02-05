@@ -1,0 +1,16 @@
+* text=auto
+
+*.java text
+*.xml text
+*.txt text
+*.md text
+*.vmf text
+*.form text
+*.svg
+
+*.bat text eol=crlf
+*.sh text eol=lf
+
+*.jar binary
+*.png binary
+*.ico binary

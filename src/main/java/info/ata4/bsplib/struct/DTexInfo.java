@@ -10,9 +10,10 @@
 
 package info.ata4.bsplib.struct;
 
-import info.ata4.util.EnumConverter;
 import info.ata4.io.DataReader;
 import info.ata4.io.DataWriter;
+import info.ata4.util.EnumConverter;
+
 import java.io.IOException;
 import java.util.Set;
 

@@ -12,12 +12,13 @@ package info.ata4.bsplib.entity;
 
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.log.LogUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.PrintStream;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Abstract entity representation that works roughly like in Hammer. Has two

@@ -12,9 +12,11 @@ package info.ata4.bsplib.struct;
 import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.io.DataReader;
 import info.ata4.io.DataWriter;
-import static info.ata4.io.Seekable.Origin.CURRENT;
 import info.ata4.util.EnumConverter;
+
 import java.io.IOException;
+
+import static info.ata4.io.Seekable.Origin.CURRENT;
 
 /**
  * DStaticProp V9 variant for Dear Esther

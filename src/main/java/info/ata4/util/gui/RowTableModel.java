@@ -1,9 +1,9 @@
 package info.ata4.util.gui;
 
+import javax.swing.table.AbstractTableModel;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.table.AbstractTableModel;
 
 /**
  * A TableModel that better supports the processing of rows of data. That is,

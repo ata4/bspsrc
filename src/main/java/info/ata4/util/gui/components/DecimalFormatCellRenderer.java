@@ -9,11 +9,10 @@
  */
 package info.ata4.util.gui.components;
 
-import java.awt.Component;
-import java.text.DecimalFormat;
-import javax.swing.JLabel;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
+import java.text.DecimalFormat;
 
 /**
  *

@@ -12,6 +12,7 @@ package info.ata4.bspinfo.gui.models;
 import info.ata4.bsplib.BspFile;
 import info.ata4.bsplib.lump.GameLump;
 import info.ata4.util.gui.ListTableModel;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

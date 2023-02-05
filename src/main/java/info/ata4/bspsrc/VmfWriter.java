@@ -16,19 +16,11 @@ import info.ata4.bsplib.vector.Vector3f;
 import info.ata4.bspsrc.modules.texture.Texture;
 import info.ata4.bspsrc.modules.texture.TextureAxis;
 import info.ata4.log.LogUtils;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+
+import java.io.*;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Collections;
-import java.util.EmptyStackException;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

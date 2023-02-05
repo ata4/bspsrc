@@ -11,6 +11,7 @@ package info.ata4.bsplib.struct;
 
 import info.ata4.io.DataReader;
 import info.ata4.io.DataWriter;
+
 import java.io.IOException;
 
 /**

@@ -9,9 +9,10 @@
  */
 package info.ata4.bspsrc.cli;
 
-import java.io.PrintWriter;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+
+import java.io.PrintWriter;
 
 /**
  *

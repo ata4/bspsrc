@@ -9,11 +9,11 @@
  */
 package info.ata4.util.gui;
 
+import javax.swing.*;
 import java.util.logging.ErrorManager;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import javax.swing.JTextArea;
 
 /**
  * Logging handler for two JTextAreas, one for normal messages and one for errors.

@@ -9,9 +9,9 @@
  */
 package info.ata4.util.gui.components;
 
+import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import javax.swing.JCheckBox;
 
 /**
  *

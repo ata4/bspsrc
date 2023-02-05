@@ -9,7 +9,6 @@
  */
 package info.ata4.bspsrc.cli;
 
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 /**

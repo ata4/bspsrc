@@ -1,8 +1,8 @@
 package info.ata4.util.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -15,10 +15,7 @@ import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 import java.util.TooManyListenersException;
-import java.util.function.*;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.border.Border;
+import java.util.function.Consumer;
 
 /**
  * This class makes it easy to drag and drop files from the operating
