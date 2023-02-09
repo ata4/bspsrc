@@ -1,6 +1,5 @@
 package info.ata4.bspsrc.decompiler.util;
 
-import info.ata4.bspsrc.common.util.JavaUtil;
 import info.ata4.bspsrc.lib.vector.Vector2f;
 
 import java.util.*;
@@ -80,7 +79,7 @@ public class ConvexPolygon extends AbstractList<Vector2f> {
     public Set<Vector2f> getIntersectionVertices(ConvexPolygon polygon) {
         return Arrays.stream(edges)
                 .flatMap(edge -> Arrays.stream(polygon.edges)
-                        .flatMap(otherEdge -> JavaUtil.streamOpt(edge.getIntersectionPoint(otherEdge))))
+                        .flatMap(otherEdge -> edge.getIntersectionPoint(otherEdge).stream()))
                 .collect(Collectors.toSet());
     }
 

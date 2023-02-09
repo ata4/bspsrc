@@ -1,6 +1,5 @@
 package info.ata4.bspsrc.decompiler.util;
 
-import info.ata4.bspsrc.common.util.JavaUtil;
 import info.ata4.bspsrc.decompiler.BspSourceConfig;
 import info.ata4.bspsrc.decompiler.VmfWriter;
 import info.ata4.bspsrc.decompiler.modules.VmfMeta;
@@ -126,7 +125,7 @@ public class AreaportalMapper {
             // Get a brush that has only ONE mapping. In a perfect world, we can be sure that they are 100% matches
             Optional<BrushMapping> opBrushMapping = brushProbMappings.stream()
                     .map(BrushProbabilitiesMapping::getOnlyMapping)
-                    .flatMap(JavaUtil::streamOpt)
+                    .flatMap(Optional::stream)
                     .max(Comparator.comparingDouble(brushMapping -> brushMapping.probability));
 
             // If we dont have any 'distinct' mappings, we just get the one with the highest probability

@@ -14,7 +14,6 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static info.ata4.bspsrc.common.util.JavaUtil.listCopyOf;
 import static info.ata4.bspsrc.lib.app.SourceAppId.*;
 import static info.ata4.io.Seekable.Origin.CURRENT;
 import static java.util.Objects.requireNonNull;
@@ -236,9 +235,9 @@ public class StaticPropLumpReader implements LumpReader<StaticPropLumpReader.Sta
 				List<Integer> leafs,
 				List<? extends DStaticProp> props
 		) {
-			this.names = listCopyOf(names);
-			this.leafs = listCopyOf(leafs);
-			this.props = listCopyOf(props);
+			this.names = List.copyOf(names);
+			this.leafs = List.copyOf(leafs);
+			this.props = List.copyOf(props);
 		}
 	}
 }

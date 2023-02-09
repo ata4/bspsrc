@@ -18,7 +18,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import static info.ata4.bspsrc.common.util.JavaUtil.setCopyOf;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -54,7 +53,7 @@ public class SourceApp {
         this.versionMin = versionMin;
         this.versionMax = versionMax;
         this.filePattern = filePattern;
-        this.entities = setCopyOf(entities);
+	    this.entities = Set.copyOf(entities);
         this.pointsEntities = pointsEntities;
         this.pointsFilePattern = pointsFilePattern;
     }

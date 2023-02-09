@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static info.ata4.bspsrc.common.util.JavaUtil.listCopyOf;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -86,9 +85,9 @@ public class OcclusionLumpReader<T extends DOccluderData>
 				List<DOccluderPolyData> dOccluderPolyData,
 				List<Integer> vertexIndices
 		) {
-			this.dOccluderData = listCopyOf(dOccluderData);
-			this.dOccluderPolyData = listCopyOf(dOccluderPolyData);
-			this.vertexIndices = listCopyOf(vertexIndices);
+			this.dOccluderData = List.copyOf(dOccluderData);
+			this.dOccluderPolyData = List.copyOf(dOccluderPolyData);
+			this.vertexIndices = List.copyOf(vertexIndices);
 		}
 	}
 }
