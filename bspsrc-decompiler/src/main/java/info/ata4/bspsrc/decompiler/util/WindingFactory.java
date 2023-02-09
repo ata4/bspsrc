@@ -11,7 +11,6 @@ package info.ata4.bspsrc.decompiler.util;
 
 import info.ata4.bspsrc.lib.struct.*;
 import info.ata4.bspsrc.lib.vector.Vector3f;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,7 +90,7 @@ public class WindingFactory {
      * @return Winding for the brush side
      */
     public static Winding fromSide(BspData bsp, DBrush brush, DBrushSide bside) {
-        ImmutablePair<DBrush, DBrushSide> key = ImmutablePair.of(brush, bside);
+        var key = Map.entry(brush, bside);
         if (brushSideCache.containsKey(key)) {
             return brushSideCache.get(key);
         }

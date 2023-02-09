@@ -3,9 +3,10 @@ package info.ata4.bspsrc.decompiler.modules.texture;
 import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.ToolTextureDefinition;
 import info.ata4.bspsrc.lib.struct.BrushFlag;
 import info.ata4.bspsrc.lib.struct.SurfaceFlag;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+
+import static info.ata4.bspsrc.common.util.JavaUtil.equalsIgnoreCase;
 
 /**
  * Class for reversing texture names to their original tooltexture names/surface flags/brush flags.
@@ -59,7 +60,7 @@ public class ToolTextureMatcher {
 
         return toolTextureDefinitions.entrySet().stream()
                 .filter(ttEntry -> optOriginalSurfaceProperty
-                        .map(surfaceProperty -> StringUtils.equalsIgnoreCase( // are surface properties case sensitive?
+                        .map(surfaceProperty -> equalsIgnoreCase( // are surface properties case sensitive?
                                 surfaceProperty.orElse(null),
                                 ttEntry.getValue()
                                         .getSurfaceProperty()

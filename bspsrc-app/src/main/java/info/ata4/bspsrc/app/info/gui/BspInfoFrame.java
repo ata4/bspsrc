@@ -33,7 +33,6 @@ import info.ata4.bspsrc.lib.entity.Entity;
 import info.ata4.bspsrc.lib.lump.LumpType;
 import info.ata4.bspsrc.lib.struct.BspData;
 import info.ata4.log.LogUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
@@ -219,16 +218,16 @@ public class BspInfoFrame extends javax.swing.JFrame {
 
                     BspCompileParams cparams = new BspCompileParams(bspReader);
 
-                    textFieldVbspParams.setText(StringUtils.join(cparams.getVbspParams(), ' '));
+                    textFieldVbspParams.setText(String.join(" ", cparams.getVbspParams()));
 
                     if (cparams.isVvisRun()) {
-                        textFieldVvisParams.setText(StringUtils.join(cparams.getVvisParams(), ' '));
+                        textFieldVvisParams.setText(String.join(" ", cparams.getVvisParams()));
                     } else {
                         textFieldVvisParams.setText("(not run)");
                     }
 
                     if (cparams.isVradRun()) {
-                        textFieldVradParams.setText(StringUtils.join(cparams.getVradParams(), ' '));
+                        textFieldVradParams.setText(String.join(" ", cparams.getVradParams()));
                     } else {
                         textFieldVradParams.setText("(not run)");
                     }

@@ -12,7 +12,6 @@ package info.ata4.bspsrc.lib.entity;
 
 import info.ata4.bspsrc.lib.vector.Vector3f;
 import info.ata4.log.LogUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -153,7 +152,7 @@ public class Entity {
         // parse origin values
         try {
             // split string by whitespaces
-            String[] costr = StringUtils.split(str, ' ');
+            String[] costr = str.split(" ", -1);
 
             float x = costr.length > 0 ? Float.parseFloat(costr[0]) : 0;
             float y = costr.length > 1 ? Float.parseFloat(costr[1]) : 0;
