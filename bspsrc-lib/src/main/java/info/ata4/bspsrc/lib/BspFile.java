@@ -10,6 +10,7 @@
 
 package info.ata4.bspsrc.lib;
 
+import info.ata4.bspsrc.common.util.PathUtil;
 import info.ata4.bspsrc.lib.io.LzmaUtil;
 import info.ata4.bspsrc.lib.io.XORUtils;
 import info.ata4.bspsrc.lib.lump.GameLump;
@@ -23,8 +24,6 @@ import info.ata4.io.DataWriter;
 import info.ata4.io.DataWriters;
 import info.ata4.io.buffer.ByteBufferUtils;
 import info.ata4.log.LogUtils;
-import org.apache.commons.io.EndianUtils;
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -114,7 +113,7 @@ public class BspFile {
      */
     public void load(Path file, boolean memMapping) throws IOException {
         this.file = file;
-        this.name = FilenameUtils.removeExtension(file.getFileName().toString());
+        this.name = PathUtil.nameWithoutExtension(file).orElse(null);
 
         L.log(Level.FINE, "Loading headers from {0}", name);
 
@@ -247,7 +246,7 @@ public class BspFile {
         }
 
         // probably little-endian, swap before doing more tests
-        ident = EndianUtils.swapInteger(ident);
+        ident = Integer.reverseBytes(ident);
 
         if (ident == BSP_ID) {
             // ordinary little-endian ident

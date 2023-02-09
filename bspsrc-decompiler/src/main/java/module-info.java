@@ -4,7 +4,6 @@ module info.ata4.bspsrc.decompiler {
 
 	requires info.ata4.bspsrc.common;
 	requires info.ata4.bspsrc.lib;
-	requires org.apache.commons.io;
 	requires org.apache.commons.compress;
 	requires ioutils.b1f26588b5;
 

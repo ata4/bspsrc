@@ -9,14 +9,13 @@
  */
 package info.ata4.bspsrc.lib.io;
 
+import info.ata4.bspsrc.common.util.CountingInputStream;
 import info.ata4.bspsrc.lib.entity.Entity;
 import info.ata4.bspsrc.lib.entity.KeyValue;
 import info.ata4.log.LogUtils;
-import org.apache.commons.io.input.CountingInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -57,7 +56,7 @@ public class EntityInputStream implements AutoCloseable {
                 switch (b) {
                     case '"':
                         if (!section) {
-                            throw new ParseException("String in unopened section", in.getCount());
+                            throw new ParseException("String in unopened section");
                         }
 
                         // ignore '"' if the previous character was '\'
@@ -76,7 +75,7 @@ public class EntityInputStream implements AutoCloseable {
                                 // ignore empty keys
                                 if (key.isEmpty()) {
                                     L.log(Level.FINE, "Skipped value \"{0}\" with empty key at {1}",
-                                            new Object[] {value, in.getCount()});
+                                            new Object[] {value, in.getBytesRead()});
                                 } else {
                                     keyValues.add(new KeyValue(key, value));
                                 }
@@ -93,7 +92,7 @@ public class EntityInputStream implements AutoCloseable {
 
                     case '{':
                         if (section && !string) {
-                            throw new ParseException("Opened unclosed section", in.getCount());
+                            throw new ParseException("Opened unclosed section");
                         }
 
                         if (!string) {
@@ -103,7 +102,7 @@ public class EntityInputStream implements AutoCloseable {
 
                     case '}':
                         if (!section && !string) {
-                            throw new ParseException("Closed unopened section", in.getCount());
+                            throw new ParseException("Closed unopened section");
                         }
 
                         if (!string) {
@@ -125,7 +124,7 @@ public class EntityInputStream implements AutoCloseable {
                 }
             }
         } catch (ParseException ex) {
-            L.log(Level.WARNING, "{0} at {1}", new Object[]{ex.getMessage(), ex.getErrorOffset()});
+            L.log(Level.WARNING, String.format("%s at %d", ex.message, in.getBytesRead()));
 
             // skip rest of this section by reading until EOF or '}'
             for (int b = 0; b != -1 && b != '}'; b = in.read());
@@ -149,5 +148,13 @@ public class EntityInputStream implements AutoCloseable {
     public void close() throws IOException
     {
         in.close();
+    }
+
+    private static class ParseException extends Exception {
+        private final String message;
+
+        public ParseException(String message) {
+            this.message = message;
+        }
     }
 }

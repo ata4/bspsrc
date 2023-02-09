@@ -16,7 +16,6 @@ import info.ata4.bspsrc.lib.lump.LumpFile;
 import info.ata4.bspsrc.lib.lump.LumpType;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -159,7 +158,7 @@ public class BspUnprotect {
         try (ZipFile zip = bspFile.getPakFile().getZipFile()) {
             Iterator<ZipArchiveEntry> iterator = zip.getEntries(BSPPROTECT_FILE).iterator();
             if (iterator.hasNext()) {
-                return IOUtils.toByteArray(zip.getInputStream(iterator.next()));
+                return zip.getInputStream(iterator.next()).readAllBytes();
             }
         } catch (IOException ex) {
             throw new RuntimeException("Couldn't read pakfile", ex);

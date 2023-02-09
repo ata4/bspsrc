@@ -12,14 +12,10 @@ package info.ata4.bspsrc.decompiler.modules;
 import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.bspsrc.lib.lump.Lump;
 import info.ata4.bspsrc.lib.lump.LumpType;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.zip.CRC32;
-import java.util.zip.CheckedInputStream;
 
 /**
  * BSP checksum calculator based on Source's server map CRC check.
@@ -32,7 +28,7 @@ public class BspChecksum extends ModuleRead {
         super(reader);
     }
 
-    public long getMapCRC() throws IOException {
+    public long getMapCRC() {
         CRC32 crc = new CRC32();
 
         // CRC across all lumps except for the Entities lump
@@ -41,16 +37,17 @@ public class BspChecksum extends ModuleRead {
                 continue;
             }
 
-            try (InputStream in = new CheckedInputStream(lump.getInputStream(), crc)) {
-                // copy to /dev/null, we need the checksum only
-                IOUtils.copy(in, NullOutputStream.NULL_OUTPUT_STREAM);
-            }
+            crc.update(lump.getBuffer());
         }
 
         return crc.getValue();
     }
 
     public long getFileCRC() throws IOException {
-        return FileUtils.checksumCRC32(bspFile.getFile().toFile());
+        var bytes = Files.readAllBytes(bspFile.getFile());
+
+        var crc = new CRC32();
+        crc.update(bytes);
+        return crc.getValue();
     }
 }

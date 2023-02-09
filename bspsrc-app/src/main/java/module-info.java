@@ -6,6 +6,7 @@ module info.ata4.bspsrc.app {
 	requires info.ata4.bspsrc.lib;
 	requires info.ata4.bspsrc.decompiler;
 	requires org.apache.commons.lang3;
+	requires org.apache.commons.compress;
 	requires commons.cli;
 	requires ioutils.b1f26588b5;
 }

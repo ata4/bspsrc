@@ -13,7 +13,6 @@ package info.ata4.bspsrc.lib.io;
 import info.ata4.bspsrc.lib.util.StringMacroUtils;
 import info.ata4.io.buffer.ByteBufferInputStream;
 import info.ata4.log.LogUtils;
-import org.apache.commons.io.IOUtils;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.LZMAInputStream;
 import org.tukaani.xz.LZMAOutputStream;
@@ -69,7 +68,7 @@ public class LzmaUtil {
         }
 
         try (LZMAInputStream lzmaIn = new LZMAInputStream(new ByteBufferInputStream(bbc), actualSize, probByte, dictSize)) {
-            return ByteBuffer.wrap(IOUtils.toByteArray(lzmaIn)).order(bo);
+            return ByteBuffer.wrap(lzmaIn.readAllBytes()).order(bo);
         }
     }
 
@@ -86,7 +85,7 @@ public class LzmaUtil {
                 ByteArrayOutputStream arrayOut = new ByteArrayOutputStream();
                 LZMAOutputStream lzmaOut = new LZMAOutputStream(arrayOut, options, false)
         ) {
-            IOUtils.copy(bufferIn, lzmaOut);
+            bufferIn.transferTo(lzmaOut);
             lzma = arrayOut.toByteArray();
             props = lzmaOut.getProps();
         }
@@ -126,7 +125,7 @@ public class LzmaUtil {
         // Lzma compressed zip is not supported by common-compress, so we do it manually
         // View https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT for specifications
         // (4.4.4 general purpose bit flag, 5.8 LZMA - Method 14)
-        ByteBuffer buffer = ByteBuffer.wrap(IOUtils.readFully(rawInputStream, 9))
+        ByteBuffer buffer = ByteBuffer.wrap(rawInputStream.readNBytes(9))
                 .order(ByteOrder.LITTLE_ENDIAN);
 
         // Lzma version used to compress this data

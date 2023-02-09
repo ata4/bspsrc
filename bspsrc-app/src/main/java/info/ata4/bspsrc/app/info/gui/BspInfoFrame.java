@@ -1130,7 +1130,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         tcm.getColumn(0).setPreferredWidth(30);
         tcm.getColumn(1).setPreferredWidth(150);
         tcm.getColumn(4).setPreferredWidth(40);
-        tcm.getColumn(2).setCellRenderer(new ByteSizeCellRenderer(false));
+        tcm.getColumn(2).setCellRenderer(new ByteSizeCellRenderer());
         tcm.getColumn(3).setCellRenderer(new ProgressCellRenderer());
         tableLumps.setAutoCreateColumnsFromModel(false);
 
@@ -1138,7 +1138,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         tcm = tableGameLumps.getColumnModel();
         tcm.getColumn(0).setPreferredWidth(30);
         tcm.getColumn(3).setPreferredWidth(40);
-        tcm.getColumn(1).setCellRenderer(new ByteSizeCellRenderer(false));
+        tcm.getColumn(1).setCellRenderer(new ByteSizeCellRenderer());
         tcm.getColumn(2).setCellRenderer(new ProgressCellRenderer());
         tableGameLumps.setAutoCreateColumnsFromModel(false);
 
@@ -1153,7 +1153,7 @@ public class BspInfoFrame extends javax.swing.JFrame {
         tcm = tableEmbedded.getColumnModel();
         tcm.getColumn(0).setPreferredWidth(250);
         tcm.getColumn(1).setPreferredWidth(50);
-        tcm.getColumn(1).setCellRenderer(new ByteSizeCellRenderer(false));
+        tcm.getColumn(1).setCellRenderer(new ByteSizeCellRenderer());
         tableEmbedded.setAutoCreateColumnsFromModel(false);
     }
 

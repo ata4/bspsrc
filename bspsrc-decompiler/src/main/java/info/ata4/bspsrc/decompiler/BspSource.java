@@ -20,10 +20,10 @@ import info.ata4.bspsrc.lib.app.SourceAppId;
 import info.ata4.bspsrc.lib.nmo.NmoException;
 import info.ata4.bspsrc.lib.nmo.NmoFile;
 import info.ata4.log.LogUtils;
-import org.apache.commons.io.output.NullOutputStream;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -181,7 +181,7 @@ public class BspSource implements Runnable {
     private VmfWriter getVmfWriter(File vmfFile) throws IOException {
         // write to file or omit output?
         if (config.nullOutput) {
-            return new VmfWriter(NullOutputStream.NULL_OUTPUT_STREAM);
+            return new VmfWriter(OutputStream.nullOutputStream());
         } else {
             return new VmfWriter(vmfFile);
         }

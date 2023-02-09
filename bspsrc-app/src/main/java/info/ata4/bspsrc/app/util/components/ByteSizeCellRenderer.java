@@ -9,11 +9,11 @@
  */
 package info.ata4.bspsrc.app.util.components;
 
-import org.apache.commons.io.FileUtils;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
 
 /**
  *
@@ -21,22 +21,33 @@ import java.awt.*;
  */
 public class ByteSizeCellRenderer extends DefaultTableCellRenderer {
 
-    private boolean si;
+    public ByteSizeCellRenderer() {
 
-    public ByteSizeCellRenderer(boolean si) {
-        this.si = si;
     }
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        if (value instanceof Long) {
-            value = FileUtils.byteCountToDisplaySize((Long) value);
-        } else if (value instanceof Integer) {
-            value = FileUtils.byteCountToDisplaySize((Integer) value);
+        if (value instanceof Long l) {
+            value = humanReadableByteCountSI(l);
+        } else if (value instanceof Integer i) {
+            value = humanReadableByteCountSI(i);
         }
 
         JLabel c = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         c.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         return c;
+    }
+
+    // https://stackoverflow.com/a/3758880/7426899
+    public static String humanReadableByteCountSI(long bytes) {
+        if (-1000 < bytes && bytes < 1000) {
+            return bytes + " B";
+        }
+        CharacterIterator ci = new StringCharacterIterator("kMGTPE");
+        while (bytes <= -999_950 || bytes >= 999_950) {
+            bytes /= 1000;
+            ci.next();
+        }
+        return String.format("%.1f %cB", bytes / 1000.0, ci.current());
     }
 }

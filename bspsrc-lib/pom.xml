@@ -16,15 +16,7 @@
 			<artifactId>bspsrc-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.github.ata4</groupId>
-			<artifactId>ioutils</artifactId>
-		</dependency>
 
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
@@ -34,6 +26,11 @@
 		<dependency>
 			<groupId>org.tukaani</groupId>
 			<artifactId>xz</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.ata4</groupId>
+			<artifactId>ioutils</artifactId>
 		</dependency>
 	</dependencies>
 

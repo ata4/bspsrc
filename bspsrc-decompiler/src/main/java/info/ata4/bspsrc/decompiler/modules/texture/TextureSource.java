@@ -14,7 +14,6 @@ import info.ata4.bspsrc.decompiler.modules.ModuleRead;
 import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.ToolTextureSet;
 import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.log.LogUtils;
-import org.apache.commons.io.FilenameUtils;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -217,8 +216,8 @@ public class TextureSource extends ModuleRead {
         // convert to lower case
         textureNew = textureNew.toLowerCase(Locale.ROOT);
 
-        // fix separators
-        textureNew = FilenameUtils.separatorsToUnix(textureNew);
+        // fix separators (convert separators to unix)
+        textureNew = textureNew.replace('\\', '/');
 
         return textureNew;
     }

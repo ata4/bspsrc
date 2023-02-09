@@ -9,7 +9,7 @@
  */
 package info.ata4.bspsrc.decompiler;
 
-import org.apache.commons.io.FilenameUtils;
+import info.ata4.bspsrc.common.util.PathUtil;
 
 import java.io.File;
 import java.util.Objects;
@@ -47,7 +47,7 @@ public class BspFileEntry {
     }
 
     private static File replaceExtension(File file, String newExt) {
-        String base = FilenameUtils.removeExtension(file.getName());
+        String base = PathUtil.nameWithoutExtension(file.toPath()).orElse("");
         File parentFile = file.getAbsoluteFile().getParentFile();
 
         return new File(parentFile, base + newExt);

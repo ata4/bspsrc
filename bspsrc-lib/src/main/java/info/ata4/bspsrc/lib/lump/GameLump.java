@@ -11,7 +11,6 @@
 package info.ata4.bspsrc.lib.lump;
 
 import info.ata4.bspsrc.lib.util.StringMacroUtils;
-import org.apache.commons.io.EndianUtils;
 
 /**
  * Lump extension for game lumps that are stored inside LUMP_GAME_LUMP.
@@ -32,7 +31,7 @@ public class GameLump extends AbstractLump {
 
     @Override
     public String getName() {
-        return StringMacroUtils.unmakeID(EndianUtils.swapInteger(getFourCC()));
+        return StringMacroUtils.unmakeID(Integer.reverseBytes(getFourCC()));
     }
 
     @Override

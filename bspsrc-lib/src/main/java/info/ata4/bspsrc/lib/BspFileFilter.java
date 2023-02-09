@@ -10,17 +10,22 @@
 
 package info.ata4.bspsrc.lib;
 
-import org.apache.commons.io.IOCase;
-import org.apache.commons.io.filefilter.SuffixFileFilter;
+import info.ata4.bspsrc.common.util.PathUtil;
+
+import java.io.File;
+import java.io.FileFilter;
 
 /**
  * Simple file filter for BSP files (.bsp)
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class BspFileFilter extends SuffixFileFilter {
+public class BspFileFilter implements FileFilter {
 
-    public BspFileFilter() {
-        super(".bsp", IOCase.INSENSITIVE);
+    @Override
+    public boolean accept(File pathname) {
+        return PathUtil.extension(pathname.toPath())
+                .orElse("")
+                .equalsIgnoreCase("bsp");
     }
 }
