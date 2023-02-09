@@ -9,13 +9,13 @@ import info.ata4.bspsrc.lib.struct.DBrushSide;
 import info.ata4.bspsrc.lib.struct.DFace;
 import info.ata4.bspsrc.lib.vector.Vector3f;
 import info.ata4.log.LogUtils;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static info.ata4.bspsrc.common.util.JavaUtil.mapGetOrDefault;
 
 public class BrushSideFaceMapper extends ModuleRead {
 
@@ -27,7 +27,7 @@ public class BrushSideFaceMapper extends ModuleRead {
 	// This is modelled with the assumption that the relation between brushsides and original faces is always N to 1
 	// So in other words any particular brushside can only ever have 0 or 1 original face
 	public final Map<Integer, Integer> brushSideToOrigFace = new HashMap<>();
-	public final MultiValuedMap<Integer, Integer> origFaceToBrushSide = new HashSetValuedHashMap<>();
+	public final Map<Integer, HashSet<Integer>> origFaceToBrushSide = new HashMap<>();
 
 	public BrushSideFaceMapper(BspFileReader reader) {
 		super(reader);
@@ -77,7 +77,8 @@ public class BrushSideFaceMapper extends ModuleRead {
 						.ifPresent(origFaceI -> {
 							potentialFaces.remove(origFaceI); // remove it so it's not considered twice
 							brushSideToOrigFace.put(brushSideIndex, origFaceI);
-							origFaceToBrushSide.put(origFaceI, brushSideIndex);
+							origFaceToBrushSide.computeIfAbsent(origFaceI, key -> new HashSet<>())
+									.add(brushSideIndex);
 						});
 			}
 		}
@@ -153,7 +154,8 @@ public class BrushSideFaceMapper extends ModuleRead {
 						.map(Map.Entry::getKey)
 						.ifPresent(origFaceI -> {
 							brushSideToOrigFace.put(brushSideIndex, origFaceI);
-							origFaceToBrushSide.put(origFaceI, brushSideIndex);
+							origFaceToBrushSide.computeIfAbsent(origFaceI, key -> new HashSet<>())
+									.add(brushSideIndex);
 						});
 			}
 		}
@@ -169,7 +171,7 @@ public class BrushSideFaceMapper extends ModuleRead {
 	}
 
 	public Set<Integer> getBrushSideIndices(int origFaceI) {
-		return (Set<Integer>) origFaceToBrushSide.get(origFaceI);
+		return mapGetOrDefault(origFaceToBrushSide, origFaceI, Set.of());
 	}
 
 	private static class FaceIndexKey {
