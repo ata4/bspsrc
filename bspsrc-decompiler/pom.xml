@@ -21,6 +21,11 @@
 			<artifactId>bspsrc-lib</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.github.ata4</groupId>
+			<artifactId>ioutils</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

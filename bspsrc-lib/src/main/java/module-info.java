@@ -2,9 +2,9 @@ module info.ata4.bspsrc.lib {
 	requires java.logging;
 
 	requires info.ata4.bspsrc.common;
+	requires ioutils.b1f26588b5;
 	requires org.apache.commons.compress;
 	requires org.tukaani.xz;
-	requires ioutils.b1f26588b5;
 
 	exports info.ata4.bspsrc.lib;
 	exports info.ata4.bspsrc.lib.app;

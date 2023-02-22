@@ -23,6 +23,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.github.ata4</groupId>
+			<artifactId>ioutils</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>info.picocli</groupId>
 			<artifactId>picocli</artifactId>
 		</dependency>
