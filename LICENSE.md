@@ -27,9 +27,9 @@ For more information, please refer to <http://unlicense.org/>
 
 ### Apache License
 
-BSPSource uses libraries of the [Apache Commons project](http://commons.apache.org):
+BSPSource uses the following libraries:
 
-* [Apache Commons CLI](http://commons.apache.org/cli/)
 * [Apache Commons Compress](http://commons.apache.org/compress/)
+* [picocli](https://github.com/remkop/picocli)
 
 which are licensed under the [Apache License version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
