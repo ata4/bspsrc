@@ -17,9 +17,9 @@ import info.ata4.bspsrc.decompiler.modules.geom.BrushMode;
 import info.ata4.bspsrc.decompiler.util.SourceFormat;
 import info.ata4.bspsrc.lib.app.SourceAppDB;
 import info.ata4.log.LogUtils;
-import org.apache.commons.cli.*;
+import picocli.CommandLine;
+import picocli.CommandLine.Model.CommandSpec;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -266,19 +266,19 @@ public class BspSourceCli {
         // main options
         config.setDebug(cl.hasOption(debugOpt.getOpt()));
 
-        File outputFile;
+        Path outputPath;
         if (cl.hasOption(outputOpt.getOpt())) {
-            outputFile = new File(cl.getOptionValue(outputOpt.getOpt()));
+            outputPath = Path.of(cl.getOptionValue(outputOpt.getOpt()));
         } else {
-            outputFile = null;
+            outputPath = null;
         }
 
         boolean recursive = cl.hasOption(recursiveOpt.getOpt());
 
         if (cl.hasOption(fileListOpt.getOpt())) {
             Files.readAllLines(Paths.get(cl.getOptionValue(fileListOpt.getOpt()))).stream()
-                    .map(File::new)
-                    .map(filePath -> new BspFileEntry(filePath, outputFile))
+                    .map(Path::of)
+                    .map(filePath -> new BspFileEntry(filePath, outputPath))
                     .forEach(files::add);
         }
 
@@ -368,11 +368,11 @@ public class BspSourceCli {
                     pathStream
                             .filter(Files::isRegularFile)
                             .filter(bspPathMatcher::matches)
-                            .map(filePath -> new BspFileEntry(filePath.toFile(), outputFile))
+                            .map(filePath -> new BspFileEntry(filePath, outputPath))
                             .forEach(files::add);
                 }
             } else {
-                files.add(new BspFileEntry(path.toFile(), outputFile));
+                files.add(new BspFileEntry(path, outputPath));
             }
         }
 

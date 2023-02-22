@@ -28,6 +28,7 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,10 +83,10 @@ public class BspSourceFrame extends javax.swing.JFrame {
 		        if (file.isDirectory()) {
 		            File[] subFiles = file.listFiles(filter);
 		            for (File subFile : subFiles) {
-		                listFilesModel.addElement(new BspFileEntry(subFile));
+		                listFilesModel.addElement(new BspFileEntry(subFile.toPath()));
 		            }
 		        } else if (filter.accept(file)) {
-		            listFilesModel.addElement(new BspFileEntry(file));
+		            listFilesModel.addElement(new BspFileEntry(file.toPath()));
 		        }
 		    }
 
@@ -1154,17 +1155,19 @@ public class BspSourceFrame extends javax.swing.JFrame {
         // don't show file dialog for multiple bsp files
         if (listFilesModel.size() == 1) {
             BspFileEntry entry = listFilesModel.firstElement();
-            File vmfFile = saveVmfFileDialog(entry.getVmfFile());
+            File vmfFile = saveVmfFileDialog(entry.getVmfFile().toFile());
 
             if (vmfFile == null) {
                 // the user obviously doesn't want to decompile...
                 return;
             }
 
-            entry.setVmfFile(vmfFile);
-            entry.setPakDir(new File(vmfFile.getAbsoluteFile().getParentFile(),
-                    entry.getPakDir().getName()));
-            entry.setNmosFile(new File(vmfFile.getAbsoluteFile().getParentFile(), entry.getNmosFile().getName()));
+            Path vmfPath = vmfFile.toPath();
+
+            entry.setVmfFile(vmfPath);
+            // I really don't like what I see here...
+            entry.setPakDir(vmfPath.resolveSibling(entry.getPakDir().getFileName().toString()));
+            entry.setNmosFile(vmfPath.resolveSibling(entry.getNmosFile().getFileName().toString()));
         } else {
             File dstDir = selectDirectoryDialog(null);
 
@@ -1173,13 +1176,16 @@ public class BspSourceFrame extends javax.swing.JFrame {
                 return;
             }
 
+            Path dstDirPath = dstDir.toPath();
+
             // update paths with new destination dir
             Enumeration<BspFileEntry> entries = listFilesModel.elements();
             while(entries.hasMoreElements()) {
                 BspFileEntry entry = entries.nextElement();
-                entry.setVmfFile(new File(dstDir, entry.getVmfFile().getName()));
-                entry.setPakDir(new File(dstDir, entry.getPakDir().getName()));
-                entry.setNmosFile(new File(dstDir, entry.getNmosFile().getName()));
+                // ...
+                entry.setVmfFile(dstDirPath.resolve(entry.getVmfFile().getFileName().toString()));
+                entry.setPakDir(dstDirPath.resolve(entry.getPakDir().getFileName().toString()));
+                entry.setNmosFile(dstDirPath.resolve(entry.getNmosFile().getFileName().toString()));
             }
         }
 
@@ -1236,7 +1242,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         File bspFile = null;
 
         if (listFilesModel.size() == 1) {
-            bspFile = listFilesModel.firstElement().getBspFile();
+            bspFile = listFilesModel.firstElement().getBspFile().toFile();
         }
 
         File[] bspFiles = openBspFileDialog(bspFile);
@@ -1247,7 +1253,7 @@ public class BspSourceFrame extends javax.swing.JFrame {
         }
 
         for (File file : bspFiles) {
-            listFilesModel.addElement(new BspFileEntry(file));
+            listFilesModel.addElement(new BspFileEntry(file.toPath()));
         }
 
         buttonDecompile.setEnabled(!listFilesModel.isEmpty());

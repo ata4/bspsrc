@@ -11,7 +11,7 @@ package info.ata4.bspsrc.decompiler;
 
 import info.ata4.bspsrc.common.util.PathUtil;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -20,19 +20,19 @@ import java.util.Objects;
  */
 public class BspFileEntry {
 
-    private final File bspFile;
-    private File vmfFile;
-    private File pakfileDir;
+    private final Path bspFile;
+    private Path vmfFile;
+    private Path pakfileDir;
 
     //No More Room in Hell only
-    private File nmoFile;
-    private File nmosFile;
+    private Path nmoFile;
+    private Path nmosFile;
 
-    public BspFileEntry(File bspFile) {
+    public BspFileEntry(Path bspFile) {
         this(bspFile, null);
     }
 
-    public BspFileEntry(File bspFile, File vmfFile) {
+    public BspFileEntry(Path bspFile, Path vmfFile) {
     	Objects.requireNonNull(bspFile);
 
     	if (vmfFile == null) {
@@ -46,43 +46,41 @@ public class BspFileEntry {
         this.nmosFile = replaceExtension(vmfFile, ".nmos");
     }
 
-    private static File replaceExtension(File file, String newExt) {
-        String base = PathUtil.nameWithoutExtension(file.toPath()).orElse("");
-        File parentFile = file.getAbsoluteFile().getParentFile();
-
-        return new File(parentFile, base + newExt);
+    private static Path replaceExtension(Path path, String newExt) {
+        String base = PathUtil.nameWithoutExtension(path).orElse("");
+        return path.resolveSibling(base + newExt);
     }
 
-    public File getBspFile() {
+    public Path getBspFile() {
         return bspFile;
     }
 
-    public File getVmfFile() {
+    public Path getVmfFile() {
         return vmfFile;
     }
 
-    public void setVmfFile(File vmfFile) {
+    public void setVmfFile(Path vmfFile) {
         this.vmfFile = vmfFile;
     }
 
-    public File getPakDir() {
+    public Path getPakDir() {
         return pakfileDir;
     }
 
-    public void setPakDir(File pakfileDir) {
+    public void setPakDir(Path pakfileDir) {
         this.pakfileDir = pakfileDir;
     }
 
     //No More Room in Hell only
-    public File getNmoFile() {
+    public Path getNmoFile() {
         return nmoFile;
     }
 
-    public File getNmosFile() {
+    public Path getNmosFile() {
     	return nmosFile;
     }
 
-	public void setNmosFile(File nmosFile)
+	public void setNmosFile(Path nmosFile)
 	{
 		Objects.requireNonNull(nmosFile);
 		this.nmosFile = nmosFile;

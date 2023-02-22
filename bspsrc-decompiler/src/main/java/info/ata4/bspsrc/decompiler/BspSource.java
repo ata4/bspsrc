@@ -24,6 +24,8 @@ import info.ata4.log.LogUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -92,12 +94,12 @@ public class BspSource implements Runnable {
      * Starts the decompiling process
      */
     private void decompile(BspFileEntry entry) {
-        File bspFile = entry.getBspFile();
-        File vmfFile = entry.getVmfFile();
+        Path bspFile = entry.getBspFile();
+        Path vmfFile = entry.getVmfFile();
 
         // Only used for 'No More Room in Hell'
-        File nmoFile = entry.getNmoFile();
-        File nmosFile = entry.getNmosFile();
+        Path nmoFile = entry.getNmoFile();
+        Path nmosFile = entry.getNmosFile();
 
         // load BSP
         BspFileReader reader;
@@ -107,7 +109,7 @@ public class BspSource implements Runnable {
         try {
             BspFile bsp = new BspFile();
             bsp.setAppId(config.defaultAppId);
-            bsp.load(bspFile.toPath());
+            bsp.load(bspFile);
 
             if (config.loadLumpFiles) {
                 bsp.loadLumpFiles();
@@ -119,7 +121,7 @@ public class BspSource implements Runnable {
             // extract embedded files
             if (config.unpackEmbedded) {
                 try {
-                    bsp.getPakFile().unpack(entry.getPakDir().toPath(), fileFilter);
+                    bsp.getPakFile().unpack(entry.getPakDir(), fileFilter);
                 } catch (IOException ex) {
                     L.log(Level.WARNING, "Can't extract embedded files", ex);
                 }
@@ -135,14 +137,14 @@ public class BspSource implements Runnable {
         // load NMO if game is 'No More Room in Hell'
         NmoFile nmo = null;
         if (reader.getBspFile().getAppId() == SourceAppId.NO_MORE_ROOM_IN_HELL) {
-            if (nmoFile.exists()) {
+            if (Files.exists(nmoFile)) {
                 try {
                     nmo = new NmoFile();
-                    nmo.load(nmoFile.toPath(), true);
+                    nmo.load(nmoFile, true);
 
 	                // write nmos
 	                try {
-		                nmo.writeAsNmos(nmosFile.toPath());
+		                nmo.writeAsNmos(nmosFile);
 	                } catch (IOException ex) {
 		                L.log(Level.SEVERE, "Error while writing nmos", ex);
 	                }
@@ -165,7 +167,7 @@ public class BspSource implements Runnable {
         }
 
         // create and configure decompiler and start decompiling
-        try (VmfWriter writer = getVmfWriter(vmfFile)) {
+        try (VmfWriter writer = getVmfWriter(vmfFile.toFile())) {
             BspDecompiler decompiler = new BspDecompiler(reader, writer, config);
 
             if (nmo != null)
