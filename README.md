@@ -6,10 +6,24 @@ It decompiles .bsp map files back to .vmf files that can be loaded in Hammer, Va
 BSPSource is based on a reengineered version of [VMEX 0.98g](http://www.bagthorpe.org/bob/cofrdrbob/vmex.html) by Rof, which is no longer developed and lacks support for newer Source engine games.
 
 ## Running BSPSource
-1. Download the latest version from the [release](https://github.com/ata4/bspsrc/releases) page. Make sure to download the file named `bspsrc_X.X.X.zip` and **not** the source code.
+
+BSPSource can be installed in two ways:
+
+### Standalone Installation
+
+The standalone installation is self-contained and does not require any additional software to be installed on your computer.
+
+1. Download [bspsrc-linux.zip](https://github.com/ata4/bspsrc/releases/latest/bspsrc-linux.zip) or [bspsrc-windows.zip](https://github.com/ata4/bspsrc/releases/latest/bspsrc-windows.zip), depending on your operating system.
 2. Extract the contents of the zip file to a new folder.
-3. To run the program, you need to have at least java 8 installed. If you do not, you can download java from several vendors like [Adoptium](https://adoptium.net/).
-4. To launch bspsrc/bspinfo, run the respectively named file. On Windows these are `bspsrc.bat`/`bspinfo.bat` and on Linux `bspsrc.sh`/`bspinfo.sh`
+3. To launch bspsrc/bspinfo, run the corresponding file: `bspsrc.bat`/`bspinfo.bat` on Windows, or `bspsrc.sh`/`bspinfo.sh` on Linux.
+
+### Java required Installation
+
+This installation requires Java 19+ to be installed and properly configured on your computer. If you don't have Java installed, you can download it from vendors like [Adoptium](https://adoptium.net/).
+
+1. Download [bspsrc-jar-only.zip](https://github.com/ata4/bspsrc/releases/latest/bspsrc-jar-only.zip).
+2. Extract the contents of the zip file to a new folder.
+3. To launch bspsrc/bspinfo, run the corresponding file: `bspsrc.bat`/`bspinfo.bat` on Windows, or `bspsrc.sh`/`bspinfo.sh` on Linux.
 
 ## Frequently asked Questions
 
