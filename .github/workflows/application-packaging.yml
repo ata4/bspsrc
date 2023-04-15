@@ -1,0 +1,140 @@
+name: Application packaging
+run-name: ${{ github.ref_name }}
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '19'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Maven build
+        run: mvn -B verify
+
+      - name: Rename shaded jar
+        run: mv ${{github.workspace}}/bspsrc-app/target/*-shaded.jar ${{github.workspace}}/bspsrc-app/target/bspsrc.jar
+
+      - name: Upload application jar
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: bspsrc.jar
+          path: ${{github.workspace}}/bspsrc-app/target/bspsrc.jar
+          if-no-files-found: error
+          retention-days: 1
+
+  package-app:
+    name: "Package application: ${{ matrix.options.type }}"
+    needs: build
+    strategy:
+      matrix:
+        options: [
+          { type: "jar-only", os: "ubuntu-latest", include_runtime: false, linux_launcher: true, windows_launcher: true, java_path: "" },
+          { type: "linux", os: "ubuntu-latest", include_runtime: true, linux_launcher: true, windows_launcher: false, java_path: "$BASEDIR/runtime/bin/" },
+          { type: "windows", os: "windows-latest", include_runtime: true, linux_launcher: false, windows_launcher: true, java_path: "%~dp0\\\\runtime\\\\bin\\\\" }
+        ]
+    runs-on: ${{ matrix.options.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 19
+          distribution: temurin
+          cache: maven
+
+      - name: Download application jar
+        uses: actions/download-artifact@v3
+        with:
+          name: bspsrc.jar
+          path: packaging
+
+      - name: Copy Linux launcher scripts
+        if: ${{ matrix.options.linux_launcher }}
+        run: |
+          sed 's!<java_path>!${{ matrix.options.java_path }}!g' ${{ github.workspace }}/bspsrc-app/scripts/bspinfo.sh > packaging/bspinfo.sh
+          sed 's!<java_path>!${{ matrix.options.java_path }}!g' ${{ github.workspace }}/bspsrc-app/scripts/bspsrc.sh > packaging/bspsrc.sh
+
+      - name: Copy Windows launcher scripts
+        if: ${{ matrix.options.windows_launcher }}
+        run: |
+          sed 's!<java_path>!${{ matrix.options.java_path }}!g' ${{ github.workspace }}/bspsrc-app/scripts/bspinfo.bat > packaging/bspinfo.bat
+          sed 's!<java_path>!${{ matrix.options.java_path }}!g' ${{ github.workspace }}/bspsrc-app/scripts/bspsrc.bat > packaging/bspsrc.bat
+
+      - name: Generate runtime
+        if: ${{ matrix.options.include_runtime }}
+        run: jlink --add-modules java.desktop,java.logging --output packaging/runtime/ --strip-debug --no-man-pages --no-header-files --compress=2
+
+      - name: Upload files
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: bspsrc-${{ matrix.options.type }}
+          path: packaging/
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    name: "Create draft release"
+    needs: package-app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download jar-only artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: bspsrc-jar-only
+          path: jar-only
+
+      - name: Download linux artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: bspsrc-linux
+          path: linux
+
+      - name: Download windows artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: bspsrc-windows
+          path: windows
+
+      - name: Zip jar-only files
+        uses: thedoctor0/zip-release@0.7.1
+        with:
+          type: 'zip'
+          filename: 'bspsrc-jar-only.zip'
+          path: 'jar-only/'
+
+      - name: Zip linux files
+        uses: thedoctor0/zip-release@0.7.1
+        with:
+          type: 'zip'
+          filename: 'bspsrc-linux.zip'
+          path: 'linux/'
+
+      - name: Zip windows files
+        uses: thedoctor0/zip-release@0.7.1
+        with:
+          type: 'zip'
+          filename: 'bspsrc-windows.zip'
+          path: 'windows/'
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: |
+            bspsrc-jar-only.zip
+            bspsrc-linux.zip
+            bspsrc-windows.zip
