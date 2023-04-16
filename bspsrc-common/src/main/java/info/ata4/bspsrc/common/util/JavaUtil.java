@@ -3,8 +3,7 @@ package info.ata4.bspsrc.common.util;
 import java.util.Map;
 
 /**
- * Util helper class for methods that got introduced in jdk9+ but can't be
- * utilized because the project is compiled for jdk 8
+ * Util helper class for general Java related methods
  */
 public class JavaUtil {
 
