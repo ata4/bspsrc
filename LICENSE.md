@@ -31,5 +31,7 @@ BSPSource uses the following libraries:
 
 * [Apache Commons Compress](http://commons.apache.org/compress/)
 * [picocli](https://github.com/remkop/picocli)
+* [FlatLaf](https://github.com/JFormDesigner/FlatLaf)
+* [jSystemThemeDetector](https://github.com/Dansoftowner/jSystemThemeDetector)
 
 which are licensed under the [Apache License version 2.0](http://www.apache.org/licenses/LICENSE-2.0).

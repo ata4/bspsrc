@@ -9,6 +9,8 @@ module info.ata4.bspsrc.app {
 	requires ioutils.b1f26588b5;
 	requires org.apache.commons.compress;
 	requires info.picocli;
+	requires com.formdev.flatlaf;
+	requires com.jthemedetector;
 
 	opens info.ata4.bspsrc.app.src.cli to info.picocli;
 }

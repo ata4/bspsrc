@@ -38,6 +38,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Needed for jSystemThemeDetector which uses slf4j-->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+                <version>2.0.7</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
@@ -56,6 +63,18 @@
                 <groupId>org.tukaani</groupId>
                 <artifactId>xz</artifactId>
                 <version>1.9</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.formdev</groupId>
+                <artifactId>flatlaf</artifactId>
+                <version>3.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.Dansoftowner</groupId>
+                <artifactId>jSystemThemeDetector</artifactId>
+                <version>3.6</version>
             </dependency>
 
             <!-- Dependencies from jitpack.io -->

@@ -7,7 +7,7 @@
  **    May you find forgiveness for yourself and forgive others.
  **    May you share freely, never taking more than you give.
  */
-package info.ata4.bspsrc.app.info.gui;
+package info.ata4.bspsrc.app.info;
 
 import info.ata4.bspsrc.lib.BspFile;
 import info.ata4.bspsrc.lib.lump.AbstractLump;
