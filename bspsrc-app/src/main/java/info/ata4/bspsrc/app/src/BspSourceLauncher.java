@@ -10,7 +10,6 @@
 package info.ata4.bspsrc.app.src;
 
 import info.ata4.bspsrc.app.src.cli.BspSourceCli;
-import info.ata4.bspsrc.app.src.gui.BspSourceFrame;
 
 /**
  * Simple launcher that starts the CLI if any command
@@ -25,7 +24,7 @@ public class BspSourceLauncher {
 	 */
 	public static void main(String[] args) {
 		if (args.length == 0) {
-			BspSourceFrame.main();
+			throw new UnsupportedOperationException("Not implemented currently");
 		} else {
 			BspSourceCli.main(args);
 		}
