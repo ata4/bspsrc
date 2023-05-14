@@ -252,7 +252,7 @@ public class EntitySource extends ModuleDecompile {
                 }
 
                 // keep the number when debugging
-                if (!config.isDebug()) {
+                if (!config.debug) {
                     ent.removeValue("portalnumber");
                 }
             }
@@ -282,7 +282,7 @@ public class EntitySource extends ModuleDecompile {
                 }
 
                 // keep the number when debugging
-                if (!config.isDebug()) {
+                if (!config.debug) {
                     ent.removeValue("occludernumber");
                 }
             }
@@ -380,7 +380,7 @@ public class EntitySource extends ModuleDecompile {
                         visgroups.add(rebuildAreaportalVg);
                     }
 
-                    if (config.isDebug()) {
+                    if (config.debug) {
                         visgroups.add(vmfmeta.visgroups()
                                 .getVisgroup("AreaportalID")
                                 .getVisgroup(String.valueOf(portalNum)));
@@ -444,7 +444,7 @@ public class EntitySource extends ModuleDecompile {
         }
 
         //If were in debug wer write some additional entities
-        if (config.isDebug()) {
+        if (config.debug) {
             areaportalMapper.writeDebugPortals(writer, vmfmeta, facesrc);
         }
     }

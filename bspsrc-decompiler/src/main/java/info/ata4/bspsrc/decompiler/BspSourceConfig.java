@@ -15,12 +15,8 @@ import info.ata4.bspsrc.decompiler.util.SourceFormat;
 import info.ata4.bspsrc.lib.app.SourceAppId;
 import info.ata4.log.LogUtils;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,7 +25,7 @@ import java.util.logging.Logger;
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public final class BspSourceConfig implements Serializable {
+public final class BspSourceConfig {
 
     // logger
     private static final Logger L = LogUtils.getLogger();
@@ -68,15 +64,7 @@ public final class BspSourceConfig implements Serializable {
     public boolean writeWorldBrushes = true;
     public boolean writeLadders = true;
 
-    private boolean debug = false;
-    private Set<BspFileEntry> files = new HashSet<>();
-
-    private void updateLogger(boolean debug) {
-        LogUtils.configure(debug ? Level.ALL : Level.INFO);
-        if (debug) {
-            L.fine("Debug mode on, verbosity set to maximum");
-        }
-    }
+    public boolean debug = false;
 
     public void dumpToLog() {
         dumpToLog(L);
@@ -92,26 +80,11 @@ public final class BspSourceConfig implements Serializable {
             }
 
             try {
-                logger.log(Level.CONFIG, "{0} = {1}", new Object[]{field.getName(), field.get(this)});
-            } catch (Exception ex) {
-                continue;
+                logger.config("%s = %s".formatted(field.getName(), field.get(this)));
+            } catch (IllegalAccessException e) {
+                logger.log(Level.WARNING, "", e);
             }
         }
-    }
-
-    public void setFileSet(Set<BspFileEntry> entries) {
-        this.files = new HashSet<>(entries);
-    }
-
-    /**
-     * @return an unmodifiable set of all BspFileEntry objects
-     */
-    public Set<BspFileEntry> getFileSet() {
-        return Collections.unmodifiableSet(files);
-    }
-
-    public void addFiles(Set<BspFileEntry> files) {
-        this.files.addAll(files);
     }
 
     public boolean isWriteEntities() {
@@ -120,14 +93,5 @@ public final class BspSourceConfig implements Serializable {
 
     public void setWriteEntities(boolean writeEntities) {
         writeBrushEntities = writePointEntities = writeEntities;
-    }
-
-    public boolean isDebug() {
-        return debug;
-    }
-
-    public void setDebug(boolean debug) {
-        updateLogger(debug);
-        this.debug = debug;
     }
 }

@@ -189,7 +189,7 @@ public class AreaportalMapper {
         }
 
         //In debug mode we write all probabilities to the entities for debugging
-        if (config.isDebug()) {
+        if (config.debug) {
             bsp.entities.stream()
                     .filter(entity -> entity.getClassName().startsWith("func_areaportal"))
                     .forEach(entity -> {

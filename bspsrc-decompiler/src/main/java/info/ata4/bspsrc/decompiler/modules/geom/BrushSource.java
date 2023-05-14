@@ -261,7 +261,7 @@ public class BrushSource extends ModuleDecompile {
                 // the brush side should be safe to write
                 validBrushSides.put(ibrushside, wind);
             } catch (BrushSideException ex) {
-                if (config.isDebug()) {
+	            if (config.debug) {
                     L.log(Level.WARNING, "Skipped side {0} of brush {1}: {2}",
                             new Object[]{i, ibrush, ex.getMessage()});
 
@@ -287,7 +287,7 @@ public class BrushSource extends ModuleDecompile {
         writer.put("id", brushID);
 
         // write metadata for debugging
-        if (config.isDebug()) {    
+	    if (config.debug) {
             writer.start("bspsrc_debug");
             writer.put("brush_index", ibrush);
             writer.put("brush_contents", brush.contents.toString());
@@ -372,7 +372,7 @@ public class BrushSource extends ModuleDecompile {
         writer.put("id", sideID);
 
         // write metadata for debugging
-        if (config.isDebug()) {
+	    if (config.debug) {
             writer.start("bspsrc_debug");
             writer.put("brushside_index", ibrushside);
             writer.put("normal", normal);

@@ -13,11 +13,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -166,6 +164,11 @@ public class BspSourceCliCommand implements Callable<Void> {
 	@Override
 	public Void call() throws IOException
 	{
+		if (debug) {
+			LogUtils.configure(Level.ALL);
+			L.fine("Debug mode on, verbosity set to maximum");
+		}
+
 		if (listAppIds) {
 			System.out.printf("%8s  %s\n", "ID", "Name");
 			SourceAppDB.getInstance().getAppList().entrySet().stream()
@@ -176,21 +179,21 @@ public class BspSourceCliCommand implements Callable<Void> {
 		}
 
 		BspSourceConfig config = getConfig();
-		if (config.getFileSet().isEmpty()) {
+		Set<BspFileEntry> entries = getEntries();
+		if (entries.isEmpty()) {
 			L.severe("No BSP file(s) specified");
 		} else {
 			var bspsrc = new BspSource(config);
-			bspsrc.run();
+			bspsrc.run(new ArrayList<>(entries));
 		}
 
 		return null;
 	}
 
-	private BspSourceConfig getConfig() throws IOException
-	{
+	private BspSourceConfig getConfig() {
 		var config = new BspSourceConfig();
 
-		config.setDebug(debug);
+		config.debug = debug;
 
 		// entity options
 		config.writePointEntities = !entityOpts.noPointEnts;
@@ -229,6 +232,10 @@ public class BspSourceCliCommand implements Callable<Void> {
 		config.unpackEmbedded = miscellaneousOptions.unpackEmbedded;
 		config.smartUnpack = !miscellaneousOptions.noSmartUnpack;
 
+		return config;
+	}
+
+	private Set<BspFileEntry> getEntries() throws IOException {
 		List<Path> bspPaths;
 		if (useFileLists) {
 			// it could be so easy...
@@ -251,8 +258,7 @@ public class BspSourceCliCommand implements Callable<Void> {
 		}
 
 		var fileSet = new HashSet<BspFileEntry>();
-		for (Path path : bspPaths)
-		{
+		for (Path path : bspPaths) {
 			if (Files.isDirectory(path)) {
 				PathMatcher bspPathMatcher = path.getFileSystem().getPathMatcher("glob:**.bsp");
 				try (Stream<Path> pathStream = Files.walk(path, recursive ? Integer.MAX_VALUE : 0)) {
@@ -267,8 +273,6 @@ public class BspSourceCliCommand implements Callable<Void> {
 			}
 		}
 
-		config.setFileSet(fileSet);
-
-		return config;
+		return fileSet;
 	}
 }

@@ -280,7 +280,7 @@ public class FaceSource extends ModuleDecompile {
         writer.put("id", vmfmeta.getUID());
 
         // write metadata for debugging
-        if (config.isDebug()) {
+	    if (config.debug) {
             writer.start("bspsrc_debug");
             writer.put("face_index", iface);
             writer.put("normal", normal);
@@ -745,7 +745,7 @@ public class FaceSource extends ModuleDecompile {
         // write VMF data
         writer.start("dispinfo");
 
-        if (config.isDebug()) {
+	    if (config.debug) {
             writer.put("bspsrc_dispinfo_index", idispinfo);
         }
 

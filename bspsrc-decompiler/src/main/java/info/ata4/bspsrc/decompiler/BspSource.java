@@ -26,10 +26,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Set;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Main control class for all decompiling modules.
@@ -41,7 +43,7 @@ import java.util.logging.Logger;
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class BspSource implements Runnable {
+public class BspSource {
 
     private static final Logger L = LogUtils.getLogger();
 
@@ -50,44 +52,39 @@ public class BspSource implements Runnable {
     private final BspSourceConfig config;
 
     public BspSource(BspSourceConfig config) {
-        this.config = config;
+        this.config = requireNonNull(config);
     }
 
     /**
      * Starts BSPSource
      */
-    @Override
-    public void run() {
+    public void run(List<BspFileEntry> entries) {
         // some benchmarking
         long startTime = System.currentTimeMillis();
 
         // log all config fields in debug mode
-        if (config.isDebug()) {
+        if (config.debug) {
             config.dumpToLog();
         }
 
-        // acquire list of files
-        Set<BspFileEntry> entries = config.getFileSet();
+        if (entries.isEmpty())
+            return;
 
-        if (entries.isEmpty()) {
-            L.severe("No BSP files found");
-        } else {
-            for (BspFileEntry entry : entries) {
-                try {
-                    decompile(entry);
-                    System.gc(); // try to free some resources
-                } catch (Exception ex) {
-                    // likely to be a critical error, but maybe it will work
-                    // with other files
-                    L.log(Level.SEVERE, "Decompiling error", ex);
-                }
+        for (BspFileEntry entry : entries) {
+            try {
+                decompile(entry);
+                System.gc(); // try to free some resources
+            } catch (Exception ex) {
+                // likely to be a critical error, but maybe it will work
+                // with other files
+                L.log(Level.SEVERE, "Decompiling error", ex);
             }
-
-            // get total execution time
-            double duration = (System.currentTimeMillis() - startTime) / 1000.0;
-            L.log(Level.INFO, "Processed {0} file(s) in {1} seconds",
-                    new Object[]{entries.size(), String.format("%.4f", duration)});
         }
+
+        // get total execution time
+        double duration = (System.currentTimeMillis() - startTime) / 1000.0;
+        L.log(Level.INFO, "Processed {0} file(s) in {1} seconds",
+                new Object[]{entries.size(), String.format("%.4f", duration)});
     }
 
     /**
@@ -157,7 +154,7 @@ public class BspSource implements Runnable {
             }
         }
 
-        if (!config.isDebug()) {
+        if (!config.debug) {
             int appId = reader.getBspFile().getAppId();
             String gameName = SourceAppDB.getInstance().getName(appId)
                     .orElse(String.valueOf(appId));
