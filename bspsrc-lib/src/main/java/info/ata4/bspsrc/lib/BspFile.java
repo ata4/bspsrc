@@ -1002,9 +1002,8 @@ public class BspFile {
      * Returns the BSP reader for this file.
      * 
      * @return BSP reader for this file
-     * @throws IOException on IO errors
      */
-    public BspFileReader getReader() throws IOException {
+    public BspFileReader getReader() {
         return new BspFileReader(this);
     }
 }

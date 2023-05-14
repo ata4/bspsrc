@@ -99,37 +99,36 @@ public class BspSource {
         Path nmosFile = entry.getNmosFile();
 
         // load BSP
-        BspFileReader reader;
-
         L.log(Level.INFO, "Loading {0}", bspFile);
 
+        var bsp = new BspFile();
+        bsp.setAppId(config.defaultAppId);
+
         try {
-            BspFile bsp = new BspFile();
-            bsp.setAppId(config.defaultAppId);
             bsp.load(bspFile);
-
-            if (config.loadLumpFiles) {
-                bsp.loadLumpFiles();
-            }
-
-            Predicate<String> fileFilter = filename -> !config.smartUnpack ||
-                    (!PakFile.isVBSPGeneratedFile(filename) && !TextureSource.isPatchedMaterial(filename));
-
-            // extract embedded files
-            if (config.unpackEmbedded) {
-                try {
-                    bsp.getPakFile().unpack(entry.getPakDir(), fileFilter);
-                } catch (IOException ex) {
-                    L.log(Level.WARNING, "Can't extract embedded files", ex);
-                }
-            }
-
-            reader = new BspFileReader(bsp);
-            reader.loadAll();
         } catch (IOException ex) {
             L.log(Level.SEVERE, "Can't load " + bspFile, ex);
             return;
         }
+
+        if (config.loadLumpFiles) {
+            bsp.loadLumpFiles();
+        }
+
+        Predicate<String> fileFilter = filename -> !config.smartUnpack ||
+                (!PakFile.isVBSPGeneratedFile(filename) && !TextureSource.isPatchedMaterial(filename));
+
+        // extract embedded files
+        if (config.unpackEmbedded) {
+            try {
+                bsp.getPakFile().unpack(entry.getPakDir(), fileFilter);
+            } catch (IOException ex) {
+                L.log(Level.WARNING, "Can't extract embedded files", ex);
+            }
+        }
+
+        var reader = new BspFileReader(bsp);
+        reader.loadAll();
 
         // load NMO if game is 'No More Room in Hell'
         NmoFile nmo = null;

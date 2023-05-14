@@ -20,7 +20,6 @@ import info.ata4.bspsrc.lib.lump.LumpType;
 import info.ata4.bspsrc.lib.struct.*;
 import info.ata4.log.LogUtils;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -45,14 +44,12 @@ public class BspFileReader {
     private final BspFile bspFile;
     private final BspData bspData;
 
-    public BspFileReader(BspFile bspFile, BspData bspData) throws IOException {
+    public BspFileReader(BspFile bspFile, BspData bspData) {
         this.bspFile = bspFile;
         this.bspData = bspData;
 
-        if (bspFile.getFile() == null) {
-            // "Gah! Hear me, man? Gah!"
-            throw new BspException("BSP file is unloaded");
-        }
+        if (bspFile.getFile() == null)
+            throw new IllegalArgumentException("BSP file is unloaded");
 
         // uncompress all lumps first
         if (bspFile.isCompressed()) {
@@ -60,7 +57,7 @@ public class BspFileReader {
         }
     }
 
-    public BspFileReader(BspFile bspFile) throws IOException {
+    public BspFileReader(BspFile bspFile) {
         this(bspFile, new BspData());
     }
 
