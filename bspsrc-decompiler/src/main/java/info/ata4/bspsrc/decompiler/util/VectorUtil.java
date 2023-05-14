@@ -12,26 +12,36 @@ import java.util.stream.Collectors;
 
 public class VectorUtil {
 
-	public static double matchingAreaPercentage(DOccluderPolyData occluderPolyData, DBrush brush,
-												DBrushSide brushSide, BspData bsp) {
+	public static double matchingAreaPercentage(
+			DOccluderPolyData occluderPolyData,
+			DBrush brush,
+			DBrushSide brushSide,
+			BspData bsp,
+			WindingFactory windingFactory
+	) {
 		if (occluderPolyData.planenum == brushSide.pnum) {
 			return internalMatchingAreaPercentage(
-					WindingFactory.fromOccluder(bsp, occluderPolyData),
-					WindingFactory.fromSide(bsp, brush, brushSide)
+					windingFactory.fromOccluder(bsp, occluderPolyData),
+					windingFactory.fromSide(bsp, brush, brushSide)
 			);
 		} else {
 			return 0;
 		}
 	}
 
-	public static double matchingAreaPercentage(AreaportalMapper.AreaportalHelper apHelper, DBrush brush,
-												DBrushSide brushSide, BspData bsp) {
+	public static double matchingAreaPercentage(
+			AreaportalMapper.AreaportalHelper apHelper,
+			DBrush brush,
+			DBrushSide brushSide,
+			BspData bsp,
+			WindingFactory windingFactory
+	) {
 		Set<Integer> planeNums = apHelper.getPlaneIndices();
 
 		if (planeNums.contains(brushSide.pnum)) {
 			return internalMatchingAreaPercentage(
 					apHelper.winding,
-					WindingFactory.fromSide(bsp, brush, brushSide)
+					windingFactory.fromSide(bsp, brush, brushSide)
 			);
 		} else {
 			return 0;

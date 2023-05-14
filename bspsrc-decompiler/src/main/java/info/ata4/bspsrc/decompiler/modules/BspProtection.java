@@ -10,7 +10,7 @@
 
 package info.ata4.bspsrc.decompiler.modules;
 
-import info.ata4.bspsrc.decompiler.modules.geom.BrushUtils;
+import info.ata4.bspsrc.decompiler.modules.geom.BrushBounds;
 import info.ata4.bspsrc.decompiler.modules.texture.TextureSource;
 import info.ata4.bspsrc.decompiler.modules.texture.ToolTexture;
 import info.ata4.bspsrc.lib.BspFileReader;
@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A module to check if the map has been protected by the mapper with at least
@@ -58,6 +60,8 @@ public class BspProtection extends ModuleRead {
     // logger
     private static final Logger L = LogUtils.getLogger();
 
+    private final BrushBounds brushBounds;
+
     // sub-modules
     private final TextureSource texsrc;
 
@@ -73,15 +77,16 @@ public class BspProtection extends ModuleRead {
     private List<DBrush> protBrushes = new ArrayList<>();
     private List<Entity> protEntities = new ArrayList<>();
 
-    public BspProtection(BspFileReader reader, TextureSource texsrc) {
+    public BspProtection(BspFileReader reader, BrushBounds brushBounds, TextureSource texsrc) {
         super(reader);
+
+        this.brushBounds = requireNonNull(brushBounds);
+        this.texsrc = texsrc;
 
         reader.loadEntities();
         reader.loadPlanes();
         reader.loadBrushes();
         reader.loadBrushSides();
-
-        this.texsrc = texsrc;
     }
 
     public boolean check() {
@@ -227,7 +232,7 @@ public class BspProtection extends ModuleRead {
             }
 
             // get brush dimensions
-            Vector3f bsize = BrushUtils.getBounds(bsp, b).getSize();
+            Vector3f bsize = brushBounds.getBounds(bsp, b).getSize();
 
             // check brush dimensions with prefab constants
             if (PB1.sub(bsize).length() < EPS_SIZE) {

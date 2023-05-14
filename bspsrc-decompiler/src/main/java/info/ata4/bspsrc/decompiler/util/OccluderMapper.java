@@ -12,12 +12,16 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Class for mapping occluder entities to their original brushes
  */
 public class OccluderMapper {
 
     private static final Logger L = LogUtils.getLogger();
+
+    private final WindingFactory windingFactory;
 
     private BspSourceConfig config;
     private BspData bsp;
@@ -40,9 +44,10 @@ public class OccluderMapper {
     private static final Predicate<DTexInfo> matchesOccluderTexInfo = dTexInfo -> dTexInfo.flags.equals(EnumSet.of(SurfaceFlag.SURF_NOLIGHT)) || dTexInfo.flags.equals(EnumSet.of(SurfaceFlag.SURF_TRIGGER, SurfaceFlag.SURF_NOLIGHT));
 
 
-    public OccluderMapper(BspData bsp, BspSourceConfig config) {
-        this.config = config;
-        this.bsp = bsp;
+    public OccluderMapper(BspData bsp, BspSourceConfig config, WindingFactory windingFactory) {
+        this.config = requireNonNull(config);
+        this.bsp = requireNonNull(bsp);
+        this.windingFactory = requireNonNull(windingFactory);
 
         prepareNonWorldBrushes();
         preparePotentialOccBrushes();
@@ -125,7 +130,7 @@ public class OccluderMapper {
      * @return true if the specified occluder face contains the specified brush side, false otherwise
      */
     private boolean occFacesContainsBrushFace(DOccluderPolyData dOccluderPolyData, DBrush dBrush, DBrushSide dBrushSide) {
-        return VectorUtil.matchingAreaPercentage(dOccluderPolyData, dBrush, dBrushSide, bsp) > 0; // <- May need to be some epsilon instead of 0
+        return VectorUtil.matchingAreaPercentage(dOccluderPolyData, dBrush, dBrushSide, bsp, windingFactory) > 0; // <- May need to be some epsilon instead of 0
     }
 
     /**

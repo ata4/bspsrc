@@ -26,6 +26,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Decompiling module to write brushes from the LUMP_FACES lump.
  * 
@@ -44,6 +46,8 @@ public class FaceSource extends ModuleDecompile {
     // epsilon for area comparison slop, in mu^2
     private static final float AREA_EPS = 1.0f;
 
+    private final WindingFactory windingFactory;
+
     // sub-modules
     private final BspSourceConfig config;
     private final TextureSource texsrc;
@@ -58,13 +62,20 @@ public class FaceSource extends ModuleDecompile {
     // current offset in multiblend lump
     private int multiblendOffset;
 
-    public FaceSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
-            TextureSource texsrc, VmfMeta vmfmeta) {
+    public FaceSource(
+            BspFileReader reader,
+            VmfWriter writer,
+            BspSourceConfig config,
+            TextureSource texsrc,
+            VmfMeta vmfmeta,
+            WindingFactory windingFactory
+    ) {
         super(reader, writer);
 
-        this.config = config;
-        this.texsrc = texsrc;
-        this.vmfmeta = vmfmeta;
+        this.config = requireNonNull(config);
+        this.texsrc = requireNonNull(texsrc);
+        this.vmfmeta = requireNonNull(vmfmeta);
+        this.windingFactory = requireNonNull(windingFactory);
 
         if (bsp.origFaces.isEmpty()) {
             // fix invalid origFace indices when no original faces are available
@@ -241,7 +252,7 @@ public class FaceSource extends ModuleDecompile {
             return;
         }
 
-        Winding wind = WindingFactory.fromFace(bsp, face);
+        Winding wind = windingFactory.fromFace(bsp, face);
 
         // translate to origin
         if (origin != null) {
@@ -466,7 +477,7 @@ public class FaceSource extends ModuleDecompile {
     }
 
     public void writeAreaportal(DAreaportal ap) {
-        Winding wind = WindingFactory.fromAreaportal(bsp, ap);
+        Winding wind = windingFactory.fromAreaportal(bsp, ap);
         // TODO: extrude polygon in the correct direction, currently it seems to be random?
         writePolygon(wind, ToolTexture.AREAPORTAL, true);
     }
@@ -482,7 +493,7 @@ public class FaceSource extends ModuleDecompile {
     public void writeOccluder(DOccluderData od) {
         for (int i = 0; i < od.polycount; i++) {
             DOccluderPolyData opd = bsp.occluderPolyDatas.get(od.firstpoly + i);
-            Winding wind = WindingFactory.fromOccluder(bsp, opd);
+            Winding wind = windingFactory.fromOccluder(bsp, opd);
             // extrude by 8 units instead of one, the skip sides are ignored anyway | Seems to be no longer the case as creating occluders in csgo doesn't even work with skip anymore - changed back to nodraw and 1 unit extrude
             writePolygon(wind, ToolTexture.OCCLUDER, ToolTexture.NODRAW, true, 1);
         }
@@ -832,7 +843,7 @@ public class FaceSource extends ModuleDecompile {
 
             // recalculate face area when required
             if (origFace.area == 0) {
-                Winding wind = WindingFactory.fromFace(bsp, origFace);
+                Winding wind = windingFactory.fromFace(bsp, origFace);
                 origFace.area = wind.getArea();
             }
 

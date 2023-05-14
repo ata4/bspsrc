@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Class for mapping areaportal entities to their original brushes
  * Accounts for vBsp optimization
@@ -28,15 +30,22 @@ public class AreaportalMapper {
 
     private static final Logger L = LogUtils.getLogger();
 
+    private final WindingFactory windingFactory;
+
     private BspSourceConfig config;
     private BspData bsp;
 
     private ArrayList<AreaportalHelper> areaportalHelpers = new ArrayList<>();
     private ArrayList<DBrush> areaportalBrushes = new ArrayList<>();
 
-    public AreaportalMapper(BspData bsp, BspSourceConfig config) {
-        this.bsp = bsp;
-        this.config = config;
+    public AreaportalMapper(
+            BspData bsp,
+            BspSourceConfig config,
+            WindingFactory windingFactory
+    ) {
+        this.bsp = requireNonNull(bsp);
+        this.config = requireNonNull(config);
+        this.windingFactory = requireNonNull(windingFactory);
 
         if (checkAreaportal())
             L.warning("Invalid areaportals, map was probably compiled with errors! Errors should be expected");
@@ -68,7 +77,7 @@ public class AreaportalMapper {
 
             // Do we already have a 'AreaportalHelper' that represents this areaportal?
             Optional<AreaportalHelper> matchingApHelper = areaportalHelpers.stream()
-                    .filter(apHelper -> apHelper.winding.matches(WindingFactory.fromAreaportal(bsp, dAreaportal)))
+                    .filter(apHelper -> apHelper.winding.matches(windingFactory.fromAreaportal(bsp, dAreaportal)))
                     .findAny();
 
             // If there is no AreaportalHelper that represents this portal, we create one
@@ -76,7 +85,7 @@ public class AreaportalMapper {
             if (matchingApHelper.isPresent()) {
                 matchingApHelper.get().addPortalId(dAreaportal.portalKey);
             } else {
-                AreaportalHelper apHelper = new AreaportalHelper(WindingFactory.fromAreaportal(bsp, dAreaportal));
+                AreaportalHelper apHelper = new AreaportalHelper(windingFactory.fromAreaportal(bsp, dAreaportal));
                 apHelper.addPortalId(dAreaportal.portalKey);
                 areaportalHelpers.add(apHelper);
             }
@@ -216,8 +225,8 @@ public class AreaportalMapper {
         public final Map<AreaportalHelper, Double> probabilities;
 
         private BrushProbabilitiesMapping(DBrush brush, Map<AreaportalHelper, Double> probabilities) {
-            this.brush = Objects.requireNonNull(brush);
-            this.probabilities = Objects.requireNonNull(probabilities);
+            this.brush = requireNonNull(brush);
+            this.probabilities = requireNonNull(probabilities);
         }
 
         private boolean isEmpty() {
@@ -252,8 +261,8 @@ public class AreaportalMapper {
         public final double probability;
 
         public BrushMapping(DBrush brush, AreaportalHelper apHelper, double probability) {
-            this.brush = Objects.requireNonNull(brush);
-            this.apHelper = Objects.requireNonNull(apHelper);
+            this.brush = requireNonNull(brush);
+            this.apHelper = requireNonNull(apHelper);
             this.probability = probability;
         }
     }
@@ -269,7 +278,7 @@ public class AreaportalMapper {
                 .flatMap(brushSide -> areaportalHelpers.stream()
                         .map(apHelper -> new AbstractMap.SimpleEntry<>(
                                 apHelper,
-                                VectorUtil.matchingAreaPercentage(apHelper, dBrush, brushSide, bsp)
+                                VectorUtil.matchingAreaPercentage(apHelper, dBrush, brushSide, bsp, windingFactory)
                         ))
                         .filter(entry -> entry.getValue() > 0) // TODO: should use some epsilon
                 )
@@ -378,7 +387,7 @@ public class AreaportalMapper {
         private final HashSet<Integer> planeIndices = new HashSet<>();
 
         public AreaportalHelper(Winding winding) {
-            Objects.requireNonNull(winding);
+            requireNonNull(winding);
             this.winding = winding;
         }
 

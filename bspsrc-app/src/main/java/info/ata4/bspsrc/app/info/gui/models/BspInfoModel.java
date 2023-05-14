@@ -8,7 +8,9 @@ import info.ata4.bspsrc.decompiler.modules.BspChecksum;
 import info.ata4.bspsrc.decompiler.modules.BspCompileParams;
 import info.ata4.bspsrc.decompiler.modules.BspDependencies;
 import info.ata4.bspsrc.decompiler.modules.BspProtection;
+import info.ata4.bspsrc.decompiler.modules.geom.BrushBounds;
 import info.ata4.bspsrc.decompiler.modules.texture.TextureSource;
+import info.ata4.bspsrc.decompiler.util.WindingFactory;
 import info.ata4.bspsrc.lib.BspFile;
 import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.bspsrc.lib.lump.AbstractLump;
@@ -28,6 +30,9 @@ public class BspInfoModel {
 	private static final Logger L = LogUtils.getLogger();
 
 	private final List<Runnable> listeners = new ArrayList<>();
+
+	private final WindingFactory windingFactory = new WindingFactory();
+	private final BrushBounds brushBounds = new BrushBounds(windingFactory);
 
 	private BspFile bspFile;
 	private BspData bspData;
@@ -80,7 +85,7 @@ public class BspInfoModel {
 		cparams = new BspCompileParams(bspReader);
 
 		var texsrc = new TextureSource(bspReader);
-		prot = new BspProtection(bspReader, texsrc);
+		prot = new BspProtection(bspReader, brushBounds, texsrc);
 		prot.check();
 
 		bspres = new BspDependencies(bspReader);

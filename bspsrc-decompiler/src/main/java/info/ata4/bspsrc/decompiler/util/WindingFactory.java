@@ -25,22 +25,11 @@ import java.util.stream.Collectors;
  */
 public class WindingFactory {
 
-    private static Map<DFace, Winding> faceCache = new HashMap<>();
-    private static Map<Map.Entry<DBrush, DBrushSide>, Winding> brushSideCache = new HashMap<>();
-    private static Map<DAreaportal, Winding> areaportalCache = new HashMap<>();
-    private static Map<DOccluderPolyData, Winding> occluderCache = new HashMap<>();
-    private static Map<DPlane, Winding> planeCache = new HashMap<>();
-
-    private WindingFactory() {
-    }
-
-    public static void clearCache() {
-        faceCache.clear();
-        brushSideCache.clear();
-        areaportalCache.clear();
-        occluderCache.clear();
-        planeCache.clear();
-    }
+    private final Map<DFace, Winding> faceCache = new HashMap<>();
+    private final Map<Map.Entry<DBrush, DBrushSide>, Winding> brushSideCache = new HashMap<>();
+    private final Map<DAreaportal, Winding> areaportalCache = new HashMap<>();
+    private final Map<DOccluderPolyData, Winding> occluderCache = new HashMap<>();
+    private final Map<DPlane, Winding> planeCache = new HashMap<>();
 
     /**
      * Constructs a winding from face vertices
@@ -50,7 +39,7 @@ public class WindingFactory {
      * @param both if true, wind in both directions
      * @return Winding for the face
      */
-    public static Winding fromFace(BspData bsp, DFace face) {
+    public Winding fromFace(BspData bsp, DFace face) {
         if (faceCache.containsKey(face)) {
             return faceCache.get(face);
         }
@@ -89,7 +78,7 @@ public class WindingFactory {
      * @param bside Brush side
      * @return Winding for the brush side
      */
-    public static Winding fromSide(BspData bsp, DBrush brush, DBrushSide bside) {
+    public Winding fromSide(BspData bsp, DBrush brush, DBrushSide bside) {
         var key = Map.entry(brush, bside);
         if (brushSideCache.containsKey(key)) {
             return brushSideCache.get(key);
@@ -145,13 +134,13 @@ public class WindingFactory {
      * @param side Brush side ID
      * @return Winding for the brush side
      */
-    public static Winding fromSide(BspData bsp, DBrush brush, int side) {
+    public Winding fromSide(BspData bsp, DBrush brush, int side) {
         int ibside = brush.fstside + side;
         DBrushSide bside = bsp.brushSides.get(ibside);
         return fromSide(bsp, brush, bside);
     }
 
-    public static Winding fromAreaportal(BspData bsp, DAreaportal ap) {
+    public Winding fromAreaportal(BspData bsp, DAreaportal ap) {
         if (areaportalCache.containsKey(ap)) {
             return areaportalCache.get(ap);
         }
@@ -172,7 +161,7 @@ public class WindingFactory {
      * @param opd Occluder polygon data
      * @return Winding for the occluder
      */
-    public static Winding fromOccluder(BspData bsp, DOccluderPolyData opd) {
+    public Winding fromOccluder(BspData bsp, DOccluderPolyData opd) {
         if (occluderCache.containsKey(opd)) {
             return occluderCache.get(opd);
         }
@@ -198,7 +187,7 @@ public class WindingFactory {
      * 
      * @param pl plane
      */
-    public static Winding fromPlane(DPlane pl) {
+    public Winding fromPlane(DPlane pl) {
         if (planeCache.containsKey(pl)) {
             return planeCache.get(pl);
         }

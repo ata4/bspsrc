@@ -19,20 +19,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Brush utility class.
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class BrushUtils {
+public class BrushBounds {
 
-    private static final Map<DBrush, AABB> AABB_CACHE = new HashMap<>();
+    private final WindingFactory windingFactory;
+    private final Map<DBrush, AABB> aabbCache = new HashMap<>();
 
-    private BrushUtils() {
-    }
-
-    public static void clearCache() {
-        AABB_CACHE.clear();
+    public BrushBounds(WindingFactory windingFactory) {
+        this.windingFactory = requireNonNull(windingFactory);
     }
 
     /**
@@ -43,12 +43,12 @@ public class BrushUtils {
      * @param brush a brush
      * @return the bounding box of the brush
      */
-    public static AABB getBounds(BspData bsp, DBrush brush) {
+    public AABB getBounds(BspData bsp, DBrush brush) {
         // add bounds of all brush sides
-        return AABB_CACHE.computeIfAbsent(
+        return aabbCache.computeIfAbsent(
                 brush,
                 dBrush -> IntStream.range(0, brush.numside)
-                        .mapToObj(i -> WindingFactory.fromSide(bsp, brush, i))
+                        .mapToObj(i -> windingFactory.fromSide(bsp, brush, i))
                         .map(Winding::getBounds)
                         .reduce(AABB.ZERO, AABB::include)
         );

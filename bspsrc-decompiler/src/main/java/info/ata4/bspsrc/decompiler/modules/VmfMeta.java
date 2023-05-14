@@ -34,7 +34,7 @@ public class VmfMeta extends ModuleDecompile {
     // logger
     private static final Logger L = LogUtils.getLogger();
 
-    private static final Random RANDOM = new Random();
+    private final Random random = new Random();
 
     // UID mappings
     private Map<Integer, Integer> faceUIDs = new HashMap<>();
@@ -488,9 +488,9 @@ public class VmfMeta extends ModuleDecompile {
         }
 
         private Color getNewVisgroupColor() {
-            float hue = RANDOM.nextFloat();
-            float saturation = RANDOM.nextFloat() * 0.8f + 0.1f;
-            float luminance = RANDOM.nextFloat() * 0.4f + 0.5f;
+            float hue = random.nextFloat();
+            float saturation = random.nextFloat() * 0.8f + 0.1f;
+            float luminance = random.nextFloat() * 0.4f + 0.5f;
             return Color.getHSBColor(hue, saturation, luminance);
         }
     }

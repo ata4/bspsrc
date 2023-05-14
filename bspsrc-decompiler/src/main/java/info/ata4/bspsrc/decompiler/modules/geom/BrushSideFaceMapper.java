@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static info.ata4.bspsrc.common.util.JavaUtil.mapGetOrDefault;
+import static java.util.Objects.requireNonNull;
 
 public class BrushSideFaceMapper extends ModuleRead {
 
@@ -24,13 +25,17 @@ public class BrushSideFaceMapper extends ModuleRead {
 	// epsilon for area comparison slop, in mu^2
 	private static final float AREA_EPS = 1.0f;
 
+	private final WindingFactory windingFactory;
+
 	// This is modelled with the assumption that the relation between brushsides and original faces is always N to 1
 	// So in other words any particular brushside can only ever have 0 or 1 original face
 	public final Map<Integer, Integer> brushSideToOrigFace = new HashMap<>();
 	public final Map<Integer, HashSet<Integer>> origFaceToBrushSide = new HashMap<>();
 
-	public BrushSideFaceMapper(BspFileReader reader) {
+	public BrushSideFaceMapper(BspFileReader reader, WindingFactory windingFactory) {
 		super(reader);
+
+		this.windingFactory = requireNonNull(windingFactory);
 	}
 
 	public void load() {
@@ -64,14 +69,14 @@ public class BrushSideFaceMapper extends ModuleRead {
 			for (int i = 0; i < brush.numside; i++) {
 				int brushSideIndex = brush.fstside + i;
 				DBrushSide brushSide = bsp.brushSides.get(brushSideIndex);
-				Winding brushSideWinding = WindingFactory.fromSide(bsp, brush, brushSide);
+				Winding brushSideWinding = windingFactory.fromSide(bsp, brush, brushSide);
 
 				Set<Integer> potentialFaces = origFaceIndex.getOrDefault(
 						FaceIndexKey.fromBrushSide(brushSide),
 						Collections.emptySet()
 				);
 				potentialFaces.stream()
-						.filter(origFaceI -> WindingFactory.fromFace(bsp, bsp.origFaces.get(origFaceI))
+						.filter(origFaceI -> windingFactory.fromFace(bsp, bsp.origFaces.get(origFaceI))
 								.matches(brushSideWinding))
 						.findAny()
 						.ifPresent(origFaceI -> {
@@ -131,7 +136,7 @@ public class BrushSideFaceMapper extends ModuleRead {
 					continue;
 
 				DBrushSide brushSide = bsp.brushSides.get(brushSideIndex);
-				Winding brushSideWinding = WindingFactory.fromSide(bsp, brush, brushSide);
+				Winding brushSideWinding = windingFactory.fromSide(bsp, brush, brushSide);
 				Vector3f normal = bsp.planes.get(brushSide.pnum).normal;
 
 				Set<Integer> potentialFaces = faceIndex.getOrDefault(
@@ -143,7 +148,7 @@ public class BrushSideFaceMapper extends ModuleRead {
 						.filter(dFace -> dFace.origFace >= 0) // only use faces that have an original face
 						.collect(Collectors.groupingBy(
 								dFace -> dFace.origFace,
-								Collectors.summingDouble(dFace ->  WindingFactory.fromFace(bsp, dFace)
+								Collectors.summingDouble(dFace ->  windingFactory.fromFace(bsp, dFace)
 										.clipWinding(brushSideWinding, normal)
 										.getArea())
 						))

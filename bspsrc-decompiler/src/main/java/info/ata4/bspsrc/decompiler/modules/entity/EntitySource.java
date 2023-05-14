@@ -40,6 +40,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Decompiling module to write point and brush entities converted from various lumps.
  *
@@ -53,6 +55,9 @@ public class EntitySource extends ModuleDecompile {
     private static final Logger L = LogUtils.getLogger();
 
     private static final Pattern INSTANCE_PREFIX = Pattern.compile("^([^-]+)-");
+
+    private final WindingFactory windingFactory;
+    private final BrushBounds brushBounds;
 
     // sub-modules
     private final BspSourceConfig config;
@@ -79,24 +84,37 @@ public class EntitySource extends ModuleDecompile {
     // overlay target names
     private final Map<Integer, String> overlayNames = new HashMap<>();
 
-    public EntitySource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
-            BrushSource brushsrc, FaceSource facesrc, TextureSource texsrc,
-            BspProtection bspprot, VmfMeta vmfmeta, BrushSideFaceMapper brushSideFaceMapper) {
+    public EntitySource(
+            BspFileReader reader,
+            VmfWriter writer,
+            BspSourceConfig config,
+            BrushSource brushsrc,
+            FaceSource facesrc,
+            TextureSource texsrc,
+            BspProtection bspprot,
+            VmfMeta vmfmeta,
+            BrushSideFaceMapper brushSideFaceMapper,
+            WindingFactory windingFactory,
+            BrushBounds brushBounds
+    ) {
         super(reader, writer);
-        this.config = config;
-        this.brushsrc = brushsrc;
-        this.facesrc = facesrc;
-        this.texsrc = texsrc;
-        this.bspprot = bspprot;
-        this.vmfmeta = vmfmeta;
-        this.brushSideFaceMapper = brushSideFaceMapper;
+
+        this.config = requireNonNull(config);
+        this.brushsrc = requireNonNull(brushsrc);
+        this.facesrc = requireNonNull(facesrc);
+        this.texsrc = requireNonNull(texsrc);
+        this.bspprot = requireNonNull(bspprot);
+        this.vmfmeta = requireNonNull(vmfmeta);
+        this.brushSideFaceMapper = requireNonNull(brushSideFaceMapper);
+        this.windingFactory = requireNonNull(windingFactory);
+        this.brushBounds = requireNonNull(brushBounds);
 
         processEntities();
 
-        areaportalMapper = new AreaportalMapper(bsp, config);
+        areaportalMapper = new AreaportalMapper(bsp, config, windingFactory);
         apBrushMap = areaportalMapper.getApBrushMapping();
 
-        occluderMapper = new OccluderMapper(bsp, config);
+        occluderMapper = new OccluderMapper(bsp, config, windingFactory);
         occBrushesMap = occluderMapper.getOccBrushMapping();
 
         // Because the Texturebuilder needs to know which brush is a occluder we flag them here. (The Texturebuilder needs to know this information, because the brushside that represents the occluder has almost always the wrong tooltexture applied, which we need to fix)
@@ -466,14 +484,14 @@ public class EntitySource extends ModuleDecompile {
             int newGroupId = 0;
             Map<DBrush, Integer> brushGroups = new HashMap<>();
             for (DBrush funcDetailBrush : funcDetailBrushes) {
-                AABB brushBounds = BrushUtils.getBounds(bsp, funcDetailBrush);
-                AABB extendedBounds = brushBounds.expand(config.detailMergeThresh);
+                AABB bounds = brushBounds.getBounds(bsp, funcDetailBrush);
+                AABB extendedBounds = bounds.expand(config.detailMergeThresh);
 
                 // get all ids of groups that touch this brush
                 Set<Integer> intersectingGroupIds = new HashSet<>();
                 brushGroups.forEach((dBrush, groupId) -> {
                     if (!intersectingGroupIds.contains(groupId)) {
-                        AABB otherBrushBounds = BrushUtils.getBounds(bsp, dBrush);
+                        AABB otherBrushBounds = brushBounds.getBounds(bsp, dBrush);
                         if (extendedBounds.intersectsWith(otherBrushBounds)) {
                             intersectingGroupIds.add(groupId);
                         }
@@ -856,7 +874,7 @@ public class EntitySource extends ModuleDecompile {
         }
 
         // create winding from original face
-        Winding wof = WindingFactory.fromFace(bsp, origFace);
+        Winding wof = windingFactory.fromFace(bsp, origFace);
 
         for (int i = 0; i < bsp.brushes.size(); i++) {
             DBrush brush = bsp.brushes.get(i);
@@ -873,7 +891,7 @@ public class EntitySource extends ModuleDecompile {
                 DBrushSide bs = bsp.brushSides.get(ibs);
 
                 // create winding from brush side
-                Winding w = WindingFactory.fromSide(bsp, brush, j);
+                Winding w = windingFactory.fromSide(bsp, brush, j);
 
                 // check for valid face: same plane, same texinfo, same geometry
                 if (origFace.pnum != bs.pnum || origFace.texinfo != bs.texinfo

@@ -33,6 +33,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Decompiling module to rebuild brushes from the LUMP_BRUSHES and LUMP_BRUSHSIDES lumps.
  *
@@ -44,6 +46,8 @@ public class BrushSource extends ModuleDecompile {
 
     // logger
     private static final Logger L = LogUtils.getLogger();
+
+    private final WindingFactory windingFactory;
 
     // sub-modules
     private final BspSourceConfig config;
@@ -62,14 +66,23 @@ public class BrushSource extends ModuleDecompile {
     private Map<Integer, Integer> brushSideToID = new HashMap<>();
     private Map<Integer, Integer> brushIndexToID = new HashMap<>();
 
-    public BrushSource(BspFileReader reader, VmfWriter writer, BspSourceConfig config,
-            TextureSource texsrc, BspProtection bspprot, VmfMeta vmfmeta, BrushSideFaceMapper brushSideFaceMapper) {
+    public BrushSource(
+            BspFileReader reader, VmfWriter writer,
+            BspSourceConfig config,
+            TextureSource texsrc,
+            BspProtection bspprot,
+            VmfMeta vmfmeta,
+            BrushSideFaceMapper brushSideFaceMapper,
+            WindingFactory windingFactory
+    ) {
         super(reader, writer);
-        this.config = config;
-        this.texsrc = texsrc;
-        this.bspprot = bspprot;
-        this.vmfmeta = vmfmeta;
-        this.brushSideFaceMapper = brushSideFaceMapper;
+
+        this.config = requireNonNull(config);
+        this.texsrc = requireNonNull(texsrc);
+        this.bspprot = requireNonNull(bspprot);
+        this.vmfmeta = requireNonNull(vmfmeta);
+        this.brushSideFaceMapper = requireNonNull(brushSideFaceMapper);
+        this.windingFactory = requireNonNull(windingFactory);
 
         assignBrushes();
     }
@@ -204,7 +217,7 @@ public class BrushSource extends ModuleDecompile {
             }
 
             try {
-                Winding wind = WindingFactory.fromSide(bsp, brush, brushSide).removeDegenerated();
+                Winding wind = windingFactory.fromSide(bsp, brush, brushSide).removeDegenerated();
 
                 // skip sides with no vertices
                 if (wind.isEmpty()) {
