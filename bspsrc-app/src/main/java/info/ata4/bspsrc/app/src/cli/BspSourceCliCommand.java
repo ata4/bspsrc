@@ -184,7 +184,7 @@ public class BspSourceCliCommand implements Callable<Void> {
 			L.severe("No BSP file(s) specified");
 		} else {
 			var bspsrc = new BspSource(config);
-			bspsrc.run(new ArrayList<>(entries));
+			bspsrc.run(new ArrayList<>(entries), new BspSource.Listener() {});
 		}
 
 		return null;
