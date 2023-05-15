@@ -147,9 +147,9 @@ public class BspSourceCliCommand implements Callable<Void> {
 		private int appId;
 		@Option(names = "--format", description = {
 				"Sets the VMF format used for the decompiled maps:",
-				"${SourceFormat.AUTO.name()} - ${SourceFormat.AUTO}",
-				"${SourceFormat.OLD.name()} - ${SourceFormat.OLD}",
-				"${SourceFormat.NEW.name()} - ${SourceFormat.NEW}",
+				"AUTO - Automatic",
+				"OLD - Source 2004 to 2009",
+				"NEW - Source 2010 and later",
 		}, paramLabel = "<format>")
 		private SourceFormat sourceFormat = INITIAL_CONFIG.sourceFormat;
 		@Option(names = "--unpack_embedded", description = "Unpack embedded files in the bsp.")
