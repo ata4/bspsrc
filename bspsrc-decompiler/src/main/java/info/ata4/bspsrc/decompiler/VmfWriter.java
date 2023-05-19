@@ -33,7 +33,7 @@ public class VmfWriter implements Closeable {
     private static final Logger L = LogManager.getLogger();
 
     private final PrintWriter pw;
-    private final Stack<String> section = new Stack<>();
+    private final Deque<String> section = new ArrayDeque<>();
     private final DecimalFormat decimalFormat = new DecimalFormat("0.####", new DecimalFormatSymbols(Locale.ENGLISH));
 
     public VmfWriter(File file) throws FileNotFoundException, UnsupportedEncodingException {
@@ -57,20 +57,17 @@ public class VmfWriter implements Closeable {
         indent();
         pw.print("{\r\n");
 
-        section.push(name);
+        section.addFirst(name);
     }
 
     public void end(String name) {
-        try {
-            if (!section.peek().equals(name)) {
-                throw new IllegalArgumentException("VMF section end name mismatch: " + name
-                        + ", expected " + section.peek());
-            }
-        } catch (EmptyStackException ex) {
-            throw new IllegalArgumentException("No open sections left");
-        }
+        var s = section.peekFirst();
+        if (s == null)
+            throw new NoSuchElementException("No open sections left");
+        if (!s.equals(name))
+            throw new NoSuchElementException("VMF section end name mismatch. Expected: '%s', got '%s'".formatted(name, s));
 
-        section.pop();
+        section.removeFirst();
 
         indent();
         pw.print("}\r\n");
@@ -209,22 +206,8 @@ public class VmfWriter implements Closeable {
 
         // stack should be empty, otherwise someone forgot to call end() at least once
         if (!section.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-
-            // get stack trace
-            Collections.reverse(section);
-
-            while (true) {
-                sb.append(section.pop());
-
-                if (section.isEmpty()) {
-                    break;
-                }
-
-                sb.append(" -> ");
-            }
-
-            L.warn("Unclosed VMF chunk: {}", sb.toString());
+            var stackState = String.join(" -> ", (Iterable<String>) section::descendingIterator);
+            L.warn("Unclosed VMF chunk: {}", stackState);
         }
     }
 }
