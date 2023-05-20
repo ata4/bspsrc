@@ -6,7 +6,7 @@ import info.ata4.bspsrc.lib.struct.SurfaceFlag;
 
 import java.util.*;
 
-import static info.ata4.bspsrc.common.util.JavaUtil.equalsIgnoreCase;
+import static info.ata4.bspsrc.common.util.StringUtil.equalsIgnoreCase;
 
 /**
  * Class for reversing texture names to their original tooltexture names/surface flags/brush flags.
