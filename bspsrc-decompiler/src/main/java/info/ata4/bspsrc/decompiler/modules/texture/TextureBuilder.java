@@ -11,12 +11,11 @@ package info.ata4.bspsrc.decompiler.modules.texture;
 
 import info.ata4.bspsrc.lib.struct.*;
 import info.ata4.bspsrc.lib.vector.Vector3f;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.EnumSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A builder to create Texture objects.
@@ -25,7 +24,7 @@ import java.util.logging.Logger;
  */
 public class TextureBuilder {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
     private static final float EPS_PERP = 0.02f;
 
     private final BspData bsp;
@@ -75,7 +74,7 @@ public class TextureBuilder {
         try {
             texinfo = bsp.texinfos.get(itexinfo);
         } catch (IndexOutOfBoundsException ex) {
-            L.log(Level.WARNING, "Invalid texinfo index: {0}", itexinfo);
+            L.warn("Invalid texinfo index: {}", itexinfo);
             return texture;
         }
 
@@ -83,7 +82,7 @@ public class TextureBuilder {
             texdata = bsp.texdatas.get(texinfo.texdata);
             texture.setData(texdata);
         } catch (IndexOutOfBoundsException ex) {
-            L.log(Level.WARNING, "Invalid texdata index: {0}", texinfo.texdata);
+            L.warn("Invalid texdata index: {}", texinfo.texdata);
             return texture;
         }
 
@@ -93,7 +92,7 @@ public class TextureBuilder {
         try {
             textureOriginal = bsp.texnames.get(texdata.texname);
         } catch (IndexOutOfBoundsException ex) {
-            L.log(Level.WARNING, "Invalid texname index: {0}", texdata.texname);
+            L.warn("Invalid texname index: {}", texdata.texname);
         }
 
         String textureOverride = texsrc.getFixedTextureNames().get(texdata.texname);

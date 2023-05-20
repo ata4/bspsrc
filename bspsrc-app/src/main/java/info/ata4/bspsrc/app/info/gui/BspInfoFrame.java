@@ -2,10 +2,12 @@ package info.ata4.bspsrc.app.info.gui;
 
 import info.ata4.bspsrc.app.info.gui.models.BspInfoModel;
 import info.ata4.bspsrc.app.info.gui.panel.*;
-import info.ata4.bspsrc.app.info.log.DialogHandler;
 import info.ata4.bspsrc.app.util.FileExtensionFilter;
+import info.ata4.bspsrc.app.util.log.Log4jUtil;
+import info.ata4.bspsrc.app.util.log.plugins.DialogAppender;
 import info.ata4.bspsrc.decompiler.BspSource;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,6 +15,8 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -20,8 +24,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static info.ata4.bspsrc.app.info.gui.Util.wrapWithAlign;
 import static info.ata4.bspsrc.app.util.GridBagConstraintsBuilder.Anchor.FIRST_LINE_START;
@@ -33,7 +35,7 @@ import static javax.swing.BorderFactory.createCompoundBorder;
 
 public class BspInfoFrame extends JFrame {
 
-	private static final Logger L = LogUtils.getLogger();
+	private static final Logger L = LogManager.getLogger();
 
 	public static final String NAME = "BSPInfo";
 	public static final String VERSION = BspSource.VERSION;
@@ -59,8 +61,7 @@ public class BspInfoFrame extends JFrame {
 		this.model = model;
 		model.addListener(this::onChanges);
 
-		// add dialog log handler
-		L.addHandler(new DialogHandler(this));
+		initErrorDialog();
 
 		fileChooser.setFileFilter(new FileExtensionFilter("Source engine map file", "bsp"));
 		lumpDstChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -106,6 +107,17 @@ public class BspInfoFrame extends JFrame {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 	}
 
+	private void initErrorDialog() {
+		var dialogAppender = DialogAppender.createAppender("DialogAppender" + hashCode(), null, null, false, this);
+		var appenderCloseable = Log4jUtil.addAppender(dialogAppender);
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent e) {
+				appenderCloseable.close();
+			}
+		});
+	}
+
 	private void initMenuBar() {
 		var menuItemOpenFile = new JMenuItem("Open");
 		menuItemOpenFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
@@ -121,7 +133,7 @@ public class BspInfoFrame extends JFrame {
 			try {
 				model.load(fileChooser.getSelectedFile().toPath());
 			} catch (IOException ex) {
-				L.log(Level.SEVERE, "Error occurred loading file", ex);
+				L.error("Error occurred loading file", ex);
 			} finally {
 				setCursor(Cursor.getDefaultCursor());
 			}
@@ -153,7 +165,7 @@ public class BspInfoFrame extends JFrame {
 					model.load(files.get(files.size() - 1).toPath());
 					return true;
 				} catch (UnsupportedFlavorException | IOException e) {
-					L.log(Level.WARNING, "Error in drag and drop", e);
+					L.warn("Error in drag and drop", e);
 					return false;
 				}
 			}
@@ -180,7 +192,7 @@ public class BspInfoFrame extends JFrame {
 		try {
 			model.extractLumps(lumpIndices, lumpDst);
 		} catch (IOException e) {
-			L.log(Level.SEVERE, "Error occurred extracting lump(s)", e);
+			L.error("Error occurred extracting lump(s)", e);
 			return;
 		} finally {
 			setCursor(Cursor.getDefaultCursor());
@@ -199,7 +211,7 @@ public class BspInfoFrame extends JFrame {
 		try {
 			model.extractGameLumps(lumpIndices, lumpDst);
 		} catch (IOException e) {
-			L.log(Level.SEVERE, "Error occurred extracting game lump(s)", e);
+			L.error("Error occurred extracting game lump(s)", e);
 			return;
 		} finally {
 			setCursor(Cursor.getDefaultCursor());
@@ -218,7 +230,7 @@ public class BspInfoFrame extends JFrame {
 		try {
 			model.extractEmbeddedFiles(fileIndices, filesDst);
 		} catch (IOException e) {
-			L.log(Level.SEVERE, "Error occurred extracting embedded file(s)", e);
+			L.error("Error occurred extracting embedded file(s)", e);
 			return;
 		} finally {
 			setCursor(Cursor.getDefaultCursor());
@@ -237,7 +249,7 @@ public class BspInfoFrame extends JFrame {
 		try {
 			model.extractEmbeddedFilesRaw(filesDst);
 		} catch (IOException e) {
-			L.log(Level.SEVERE, "Error occurred extracting embedded files", e);
+			L.error("Error occurred extracting embedded files", e);
 			return;
 		} finally {
 			setCursor(Cursor.getDefaultCursor());

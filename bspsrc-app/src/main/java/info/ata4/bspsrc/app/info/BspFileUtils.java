@@ -14,7 +14,8 @@ import info.ata4.bspsrc.lib.lump.AbstractLump;
 import info.ata4.bspsrc.lib.lump.GameLump;
 import info.ata4.bspsrc.lib.lump.Lump;
 import info.ata4.bspsrc.lib.lump.LumpType;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -22,8 +23,6 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -31,7 +30,7 @@ import java.util.logging.Logger;
  */
 public class BspFileUtils {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private BspFileUtils() {
     }
@@ -39,7 +38,7 @@ public class BspFileUtils {
     public static void extractAbstractLump(AbstractLump lump, Path filePath) throws IOException {
         Files.createDirectories(filePath.getParent());
 
-        L.log(Level.INFO, "Extracting {0}", lump);
+        L.info("Extracting {}", lump);
 
         try (FileChannel fout = FileChannel.open(
                 filePath,

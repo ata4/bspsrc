@@ -6,14 +6,14 @@ import info.ata4.bspsrc.lib.struct.DOccluderData;
 import info.ata4.bspsrc.lib.struct.DOccluderPolyData;
 import info.ata4.io.DataReader;
 import info.ata4.io.DataReaders;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 
 import static java.util.Objects.requireNonNull;
 
@@ -25,7 +25,7 @@ import static java.util.Objects.requireNonNull;
 public class OcclusionLumpReader<T extends DOccluderData>
 		implements LumpReader<OcclusionLumpReader.OcclusionData<T>> {
 
-	private static final Logger L = LogUtils.getLogger();
+	private static final Logger L = LogManager.getLogger();
 
 	private final Supplier<? extends T> dOccluderDataSupplier;
 
@@ -59,7 +59,7 @@ public class OcclusionLumpReader<T extends DOccluderData>
 		);
 
 		if (dataReader.hasRemaining()) {
-			L.warning(String.format("%d bytes remaining after reading", dataReader.remaining()));
+			L.warn(String.format("%d bytes remaining after reading", dataReader.remaining()));
 		}
 
 		return new OcclusionData<>(dOccluderData, dOccluderPolyData, vertexIndices);

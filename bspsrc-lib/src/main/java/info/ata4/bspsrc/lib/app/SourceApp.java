@@ -9,13 +9,12 @@
  */
 package info.ata4.bspsrc.lib.app;
 
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import static java.util.Objects.requireNonNull;
@@ -27,7 +26,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class SourceApp {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private final String name;
     private final int appId;
@@ -126,7 +125,7 @@ public class SourceApp {
 
         long matches = classNames.stream()
                 .filter(entities::contains)
-                .peek(s -> L.log(Level.FINER, "Entity match: {0}", s))
+                .peek(s -> L.trace("Entity match: {}", s))
                 .count();
 
         return Optional.of(matches / (float) entities.size());

@@ -1,6 +1,7 @@
 package info.ata4.bspsrc.app.util.components;
 
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,12 +10,10 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class URILabel extends JLabel {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
     private URI uri;
 
     public URILabel() {
@@ -32,7 +31,7 @@ public class URILabel extends JLabel {
         try {
             setURI(text, new URI(uriString));
         } catch (URISyntaxException ex) {
-            L.log(Level.WARNING, "Invalid URI format", ex);
+            L.warn("Invalid URI format", ex);
             setText(text);
         }
     }
@@ -45,7 +44,7 @@ public class URILabel extends JLabel {
                 try {
                     Desktop.getDesktop().browse(uri);
                 } catch (IOException ex) {
-                    L.log(Level.WARNING, "Can't browse URI", ex);
+                    L.warn("Can't browse URI", ex);
                 }
             }
         }

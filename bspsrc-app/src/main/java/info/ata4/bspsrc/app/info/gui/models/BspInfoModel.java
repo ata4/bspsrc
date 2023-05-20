@@ -15,19 +15,18 @@ import info.ata4.bspsrc.lib.BspFile;
 import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.bspsrc.lib.lump.AbstractLump;
 import info.ata4.bspsrc.lib.struct.BspData;
-import info.ata4.log.LogUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class BspInfoModel {
 
-	private static final Logger L = LogUtils.getLogger();
+	private static final Logger L = LogManager.getLogger();
 
 	private final List<Runnable> listeners = new ArrayList<>();
 
@@ -105,7 +104,7 @@ public class BspInfoModel {
 
 			embeddedInfos = files;
 		} catch (IOException ex) {
-			L.log(Level.WARNING, "Can't read pak");
+			L.warn("Can't read pak");
 		}
 
 		listeners.forEach(Runnable::run);

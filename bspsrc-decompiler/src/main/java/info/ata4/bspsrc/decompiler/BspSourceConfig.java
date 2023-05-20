@@ -13,12 +13,11 @@ package info.ata4.bspsrc.decompiler;
 import info.ata4.bspsrc.decompiler.modules.geom.BrushMode;
 import info.ata4.bspsrc.decompiler.util.SourceFormat;
 import info.ata4.bspsrc.lib.app.SourceAppId;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Configuration class for BSPSource and its modules.
@@ -28,7 +27,7 @@ import java.util.logging.Logger;
 public final class BspSourceConfig {
 
     // logger
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     public int defaultAppId = SourceAppId.UNKNOWN;
     public BrushMode brushMode = BrushMode.BRUSHPLANES;
@@ -80,9 +79,9 @@ public final class BspSourceConfig {
             }
 
             try {
-                logger.config("%s = %s".formatted(field.getName(), field.get(this)));
+                logger.info("%s = %s".formatted(field.getName(), field.get(this)));
             } catch (IllegalAccessException e) {
-                logger.log(Level.WARNING, "", e);
+                logger.warn("", e);
             }
         }
     }

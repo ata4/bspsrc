@@ -1,5 +1,6 @@
 package info.ata4.bspsrc.app.src.cli;
 
+import info.ata4.bspsrc.app.util.log.Log4jUtil;
 import info.ata4.bspsrc.common.util.AlphanumComparator;
 import info.ata4.bspsrc.decompiler.BspFileEntry;
 import info.ata4.bspsrc.decompiler.BspSource;
@@ -7,7 +8,10 @@ import info.ata4.bspsrc.decompiler.BspSourceConfig;
 import info.ata4.bspsrc.decompiler.modules.geom.BrushMode;
 import info.ata4.bspsrc.decompiler.util.SourceFormat;
 import info.ata4.bspsrc.lib.app.SourceAppDB;
-import info.ata4.log.LogUtils;
+import info.ata4.io.util.PathUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,10 +19,11 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
+import static info.ata4.bspsrc.common.util.JavaUtil.zip;
 import static picocli.CommandLine.*;
 
 @Command(
@@ -39,7 +44,7 @@ import static picocli.CommandLine.*;
 )
 public class BspSourceCliCommand implements Callable<Void> {
 
-	private static final Logger L = LogUtils.getLogger();
+	private static final Logger L = LogManager.getLogger();
 	private static final BspSourceConfig INITIAL_CONFIG = new BspSourceConfig();
 
 	@Option(names = "--appids", description = "List all available application IDs", help = true)
@@ -162,11 +167,10 @@ public class BspSourceCliCommand implements Callable<Void> {
 	}
 
 	@Override
-	public Void call() throws IOException
-	{
+	public Void call() throws IOException {
 		if (debug) {
-			LogUtils.configure(Level.ALL);
-			L.fine("Debug mode on, verbosity set to maximum");
+			Log4jUtil.setRootLevel(Level.DEBUG);
+			L.debug("Debug mode on, verbosity set to maximum");
 		}
 
 		if (listAppIds) {
@@ -179,15 +183,61 @@ public class BspSourceCliCommand implements Callable<Void> {
 		}
 
 		BspSourceConfig config = getConfig();
-		Set<BspFileEntry> entries = getEntries();
+		List<BspFileEntry> entries = new ArrayList<>(getEntries());
 		if (entries.isEmpty()) {
-			L.severe("No BSP file(s) specified");
-		} else {
-			var bspsrc = new BspSource(config);
-			bspsrc.run(new ArrayList<>(entries), new BspSource.Listener() {});
+			L.error("No BSP file(s) specified");
+			return null;
+		}
+
+		var bspsrc = new BspSource(config, entries);
+
+		var map = StreamSupport.stream(zip(bspsrc.getEntryUuids(), entries).spliterator(), false)
+				.collect(Collectors.toMap(Map.Entry::getKey, entry -> PathUtils.setExtension(entry.getValue().getVmfFile(), "log")));
+
+		try (var scope = Log4jUtil.configureDecompilationLogFileAppender(map)) {
+			bspsrc.run(createBspSourceListener(entries));
 		}
 
 		return null;
+	}
+
+	private BspSource.Listener createBspSourceListener(List<BspFileEntry> entries) {
+		return new BspSource.Listener() {
+			@Override
+			public void onProgress(int entryIndex, BspSource.ProgressUpdate update) {
+				var status = switch (update) {
+					case LOADING -> "Loading...";
+					case EXTRACTING_EMBEDDED -> "Extracting embedded files...";
+					case READING -> "Reading lumps...";
+					case PROCESS_NMO -> "Processing NMO files...";
+					case DECOMPILING -> "Decompiling...";
+				};
+
+				L.info("'{}': {}", entries.get(entryIndex).getBspFile(), status);
+			}
+
+			@Override
+			public void onFinished(int entryIndex, Exception severeError, Set<BspSource.Warning> warnings) {
+				Path bspFile = entries.get(entryIndex).getBspFile();
+				if (severeError != null) {
+					L.error("'%s': Task failed with exception:".formatted(bspFile), severeError);
+				} else if (!warnings.isEmpty()) {
+					L.warn(
+							"'{}': Task finished with warnings: {}. For more details see the log file.",
+							bspFile,
+							warnings.stream()
+									.map(warning -> switch (warning) {
+										case ExtractEmbedded -> "Error occurred extracting embedded files";
+										case LoadNmo -> "Error occurred loading nmo file";
+										case WriteNmos -> "Error occurred writing nmos file";
+									})
+									.collect(Collectors.joining(". "))
+					);
+				} else {
+					L.info("'{}': Task finished successfully.", bspFile);
+				}
+			}
+		};
 	}
 
 	private BspSourceConfig getConfig() {

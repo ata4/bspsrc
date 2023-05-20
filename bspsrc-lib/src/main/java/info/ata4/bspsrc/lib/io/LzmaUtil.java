@@ -12,7 +12,8 @@ package info.ata4.bspsrc.lib.io;
 
 import info.ata4.bspsrc.lib.util.StringMacroUtils;
 import info.ata4.io.buffer.ByteBufferInputStream;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.LZMAInputStream;
 import org.tukaani.xz.LZMAOutputStream;
@@ -22,8 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * LZMA encoding and decoding helper class.
@@ -32,7 +31,7 @@ import java.util.logging.Logger;
  */
 public class LzmaUtil {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     public final static int LZMA_ID = StringMacroUtils.makeID("LZMA");
     public final static int HEADER_SIZE = 17;
@@ -63,8 +62,7 @@ public class LzmaUtil {
 
         // check the size of the compressed buffer
         if (lzmaSizeBuf != lzmaSize) {
-            L.log(Level.WARNING, "Difference in LZMA data length: found {0} bytes, expected {1}",
-                    new Object[]{lzmaSizeBuf, lzmaSize});
+            L.warn("Difference in LZMA data length: found {} bytes, expected {}", lzmaSizeBuf, lzmaSize);
         }
 
         try (LZMAInputStream lzmaIn = new LZMAInputStream(new ByteBufferInputStream(bbc), actualSize, probByte, dictSize)) {
@@ -136,7 +134,7 @@ public class LzmaUtil {
         // Should be = 5 (propByte + dictSize)
         int size = buffer.getShort() & 0xffff;
         if (size != 5) {
-            L.warning(String.format("Unsupported lzma header size %ds. Version: %d.%d",
+            L.warn(String.format("Unsupported lzma header size %ds. Version: %d.%d",
                     size, majorVersion, minorVersion));
         }
 

@@ -19,14 +19,13 @@ import info.ata4.bspsrc.lib.struct.DBrush;
 import info.ata4.bspsrc.lib.struct.DBrushSide;
 import info.ata4.bspsrc.lib.struct.DPlane;
 import info.ata4.bspsrc.lib.vector.Vector3f;
-import info.ata4.log.LogUtils;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static java.util.Objects.requireNonNull;
 
@@ -58,7 +57,7 @@ public class BspProtection extends ModuleRead {
     private static final Vector3f PB3 = new Vector3f(9, 1, 4);
 
     // logger
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private final BrushBounds brushBounds;
 
@@ -106,7 +105,7 @@ public class BspProtection extends ModuleRead {
         boolean prot = isProtected();
 
         if (!prot) {
-            L.fine("Nothing found");
+            L.debug("Nothing found");
         }
 
         return prot;
@@ -218,7 +217,7 @@ public class BspProtection extends ModuleRead {
     }
 
     private void checkBrushes() {
-        L.fine("Checking for protector prefab");
+        L.debug("Checking for protector prefab");
 
         DBrush b1 = null;
         DBrush b2 = null;
@@ -247,7 +246,7 @@ public class BspProtection extends ModuleRead {
 
             // check if all three brushes exists
             if (b1 != null && b2 != null && b3 != null) {
-                L.fine("Found protector prefab!");
+                L.debug("Found protector prefab!");
                 flaggedBrush = true;
 
                 protBrushes.add(b1);
@@ -262,7 +261,7 @@ public class BspProtection extends ModuleRead {
     }
 
     private void checkBrushSides() {
-        L.log(Level.FINE, "Checking for nodraw brush sides (ratio limit: {0})", NODRAW_RATIO_LIMIT);
+        L.debug("Checking for nodraw brush sides (ratio limit: {})", NODRAW_RATIO_LIMIT);
 
         double nodrawSides = 0;
 
@@ -277,12 +276,12 @@ public class BspProtection extends ModuleRead {
         // check if there're too many nodraw brush sides
         modifedTexinfo = nodrawRatio > NODRAW_RATIO_LIMIT;
         if (modifedTexinfo) {
-            L.fine("Found nodraw hack!");
+            L.debug("Found nodraw hack!");
         }
     }
 
     private void checkEntities() {
-        L.fine("Checking for entity lock key \"" + VMEX_LOCKED_ENT + "\" and obfuscated targetnames");
+        L.debug("Checking for entity lock key \"" + VMEX_LOCKED_ENT + "\" and obfuscated targetnames");
 
         int targetnames = 0;
         int targetnamesObfs = 0;
@@ -302,7 +301,7 @@ public class BspProtection extends ModuleRead {
             // search for no_decomp entity property
             for (String key : ent.getKeys()) {
                 if (key.equals(VMEX_LOCKED_ENT)) {
-                    L.fine("Found lock key!");
+                    L.debug("Found lock key!");
                     protEntities.add(ent);
                     flaggedEnt = true;
                 }
@@ -312,7 +311,7 @@ public class BspProtection extends ModuleRead {
         // all targetnames are numeric?
         obfuscatedEnt = targetnames > 0 && targetnames == targetnamesObfs;
         if (obfuscatedEnt) {
-            L.fine("Found obfuscation!");
+            L.debug("Found obfuscation!");
         }
     }
 
@@ -320,12 +319,12 @@ public class BspProtection extends ModuleRead {
      * Checks for the lock-texture
      */
     private void checkTextures() {
-        L.fine("Checking for lock texture \"" + VMEX_LOCKED_TEX + "\"");
+        L.debug("Checking for lock texture \"" + VMEX_LOCKED_TEX + "\"");
 
         // search for tools/locked texture
         for (String texname : bsp.texnames) {
             if (texname.equalsIgnoreCase(VMEX_LOCKED_TEX)) {
-                L.fine("Found lock texture!");
+                L.debug("Found lock texture!");
                 flaggedTex = true;
                 return;
             }
@@ -339,7 +338,7 @@ public class BspProtection extends ModuleRead {
      * map file has been encrypted with this tool.
      */
     private void checkPakfile() {
-        L.fine("Checking for encrypted entities inside pakfile (file: \"" + BSPPROTECT_FILE + "\")");
+        L.debug("Checking for encrypted entities inside pakfile (file: \"" + BSPPROTECT_FILE + "\")");
 
         // BSPProtect currently works with Source 2007/2009 aka Orange Box only
         if (bspFile.getVersion() != 20) {
@@ -349,11 +348,11 @@ public class BspProtection extends ModuleRead {
 
         try (ZipFile zip = bspFile.getPakFile().getZipFile()) {
             if (zip.getEntries(BSPPROTECT_FILE).iterator().hasNext()) {
-                L.fine("Found encrypted entities!");
+                L.debug("Found encrypted entities!");
                 encryptedEnt = true;
             }
         } catch (IOException ex) {
-            L.log(Level.WARNING, "Couldn't read pakfile", ex);
+            L.warn("Couldn't read pakfile", ex);
 
             // pakfile broken or missing?
             encryptedEnt = false;

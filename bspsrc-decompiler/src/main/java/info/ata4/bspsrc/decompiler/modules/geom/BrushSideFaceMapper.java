@@ -8,10 +8,10 @@ import info.ata4.bspsrc.lib.struct.DBrush;
 import info.ata4.bspsrc.lib.struct.DBrushSide;
 import info.ata4.bspsrc.lib.struct.DFace;
 import info.ata4.bspsrc.lib.vector.Vector3f;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -20,8 +20,8 @@ import static java.util.Objects.requireNonNull;
 
 public class BrushSideFaceMapper extends ModuleRead {
 
-	private static final Logger L = LogUtils.getLogger();
-	
+	private static final Logger L = LogManager.getLogger();
+
 	// epsilon for area comparison slop, in mu^2
 	private static final float AREA_EPS = 1.0f;
 

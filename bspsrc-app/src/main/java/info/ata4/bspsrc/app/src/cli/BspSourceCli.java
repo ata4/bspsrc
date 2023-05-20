@@ -10,10 +10,10 @@
 
 package info.ata4.bspsrc.app.src.cli;
 
-import info.ata4.log.LogUtils;
+import info.ata4.bspsrc.app.util.log.Log4jUtil;
 import picocli.CommandLine;
 
-import java.util.logging.Logger;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Helper class for CLI parsing and handling.
@@ -22,13 +22,11 @@ import java.util.logging.Logger;
  */
 public class BspSourceCli {
 
-    private static final Logger L = LogUtils.getLogger();
-
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        LogUtils.configure();
+        Log4jUtil.configure(requireNonNull(BspSourceCli.class.getResource("log4j2.xml")));
 
         var cmdLine = new CommandLine(new BspSourceCliCommand());
         cmdLine.setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.AUTO));

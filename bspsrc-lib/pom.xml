@@ -17,6 +17,12 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>com.github.ata4</groupId>
 			<artifactId>ioutils</artifactId>

@@ -19,7 +19,9 @@ import info.ata4.bspsrc.lib.app.SourceAppDB;
 import info.ata4.bspsrc.lib.app.SourceAppId;
 import info.ata4.bspsrc.lib.nmo.NmoException;
 import info.ata4.bspsrc.lib.nmo.NmoFile;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.CloseableThreadContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,12 +31,12 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -50,20 +52,27 @@ import static java.util.Objects.requireNonNull;
  */
 public class BspSource {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
+    public static final String DECOMPILE_TASK_ID_IDENTIFIER = "decompile_id";
 
     public static final String VERSION = "1.4.4-DEV";
 
     private final BspSourceConfig config;
+    private final List<BspFileEntry> entries;
+    private final List<UUID> entryUuids;
 
-    public BspSource(BspSourceConfig config) {
+    public BspSource(BspSourceConfig config, List<BspFileEntry> entries) {
         this.config = requireNonNull(config);
+        this.entries = List.copyOf(entries);
+        this.entryUuids = Stream.generate(UUID::randomUUID)
+                .limit(entries.size())
+                .toList();
     }
 
     /**
      * Starts BSPSource
      */
-    public void run(List<BspFileEntry> entries, Listener listener) {
+    public void run(Listener listener) {
         // some benchmarking
         long startTime = System.currentTimeMillis();
 
@@ -80,7 +89,7 @@ public class BspSource {
         try (var executorService = Executors.newWorkStealingPool()) {
             for (int i = 0; i < entries.size(); i++) {
                 int finalI = i; // java....
-                executorService.submit(() -> decompile(entries.get(finalI), finalI, outputQueue));
+                executorService.submit(() -> decompile(finalI, outputQueue));
             }
 
             try {
@@ -104,19 +113,24 @@ public class BspSource {
         L.info("Processed %d file(s) in %.4f seconds".formatted(entries.size(), duration));
     }
 
-    private void decompile(BspFileEntry entry, int index, LinkedBlockingQueue<Signal> outputQueue) {
-        Exception severeException = null;
-        Set<Warning> warnings = Set.of();
+    private void decompile(int index, LinkedBlockingQueue<Signal> outputQueue) {
+        var entry = entries.get(index);
+        var uuid = entryUuids.get(index);
 
-        try {
-            warnings = decompile(
-                    entry,
-                    update -> outputQueue.add(new Signal.TaskUpdated(index, update))
-            );
-        } catch (Exception e) {
-            severeException = e;
-        } finally {
-            outputQueue.add(new Signal.TaskFinished(index, severeException, warnings));
+        try (var closeable = CloseableThreadContext.put(DECOMPILE_TASK_ID_IDENTIFIER, uuid.toString())) {
+            Exception severeException = null;
+            Set<Warning> warnings = Set.of();
+
+            try {
+                warnings = decompile(
+                        entry,
+                        update -> outputQueue.add(new Signal.TaskUpdated(index, update))
+                );
+            } catch (Exception e) {
+                severeException = e;
+            } finally {
+                outputQueue.add(new Signal.TaskFinished(index, severeException, warnings));
+            }
         }
     }
 
@@ -137,7 +151,7 @@ public class BspSource {
 
         // load BSP
         progressCallback.accept(ProgressUpdate.LOADING);
-        L.log(Level.INFO, "Loading {0}", bspFile);
+        L.info("Loading {}", bspFile);
 
         var bsp = new BspFile();
         bsp.setAppId(config.defaultAppId);
@@ -147,7 +161,7 @@ public class BspSource {
         } catch (IOException ex) {
             // Log AND throw exception. Logging is for decompilation log and exception for task result
             String message = "Error loading '%s'".formatted(bspFile);
-            L.log(Level.SEVERE, message, ex);
+            L.error(message, ex);
             throw new BspSourceException(message, ex);
         }
 
@@ -166,7 +180,7 @@ public class BspSource {
                 bsp.getPakFile().unpack(entry.getPakDir(), fileFilter);
             } catch (IOException ex) {
                 warnings.add(Warning.ExtractEmbedded);
-                L.log(Level.SEVERE, "Can't extract embedded files", ex);
+                L.error("Can't extract embedded files", ex);
             }
         }
 
@@ -190,15 +204,15 @@ public class BspSource {
 		                nmo.writeAsNmos(nmosFile);
 	                } catch (IOException ex) {
                         warnings.add(Warning.WriteNmos);
-		                L.log(Level.SEVERE, "Error while writing nmos", ex);
+		                L.error("Error while writing nmos", ex);
 	                }
                 } catch (IOException | NmoException ex) {
                     warnings.add(Warning.LoadNmo);
-                    L.log(Level.SEVERE, "Can't load " + nmoFile, ex);
+                    L.error("Can't load " + nmoFile, ex);
                     nmo = null;
                 }
             } else {
-                L.warning("Missing .nmo file! If the bsp is for the objective game mode, its objectives will be missing");
+                L.warn("Missing .nmo file! If the bsp is for the objective game mode, its objectives will be missing");
             }
         }
 
@@ -207,8 +221,8 @@ public class BspSource {
             String gameName = SourceAppDB.getInstance().getName(appId)
                     .orElse(String.valueOf(appId));
 
-            L.log(Level.INFO, "BSP version: {0}", reader.getBspFile().getVersion());
-            L.log(Level.INFO, "Game: {0}", gameName);
+            L.info("BSP version: {}", reader.getBspFile().getVersion());
+            L.info("Game: {}", gameName);
         }
 
         progressCallback.accept(ProgressUpdate.DECOMPILING);
@@ -221,11 +235,11 @@ public class BspSource {
                 decompiler.setNmoData(nmo);
 
             decompiler.start();
-            L.log(Level.INFO, "Finished decompiling {0}", bspFile);
+            L.info("Finished decompiling {}", bspFile);
         } catch (IOException ex) {
             // Log AND throw exception. Logging is for decompilation log and exception for task result
             String message = "Error decompiling '%s' to '%s'".formatted(bspFile, vmfFile);
-            L.log(Level.SEVERE, message, ex);
+            L.error(message, ex);
             throw new BspSourceException(message, ex);
         }
 
@@ -239,6 +253,10 @@ public class BspSource {
         } else {
             return new VmfWriter(vmfFile);
         }
+    }
+
+    public List<UUID> getEntryUuids() {
+        return entryUuids;
     }
 
     sealed interface Signal {

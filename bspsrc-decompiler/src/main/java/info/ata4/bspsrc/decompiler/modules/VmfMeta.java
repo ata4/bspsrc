@@ -14,13 +14,12 @@ import info.ata4.bspsrc.decompiler.VmfWriter;
 import info.ata4.bspsrc.decompiler.modules.entity.Camera;
 import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.bspsrc.lib.entity.Entity;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.util.List;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -32,7 +31,7 @@ import java.util.stream.Stream;
 public class VmfMeta extends ModuleDecompile {
 
     // logger
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private final Random random = new Random();
 
@@ -66,7 +65,7 @@ public class VmfMeta extends ModuleDecompile {
                 .filter(entity -> entity.getClassName().equalsIgnoreCase("worldspawn"))
                 .findAny()
                 .orElseGet(() -> {
-                    L.warning("Couldn't find worldspawn entity. This may be due to the map having stripped " +
+                    L.warn("Couldn't find worldspawn entity. This may be due to the map having stripped " +
                             "entities. Some information like skybox and detail sprites will be missing, " +
                             "because these are saved in the worldspawn entity");
 
@@ -75,7 +74,7 @@ public class VmfMeta extends ModuleDecompile {
 
         // print existing map comment
         if (worldspawn.getValue("comment") != null) {
-            L.log(Level.INFO, "Map comment: {0}", worldspawn.getValue("comment"));
+            L.info("Map comment: {}", worldspawn.getValue("comment"));
         }
     }
 
@@ -339,7 +338,7 @@ public class VmfMeta extends ModuleDecompile {
             ));
         }
         if (reservedVisgroups.containsKey(visgroupPathFixed)) {
-            L.warning(String.format(
+            L.warn(String.format(
                     "Visgroup '%s' is already reserved with id %d, overwriting with %d",
                     String.join("/", visgroupPathFixed),
                     reservedVisgroups.get(visgroupPathFixed),

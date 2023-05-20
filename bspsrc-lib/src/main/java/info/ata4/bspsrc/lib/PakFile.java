@@ -13,10 +13,11 @@ import info.ata4.bspsrc.lib.io.LzmaUtil;
 import info.ata4.bspsrc.lib.lump.Lump;
 import info.ata4.bspsrc.lib.lump.LumpType;
 import info.ata4.io.buffer.ByteBufferChannel;
-import info.ata4.log.LogUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.compress.archivers.zip.ZipMethod;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tukaani.xz.LZMAInputStream;
 
 import java.io.IOException;
@@ -25,8 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
@@ -36,7 +35,7 @@ import java.util.regex.Pattern;
  */
 public class PakFile {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private static Pattern vhvPattern = Pattern.compile("sp(_hdr)?_\\d+\\.vhv");
     private static Pattern cubemapVtfPattern = Pattern.compile("c(-?\\d+)_(-?\\d+)_(-?\\d+)(\\.hdr)?\\.vtf");
@@ -58,7 +57,7 @@ public class PakFile {
 
     public void unpack(Path dest, boolean direct) throws IOException {
         if (direct) {
-            L.log(Level.INFO, "Extracting pakfile to {0}", dest);
+            L.info("Extracting pakfile to {}", dest);
 
             try (InputStream is = pakLump.getInputStream()) {
                 Files.copy(is, dest);
@@ -85,13 +84,13 @@ public class PakFile {
 
                 // don't allow file path to exit outside the extraction directory
                 if (!entryFile.startsWith(dest)) {
-                    L.log(Level.WARNING, "Skipped {0} (path traversal attempt)", entryName);
+                    L.warn("Skipped {} (path traversal attempt)", entryName);
                     continue;
                 }
 
                 // don't overwrite any files
                 if (Files.exists(entryFile)) {
-                    L.log(Level.WARNING, "Skipped {0} (exists)", entryName);
+                    L.warn("Skipped {} (exists)", entryName);
                     continue;
                 }
 
@@ -114,7 +113,7 @@ public class PakFile {
                         }
                     }
                 } else {
-                    L.warning(String.format("Cannot extract unsupported: %s| method: %s(%s)| encryption: %b",
+                    L.warn(String.format("Cannot extract unsupported: %s| method: %s(%s)| encryption: %b",
                             entryName,
                             ZipMethod.getMethodByCode(ze.getMethod()),
                             ze.getMethod(),
@@ -125,7 +124,7 @@ public class PakFile {
     }
 
     private static void extract(InputStream stream, Path path, String entryName) throws IOException {
-        L.log(Level.INFO, "Extracting {0}", entryName);
+        L.info("Extracting {}", entryName);
         Files.createDirectories(path.getParent());
         Files.copy(stream, path);
     }

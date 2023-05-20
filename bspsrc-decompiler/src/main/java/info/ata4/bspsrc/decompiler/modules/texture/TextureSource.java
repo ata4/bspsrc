@@ -13,11 +13,10 @@ package info.ata4.bspsrc.decompiler.modules.texture;
 import info.ata4.bspsrc.decompiler.modules.ModuleRead;
 import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.ToolTextureSet;
 import info.ata4.bspsrc.lib.BspFileReader;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +32,7 @@ import java.util.regex.Pattern;
 public class TextureSource extends ModuleRead {
 
     // logger
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     // regex capturing group names
     private static final String CONTENT_GROUP = "content";
@@ -127,7 +126,7 @@ public class TextureSource extends ModuleRead {
 
                     setCubemapForTexname(i, cx, cy, cz);
                 } catch (NumberFormatException e) {
-                    L.log(Level.WARNING, "Error parsing cubemap position from regex. Matcher: " + matcher.pattern().pattern() + ", input: " + textureNew, e);
+                    L.warn("Error parsing cubemap position from regex. Matcher: " + matcher.pattern().pattern() + ", input: " + textureNew, e);
                 }
 
                 textureNew = removeMatchedPrefixSuffix(matcher);
@@ -135,7 +134,7 @@ public class TextureSource extends ModuleRead {
 
             // log differences
             if (!textureNew.equalsIgnoreCase(textureOld)) {
-                L.log(Level.FINEST, "{0} -> {1}", new Object[] {textureOld, textureNew});
+                L.trace("{} -> {}", textureOld, textureNew);
             }
 
             texnamesFixed.add(textureNew);
@@ -152,8 +151,8 @@ public class TextureSource extends ModuleRead {
             int[] origin = bsp.cubemaps.get(i).origin;
 
             if (cx == origin[0] || cy == origin[1] || cz == origin[2]) {
-                if (L.isLoggable(Level.FINEST)) {
-                    L.log(Level.FINEST, "TN: {0} C: {1}", new Object[]{itexname, i});
+                if (L.isTraceEnabled()) {
+                    L.trace("TN: {} C: {}", itexname, i);
                 }
 
                 // set cubemap index used by this texdata/texname
@@ -162,8 +161,7 @@ public class TextureSource extends ModuleRead {
             }
         }
 
-        L.log(Level.FINER, "Couldn''t find cubemap for coordinates ({0}, {1}, {2})",
-                new Object[]{cx, cy, cz});
+        L.trace("Couldn't find cubemap for coordinates ({}, {}, {})", cx, cy, cz);
     }
 
     public TextureBuilder getTextureBuilder() {

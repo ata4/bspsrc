@@ -28,13 +28,12 @@ import info.ata4.bspsrc.lib.nmo.NmoFile;
 import info.ata4.bspsrc.lib.nmo.NmoObjective;
 import info.ata4.bspsrc.lib.struct.*;
 import info.ata4.bspsrc.lib.vector.Vector3f;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.util.List;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -52,7 +51,7 @@ import static java.util.Objects.requireNonNull;
 public class EntitySource extends ModuleDecompile {
 
     // logger
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private static final Pattern INSTANCE_PREFIX = Pattern.compile("^([^-]+)-");
 
@@ -243,7 +242,7 @@ public class EntitySource extends ModuleDecompile {
                 String portalNumString = ent.getValue("portalnumber");
 
                 if (portalNumString == null) {
-                    L.warning(String.format(
+                    L.warn(String.format(
                             "%s is missing 'portalnumber' attribute, skipping...",
                             className
                     ));
@@ -253,7 +252,7 @@ public class EntitySource extends ModuleDecompile {
                 try {
                     portalNum = Integer.parseInt(portalNumString);
                 } catch (NumberFormatException e) {
-                    L.warning(String.format(
+                    L.warn(String.format(
                             "Can't parse %s 'portalnumber' attribute: '%s', skipping...",
                             className,
                             portalNumString
@@ -262,7 +261,7 @@ public class EntitySource extends ModuleDecompile {
                 }
 
                 if (!areaportalMapper.hasValidGeometry(portalNum)) {
-                    L.warning(String.format(
+                    L.warn(String.format(
                             "%s links to non existing areaportal or has invalid geometry, skipping...",
                             className
                     ));
@@ -281,7 +280,7 @@ public class EntitySource extends ModuleDecompile {
                 String occluderNumString = ent.getValue("occludernumber");
 
                 if (occluderNumString == null) {
-                    L.warning(String.format(
+                    L.warn(String.format(
                             "%s is missing 'occludernumber' attribute, skipping...",
                             className
                     ));
@@ -291,7 +290,7 @@ public class EntitySource extends ModuleDecompile {
                 try {
                     occluderNum = Integer.parseInt(occluderNumString);
                 } catch (NumberFormatException ex) {
-                    L.warning(String.format(
+                    L.warn(String.format(
                             "Can't parse %s 'occludernumber' attribute: '%s', skipping...",
                             className,
                             occluderNumString
@@ -805,8 +804,7 @@ public class EntitySource extends ModuleDecompile {
                 int cmSides = sideList.size();
 
                 if (cmSides > config.maxCubemapSides) {
-                    L.log(Level.FINER, "Cubemap {0} has too many sides: {1}",
-                            new Object[]{i, sideList});
+                    L.trace("Cubemap {} has too many sides: {}", i, sideList);
                 }
 
                 // write list of brush sides that use this cubemap
@@ -865,8 +863,7 @@ public class EntitySource extends ModuleDecompile {
         if (origFace.dispInfo != -1) {
             int side = vmfmeta.getDispInfoUID(origFace.dispInfo);
             if (side != -1) {
-                L.log(Level.FINER, "O: {0} D: {1} id: {2}",
-                        new Object[]{ioverlay, origFace.dispInfo, side});
+                L.trace("O: {} D: {} id: {}", ioverlay, origFace.dispInfo, side);
                 sides.add(side);
             }
 
@@ -899,21 +896,20 @@ public class EntitySource extends ModuleDecompile {
                     continue;
                 }
 
-                L.log(Level.FINER, "O: {0} OF: {1} B: {2} BS: {3} id: {4}",
-                        new Object[]{ioverlay, ioface, i, ibs, side});
+                L.trace("O: {} OF: {} B: {} BS: {} id: {}", ioverlay, ioface, i, ibs, side);
 
                 sides.add(side);
 
                 // make sure we won't have too many brush sides for that overlay
                 if (sides.size() >= config.maxOverlaySides) {
-                    L.log(Level.WARNING, "Too many brush sides for overlay {0}", ioverlay);
+                    L.warn("Too many brush sides for overlay {}", ioverlay);
                     break;
                 }
             }
         }
 
         if (sides.size() == sidesPrev) {
-            L.log(Level.FINER, "O: {0} OF: {1} no match", new Object[]{ioverlay, ioface});
+            L.trace("O: {} OF: {} no match", ioverlay, ioface);
         }
     }
 
@@ -1017,7 +1013,7 @@ public class EntitySource extends ModuleDecompile {
         try {
             hammerid = Integer.parseInt(ent.getValue("hammerid"));
         } catch (NumberFormatException ex) {
-            L.log(Level.WARNING, "Invalid hammerid format {0}", hammeridStr);
+            L.warn("Invalid hammerid format {}", hammeridStr);
         }
 
         return hammerid;
@@ -1038,7 +1034,7 @@ public class EntitySource extends ModuleDecompile {
                 return;
             }
         } catch (NumberFormatException ex) {
-            L.log(Level.WARNING, "Invalid light style number format: {0}", style);
+            L.warn("Invalid light style number format: {}", style);
         }
 
         // Use original preset style, if set. Empty the style otherwise.
@@ -1089,14 +1085,14 @@ public class EntitySource extends ModuleDecompile {
             try {
                 vmfmeta.reserveVisgroupId(nmoObjective.id, "Objectives", nmoObjective.name);
             } catch (VmfMeta.VisgroupException e) {
-                L.log(Level.SEVERE, "Error reserving visgroup ids for Nmrih Objectives", e);
+                L.error("Error reserving visgroup ids for Nmrih Objectives", e);
             }
         }
         for (NmoAntiObjective nmoAntiObjective : nmoData.antiNodes) {
             try {
                 vmfmeta.reserveVisgroupId(nmoAntiObjective.id, "Objectives", "anti", nmoAntiObjective.name);
             } catch (VmfMeta.VisgroupException e) {
-                L.log(Level.SEVERE, "Error reserving visgroup ids for Nmrih Objectives", e);
+                L.error("Error reserving visgroup ids for Nmrih Objectives", e);
             }
         }
         nmoData.extractions.forEach(extraction -> vmfmeta.getUIDBlackList().add(extraction.id));

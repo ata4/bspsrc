@@ -27,11 +27,10 @@ import info.ata4.bspsrc.lib.struct.DBrush;
 import info.ata4.bspsrc.lib.struct.DBrushSide;
 import info.ata4.bspsrc.lib.struct.DModel;
 import info.ata4.bspsrc.lib.vector.Vector3f;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static java.util.Objects.requireNonNull;
 
@@ -45,7 +44,7 @@ import static java.util.Objects.requireNonNull;
 public class BrushSource extends ModuleDecompile {
 
     // logger
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private final WindingFactory windingFactory;
 
@@ -145,7 +144,7 @@ public class BrushSource extends ModuleDecompile {
         // walk model 0 (worldspawn model)
         tl.walk(0);
 
-        L.fine("Walked worldspawn tree");
+        L.debug("Walked worldspawn tree");
 
         worldbrushes = tl.getMaxBrushLeaf() + 1;
 
@@ -159,7 +158,7 @@ public class BrushSource extends ModuleDecompile {
             models.add(bmodel);
         }
 
-        L.log(Level.FINE, "Largest worldbrush: {0}", worldbrushes);
+        L.debug("Largest worldbrush: {}", worldbrushes);
     }
 
     /**
@@ -275,8 +274,7 @@ public class BrushSource extends ModuleDecompile {
                 validBrushSides.put(ibrushside, wind);
             } catch (BrushSideException ex) {
 	            if (config.debug) {
-                    L.log(Level.WARNING, "Skipped side {0} of brush {1}: {2}",
-                            new Object[]{i, ibrush, ex.getMessage()});
+                    L.warn("Skipped side {} of brush {}: {}", i, ibrush, ex.getMessage());
 
                 }
             }
@@ -284,14 +282,14 @@ public class BrushSource extends ModuleDecompile {
 
         // all brush sides invalid = invalid brush
         if (validBrushSides.isEmpty()) {
-            L.log(Level.WARNING, "Skipped empty brush {0}", ibrush);
+            L.warn("Skipped empty brush {}", ibrush);
             return false;
         } 
 
         // skip brushes with less than three sides, they can't be compiled and
         // may crash older Hammer builds
         if (validBrushSides.size() < 3) {
-            L.log(Level.WARNING, "Skipped brush {0} with less than 3 sides", ibrush);
+            L.warn("Skipped brush {} with less than 3 sides", ibrush);
             return false;
         }
 
@@ -430,7 +428,7 @@ public class BrushSource extends ModuleDecompile {
         try {
             bmodel = models.get(imodel);
         } catch (IndexOutOfBoundsException ex) {
-            L.log(Level.WARNING, "Invalid model index {0}", imodel);
+            L.warn("Invalid model index {}", imodel);
             return false;
         }
 

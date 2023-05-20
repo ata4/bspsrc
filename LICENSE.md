@@ -29,6 +29,7 @@ For more information, please refer to <http://unlicense.org/>
 
 BSPSource uses the following libraries:
 
+* [Apache Log4j 2](https://logging.apache.org/log4j/2.x/)
 * [Apache Commons Compress](http://commons.apache.org/compress/)
 * [picocli](https://github.com/remkop/picocli)
 * [FlatLaf](https://github.com/JFormDesigner/FlatLaf)

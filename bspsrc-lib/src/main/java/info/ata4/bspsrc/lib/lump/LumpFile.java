@@ -12,14 +12,13 @@ package info.ata4.bspsrc.lib.lump;
 
 import info.ata4.bspsrc.lib.BspFile;
 import info.ata4.io.buffer.ByteBufferUtils;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Path;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Low-level LMP file class for header and lump data access.
@@ -28,7 +27,7 @@ import java.util.logging.Logger;
  */
 public class LumpFile {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     public static final int HEADER_SIZE = 20;
 
@@ -56,7 +55,7 @@ public class LumpFile {
     public void load(Path file, ByteOrder bo) throws IOException {
         this.file = file;
 
-        L.log(Level.FINE, "Loading lump header from {0}", file.getFileName());
+        L.debug("Loading lump header from {}", file.getFileName());
 
         ByteBuffer bb = ByteBufferUtils.openReadOnly(file);
         bb.order(bo);
@@ -73,11 +72,11 @@ public class LumpFile {
         int lumpSize = bb.getInt();
         mapRev = bb.getInt();
 
-        L.log(Level.FINER, "Lump offset: {0}", lumpOffset);
-        L.log(Level.FINER, "Lump ID: {0}", lumpIndex);
-        L.log(Level.FINER, "Lump version: {0}", lumpVersion);
-        L.log(Level.FINER, "Lump size: {0}", lumpSize);
-        L.log(Level.FINER, "Map revision: {0}", mapRev);
+        L.trace("Lump offset: {}", lumpOffset);
+        L.trace("Lump ID: {}", lumpIndex);
+        L.trace("Lump version: {}", lumpVersion);
+        L.trace("Lump size: {}", lumpSize);
+        L.trace("Map revision: {}", mapRev);
 
         if (lumpOffset != HEADER_SIZE) {
             throw new LumpException("Unexpected lump offset: " + lumpOffset);
@@ -107,7 +106,7 @@ public class LumpFile {
             throw new NullPointerException("Lump is undefined");
         }
 
-        L.log(Level.FINE, "Saving lump header to {0}", file.getFileName());
+        L.debug("Saving lump header to {}", file.getFileName());
 
         int size = HEADER_SIZE + lump.getLength();
 
@@ -122,7 +121,7 @@ public class LumpFile {
         bb.putInt(lump.getLength());
         bb.putInt(mapRev);
 
-        L.log(Level.FINE, "Saving lump data to {0}", file.getFileName());
+        L.debug("Saving lump data to {}", file.getFileName());
 
         // lump data
         bb.put(lump.getBuffer());

@@ -9,13 +9,12 @@ import info.ata4.bspsrc.lib.entity.KeyValue;
 import info.ata4.bspsrc.lib.struct.BspData;
 import info.ata4.bspsrc.lib.struct.DAreaportal;
 import info.ata4.bspsrc.lib.struct.DBrush;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -28,7 +27,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class AreaportalMapper {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private final WindingFactory windingFactory;
 
@@ -48,7 +47,7 @@ public class AreaportalMapper {
         this.windingFactory = requireNonNull(windingFactory);
 
         if (checkAreaportal())
-            L.warning("Invalid areaportals, map was probably compiled with errors! Errors should be expected");
+            L.warn("Invalid areaportals, map was probably compiled with errors! Errors should be expected");
 
         prepareApHelpers();
         prepareApBrushes();
@@ -147,7 +146,7 @@ public class AreaportalMapper {
             // At this part we should have a mapping...
             if (!opBrushMapping.isPresent()) {
                 // How did we end up here?? Shouldn't be possible
-                L.warning("Internal error occurred reallocating areaportals");
+                L.warn("Internal error occurred reallocating areaportals");
                 assert false;
                 break;
             }
@@ -159,7 +158,7 @@ public class AreaportalMapper {
             OptionalInt opApId = brushMapping.apHelper.getFirstNonOverlappingId(finalBrushMapping.keySet());
             if (!opApId.isPresent()) {
                 // Again how did we end up here? Shouldn't be possible
-                L.warning("Internal error occurred reallocating areaportals");
+                L.warn("Internal error occurred reallocating areaportals");
                 assert false;
                 break;
             }
@@ -168,7 +167,7 @@ public class AreaportalMapper {
             int brushIndex = bsp.brushes.indexOf(brushMapping.brush);
 
             finalBrushMapping.put(areaportalId, brushIndex);
-            L.log(Level.FINEST, String.format("Mapped brush %d to areaportal %d[%s] with a probability of %.2g",
+            L.trace(String.format("Mapped brush %d to areaportal %d[%s] with a probability of %.2g",
                     brushIndex,
                     areaportalId,
                     brushMapping.apHelper.portalID.stream()
@@ -209,7 +208,7 @@ public class AreaportalMapper {
                                     new KeyValue("areaportal_prob[]", "0")
                             ));
                         } catch (NumberFormatException e) {
-                            L.log(Level.FINE, "func_areaportal portalnumber property is missing or invalid", e);
+                            L.debug("func_areaportal portalnumber property is missing or invalid", e);
                         }
                     });
         }

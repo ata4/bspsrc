@@ -20,11 +20,10 @@ import info.ata4.bspsrc.decompiler.util.WindingFactory;
 import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.bspsrc.lib.app.SourceAppId;
 import info.ata4.bspsrc.lib.nmo.NmoFile;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Main decompiling module.
@@ -34,7 +33,7 @@ import java.util.logging.Logger;
 public class BspDecompiler extends ModuleDecompile {
 
     // logger
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private final WindingFactory windingFactory = new WindingFactory();
     private final BrushBounds brushBounds = new BrushBounds(windingFactory);
@@ -119,13 +118,13 @@ public class BspDecompiler extends ModuleDecompile {
             return;
         }
 
-        L.log(Level.WARNING, "{0} contains anti-decompiling flags or is obfuscated!", reader.getBspFile().getName());
-        L.log(Level.WARNING, "Detected methods:");
+        L.warn("{} contains anti-decompiling flags or is obfuscated!", reader.getBspFile().getName());
+        L.warn("Detected methods:");
 
         List<String> methods = bspprot.getProtectionMethods();
 
         for (String method : methods) {
-            L.warning(method);
+            L.warn(method);
         }
     }
 

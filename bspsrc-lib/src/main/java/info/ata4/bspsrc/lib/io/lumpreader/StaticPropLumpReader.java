@@ -6,13 +6,13 @@ import info.ata4.bspsrc.lib.struct.*;
 import info.ata4.bspsrc.lib.vector.Vector3f;
 import info.ata4.io.DataReader;
 import info.ata4.io.DataReaders;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 
 import static info.ata4.bspsrc.lib.app.SourceAppId.*;
 import static info.ata4.io.Seekable.Origin.CURRENT;
@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class StaticPropLumpReader implements LumpReader<StaticPropLumpReader.StaticPropData> {
 
-	private static final Logger L = LogUtils.getLogger();
+	private static final Logger L = LogManager.getLogger();
 
 	private static final int PAD_SIZE = 128;
 
@@ -66,7 +66,7 @@ public class StaticPropLumpReader implements LumpReader<StaticPropLumpReader.Sta
 		}
 
 		if (dataReader.hasRemaining()) {
-			L.warning(String.format("%d bytes remaining after reading", dataReader.remaining()));
+			L.warn(String.format("%d bytes remaining after reading", dataReader.remaining()));
 		}
 
 		return new StaticPropData(staticPropDict, staticPropLeafs, staticProps);
@@ -130,10 +130,10 @@ public class StaticPropLumpReader implements LumpReader<StaticPropLumpReader.Sta
 					return descriptor.structSupplier;
 				})
 				.orElseGet(() -> {
-					L.warning(String.format("Couldn't find static prop struct for appId %d, version %d, size %d",
+					L.warn(String.format("Couldn't find static prop struct for appId %d, version %d, size %d",
 							appId, sprpVersion, propStaticSize));
 
-					L.warning("Falling back to static prop v4");
+					L.warn("Falling back to static prop v4");
 					return () -> new DStaticPropV4Padded(propStaticSize);
 				});
 

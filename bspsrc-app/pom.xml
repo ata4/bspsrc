@@ -22,15 +22,24 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+		</dependency>
+		<!-- Needed for libraries using slf4j (jSystemThemeDetector)-->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j2-impl</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>com.github.ata4</groupId>
 			<artifactId>ioutils</artifactId>
-		</dependency>
-
-		<!-- Needed for jSystemThemeDetector which uses slf4j-->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
 		</dependency>
 
 		<dependency>
@@ -58,6 +67,11 @@
 					<!-- optional, but moves more error checking to compile time -->
 					<annotationProcessorPaths>
 						<path>
+							<groupId>org.apache.logging.log4j</groupId>
+							<artifactId>log4j-core</artifactId>
+							<version>2.20.0</version>
+						</path>
+						<path>
 							<groupId>info.picocli</groupId>
 							<artifactId>picocli-codegen</artifactId>
 							<version>4.7.1</version> <!--needed because of https://issues.apache.org/jira/browse/MCOMPILER-391-->
@@ -84,9 +98,21 @@
 						<configuration>
 							<shadedArtifactAttached>true</shadedArtifactAttached>
 							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<filters>
+								<!-- Needed so log4j2 is not accidentally configured by files coming from dependencies -->
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>**/Log4j2Plugins.dat</exclude>
+									</excludes>
+								</filter>
+							</filters>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<mainClass>info.ata4.bspsrc.app.src.BspSourceLauncher</mainClass>
+									<manifestEntries>
+										<Multi-Release>true</Multi-Release>
+									</manifestEntries>
 								</transformer>
 							</transformers>
 						</configuration>

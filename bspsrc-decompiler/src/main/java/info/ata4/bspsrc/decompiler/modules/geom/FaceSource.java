@@ -20,11 +20,10 @@ import info.ata4.bspsrc.decompiler.util.WindingFactory;
 import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.bspsrc.lib.struct.*;
 import info.ata4.bspsrc.lib.vector.Vector3f;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static java.util.Objects.requireNonNull;
 
@@ -38,7 +37,7 @@ import static java.util.Objects.requireNonNull;
 public class FaceSource extends ModuleDecompile {
 
     // logger
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     //BSP=VMF 6=9  2=1  0=0
     private static final byte[] TRICONV = {0, 0, 1, 0, 0, 0, 9};
@@ -179,7 +178,7 @@ public class FaceSource extends ModuleDecompile {
                         writeFace(iface2, false);
                     }
 
-                    if (L.isLoggable(Level.FINEST)) {
+                    if (L.isTraceEnabled()) {
                         StringBuilder sb = new StringBuilder();
                         sb.append("OF ").append(face.origFace).append(": ");
 
@@ -187,7 +186,7 @@ public class FaceSource extends ModuleDecompile {
                             sb.append(findex).append(' ');
                         }
 
-                        L.finest(sb.toString());
+                        L.trace(sb.toString());
                     }
                 } else {
                     // write this oface as flat
@@ -201,7 +200,7 @@ public class FaceSource extends ModuleDecompile {
             }
         }
 
-        L.log(Level.INFO, "{0} original faces were written as split faces", sfaces);
+        L.info("{} original faces were written as split faces", sfaces);
     }
 
     /**
@@ -228,7 +227,7 @@ public class FaceSource extends ModuleDecompile {
         try {
             model = bsp.models.get(imodel);
         } catch (IndexOutOfBoundsException ex) {
-            L.log(Level.WARNING, "Invalid model index {0}", imodel);
+            L.warn("Invalid model index {}", imodel);
             return;
         }
 
@@ -272,7 +271,7 @@ public class FaceSource extends ModuleDecompile {
         Vector3f e3 = plane[2];
 
         if (!e1.isValid() || !e2.isValid() || !e3.isValid()) {
-            L.log(Level.WARNING, "Face with wind {0} is invalid", wind);
+            L.warn("Face with wind {} is invalid", wind);
             return;
         }
 
@@ -283,7 +282,7 @@ public class FaceSource extends ModuleDecompile {
 
         if (normal.isNaN() || normal.isInfinite()) {
             // TODO: is there a way to fix/avoid this?
-            L.log(Level.FINE, "Bad normal: {0} x {1}", new Object[]{ev12, ev13});
+            L.debug("Bad normal: {} x {}", ev12, ev13);
             return;
         }
 
@@ -473,7 +472,7 @@ public class FaceSource extends ModuleDecompile {
                 return;
             }
         }
-        L.warning("Tried to write non existing areaportal with portalkey " + portalKey);
+        L.warn("Tried to write non existing areaportal with portalkey " + portalKey);
     }
 
     public void writeAreaportal(DAreaportal ap) {
@@ -486,7 +485,7 @@ public class FaceSource extends ModuleDecompile {
         try {
             writeOccluder(bsp.occluderDatas.get(occluderKey));
         } catch (IndexOutOfBoundsException ex) {
-            L.log(Level.WARNING, "Invalid occluder key {0}", occluderKey);
+            L.warn("Invalid occluder key {}", occluderKey);
         }
     }
 
@@ -520,7 +519,7 @@ public class FaceSource extends ModuleDecompile {
         Vector3f e3 = plane[2];
 
         if (!e1.isValid() || !e2.isValid() || !e3.isValid()) {
-            L.log(Level.WARNING, "Areaportal with wind {0} is invalid", wind);
+            L.warn("Areaportal with wind {} is invalid", wind);
             return;
         }
 
@@ -531,7 +530,7 @@ public class FaceSource extends ModuleDecompile {
 
         if (normal.isNaN() || normal.isInfinite()) {
             // TODO: is there a way to fix/avoid this?
-            L.log(Level.FINE, "Bad normal: {0} x {1}", new Object[]{ev12, ev13});
+            L.debug("Bad normal: {} x {}", ev12, ev13);
             return;
         }
 
@@ -847,8 +846,8 @@ public class FaceSource extends ModuleDecompile {
                 origFace.area = wind.getArea();
             }
 
-            if (L.isLoggable(Level.FINEST)) {
-                L.log(Level.FINEST, "OF {0}: area {1}", new Object[]{i, origFace.area});
+            if (L.isTraceEnabled()) {
+                L.trace("OF {}: area {}", i, origFace.area);
             }
 
             // area of face components
@@ -866,9 +865,8 @@ public class FaceSource extends ModuleDecompile {
             if (carea > origFace.area + AREA_EPS) {
                 undersizedFaces.add(i); // mark the oface
 
-                if (L.isLoggable(Level.FINEST)) {
-                    L.log(Level.FINEST, "OF {0} is undersized: {1}>{2}",
-                            new Object[]{i, carea, origFace.area});
+                if (L.isTraceEnabled()) {
+                    L.trace("OF {} is undersized: {}>{}", i, carea, origFace.area);
                 }
             }
         }

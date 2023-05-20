@@ -5,7 +5,8 @@ import info.ata4.io.DataReaders;
 import info.ata4.io.DataWriter;
 import info.ata4.io.DataWriters;
 import info.ata4.io.buffer.ByteBufferUtils;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -15,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Class for reading/storing .nmo files.
@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 public class NmoFile {
 
 	// logger
-	private static final Logger L = LogUtils.getLogger();
+	private static final Logger L = LogManager.getLogger();
 
 	private final byte SIGNATURE = 118; //First byte in every file. Probably a magic constant to identify nmo files
 	private final int VERSION = 1; //Second to fifth bytes. Probably nmo file version

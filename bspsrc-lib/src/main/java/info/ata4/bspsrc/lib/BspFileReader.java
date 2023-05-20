@@ -18,15 +18,14 @@ import info.ata4.bspsrc.lib.lump.GameLump;
 import info.ata4.bspsrc.lib.lump.Lump;
 import info.ata4.bspsrc.lib.lump.LumpType;
 import info.ata4.bspsrc.lib.struct.*;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static info.ata4.bspsrc.lib.app.SourceAppId.*;
@@ -38,7 +37,7 @@ import static info.ata4.bspsrc.lib.app.SourceAppId.*;
  */
 public class BspFileReader {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     // BSP headers and data
     private final BspFile bspFile;
@@ -104,7 +103,7 @@ public class BspFileReader {
         }
 
         bspData.planes = readDStructChunksLump(LumpType.LUMP_PLANES, DPlane::new);
-        L.fine(String.format("%d planes", bspData.planes.size()));
+        L.debug(String.format("%d planes", bspData.planes.size()));
     }
 
     public void loadBrushes() {
@@ -113,7 +112,7 @@ public class BspFileReader {
         }
 
         bspData.brushes = readDStructChunksLump(LumpType.LUMP_BRUSHES, DBrush::new);
-        L.fine(String.format("%d brushes", bspData.brushes.size()));
+        L.debug(String.format("%d brushes", bspData.brushes.size()));
     }
 
     public void loadBrushSides() {
@@ -134,7 +133,7 @@ public class BspFileReader {
         }
 
         bspData.brushSides = readDStructChunksLump(LumpType.LUMP_BRUSHSIDES, dStructSupplier);
-        L.fine(String.format("%d brush sides", bspData.brushSides.size()));
+        L.debug(String.format("%d brush sides", bspData.brushSides.size()));
     }
 
     public void loadVertices() {
@@ -143,7 +142,7 @@ public class BspFileReader {
         }
 
         bspData.verts = readDStructChunksLump(LumpType.LUMP_VERTEXES, DVertex::new);
-        L.fine(String.format("%d vertices", bspData.verts.size()));
+        L.debug(String.format("%d vertices", bspData.verts.size()));
     }
 
     public void loadClipPortalVertices() {
@@ -152,7 +151,7 @@ public class BspFileReader {
         }
 
         bspData.clipPortalVerts = readDStructChunksLump(LumpType.LUMP_CLIPPORTALVERTS, DVertex::new);
-        L.fine(String.format("%d areaportal vertices", bspData.clipPortalVerts.size()));
+        L.debug(String.format("%d areaportal vertices", bspData.clipPortalVerts.size()));
     }
 
     public void loadEdges() {
@@ -169,7 +168,7 @@ public class BspFileReader {
 	    }
 
         bspData.edges = readDStructChunksLump(LumpType.LUMP_EDGES, struct);
-        L.fine(String.format("%d edges", bspData.edges.size()));
+        L.debug(String.format("%d edges", bspData.edges.size()));
     }
 
     private Supplier<? extends DFace> faceDStructSupplier(int lumpVersion) {
@@ -204,7 +203,7 @@ public class BspFileReader {
         LumpType faceLumpType = useHdrLump ? LumpType.LUMP_FACES_HDR : LumpType.LUMP_FACES;
 
         bspData.faces = readDStructChunksLump(faceLumpType, this::faceDStructSupplier);
-        L.fine(String.format("%d faces", bspData.faces.size()));
+        L.debug(String.format("%d faces", bspData.faces.size()));
     }
 
     public void loadOriginalFaces() {
@@ -213,7 +212,7 @@ public class BspFileReader {
         }
 
         bspData.origFaces = readDStructChunksLump(LumpType.LUMP_ORIGINALFACES, this::faceDStructSupplier);
-        L.fine(String.format("%d original faces", bspData.origFaces.size()));
+        L.debug(String.format("%d original faces", bspData.origFaces.size()));
     }
 
     public void loadModels() {
@@ -230,7 +229,7 @@ public class BspFileReader {
 	    }
 
         bspData.models = readDStructChunksLump(LumpType.LUMP_MODELS, dStructSupplier);
-        L.fine(String.format("%d models", bspData.models.size()));
+        L.debug(String.format("%d models", bspData.models.size()));
     }
 
     public void loadSurfaceEdges() {
@@ -239,7 +238,7 @@ public class BspFileReader {
         }
 
         bspData.surfEdges = readLump(LumpType.LUMP_SURFEDGES, new IntegerChunksLumpReader());
-        L.fine(String.format("%d surface edges", bspData.surfEdges.size()));
+        L.debug(String.format("%d surface edges", bspData.surfEdges.size()));
     }
 
     public void loadStaticProps() {
@@ -257,9 +256,9 @@ public class BspFileReader {
         bspData.staticProps = staticPropData.props;
         bspData.staticPropLeaf = staticPropData.leafs;
 
-        L.fine(String.format("%d static prop names", staticPropData.names.size()));
-        L.fine(String.format("%d static props", staticPropData.props.size()));
-        L.fine(String.format("%d static prop leafs", staticPropData.leafs.size()));
+        L.debug(String.format("%d static prop names", staticPropData.names.size()));
+        L.debug(String.format("%d static props", staticPropData.props.size()));
+        L.debug(String.format("%d static prop leafs", staticPropData.leafs.size()));
     }
 
     public void loadCubemaps() {
@@ -268,7 +267,7 @@ public class BspFileReader {
         }
 
         bspData.cubemaps = readDStructChunksLump(LumpType.LUMP_CUBEMAPS, DCubemapSample::new);
-        L.fine(String.format("%d cubemaps", bspData.cubemaps.size()));
+        L.debug(String.format("%d cubemaps", bspData.cubemaps.size()));
     }
 
     public void loadDispInfos() {
@@ -301,7 +300,7 @@ public class BspFileReader {
         }
 
         bspData.dispinfos = readDStructChunksLump(LumpType.LUMP_DISPINFO, dStructSupplier);
-        L.fine(String.format("%d displacement infos", bspData.dispinfos.size()));
+        L.debug(String.format("%d displacement infos", bspData.dispinfos.size()));
     }
 
     public void loadDispVertices() {
@@ -310,7 +309,7 @@ public class BspFileReader {
         }
 
         bspData.dispverts = readDStructChunksLump(LumpType.LUMP_DISP_VERTS, DDispVert::new);
-        L.fine(String.format("%d displacement vertices", bspData.dispverts.size()));
+        L.debug(String.format("%d displacement vertices", bspData.dispverts.size()));
     }
 
     public void loadDispTriangleTags() {
@@ -319,7 +318,7 @@ public class BspFileReader {
         }
 
         bspData.disptris = readDStructChunksLump(LumpType.LUMP_DISP_TRIS, DDispTri::new);
-        L.fine(String.format("%d displacement triangles", bspData.disptris.size()));
+        L.debug(String.format("%d displacement triangles", bspData.disptris.size()));
     }
 
     public void loadDispMultiBlend() {
@@ -336,7 +335,7 @@ public class BspFileReader {
             lumpType = LumpType.LUMP_DISP_MULTIBLEND;
 
         bspData.dispmultiblend = readDStructChunksLump(lumpType, DDispMultiBlend::new);
-        L.fine(String.format("%d displacement multiblend", bspData.dispmultiblend.size()));
+        L.debug(String.format("%d displacement multiblend", bspData.dispmultiblend.size()));
     }
 
     public void loadTexInfo() {
@@ -353,7 +352,7 @@ public class BspFileReader {
         }
 
         bspData.texinfos = readDStructChunksLump(LumpType.LUMP_TEXINFO, dStructSupplier);
-        L.fine(String.format("%d texture infos", bspData.texinfos.size()));
+        L.debug(String.format("%d texture infos", bspData.texinfos.size()));
     }
 
     public void loadTexData() {
@@ -362,7 +361,7 @@ public class BspFileReader {
         }
 
         bspData.texdatas = readDStructChunksLump(LumpType.LUMP_TEXDATA, DTexData::new);
-        L.fine(String.format("%d texture data", bspData.texdatas.size()));
+        L.debug(String.format("%d texture data", bspData.texdatas.size()));
 
         loadTexDataStrings();  // load associated texdata strings
     }
@@ -374,7 +373,7 @@ public class BspFileReader {
 
         List<Integer> stringTableData = readLump(LumpType.LUMP_TEXDATA_STRING_TABLE, new IntegerChunksLumpReader());
         bspData.texnames = readLump(LumpType.LUMP_TEXDATA_STRING_DATA, new TexdataStringLumpReader(stringTableData));
-        L.fine(String.format("%d texture names", bspData.texnames.size()));
+        L.debug(String.format("%d texture names", bspData.texnames.size()));
     }
 
     public void loadEntities() {
@@ -384,7 +383,7 @@ public class BspFileReader {
 
         boolean allowEscSeq = bspFile.getVersion() == 17;
         bspData.entities = readLump(LumpType.LUMP_ENTITIES, new EntityLumpReader(allowEscSeq));
-        L.fine(String.format("%d entities", bspData.entities.size()));
+        L.debug(String.format("%d entities", bspData.entities.size()));
 
         Set<String> entityClasses = bspData.entities.stream()
                 .map(Entity::getClassName)
@@ -412,7 +411,7 @@ public class BspFileReader {
         }
 
         bspData.nodes = readDStructChunksLump(LumpType.LUMP_NODES, dStructSupplier);
-        L.fine(String.format("%d nodes", bspData.nodes.size()));
+        L.debug(String.format("%d nodes", bspData.nodes.size()));
     }
 
     public void loadLeaves() {
@@ -434,7 +433,7 @@ public class BspFileReader {
         };
 
         bspData.leaves = readDStructChunksLump(LumpType.LUMP_LEAFS, dStructSupplierCreator);
-        L.fine(String.format("%d leaves", bspData.leaves.size()));
+        L.debug(String.format("%d leaves", bspData.leaves.size()));
     }
 
     public void loadLeafFaces() {
@@ -446,7 +445,7 @@ public class BspFileReader {
                 appId() != VINDICTUS ? new UShortChunksLumpReader() : new IntegerChunksLumpReader();
 
         bspData.leafFaces = readLump(LumpType.LUMP_LEAFFACES, lumpReader);
-        L.fine(String.format("%d leaf faces", bspData.leafFaces.size()));
+        L.debug(String.format("%d leaf faces", bspData.leafFaces.size()));
     }
 
     public void loadLeafBrushes() {
@@ -458,7 +457,7 @@ public class BspFileReader {
                 appId() != VINDICTUS ? new UShortChunksLumpReader() : new IntegerChunksLumpReader();
 
         bspData.leafBrushes = readLump(LumpType.LUMP_LEAFBRUSHES, lumpReader);
-        L.fine(String.format("%d leaf brushes", bspData.leafBrushes.size()));
+        L.debug(String.format("%d leaf brushes", bspData.leafBrushes.size()));
     }
 
     public void loadOverlays() {
@@ -477,12 +476,12 @@ public class BspFileReader {
         }
 
         bspData.overlays = readDStructChunksLump(LumpType.LUMP_OVERLAYS, dStructSupplier);
-        L.fine(String.format("%d overlays", bspData.overlays.size()));
+        L.debug(String.format("%d overlays", bspData.overlays.size()));
 
         // read fade distances
         if (bspData.overlayFades == null) {
             bspData.overlayFades = readDStructChunksLump(LumpType.LUMP_OVERLAY_FADES, DOverlayFade::new);
-            L.fine(String.format("%d overlay fades", bspData.overlayFades.size()));
+            L.debug(String.format("%d overlay fades", bspData.overlayFades.size()));
         }
 
         // read CPU/GPU levels
@@ -493,7 +492,7 @@ public class BspFileReader {
             else
                 bspData.overlaySysLevels = readDStructChunksLump(LumpType.LUMP_OVERLAY_SYSTEM_LEVELS, DOverlaySystemLevel::new);
 
-            L.fine(String.format("%d overlay sys levels", bspData.overlaySysLevels.size()));
+            L.debug(String.format("%d overlay sys levels", bspData.overlaySysLevels.size()));
         }
     }
 
@@ -511,7 +510,7 @@ public class BspFileReader {
         }
 
         bspData.areaportals = readDStructChunksLump(LumpType.LUMP_AREAPORTALS, dStructSupplier);
-        L.fine(String.format("%d areaportals", bspData.areaportals.size()));
+        L.debug(String.format("%d areaportals", bspData.areaportals.size()));
     }
 
     public void loadOccluders() {
@@ -550,9 +549,9 @@ public class BspFileReader {
         bspData.occluderPolyDatas = occlusionData.dOccluderPolyData;
         bspData.occluderVerts = occlusionData.vertexIndices;
 
-        L.fine(String.format("%d occluders", bspData.occluderDatas.size()));
-        L.fine(String.format("%d occluder poly data", bspData.occluderPolyDatas.size()));
-        L.fine(String.format("%d occluder vertices", bspData.occluderVerts.size()));
+        L.debug(String.format("%d occluders", bspData.occluderDatas.size()));
+        L.debug(String.format("%d occluder poly data", bspData.occluderPolyDatas.size()));
+        L.debug(String.format("%d occluder vertices", bspData.occluderVerts.size()));
     }
 
     public void loadFlags() {
@@ -561,7 +560,7 @@ public class BspFileReader {
         }
 
         bspData.mapFlags = readLump(LumpType.LUMP_MAP_FLAGS, new MapFlagsLumpReader());
-        L.fine(String.format("map flags: %s", bspData.mapFlags));
+        L.debug(String.format("map flags: %s", bspData.mapFlags));
     }
 
     public void loadPrimitives() {
@@ -570,7 +569,7 @@ public class BspFileReader {
         }
 
         bspData.prims = readDStructChunksLump(LumpType.LUMP_PRIMITIVES, DPrimitive::new);
-        L.fine(String.format("%d primitives", bspData.prims.size()));
+        L.debug(String.format("%d primitives", bspData.prims.size()));
     }
 
     public void loadPrimIndices() {
@@ -579,7 +578,7 @@ public class BspFileReader {
         }
 
         bspData.primIndices = readLump(LumpType.LUMP_PRIMINDICES, new UShortChunksLumpReader());
-        L.fine(String.format("%d primitives indices", bspData.primIndices.size()));
+        L.debug(String.format("%d primitives indices", bspData.primIndices.size()));
     }
 
     public void loadPrimVerts() {
@@ -588,7 +587,7 @@ public class BspFileReader {
         }
 
         bspData.primVerts = readDStructChunksLump(LumpType.LUMP_PRIMVERTS, DVertex::new);
-        L.fine(String.format("%d primitives vertices", bspData.primVerts.size()));
+        L.debug(String.format("%d primitives vertices", bspData.primVerts.size()));
     }
 
 
@@ -669,7 +668,7 @@ public class BspFileReader {
             Supplier<? extends T> defaultDataSupplier
     ) {
         if (!bspFile.canReadLump(lumpType)) {
-            L.warning(String.format("Tried reading lump '%s', but it is not supported by the bsp's version", lumpType));
+            L.warn(String.format("Tried reading lump '%s', but it is not supported by the bsp's version", lumpType));
             return defaultDataSupplier.get();
         }
 
@@ -690,7 +689,7 @@ public class BspFileReader {
     ) {
         GameLump gameLump = bspFile.getGameLump(sid);
         if (gameLump == null) {
-            L.warning(String.format("Tried reading game lump '%s', but it was not present in the bsp", sid));
+            L.warn(String.format("Tried reading game lump '%s', but it was not present in the bsp", sid));
             return defaultDataSupplier.get();
         }
 
@@ -710,21 +709,21 @@ public class BspFileReader {
     private <T> T readAbstractLump(AbstractLump lump, LumpReader<? extends T> lumpReader) {
         // don't try to read empty lumps
         if (lump.getLength() == 0) {
-            L.warning(String.format("Lump %s is empty", lump));
+            L.warn(String.format("Lump %s is empty", lump));
             return lumpReader.defaultData();
         }
 
-        L.fine(String.format("Reading %s", lump));
+        L.debug(String.format("Reading %s", lump));
 
         T returnData;
         try {
             returnData = lumpReader.read(lump.getBuffer());
         } catch (Exception e) {
-            L.log(Level.WARNING, String.format("An error occurred while trying to read lump %s", lump), e);
+            L.warn(String.format("An error occurred while trying to read lump %s", lump), e);
             returnData = lumpReader.defaultData();
         }
 
-        L.fine(String.format("Finished reading %s", lump));
+        L.debug(String.format("Finished reading %s", lump));
         return returnData;
     }
 

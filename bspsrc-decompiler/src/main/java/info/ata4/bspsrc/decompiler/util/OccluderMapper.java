@@ -2,12 +2,12 @@ package info.ata4.bspsrc.decompiler.util;
 
 import info.ata4.bspsrc.decompiler.BspSourceConfig;
 import info.ata4.bspsrc.lib.struct.*;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class OccluderMapper {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private final WindingFactory windingFactory;
 

@@ -15,14 +15,13 @@ import info.ata4.bspsrc.decompiler.modules.texture.TextureAxis;
 import info.ata4.bspsrc.lib.entity.Entity;
 import info.ata4.bspsrc.lib.entity.KeyValue;
 import info.ata4.bspsrc.lib.vector.Vector3f;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Class to write formatted VMF files.
@@ -31,7 +30,7 @@ import java.util.logging.Logger;
  */
 public class VmfWriter implements Closeable {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private final PrintWriter pw;
     private final Stack<String> section = new Stack<>();
@@ -163,7 +162,7 @@ public class VmfWriter implements Closeable {
         }
 
         if (!v.isValid()) {
-            L.log(Level.WARNING, "Invalid vector: {0}", v);
+            L.warn("Invalid vector: {}", v);
             sb.append("0 0 0");
         } else {
             sb.append(formatFloat(v.x)).append(' ');
@@ -185,7 +184,7 @@ public class VmfWriter implements Closeable {
         sb.append('[');
 
         if (!tx.axis.isValid()) {
-            L.log(Level.WARNING, "Invalid vector: {0}", tx.axis);
+            L.warn("Invalid vector: {}", tx.axis);
             sb.append("0 0 0 ");
         } else {
             sb.append(formatFloat(tx.axis.x)).append(' ');
@@ -225,7 +224,7 @@ public class VmfWriter implements Closeable {
                 sb.append(" -> ");
             }
 
-            L.log(Level.WARNING, "Unclosed VMF chunk: {0}", sb.toString());
+            L.warn("Unclosed VMF chunk: {}", sb.toString());
         }
     }
 }

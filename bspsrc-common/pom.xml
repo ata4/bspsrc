@@ -10,6 +10,9 @@
 
 	<artifactId>bspsrc-common</artifactId>
 
+	<dependencies>
+	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>

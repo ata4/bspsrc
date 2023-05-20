@@ -12,14 +12,13 @@ package info.ata4.bspsrc.lib.io;
 import info.ata4.bspsrc.common.util.CountingInputStream;
 import info.ata4.bspsrc.lib.entity.Entity;
 import info.ata4.bspsrc.lib.entity.KeyValue;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static java.util.Objects.requireNonNull;
 
@@ -30,7 +29,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class EntityInputStream implements AutoCloseable {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private final CountingInputStream in;
     private boolean allowEsc = false;
@@ -74,8 +73,7 @@ public class EntityInputStream implements AutoCloseable {
 
                                 // ignore empty keys
                                 if (key.isEmpty()) {
-                                    L.log(Level.FINE, "Skipped value \"{0}\" with empty key at {1}",
-                                            new Object[] {value, in.getBytesRead()});
+                                    L.debug("Skipped value \"{}\" with empty key at {}", value, in.getBytesRead());
                                 } else {
                                     keyValues.add(new KeyValue(key, value));
                                 }
@@ -124,7 +122,7 @@ public class EntityInputStream implements AutoCloseable {
                 }
             }
         } catch (ParseException ex) {
-            L.log(Level.WARNING, String.format("%s at %d", ex.message, in.getBytesRead()));
+            L.warn(String.format("%s at %d", ex.message, in.getBytesRead()));
 
             // skip rest of this section by reading until EOF or '}'
             for (int b = 0; b != -1 && b != '}'; b = in.read());

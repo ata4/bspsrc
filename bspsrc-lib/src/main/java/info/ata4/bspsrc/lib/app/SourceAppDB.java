@@ -10,13 +10,12 @@
 package info.ata4.bspsrc.lib.app;
 
 import info.ata4.bspsrc.lib.app.definitions.*;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -28,7 +27,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class SourceAppDB {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
     private static SourceAppDB instance;
 
     private final List<SourceApp> appList = Arrays.asList(
@@ -99,10 +98,7 @@ public class SourceAppDB {
 
         return appList.stream()
                 .map(app -> new SourceAppScore(app, calculateAppScore(app, bspName, bspVersion, classNames)))
-                .peek(appScore -> L.log(
-                        Level.FINE,
-                        String.format("App %s has score %f", appScore.app.getName(), appScore.score)
-                ))
+                .peek(appScore -> L.debug(String.format("App %s has score %f", appScore.app.getName(), appScore.score)))
                 .max(Comparator.comparing(appScore -> appScore.score))
                 .filter(appScore -> appScore.score > 0)
                 .map(appScore -> appScore.app)
@@ -140,7 +136,7 @@ public class SourceAppDB {
         try {
             return new URI(String.format("http://store.steampowered.com/app/%d/", appId));
         } catch (URISyntaxException ex) {
-            L.log(Level.WARNING, "", ex);
+            L.warn("", ex);
             // this really shouldn't happen...
             return null;
         }

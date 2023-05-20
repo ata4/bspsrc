@@ -11,13 +11,12 @@
 package info.ata4.bspsrc.lib.entity;
 
 import info.ata4.bspsrc.lib.vector.Vector3f;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.PrintStream;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Abstract entity representation that works roughly like in Hammer. Has two
@@ -28,7 +27,7 @@ import java.util.logging.Logger;
  */
 public class Entity {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private Map<String, String> keyValue = new LinkedHashMap<>();
     private List<KeyValue> keyValueIO = new ArrayList<>();
@@ -66,7 +65,7 @@ public class Entity {
                 if (className == null) {
                     className = value;
                 } else {
-                    L.log(Level.WARNING, "Found duplicate classname key, ignoring {0}", kv);
+                    L.warn("Found duplicate classname key, ignoring {}", kv);
                 }
                 continue;
             }
@@ -80,7 +79,7 @@ public class Entity {
 
         // check and add missing class name
         if (className == null || className.isEmpty()) {
-            L.log(Level.WARNING, "Missing or empty class name, using \"unknown_entity\"");
+            L.warn("Missing or empty class name, using \"unknown_entity\"");
             className = "unknown_entity";
         }
     }

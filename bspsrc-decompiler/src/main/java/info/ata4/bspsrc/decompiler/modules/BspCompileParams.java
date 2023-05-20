@@ -12,17 +12,16 @@ package info.ata4.bspsrc.decompiler.modules;
 import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.bspsrc.lib.lump.LumpType;
 import info.ata4.bspsrc.lib.struct.LevelFlag;
-import info.ata4.log.LogUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -30,7 +29,7 @@ import java.util.logging.Logger;
  */
 public class BspCompileParams extends ModuleRead {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private List<String> vbspParams = new ArrayList<>();
     private List<String> vvisParams = new ArrayList<>();
@@ -68,7 +67,7 @@ public class BspCompileParams extends ModuleRead {
                 }
             }
         } catch (IOException ex) {
-            L.log(Level.WARNING, "Couldn''t read pakfile", ex);
+            L.warn("Couldn't read pakfile", ex);
         }
 
         // both parameters produce marked files, there's probably no way to

@@ -13,14 +13,13 @@ package info.ata4.bspsrc.lib.lump;
 import info.ata4.bspsrc.lib.io.LzmaUtil;
 import info.ata4.io.buffer.ByteBufferInputStream;
 import info.ata4.io.buffer.ByteBufferOutputStream;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A generic lump class for the normal lump and the game lump.
@@ -29,7 +28,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractLump {
 
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     private ByteBuffer buffer = ByteBuffer.allocate(0);
     private int offset;
@@ -110,7 +109,7 @@ public abstract class AbstractLump {
         try {
             buffer = LzmaUtil.compress(buffer);
         } catch (IOException ex) {
-            L.log(Level.SEVERE, "Couldn't compress lump " + this, ex);
+            L.error("Couldn't compress lump " + this, ex);
         }
 
         setCompressed(true);
@@ -124,7 +123,7 @@ public abstract class AbstractLump {
         try {
             buffer = LzmaUtil.uncompress(buffer);
         } catch (IOException ex) {
-            L.log(Level.SEVERE, "Couldn't uncompress lump " + this, ex);
+            L.error("Couldn't uncompress lump " + this, ex);
         }
 
         setCompressed(false);

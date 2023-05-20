@@ -23,7 +23,8 @@ import info.ata4.io.DataReaders;
 import info.ata4.io.DataWriter;
 import info.ata4.io.DataWriters;
 import info.ata4.io.buffer.ByteBufferUtils;
-import info.ata4.log.LogUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -33,8 +34,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static info.ata4.bspsrc.lib.app.SourceAppId.*;
 import static info.ata4.io.Seekable.Origin.CURRENT;
@@ -47,7 +46,7 @@ import static info.ata4.io.Seekable.Origin.CURRENT;
 public class BspFile {
 
     // logger
-    private static final Logger L = LogUtils.getLogger();
+    private static final Logger L = LogManager.getLogger();
 
     // big-endian Valve ident
     public static final int BSP_ID = StringMacroUtils.makeID("VBSP");
@@ -115,11 +114,11 @@ public class BspFile {
         this.file = file;
         this.name = PathUtil.nameWithoutExtension(file).orElse(null);
 
-        L.log(Level.FINE, "Loading headers from {0}", name);
+        L.debug("Loading headers from {}", name);
 
         ByteBuffer bb = createBuffer(memMapping);
 
-        L.log(Level.FINER, "Endianness: {0}", bo);
+        L.trace("Endianness: {}", bo);
 
         // set byte order
         bb.order(bo);
@@ -127,23 +126,23 @@ public class BspFile {
         // read version
         version = bb.getInt();
 
-        L.log(Level.FINER, "Version: {0}", version);
+        L.trace("Version: {}", version);
 
         if (version == 0x40014) {
             // Dark Messiah maps use 14 00 04 00 as version.
             // The actual BSP version is probably stored in the first two bytes...
-            L.finer("Found Dark Messiah header");
+            L.trace("Found Dark Messiah header");
             appId = DARK_MESSIAH;
             version &= 0xff;
         } else if (version == 27) {
             // Contagion maps use version 27, ignore VERSION_MAX in this case 
-            L.finer("Found Contagion header");
+            L.trace("Found Contagion header");
             appId = CONTAGION;
         }
 
         // hack for L4D2 BSPs
         if (version == 21 && bb.getInt(8) == 0) {
-            L.finer("Found Left 4 Dead 2 header");
+            L.trace("Found Left 4 Dead 2 header");
             appId = LEFT_4_DEAD_2;
         }
 
@@ -154,7 +153,7 @@ public class BspFile {
 
         if (appId == TITANFALL) {
             mapRev = bb.getInt();
-            L.log(Level.FINER, "Map revision: {0}", mapRev);
+            L.trace("Map revision: {}", mapRev);
 
             bb.getInt(); // always 127?
         }
@@ -167,7 +166,7 @@ public class BspFile {
             loadTitanfallEntityFiles();
         } else {
             mapRev = bb.getInt();
-            L.log(Level.FINER, "Map revision: {0}", mapRev);
+            L.trace("Map revision: {}", mapRev);
         }
     }
 
@@ -186,7 +185,7 @@ public class BspFile {
         this.file = file;
         this.name = file.getFileName().toString();
 
-        L.log(Level.FINE, "Saving headers to {0}", name);
+        L.debug("Saving headers to {}", name);
 
         // update game lump buffer
         saveGameLumps();
@@ -229,7 +228,7 @@ public class BspFile {
         if (ident == 0x504B0304 || ident == 0x504B0506 || ident == 0x504B0708) {
             // loaded file is a zip...
             // this code is in place because a surprising amount of people try to decompile zip files
-            L.severe("File is a zip archive. Make sure to first extract any bsp file "
+            L.error("File is a zip archive. Make sure to first extract any bsp file "
                     + "it might contain and then select these for decompilation.");
             throw new BspException("Loaded file is a zip archive");
         }
@@ -254,7 +253,7 @@ public class BspFile {
             return bb;
         } else if (ident == BSP_ID_TF) {
             // Titanfall little-endian ident
-            L.finer("Found Titanfall header");
+            L.trace("Found Titanfall header");
             appId = TITANFALL;
             bo = ByteOrder.LITTLE_ENDIAN;
             return bb;
@@ -280,7 +279,7 @@ public class BspFile {
         if (identXor == BSP_ID) {
             bo = ByteOrder.LITTLE_ENDIAN;
 
-            L.log(Level.FINE, "Found Tactical Intervention XOR encryption using the key \"{0}\"", new String(mapKey));
+            L.debug("Found Tactical Intervention XOR encryption using the key \"{}\"", new String(mapKey));
 
             // fully reload the map into memory if that isn't the case already
             if (memMapping || bb.isReadOnly()) {
@@ -301,7 +300,7 @@ public class BspFile {
     }
 
     private void loadLumps(ByteBuffer bb) {
-        L.fine("Loading lumps");
+        L.debug("Loading lumps");
 
         int numLumps;
 
@@ -336,27 +335,23 @@ public class BspFile {
                 int ofsOld = ofs;
                 ofs = bb.limit();
                 len = 0;
-                L.log(Level.WARNING, "Invalid lump offset {0} in {1}, assuming {2}",
-                        new Object[]{ofsOld, ltype, ofs});
+                L.warn("Invalid lump offset {} in {}, assuming {}", ofsOld, ltype, ofs);
             } else if (ofs < 0) {
                 int ofsOld = ofs;
                 ofs = 0;
                 len = 0;
-                L.log(Level.WARNING, "Negative lump offset {0} in {1}, assuming {2}",
-                        new Object[]{ofsOld, ltype, ofs});
+                L.warn("Negative lump offset {} in {}, assuming {}", ofsOld, ltype, ofs);
             }
 
             // fix invalid lengths
             if (ofs + len > bb.limit()) {
                 int lenOld = len;
                 len = bb.limit() - ofs;
-                L.log(Level.WARNING, "Invalid lump length {0} in {1}, assuming {2}",
-                        new Object[]{lenOld, ltype, len});
+                L.warn("Invalid lump length {} in {}, assuming {}", lenOld, ltype, len);
             } else if (len < 0) {
                 int lenOld = len;
                 len = 0;
-                L.log(Level.WARNING, "Negative lump length {0} in {1}, assuming {2}",
-                        new Object[]{lenOld, ltype, len});
+                L.warn("Negative lump length {} in {}, assuming {}", lenOld, ltype, len);
             }
 
             Lump l = new Lump(i, ltype);
@@ -375,7 +370,7 @@ public class BspFile {
      * @param bb destination buffer to write lumps into
      */
     private void saveLumps(ByteBuffer bb) {
-        L.fine("Saving lumps");
+        L.debug("Saving lumps");
 
         for (Lump lump : lumps) {
             // write header
@@ -411,7 +406,7 @@ public class BspFile {
     }
 
     public void loadLumpFiles() {
-        L.fine("Loading lump files");
+        L.debug("Loading lump files");
 
         for (int i = 0; i < MAX_LUMPFILES; i++) {
             Path lumpFile = file.resolveSibling(String.format("%s_l_%d.lmp", name, i));
@@ -435,13 +430,13 @@ public class BspFile {
                     loadGameLumps();
                 }
             } catch (IOException ex) {
-                L.log(Level.WARNING, "Unable to load lump file " + lumpFile.getFileName(), ex);
+                L.warn("Unable to load lump file " + lumpFile.getFileName(), ex);
             }
         }
     }
 
     private void loadTitanfallLumpFiles() {
-        L.fine("Loading Titanfall lump files");
+        L.debug("Loading Titanfall lump files");
 
         for (int i = 0; i < HEADER_LUMPS_TF; i++) {
             Path lumpFile = file.resolveSibling(String.format("%s.bsp.%04x.bsp_lump", name, i));
@@ -459,7 +454,7 @@ public class BspFile {
                 l.setBuffer(bb);
                 l.setParentFile(lumpFile);
             } catch (IOException ex) {
-                L.log(Level.WARNING, "Unable to load lump file " + lumpFile.getFileName(), ex);
+                L.warn("Unable to load lump file " + lumpFile.getFileName(), ex);
             }
         }
     }
@@ -468,7 +463,7 @@ public class BspFile {
         // Titanfall maps use multiple .ent files. For compatibility, simply
         // concatenate all entity files to one large entity lump
 
-        L.fine("Loading Titanfall entity files");
+        L.debug("Loading Titanfall entity files");
 
         Lump entlump = getLump(LumpType.LUMP_ENTITIES);
         ByteBuffer bbEnt = entlump.getBuffer();
@@ -505,14 +500,14 @@ public class BspFile {
                 bb = bb.slice();
             }
         } catch (IOException ex) {
-            L.log(Level.WARNING, "Unable to load entity file " + entFile.getFileName(), ex);
+            L.warn("Unable to load entity file " + entFile.getFileName(), ex);
         }
 
         return bb;
     }
 
     private void loadGameLumps() {
-        L.fine("Loading game lumps");
+        L.debug("Loading game lumps");
 
         try {
             Lump lump = getLump(LumpType.LUMP_GAME_LUMP);
@@ -522,7 +517,7 @@ public class BspFile {
             if (version == 20 && bo == ByteOrder.LITTLE_ENDIAN
                     && checkInvalidHeaders(in, false)
                     && !checkInvalidHeaders(in, true)) {
-                L.finer("Found Vindictus game lump header");
+                L.trace("Found Vindictus game lump header");
                 appId = VINDICTUS;
             }
 
@@ -582,27 +577,23 @@ public class BspFile {
                     int ofsOld = ofs;
                     ofs = lump.getLength();
                     len = 0;
-                    L.log(Level.WARNING, "Invalid game lump offset {0} in {1}, assuming {2}",
-                            new Object[]{ofsOld, glName, ofs});
+                    L.warn("Invalid game lump offset {} in {}, assuming {}", ofsOld, glName, ofs);
                 } else if (ofs < 0) {
                     int ofsOld = ofs;
                     ofs = 0;
                     len = 0;
-                    L.log(Level.WARNING, "Negative game lump offset {0} in {1}, assuming {2}",
-                            new Object[]{ofsOld, glName, ofs});
+                    L.warn("Negative game lump offset {} in {}, assuming {}", ofsOld, glName, ofs);
                 }
 
                 // fix invalid lengths
                 if (ofs + len > lump.getLength()) {
                     int lenOld = len;
                     len = lump.getLength() - ofs;
-                    L.log(Level.WARNING, "Invalid game lump length {0} in {1}, assuming {2}",
-                            new Object[]{lenOld, glName, len});
+                    L.warn("Invalid game lump length {} in {}, assuming {}", lenOld, glName, len);
                 } else if (len < 0) {
                     int lenOld = len;
                     len = 0;
-                    L.log(Level.WARNING, "Negative game lump length {0} in {1}, assuming {2}",
-                            new Object[]{lenOld, glName, len});
+                    L.warn("Negative game lump length {} in {}, assuming {}", lenOld, glName, len);
                 }
 
                 GameLump gl = new GameLump();
@@ -614,14 +605,14 @@ public class BspFile {
                 gameLumps.add(gl);
             }
 
-            L.log(Level.FINE, "Game lumps: {0}", glumps);
+            L.debug("Game lumps: {}", glumps);
         } catch (IOException ex) {
-            L.log(Level.SEVERE, "Couldn't load game lumps", ex);
+            L.error("Couldn't load game lumps", ex);
         }
     }
 
     private void saveGameLumps() {
-        L.fine("Saving game lumps");
+        L.debug("Saving game lumps");
 
         // lumpCount + dgamelump_t[lumpCount]
         int headerSize = 4;
@@ -674,7 +665,7 @@ public class BspFile {
             Lump gameLump = getLump(LumpType.LUMP_GAME_LUMP);
             gameLump.setBuffer(bb);
         } catch (IOException ex) {
-            L.log(Level.SEVERE, "Couldn''t save game lumps", ex);
+            L.error("Couldn''t save game lumps", ex);
         }
     }
 
@@ -806,7 +797,7 @@ public class BspFile {
             }
 
             if (!l.isCompressed()) {
-                L.log(Level.FINE, "Compressing {0}", l.getName());
+                L.debug("Compressing {}", l.getName());
                 l.compress();
             }
         }
@@ -818,7 +809,7 @@ public class BspFile {
             }
 
             if (!gl.isCompressed()) {
-                L.log(Level.FINE, "Compressing {0}", gl.getName());
+                L.debug("Compressing {}", gl.getName());
                 gl.compress();
             }
         }
