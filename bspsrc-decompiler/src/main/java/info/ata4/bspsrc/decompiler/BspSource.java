@@ -32,9 +32,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -84,8 +84,9 @@ public class BspSource {
         if (entries.isEmpty())
             return;
 
-        var outputQueue = new LinkedBlockingQueue<Signal>();
+        L.info("Starting...");
 
+        var outputQueue = new LinkedBlockingQueue<Signal>();
         try (var executorService = Executors.newWorkStealingPool()) {
             for (int i = 0; i < entries.size(); i++) {
                 int finalI = i; // java....
@@ -96,14 +97,20 @@ public class BspSource {
                 int remainingTasks = entries.size();
                 while (remainingTasks > 0) {
                     var signal = outputQueue.take();
-                    if (signal instanceof Signal.TaskUpdated info) {
-                        listener.onProgress(info.index(), info.update());
-                    } else if (signal instanceof Signal.TaskFinished info) {
-                        listener.onFinished(info.index(), info.severeException(), info.warnings());
+                    if (signal instanceof Signal.TaskStarted info) {
+                        listener.onStarted(info.index());
+                    } else {
+                        if (signal instanceof Signal.TaskFinished info) {
+                            listener.onFinished(info.index(), info.warnings());
+                        } else if (signal instanceof Signal.TaskFailed info) {
+                            listener.onFailed(info.index(), info.exception());
+                        }
                         remainingTasks--;
                     }
                 }
             } catch (InterruptedException e) {
+                // interuppted. Set interrupt flag which causes subsequent
+                // Executor.close to not wait for tasks to finish
                 Thread.currentThread().interrupt();
             }
         }
@@ -113,23 +120,17 @@ public class BspSource {
         L.info("Processed %d file(s) in %.4f seconds".formatted(entries.size(), duration));
     }
 
-    private void decompile(int index, LinkedBlockingQueue<Signal> outputQueue) {
+    private void decompile(int index, BlockingQueue<Signal> outputQueue) {
         var entry = entries.get(index);
         var uuid = entryUuids.get(index);
 
         try (var closeable = CloseableThreadContext.put(DECOMPILE_TASK_ID_IDENTIFIER, uuid.toString())) {
-            Exception severeException = null;
-            Set<Warning> warnings = Set.of();
-
+            outputQueue.add(new Signal.TaskStarted(index));
             try {
-                warnings = decompile(
-                        entry,
-                        update -> outputQueue.add(new Signal.TaskUpdated(index, update))
-                );
-            } catch (Exception e) {
-                severeException = e;
-            } finally {
-                outputQueue.add(new Signal.TaskFinished(index, severeException, warnings));
+                var warnings = decompile(entry);
+                outputQueue.add(new Signal.TaskFinished(index, warnings));
+            } catch (Throwable e) {
+                outputQueue.add(new Signal.TaskFailed(index, e));
             }
         }
     }
@@ -137,7 +138,7 @@ public class BspSource {
     /**
      * Starts the decompiling process
      */
-    private Set<Warning> decompile(BspFileEntry entry, Consumer<ProgressUpdate> progressCallback)
+    private Set<Warning> decompile(BspFileEntry entry)
             throws BspSourceException {
 
         var warnings = new HashSet<Warning>();
@@ -150,7 +151,6 @@ public class BspSource {
         Path nmosFile = entry.getNmosFile();
 
         // load BSP
-        progressCallback.accept(ProgressUpdate.LOADING);
         L.info("Loading {}", bspFile);
 
         var bsp = new BspFile();
@@ -174,8 +174,6 @@ public class BspSource {
 
         // extract embedded files
         if (config.unpackEmbedded) {
-            progressCallback.accept(ProgressUpdate.EXTRACTING_EMBEDDED);
-
             try {
                 bsp.getPakFile().unpack(entry.getPakDir(), fileFilter);
             } catch (IOException ex) {
@@ -184,16 +182,12 @@ public class BspSource {
             }
         }
 
-        progressCallback.accept(ProgressUpdate.READING);
-
         var reader = new BspFileReader(bsp);
         reader.loadAll();
 
         // load NMO if game is 'No More Room in Hell'
         NmoFile nmo = null;
         if (reader.getBspFile().getAppId() == SourceAppId.NO_MORE_ROOM_IN_HELL) {
-            progressCallback.accept(ProgressUpdate.PROCESS_NMO);
-
             if (Files.exists(nmoFile)) {
                 try {
                     nmo = new NmoFile();
@@ -224,8 +218,6 @@ public class BspSource {
             L.info("BSP version: {}", reader.getBspFile().getVersion());
             L.info("Game: {}", gameName);
         }
-
-        progressCallback.accept(ProgressUpdate.DECOMPILING);
 
         // create and configure decompiler and start decompiling
         try (VmfWriter writer = getVmfWriter(vmfFile.toFile())) {
@@ -260,21 +252,15 @@ public class BspSource {
     }
 
     sealed interface Signal {
-        record TaskFinished(int index, Exception severeException, Set<Warning> warnings) implements Signal {};
-        record TaskUpdated(int index, ProgressUpdate update) implements Signal {};
-    }
-
-    public enum ProgressUpdate {
-        LOADING,
-        EXTRACTING_EMBEDDED,
-        READING,
-        PROCESS_NMO,
-        DECOMPILING
+        record TaskStarted(int index) implements Signal {}
+        record TaskFinished(int index, Set<Warning> warnings) implements Signal {}
+        record TaskFailed(int index, Throwable exception) implements Signal {}
     }
 
     public interface Listener {
-        default void onProgress(int entryIndex, ProgressUpdate update) {};
-        default void onFinished(int entryIndex, Exception severeError, Set<Warning> warnings) {};
+        void onStarted(int entryIndex);
+        void onFinished(int entryIndex, Set<Warning> warnings);
+        void onFailed(int entryIndex, Throwable exception);
     }
 
     public enum Warning {

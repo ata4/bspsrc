@@ -204,26 +204,16 @@ public class BspSourceCliCommand implements Callable<Void> {
 	private BspSource.Listener createBspSourceListener(List<BspFileEntry> entries) {
 		return new BspSource.Listener() {
 			@Override
-			public void onProgress(int entryIndex, BspSource.ProgressUpdate update) {
-				var status = switch (update) {
-					case LOADING -> "Loading...";
-					case EXTRACTING_EMBEDDED -> "Extracting embedded files...";
-					case READING -> "Reading lumps...";
-					case PROCESS_NMO -> "Processing NMO files...";
-					case DECOMPILING -> "Decompiling...";
-				};
-
-				L.info("'{}': {}", entries.get(entryIndex).getBspFile(), status);
-			}
+			public void onStarted(int entryIndex) {}
 
 			@Override
-			public void onFinished(int entryIndex, Exception severeError, Set<BspSource.Warning> warnings) {
+			public void onFinished(int entryIndex, Set<BspSource.Warning> warnings) {
 				Path bspFile = entries.get(entryIndex).getBspFile();
-				if (severeError != null) {
-					L.error("'%s': Task failed with exception:".formatted(bspFile), severeError);
-				} else if (!warnings.isEmpty()) {
+				if (warnings.isEmpty()) {
+					L.info("'{}': Decompiled successfully.", bspFile);
+				} else {
 					L.warn(
-							"'{}': Task finished with warnings: {}. For more details see the log file.",
+							"'{}': Decompiled with warnings: {}. For more details see the log file.",
 							bspFile,
 							warnings.stream()
 									.map(warning -> switch (warning) {
@@ -233,9 +223,13 @@ public class BspSourceCliCommand implements Callable<Void> {
 									})
 									.collect(Collectors.joining(". "))
 					);
-				} else {
-					L.info("'{}': Task finished successfully.", bspFile);
 				}
+			}
+
+			@Override
+			public void onFailed(int entryIndex, Throwable exception) {
+				Path bspFile = entries.get(entryIndex).getBspFile();
+				L.error("'%s': Failed with exception:".formatted(bspFile), exception);
 			}
 		};
 	}
