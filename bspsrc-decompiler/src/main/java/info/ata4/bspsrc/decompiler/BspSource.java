@@ -128,6 +128,7 @@ public class BspSource {
                 var warnings = decompile(entry);
                 outputQueue.add(new Signal.TaskFinished(index, warnings));
             } catch (Throwable e) {
+                L.error("Error occurred decompiling '%s'".formatted(entry.getBspFile()),  e);
                 outputQueue.add(new Signal.TaskFailed(index, e));
             }
         }
