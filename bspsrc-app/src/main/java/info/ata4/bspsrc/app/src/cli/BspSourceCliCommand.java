@@ -195,43 +195,40 @@ public class BspSourceCliCommand implements Callable<Void> {
 				.collect(Collectors.toMap(Map.Entry::getKey, entry -> PathUtils.setExtension(entry.getValue().getVmfFile(), "log")));
 
 		try (var scope = Log4jUtil.configureDecompilationLogFileAppender(map)) {
-			bspsrc.run(createBspSourceListener(entries));
+			bspsrc.run(signal -> {
+				if (signal instanceof BspSource.Signal.TaskFinished task) {
+					printTaskFinished(entries, task);
+				} else if (signal instanceof BspSource.Signal.TaskFailed task) {
+					printTaskFailed(entries, task);
+				}
+			});
 		}
 
 		return null;
 	}
 
-	private BspSource.Listener createBspSourceListener(List<BspFileEntry> entries) {
-		return new BspSource.Listener() {
-			@Override
-			public void onStarted(int entryIndex) {}
+	private static void printTaskFailed(List<BspFileEntry> entries, BspSource.Signal.TaskFailed task) {
+		Path bspFile = entries.get(task.index()).getBspFile();
+		L.error("'%s': Failed with exception:".formatted(bspFile), task.exception());
+	}
 
-			@Override
-			public void onFinished(int entryIndex, Set<BspSource.Warning> warnings) {
-				Path bspFile = entries.get(entryIndex).getBspFile();
-				if (warnings.isEmpty()) {
-					L.info("'{}': Decompiled successfully.", bspFile);
-				} else {
-					L.warn(
-							"'{}': Decompiled with warnings: {}. For more details see the log file.",
-							bspFile,
-							warnings.stream()
-									.map(warning -> switch (warning) {
-										case ExtractEmbedded -> "Error occurred extracting embedded files";
-										case LoadNmo -> "Error occurred loading nmo file";
-										case WriteNmos -> "Error occurred writing nmos file";
-									})
-									.collect(Collectors.joining(". "))
-					);
-				}
-			}
-
-			@Override
-			public void onFailed(int entryIndex, Throwable exception) {
-				Path bspFile = entries.get(entryIndex).getBspFile();
-				L.error("'%s': Failed with exception:".formatted(bspFile), exception);
-			}
-		};
+	private static void printTaskFinished(List<BspFileEntry> entries, BspSource.Signal.TaskFinished task) {
+		Path bspFile = entries.get(task.index()).getBspFile();
+		if (task.warnings().isEmpty()) {
+			L.info("'{}': Decompiled successfully.", bspFile);
+		} else {
+			L.warn(
+					"'{}': Decompiled with warnings: {}. For more details see the log file.",
+					bspFile,
+					task.warnings().stream()
+							.map(warning -> switch (warning) {
+								case ExtractEmbedded -> "Error occurred extracting embedded files";
+								case LoadNmo -> "Error occurred loading nmo file";
+								case WriteNmos -> "Error occurred writing nmos file";
+							})
+							.collect(Collectors.joining(". "))
+			);
+		}
 	}
 
 	private BspSourceConfig getConfig() {

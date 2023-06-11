@@ -35,6 +35,7 @@ import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -72,7 +73,7 @@ public class BspSource {
     /**
      * Starts BSPSource
      */
-    public void run(Listener listener) {
+    public void run(Consumer<Signal> signalConsumer) {
         // some benchmarking
         long startTime = System.currentTimeMillis();
 
@@ -97,16 +98,10 @@ public class BspSource {
                 int remainingTasks = entries.size();
                 while (remainingTasks > 0) {
                     var signal = outputQueue.take();
-                    if (signal instanceof Signal.TaskStarted info) {
-                        listener.onStarted(info.index());
-                    } else {
-                        if (signal instanceof Signal.TaskFinished info) {
-                            listener.onFinished(info.index(), info.warnings());
-                        } else if (signal instanceof Signal.TaskFailed info) {
-                            listener.onFailed(info.index(), info.exception());
-                        }
+                    signalConsumer.accept(signal);
+
+                    if (signal instanceof Signal.TaskFinished || signal instanceof Signal.TaskFailed)
                         remainingTasks--;
-                    }
                 }
             } catch (InterruptedException e) {
                 // interuppted. Set interrupt flag which causes subsequent
@@ -251,16 +246,10 @@ public class BspSource {
         return entryUuids;
     }
 
-    sealed interface Signal {
+    public sealed interface Signal {
         record TaskStarted(int index) implements Signal {}
         record TaskFinished(int index, Set<Warning> warnings) implements Signal {}
         record TaskFailed(int index, Throwable exception) implements Signal {}
-    }
-
-    public interface Listener {
-        void onStarted(int entryIndex);
-        void onFinished(int entryIndex, Set<Warning> warnings);
-        void onFailed(int entryIndex, Throwable exception);
     }
 
     public enum Warning {
