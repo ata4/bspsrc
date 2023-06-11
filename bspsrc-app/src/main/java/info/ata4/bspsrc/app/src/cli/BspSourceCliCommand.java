@@ -167,7 +167,7 @@ public class BspSourceCliCommand implements Callable<Void> {
 	}
 
 	@Override
-	public Void call() throws IOException {
+	public Void call() throws IOException, InterruptedException {
 		if (debug) {
 			Log4jUtil.setRootLevel(Level.DEBUG);
 			L.debug("Debug mode on, verbosity set to maximum");

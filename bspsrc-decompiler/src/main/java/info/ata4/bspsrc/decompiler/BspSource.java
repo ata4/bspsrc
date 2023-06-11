@@ -73,7 +73,7 @@ public class BspSource {
     /**
      * Starts BSPSource
      */
-    public void run(Consumer<Signal> signalConsumer) {
+    public void run(Consumer<Signal> signalConsumer) throws InterruptedException {
         // some benchmarking
         long startTime = System.currentTimeMillis();
 
@@ -104,9 +104,12 @@ public class BspSource {
                         remainingTasks--;
                 }
             } catch (InterruptedException e) {
-                // interuppted. Set interrupt flag which causes subsequent
+                L.info("Stopping because of interrupt");
+
+                // interuppted. Reset interrupt flag which causes subsequent
                 // Executor.close to not wait for tasks to finish
                 Thread.currentThread().interrupt();
+                throw e;
             }
         }
 
