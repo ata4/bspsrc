@@ -1,4 +1,4 @@
-package info.ata4.bspsrc.app.util.components;
+package info.ata4.bspsrc.app.util.swing.components;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

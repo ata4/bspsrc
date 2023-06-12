@@ -1,9 +1,9 @@
 package info.ata4.bspsrc.app.info.gui.panel;
 
 import info.ata4.bspsrc.app.info.gui.models.BspInfoModel;
-import info.ata4.bspsrc.app.util.GridBagConstraintsBuilder;
-import info.ata4.bspsrc.app.util.GuiUtil;
-import info.ata4.bspsrc.app.util.components.URILabel;
+import info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder;
+import info.ata4.bspsrc.app.util.swing.GuiUtil;
+import info.ata4.bspsrc.app.util.swing.components.URILabel;
 import info.ata4.bspsrc.decompiler.modules.BspCompileParams;
 import info.ata4.bspsrc.lib.BspFile;
 import info.ata4.bspsrc.lib.app.SourceAppDB;
@@ -14,10 +14,10 @@ import java.net.URI;
 import java.nio.ByteOrder;
 
 import static info.ata4.bspsrc.app.info.gui.Util.*;
-import static info.ata4.bspsrc.app.util.GridBagConstraintsBuilder.Anchor.LINE_END;
-import static info.ata4.bspsrc.app.util.GridBagConstraintsBuilder.Anchor.LINE_START;
-import static info.ata4.bspsrc.app.util.GridBagConstraintsBuilder.Fill.BOTH;
-import static info.ata4.bspsrc.app.util.GridBagConstraintsBuilder.Fill.HORIZONTAL;
+import static info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder.Anchor.LINE_END;
+import static info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder.Anchor.LINE_START;
+import static info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder.Fill.BOTH;
+import static info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder.Fill.HORIZONTAL;
 
 public class GeneralPanel extends JPanel {
 

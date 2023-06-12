@@ -1,9 +1,9 @@
 package info.ata4.bspsrc.app.info.gui.panel;
 
 import info.ata4.bspsrc.app.info.gui.models.BspInfoModel;
-import info.ata4.bspsrc.app.util.GuiUtil;
-import info.ata4.bspsrc.app.util.ReadonlyListTableModel;
-import info.ata4.bspsrc.app.util.ReadonlyListTableModel.Column;
+import info.ata4.bspsrc.app.util.swing.GuiUtil;
+import info.ata4.bspsrc.app.util.swing.model.ReadonlyListTableModel;
+import info.ata4.bspsrc.app.util.swing.model.ReadonlyListTableModel.Column;
 import info.ata4.bspsrc.lib.entity.Entity;
 
 import javax.swing.*;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static info.ata4.bspsrc.app.info.gui.Util.createDisplayTxtField;
-import static info.ata4.bspsrc.app.util.GuiUtil.setColumnWidth;
+import static info.ata4.bspsrc.app.util.swing.GuiUtil.setColumnWidth;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
 

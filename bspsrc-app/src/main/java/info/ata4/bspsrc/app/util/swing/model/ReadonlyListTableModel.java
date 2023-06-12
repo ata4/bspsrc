@@ -1,4 +1,4 @@
-package info.ata4.bspsrc.app.util;
+package info.ata4.bspsrc.app.util.swing.model;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;

@@ -2,10 +2,10 @@ package info.ata4.bspsrc.app.info.gui.panel;
 
 import info.ata4.bspsrc.app.info.gui.data.LumpInfo;
 import info.ata4.bspsrc.app.info.gui.models.BspInfoModel;
-import info.ata4.bspsrc.app.util.GuiUtil;
-import info.ata4.bspsrc.app.util.ReadonlyListTableModel;
-import info.ata4.bspsrc.app.util.components.ByteSizeCellRenderer;
-import info.ata4.bspsrc.app.util.components.ProgressCellRenderer;
+import info.ata4.bspsrc.app.util.swing.GuiUtil;
+import info.ata4.bspsrc.app.util.swing.model.ReadonlyListTableModel;
+import info.ata4.bspsrc.app.util.swing.renderer.ByteSizeCellRenderer;
+import info.ata4.bspsrc.app.util.swing.renderer.ProgressCellRenderer;
 import info.ata4.bspsrc.lib.lump.LumpType;
 
 import javax.swing.*;
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static info.ata4.bspsrc.app.util.GuiUtil.setColumnWidth;
+import static info.ata4.bspsrc.app.util.swing.GuiUtil.setColumnWidth;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
 

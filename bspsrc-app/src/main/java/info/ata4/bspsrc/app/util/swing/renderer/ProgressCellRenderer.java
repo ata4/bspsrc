@@ -7,7 +7,7 @@
  **    May you find forgiveness for yourself and forgive others.
  **    May you share freely, never taking more than you give.
  */
-package info.ata4.bspsrc.app.util.components;
+package info.ata4.bspsrc.app.util.swing.renderer;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;

@@ -1,6 +1,6 @@
 package info.ata4.bspsrc.app.info.gui;
 
-import info.ata4.bspsrc.app.util.GridBagConstraintsBuilder;
+import info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder;
 
 import javax.swing.*;
 import javax.swing.border.Border;

@@ -1,16 +1,16 @@
 package info.ata4.bspsrc.app.info.gui.panel;
 
 import info.ata4.bspsrc.app.info.gui.models.BspInfoModel;
-import info.ata4.bspsrc.app.util.GridBagConstraintsBuilder;
-import info.ata4.bspsrc.app.util.GuiUtil;
+import info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder;
+import info.ata4.bspsrc.app.util.swing.GuiUtil;
 import info.ata4.bspsrc.decompiler.modules.BspProtection;
 
 import javax.swing.*;
 import java.awt.*;
 
 import static info.ata4.bspsrc.app.info.gui.Util.*;
-import static info.ata4.bspsrc.app.util.GridBagConstraintsBuilder.Anchor.LINE_END;
-import static info.ata4.bspsrc.app.util.GridBagConstraintsBuilder.Fill.BOTH;
+import static info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder.Anchor.LINE_END;
+import static info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder.Fill.BOTH;
 
 public class ProtectionPanel extends JPanel {
 

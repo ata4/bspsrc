@@ -1,4 +1,4 @@
-package info.ata4.bspsrc.app.util;
+package info.ata4.bspsrc.app.util.swing;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;

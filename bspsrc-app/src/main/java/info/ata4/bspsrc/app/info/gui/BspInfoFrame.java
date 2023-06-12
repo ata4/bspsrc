@@ -2,9 +2,9 @@ package info.ata4.bspsrc.app.info.gui;
 
 import info.ata4.bspsrc.app.info.gui.models.BspInfoModel;
 import info.ata4.bspsrc.app.info.gui.panel.*;
-import info.ata4.bspsrc.app.util.FileExtensionFilter;
 import info.ata4.bspsrc.app.util.log.Log4jUtil;
 import info.ata4.bspsrc.app.util.log.plugins.DialogAppender;
+import info.ata4.bspsrc.app.util.swing.FileExtensionFilter;
 import info.ata4.bspsrc.decompiler.BspSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Set;
 
 import static info.ata4.bspsrc.app.info.gui.Util.wrapWithAlign;
-import static info.ata4.bspsrc.app.util.GridBagConstraintsBuilder.Anchor.FIRST_LINE_START;
-import static info.ata4.bspsrc.app.util.GridBagConstraintsBuilder.Anchor.PAGE_START;
-import static info.ata4.bspsrc.app.util.GridBagConstraintsBuilder.Fill.HORIZONTAL;
-import static info.ata4.bspsrc.app.util.GridBagConstraintsBuilder.Fill.NONE;
+import static info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder.Anchor.FIRST_LINE_START;
+import static info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder.Anchor.PAGE_START;
+import static info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder.Fill.HORIZONTAL;
+import static info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder.Fill.NONE;
 import static java.util.Objects.requireNonNull;
 import static javax.swing.BorderFactory.createCompoundBorder;
 

@@ -1,4 +1,4 @@
-package info.ata4.bspsrc.app.util;
+package info.ata4.bspsrc.app.util.swing;
 
 import java.awt.*;
 import java.util.function.Consumer;
