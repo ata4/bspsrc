@@ -12,7 +12,8 @@ package info.ata4.bspsrc.decompiler;
 import info.ata4.bspsrc.common.util.PathUtil;
 
 import java.nio.file.Path;
-import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -28,19 +29,9 @@ public class BspFileEntry {
     private Path nmoFile;
     private Path nmosFile;
 
-    public BspFileEntry(Path bspFile) {
-        this(bspFile, null);
-    }
-
     public BspFileEntry(Path bspFile, Path vmfFile) {
-    	Objects.requireNonNull(bspFile);
-
-    	if (vmfFile == null) {
-    	    vmfFile = replaceExtension(bspFile, "_d.vmf");
-        }
-
-    	this.bspFile = bspFile;
-    	this.vmfFile = vmfFile;
+    	this.bspFile = requireNonNull(bspFile);
+    	this.vmfFile = requireNonNull(vmfFile);
     	this.pakfileDir = replaceExtension(vmfFile, "");
         this.nmoFile = replaceExtension(bspFile, ".nmo");
         this.nmosFile = replaceExtension(vmfFile, ".nmos");
@@ -82,7 +73,7 @@ public class BspFileEntry {
 
 	public void setNmosFile(Path nmosFile)
 	{
-		Objects.requireNonNull(nmosFile);
+		requireNonNull(nmosFile);
 		this.nmosFile = nmosFile;
 	}
 

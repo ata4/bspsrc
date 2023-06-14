@@ -8,7 +8,6 @@ import info.ata4.bspsrc.decompiler.BspSourceConfig;
 import info.ata4.bspsrc.decompiler.modules.geom.BrushMode;
 import info.ata4.bspsrc.decompiler.util.SourceFormat;
 import info.ata4.bspsrc.lib.app.SourceAppDB;
-import info.ata4.io.util.PathUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -306,11 +305,15 @@ public class BspSourceCliCommand implements Callable<Void> {
 					pathStream
 							.filter(Files::isRegularFile)
 							.filter(bspPathMatcher::matches)
-							.map(filePath -> new BspFileEntry(filePath, outputPath))
+							.map(bspPath -> new BspFileEntry(bspPath, BspPathUtil.defaultVmfPath(bspPath, outputPath)))
 							.forEach(fileSet::add);
 				}
 			} else {
-				fileSet.add(new BspFileEntry(path, outputPath));
+				Path vmfPath = bspPaths.size() > 1 || outputPath == null
+						? BspPathUtil.defaultVmfPath(path, outputPath)
+						: outputPath;
+
+				fileSet.add(new BspFileEntry(path, vmfPath));
 			}
 		}
 
