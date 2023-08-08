@@ -11,8 +11,7 @@ public class TacticalInterventionDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Tactical Intervention")
 			.setAppId(SourceAppId.TACTICAL_INTERVENTION)
-			.setVersionMin(20)
-			.setVersionMax(21)
+			.setVersionRange(20, 21)
 			.setFilePattern(Pattern.compile("^mis_$"))
 			.setEntities(
 					"func_capture_zone",

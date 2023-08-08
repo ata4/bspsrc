@@ -11,7 +11,7 @@ public class ZombiePanicSourceDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Zombie Panic! Source")
 			.setAppId(SourceAppId.ZOMBIE_PANIC_SOURCE)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setFilePattern(Pattern.compile("^zp[aols]_"))
 			.setEntities(
 					"func_humanclip",

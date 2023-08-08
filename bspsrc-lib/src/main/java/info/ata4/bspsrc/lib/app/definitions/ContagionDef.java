@@ -11,7 +11,7 @@ public class ContagionDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Contagion")
 			.setAppId(SourceAppId.CONTAGION)
-			.setVersionMin(27)
+			.setVersion(27)
 			.setFilePattern(Pattern.compile("^(ch|ce|cx)_$"))
 			.setEntities(
 					"extraction_area",

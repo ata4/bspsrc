@@ -11,7 +11,7 @@ public class HalfLife2EpisodeOneDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Half-Life 2: Episode One")
 			.setAppId(SourceAppId.HALF_LIFE_2_EP1)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setFilePattern(Pattern.compile("^ep1_"))
 			.setPointsEntities(10)
 			.setEntities(

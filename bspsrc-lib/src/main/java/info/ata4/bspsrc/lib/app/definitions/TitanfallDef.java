@@ -11,7 +11,7 @@ public class TitanfallDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Titanfall")
 			.setAppId(SourceAppId.TITANFALL)
-			.setVersionMin(29)
+			.setVersion(29)
 			.setFilePattern(Pattern.compile("^mp_$"))
 			.setEntities(
 					"env_dropzone",

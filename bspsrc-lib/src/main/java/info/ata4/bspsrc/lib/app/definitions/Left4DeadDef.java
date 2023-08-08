@@ -11,7 +11,7 @@ public class Left4DeadDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Left 4 Dead")
 			.setAppId(SourceAppId.LEFT_4_DEAD)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setFilePattern(Pattern.compile("^l4d_"))
 			.setEntities(
 					"env_outtro_stats",

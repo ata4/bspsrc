@@ -9,7 +9,7 @@ public class TheShipDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("The Ship")
 			.setAppId(SourceAppId.THE_SHIP)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setEntities(
 					"ai_shipmate",
 					"ship_base_interaction",

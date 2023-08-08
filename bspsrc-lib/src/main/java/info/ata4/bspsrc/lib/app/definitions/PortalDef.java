@@ -11,7 +11,7 @@ public class PortalDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Portal")
 			.setAppId(SourceAppId.PORTAL)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setFilePattern(Pattern.compile("^(testchmb_a|escape)_"))
 			.setEntities(
 					"env_portal_credits",

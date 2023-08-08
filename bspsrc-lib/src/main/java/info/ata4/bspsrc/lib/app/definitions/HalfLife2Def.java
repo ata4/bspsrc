@@ -11,8 +11,7 @@ public class HalfLife2Def {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Half-Life 2")
 			.setAppId(SourceAppId.HALF_LIFE_2)
-			.setVersionMin(17)
-			.setVersionMax(20)
+			.setVersionRange(17, 20)
 			.setFilePattern(Pattern.compile("^d[1-3]_"))
 			.setPointsEntities(5)
 			.setEntities(

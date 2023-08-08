@@ -11,7 +11,7 @@ public class BlackMesaDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Black Mesa")
 			.setAppId(SourceAppId.BLACK_MESA)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setFilePattern(Pattern.compile("^(bm_c[0-5]a[0-5][a-i][1]?)|(dm_.*)$"))
 			.setEntities(
 					"ai_goal_throw_prop",

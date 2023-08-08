@@ -11,7 +11,7 @@ public class SiNEpisodesEmergenceDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("SiN Episodes: Emergence")
 			.setAppId(SourceAppId.SIN_EPISODES_EMERGENCE)
-			.setVersionMin(19)
+			.setVersion(19)
 			.setFilePattern(Pattern.compile("^arena_$"))
 			.setEntities(
 					"env_poison_gas",

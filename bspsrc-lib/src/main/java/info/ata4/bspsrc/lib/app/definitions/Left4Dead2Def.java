@@ -11,7 +11,7 @@ public class Left4Dead2Def {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Left 4 Dead 2")
 			.setAppId(SourceAppId.LEFT_4_DEAD_2)
-			.setVersionMin(21)
+			.setVersion(21)
 			.setFilePattern(Pattern.compile("^c\\d{1,2}m\\d{1,2}_"))
 			.setEntities(
 					"ambient_music",

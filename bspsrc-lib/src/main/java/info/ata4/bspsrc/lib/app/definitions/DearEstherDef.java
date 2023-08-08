@@ -11,7 +11,7 @@ public class DearEstherDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Dear Esther")
 			.setAppId(SourceAppId.DEAR_ESTHER)
-			.setVersionMin(21)
+			.setVersion(21)
 			.setFilePattern(Pattern.compile("^donnelley|esther|jakobson|paul$"))
 			.setEntities(
 					"de_env_wind",

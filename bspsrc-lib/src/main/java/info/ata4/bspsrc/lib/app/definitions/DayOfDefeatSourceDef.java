@@ -11,8 +11,7 @@ public class DayOfDefeatSourceDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Day of Defeat: Source")
 			.setAppId(SourceAppId.DAY_OF_DEFEAT_SOURCE)
-			.setVersionMin(19)
-			.setVersionMax(20)
+			.setVersionRange(19, 20)
 			.setFilePattern(Pattern.compile("^dod_"))
 			.setEntities(
 					"dod_bomb_dispenser",

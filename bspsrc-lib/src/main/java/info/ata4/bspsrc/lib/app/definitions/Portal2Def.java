@@ -11,7 +11,7 @@ public class Portal2Def {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Portal 2")
 			.setAppId(SourceAppId.PORTAL_2)
-			.setVersionMin(21)
+			.setVersion(21)
 			.setFilePattern(Pattern.compile("^(mp_coop|sp_a[1-5])_"))
 			.setEntities(
 					"env_lightrail_endpoint",

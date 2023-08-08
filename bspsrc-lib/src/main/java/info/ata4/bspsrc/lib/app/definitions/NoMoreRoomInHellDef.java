@@ -11,7 +11,7 @@ public class NoMoreRoomInHellDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("No More Room in Hell")
 			.setAppId(SourceAppId.NO_MORE_ROOM_IN_HELL)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setFilePattern(Pattern.compile("^[nmo|nms]_"))
 			.setEntities(
 					"func_ff_blocker",

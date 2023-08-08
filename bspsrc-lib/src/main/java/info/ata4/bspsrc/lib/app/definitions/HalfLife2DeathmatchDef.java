@@ -11,8 +11,7 @@ public class HalfLife2DeathmatchDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Half-Life 2: Deathmatch")
 			.setAppId(SourceAppId.HALF_LIFE_2_DEATHMATCH)
-			.setVersionMin(19)
-			.setVersionMax(20)
+			.setVersionRange(19, 20)
 			.setFilePattern(Pattern.compile("^dm_"))
 			.setPointsEntities(3)
 			.setEntities(
