@@ -63,7 +63,7 @@ public class DataReaderUtil {
 			throw new IOException(String.format(
 					"DStruct '%s' bytes read: %d; expected: %d",
 					dStruct.getClass().getSimpleName(),
-					position,
+					reader.position() - position,
 					dStruct.getSize()
 			));
 		}
