@@ -56,4 +56,5 @@ public class SourceAppId {
     public static final int TITANFALL = 1454890;
 
     public static final int CYBER_DIVER = -500;
+    public static final int STRATA_SOURCE = -1000;
 }

@@ -57,6 +57,7 @@ public class SourceAppDB {
             PortalDef.APP,
             Postal3Def.APP,
             SiNEpisodesEmergenceDef.APP,
+            StrataSourceDef.APP,
             SynergyDef.APP,
             TacticalInterventionDef.APP,
             TeamFortress2Def.APP,
