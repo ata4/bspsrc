@@ -11,8 +11,7 @@ public class CounterStrikeSourceDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Counter-Strike: Source")
 			.setAppId(SourceAppId.COUNTER_STRIKE_SOURCE)
-			.setVersionMin(19)
-			.setVersionMax(20)
+			.setVersionRange(19, 20)
 			.setFilePattern(Pattern.compile("^[de|cs]_"))
 			.setEntities(
 					"func_bomb_target",

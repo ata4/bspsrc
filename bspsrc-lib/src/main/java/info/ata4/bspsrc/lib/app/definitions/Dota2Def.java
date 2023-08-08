@@ -11,8 +11,7 @@ public class Dota2Def {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Dota 2")
 			.setAppId(SourceAppId.DOTA_2_BETA)
-			.setVersionMin(22)
-			.setVersionMax(23)
+			.setVersionRange(22, 23)
 			.setFilePattern(Pattern.compile("^(dota|tutorial)_"))
 			.setEntities(
 					"ambient_creatures",

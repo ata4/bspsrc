@@ -9,7 +9,7 @@ public class VindictusMabinogiHeroesDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Vindictus / Mabinogi: Heroes")
 			.setAppId(SourceAppId.VINDICTUS)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setEntities(
 					"func_brush_projectile_remove",
 					"info_custom_eye_target",

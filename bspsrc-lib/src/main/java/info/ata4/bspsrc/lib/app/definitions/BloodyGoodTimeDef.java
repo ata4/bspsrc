@@ -9,7 +9,7 @@ public class BloodyGoodTimeDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Bloody Good Time")
 			.setAppId(SourceAppId.BLOODY_GOOD_TIME)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setEntities(
 					"info_player_spawn",
 					"npc_securityguard",

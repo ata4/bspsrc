@@ -29,12 +29,14 @@ public class SourceAppBuilder {
 		return this;
 	}
 
-	public SourceAppBuilder setVersionMin(int versionMin) {
-		this.versionMin = versionMin;
+	public SourceAppBuilder setVersion(int version) {
+		this.versionMin = version;
+		this.versionMax = version;
 		return this;
 	}
 
-	public SourceAppBuilder setVersionMax(int versionMax) {
+	public SourceAppBuilder setVersionRange(int versionMin, int versionMax) {
+		this.versionMin = versionMin;
 		this.versionMax = versionMax;
 		return this;
 	}

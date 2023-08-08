@@ -9,7 +9,7 @@ public class InsurgencyDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Insurgency")
 			.setAppId(SourceAppId.INSURGENCY)
-			.setVersionMin(21)
+			.setVersion(21)
 			// There are more insurgency related entities, but I decided to only use distinct
 			// ones because those should be enough to detect insurgency maps
 			.setEntities(

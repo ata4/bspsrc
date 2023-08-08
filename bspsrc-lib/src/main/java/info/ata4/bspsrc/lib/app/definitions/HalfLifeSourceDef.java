@@ -11,8 +11,7 @@ public class HalfLifeSourceDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Half-Life: Source")
 			.setAppId(SourceAppId.HALF_LIFE_SOURCE)
-			.setVersionMin(19)
-			.setVersionMax(19)
+			.setVersion(19)
 			.setFilePattern(Pattern.compile("^c[0-5]a[0-5][a-z]$"))
 			/*
 			The entity list for Half-Life: Source is mostly identical to that of

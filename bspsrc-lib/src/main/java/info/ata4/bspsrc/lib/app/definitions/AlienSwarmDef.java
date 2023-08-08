@@ -11,7 +11,7 @@ public class AlienSwarmDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Alien Swarm")
 			.setAppId(SourceAppId.ALIEN_SWARM)
-			.setVersionMin(21)
+			.setVersion(21)
 			.setFilePattern(Pattern.compile("^asi-"))
 			.setEntities(
 					"asw_alien_goo",

@@ -11,7 +11,7 @@ public class TeamFortress2Def {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Team Fortress 2")
 			.setAppId(SourceAppId.TEAM_FORTRESS_2)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setFilePattern(Pattern.compile("^(arena|cp|ctf|pl(r?)|t[cr]|koth|sd|mvm|bc|rd)_"))
 			.setEntities(
 					"bot_action_point",

@@ -11,7 +11,7 @@ public class BladeSymphonyDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Blade Symphony")
 			.setAppId(SourceAppId.BLADE_SYMPHONY)
-			.setVersionMin(21)
+			.setVersion(21)
 			.setFilePattern(Pattern.compile("^(duel|ffa|free|tut)_$"))
 			.setEntities(
 					"berimbau_duel",

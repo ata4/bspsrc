@@ -11,7 +11,7 @@ public class CounterStrikeGlobalOffensiveDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Counter-Strike: Global Offensive")
 			.setAppId(SourceAppId.COUNTER_STRIKE_GO)
-			.setVersionMin(21)
+			.setVersion(21)
 			.setFilePattern(Pattern.compile("^[de|cs]_"))
 			.setEntities(
 					"flashbang_projectile",

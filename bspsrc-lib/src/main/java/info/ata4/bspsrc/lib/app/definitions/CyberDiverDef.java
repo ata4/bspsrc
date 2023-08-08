@@ -9,7 +9,7 @@ public class CyberDiverDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Cyber Diver")
 			.setAppId(SourceAppId.CYBER_DIVER)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setEntities(
 					"bs_ammomachine",
 					"bs_cgatecore",

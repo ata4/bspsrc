@@ -9,7 +9,7 @@ public class ZenoClashDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Zeno Clash")
 			.setAppId(SourceAppId.ZENO_CLASH)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setEntities(
 					"NPC_Zeno_FatherMother_Finale",
 					"NPC_Zeno_FatherMother_Naked",

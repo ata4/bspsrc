@@ -11,7 +11,7 @@ public class DarkMessiahOfMightMagicDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Dark Messiah of Might & Magic")
 			.setAppId(SourceAppId.DARK_MESSIAH)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setFilePattern(Pattern.compile("^l\\d{2}_"))
 			.setEntities(
 					"env_entity_SpellCaster",

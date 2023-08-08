@@ -11,7 +11,7 @@ public class SynergyDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Synergy")
 			.setAppId(SourceAppId.SYNERGY)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setFilePattern(Pattern.compile("^syn_$"))
 			.setEntities(
 					"info_global_settings",

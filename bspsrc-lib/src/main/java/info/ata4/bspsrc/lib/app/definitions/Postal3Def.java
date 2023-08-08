@@ -9,7 +9,7 @@ public class Postal3Def {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Postal III")
 			.setAppId(SourceAppId.POSTAL_3)
-			.setVersionMin(20)
+			.setVersion(20)
 			.setEntities(
 					"p3_ai_goal_actbusy",
 					"p3_fsm_dummy",

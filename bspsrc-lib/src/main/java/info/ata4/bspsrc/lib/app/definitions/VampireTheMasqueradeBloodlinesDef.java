@@ -11,7 +11,7 @@ public class VampireTheMasqueradeBloodlinesDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Vampire: The Masquerade - Bloodlines")
 			.setAppId(SourceAppId.VAMPIRE_BLOODLINES)
-			.setVersionMin(17)
+			.setVersion(17)
 			.setFilePattern(Pattern.compile("^(ch|hw|la|s[mp])_"))
 			.setPointsEntities(30)
 			.setEntities(

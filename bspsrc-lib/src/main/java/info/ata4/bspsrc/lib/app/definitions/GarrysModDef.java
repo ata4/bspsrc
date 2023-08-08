@@ -11,7 +11,7 @@ public class GarrysModDef {
 	public static final SourceApp APP = new SourceAppBuilder()
 			.setName("Garry's Mod")
 			.setAppId(SourceAppId.GARRYS_MOD)
-			.setVersionMin(20)
+			.setVersion(20)
 			// There are very few hard-coded Garry's Mod entities, so priorize the prefix
 			.setPointsFilePattern(5)
 			.setFilePattern(Pattern.compile("^(gm(dm)?|mr|ifn|rp|sb|gms|zs|fw)_"))
