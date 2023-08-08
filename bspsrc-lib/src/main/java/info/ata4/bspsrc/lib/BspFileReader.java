@@ -673,7 +673,9 @@ public class BspFileReader {
         }
 
         Lump lump = bspFile.getLump(lumpType);
-        LumpReader<? extends T> lumpReader = lumpReaderCreator.apply(lump.getVersion());
+        // LUMP_ORIGINALFACES inherits version from LUMP_FACES
+        Lump versionSourceLump = lumpType == LumpType.LUMP_ORIGINALFACES ? bspFile.getLump(LumpType.LUMP_FACES) : lump;
+        LumpReader<? extends T> lumpReader = lumpReaderCreator.apply(versionSourceLump.getVersion());
         return readAbstractLump(lump, lumpReader);
     }
 
