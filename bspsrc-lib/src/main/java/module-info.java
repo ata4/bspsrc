@@ -15,4 +15,5 @@ module info.ata4.bspsrc.lib {
 	exports info.ata4.bspsrc.lib.nmo;
 	exports info.ata4.bspsrc.lib.struct;
 	exports info.ata4.bspsrc.lib.vector;
+	exports info.ata4.bspsrc.lib.exceptions;
 }

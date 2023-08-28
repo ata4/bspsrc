@@ -6,6 +6,7 @@ import info.ata4.bspsrc.app.util.log.Log4jUtil;
 import info.ata4.bspsrc.app.util.log.plugins.DialogAppender;
 import info.ata4.bspsrc.app.util.swing.FileExtensionFilter;
 import info.ata4.bspsrc.decompiler.BspSource;
+import info.ata4.bspsrc.lib.exceptions.BspException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -132,7 +133,7 @@ public class BspInfoFrame extends JFrame {
 
 			try {
 				model.load(fileChooser.getSelectedFile().toPath());
-			} catch (IOException ex) {
+			} catch (BspException | IOException ex) {
 				L.error("Error occurred loading file", ex);
 			} finally {
 				setCursor(Cursor.getDefaultCursor());
@@ -164,7 +165,7 @@ public class BspInfoFrame extends JFrame {
 
 					model.load(files.get(files.size() - 1).toPath());
 					return true;
-				} catch (UnsupportedFlavorException | IOException e) {
+				} catch (UnsupportedFlavorException | BspException | IOException e) {
 					L.warn("Error in drag and drop", e);
 					return false;
 				}

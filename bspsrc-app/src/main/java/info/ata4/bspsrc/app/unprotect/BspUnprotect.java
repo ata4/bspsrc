@@ -11,6 +11,7 @@
 package info.ata4.bspsrc.app.unprotect;
 
 import info.ata4.bspsrc.lib.BspFile;
+import info.ata4.bspsrc.lib.exceptions.BspException;
 import info.ata4.bspsrc.lib.lump.Lump;
 import info.ata4.bspsrc.lib.lump.LumpFile;
 import info.ata4.bspsrc.lib.lump.LumpType;
@@ -79,7 +80,7 @@ public class BspUnprotect {
         try {
             bspFile = new BspFile();
             bspFile.load(file);
-        } catch (IOException ex) {
+        } catch (BspException | IOException ex) {
             throw new RuntimeException("Couldn't load BSP file", ex);
         }
 

@@ -11,6 +11,9 @@
 package info.ata4.bspsrc.lib;
 
 import info.ata4.bspsrc.common.util.PathUtil;
+import info.ata4.bspsrc.lib.exceptions.BspException;
+import info.ata4.bspsrc.lib.exceptions.GoldSrcFormatException;
+import info.ata4.bspsrc.lib.exceptions.ZipFileBspException;
 import info.ata4.bspsrc.lib.io.LzmaUtil;
 import info.ata4.bspsrc.lib.io.XORUtils;
 import info.ata4.bspsrc.lib.lump.GameLump;
@@ -84,19 +87,19 @@ public class BspFile {
     public BspFile() {
     }
 
-    public BspFile(Path file, boolean memMapping) throws IOException {
+    public BspFile(Path file, boolean memMapping) throws BspException, IOException {
         loadImpl(file, memMapping);
     }
 
-    public BspFile(Path file) throws IOException {
+    public BspFile(Path file) throws BspException, IOException {
         loadImpl(file);
     }
 
-    private void loadImpl(Path file) throws IOException {
+    private void loadImpl(Path file) throws BspException, IOException {
         load(file);
     }
 
-    private void loadImpl(Path file, boolean memMapping) throws IOException {
+    private void loadImpl(Path file, boolean memMapping) throws BspException, IOException {
         load(file, memMapping);
     }
 
@@ -110,7 +113,7 @@ public class BspFile {
      *            restrictions of the JVM.
      * @throws IOException if the file can't be opened or read
      */
-    public void load(Path file, boolean memMapping) throws IOException {
+    public void load(Path file, boolean memMapping) throws BspException, IOException {
         this.file = file;
         this.name = PathUtil.nameWithoutExtension(file).orElse(null);
 
@@ -177,7 +180,7 @@ public class BspFile {
      * @param file BSP file to open
      * @throws IOException if the file can't be opened or read
      */
-    public void load(Path file) throws IOException {
+    public void load(Path file) throws BspException, IOException {
         load(file, true);
     }
 
@@ -230,7 +233,7 @@ public class BspFile {
             // this code is in place because a surprising amount of people try to decompile zip files
             L.error("File is a zip archive. Make sure to first extract any bsp file "
                     + "it might contain and then select these for decompilation.");
-            throw new BspException("Loaded file is a zip archive");
+            throw new ZipFileBspException("Loaded file is a zip archive");
         }
 
         // make sure we have enough room for reading
@@ -261,7 +264,7 @@ public class BspFile {
 
         if (ident == 0x1E) {
             // No GoldSrc! Please!
-            throw new BspException("The GoldSrc format is not supported");
+            throw new GoldSrcFormatException("The GoldSrc format is not supported");
         }
 
         // check for XOR encryption

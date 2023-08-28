@@ -13,6 +13,7 @@ import info.ata4.bspsrc.decompiler.modules.texture.TextureSource;
 import info.ata4.bspsrc.decompiler.util.WindingFactory;
 import info.ata4.bspsrc.lib.BspFile;
 import info.ata4.bspsrc.lib.BspFileReader;
+import info.ata4.bspsrc.lib.exceptions.BspException;
 import info.ata4.bspsrc.lib.lump.AbstractLump;
 import info.ata4.bspsrc.lib.struct.BspData;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -46,7 +47,7 @@ public class BspInfoModel {
 	private List<GameLumpInfo> gameLumps = List.of();
 	private List<EmbeddedInfo> embeddedInfos = List.of();
 
-	public void load(Path filePath) throws IOException {
+	public void load(Path filePath) throws BspException, IOException {
 		bspFile = new BspFile();
 		bspFile.load(filePath);
 

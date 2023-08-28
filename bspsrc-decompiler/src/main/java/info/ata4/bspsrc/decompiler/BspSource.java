@@ -17,6 +17,7 @@ import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.bspsrc.lib.PakFile;
 import info.ata4.bspsrc.lib.app.SourceAppDB;
 import info.ata4.bspsrc.lib.app.SourceAppId;
+import info.ata4.bspsrc.lib.exceptions.BspException;
 import info.ata4.bspsrc.lib.nmo.NmoException;
 import info.ata4.bspsrc.lib.nmo.NmoFile;
 import org.apache.logging.log4j.CloseableThreadContext;
@@ -137,8 +138,7 @@ public class BspSource {
     /**
      * Starts the decompiling process
      */
-    private Set<Warning> decompile(BspFileEntry entry)
-            throws BspSourceException {
+    private Set<Warning> decompile(BspFileEntry entry) throws BspSourceException, BspException {
 
         var warnings = new HashSet<Warning>();
 
@@ -172,9 +172,8 @@ public class BspSource {
         if (config.unpackEmbedded) {
             try {
                 bsp.getPakFile().unpack(entry.getPakDir(), fileFilter);
-            } catch (IOException ex) {
-                warnings.add(Warning.ExtractEmbedded);
-                L.error("Can't extract embedded files", ex);
+            } catch (IOException e) {
+                throw new BspSourceException("Can't extract embedded files", e);
             }
         }
 
@@ -192,14 +191,11 @@ public class BspSource {
 	                // write nmos
 	                try {
 		                nmo.writeAsNmos(nmosFile);
-	                } catch (IOException ex) {
-                        warnings.add(Warning.WriteNmos);
-		                L.error("Error while writing nmos", ex);
+	                } catch (IOException e) {
+                        throw new BspSourceException("Error while writing nmos", e);
 	                }
-                } catch (IOException | NmoException ex) {
-                    warnings.add(Warning.LoadNmo);
-                    L.error("Can't load " + nmoFile, ex);
-                    nmo = null;
+                } catch (NmoException | IOException e) {
+                    throw new BspSourceException("Can't load " + nmoFile, e);
                 }
             } else {
                 L.warn("Missing .nmo file! If the bsp is for the objective game mode, its objectives will be missing");

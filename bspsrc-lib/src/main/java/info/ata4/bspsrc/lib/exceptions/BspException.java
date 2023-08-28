@@ -8,19 +8,16 @@
 **    May you share freely, never taking more than you give.
 **/
 
-package info.ata4.bspsrc.lib;
-
-import java.io.IOException;
+package info.ata4.bspsrc.lib.exceptions;
 
 /**
  * Thrown to indicate reading errors in BSP file structures.
  * 
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class BspException extends IOException {
+public class BspException extends Exception {
 
     public BspException() {
-        super();
     }
 
     public BspException(String message) {
@@ -35,4 +32,7 @@ public class BspException extends IOException {
         super(cause);
     }
 
+    public BspException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }
