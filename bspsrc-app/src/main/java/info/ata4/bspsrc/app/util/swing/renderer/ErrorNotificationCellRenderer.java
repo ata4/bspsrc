@@ -1,19 +1,21 @@
 package info.ata4.bspsrc.app.util.swing.renderer;
 
 import com.formdev.flatlaf.ui.FlatLineBorder;
-import info.ata4.bspsrc.app.src.gui.data.ErrorWarningNotification;
+import info.ata4.bspsrc.app.src.gui.data.ErrorNotification;
 import info.ata4.bspsrc.app.util.swing.ui.Icons;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class ErrorWarningNotificationCellRenderer implements ListCellRenderer<ErrorWarningNotification> {
+public class ErrorNotificationCellRenderer implements ListCellRenderer<ErrorNotification> {
 
 	private final JPanel pnlSpacing = new JPanel(new BorderLayout());
 	private final JPanel pnl = new JPanel(new BorderLayout());
 	private final JLabel lblMessage = new JLabel();
 
-	public ErrorWarningNotificationCellRenderer() {
+	public ErrorNotificationCellRenderer() {
+		lblMessage.setIcon(Icons.FAILED_ICON.derive(20, 20));
+
 		pnl.add(lblMessage);
 
 		pnlSpacing.setOpaque(false);
@@ -22,8 +24,8 @@ public class ErrorWarningNotificationCellRenderer implements ListCellRenderer<Er
 
 	@Override
 	public Component getListCellRendererComponent(
-			JList<? extends ErrorWarningNotification> list,
-			ErrorWarningNotification value,
+			JList<? extends ErrorNotification> list,
+			ErrorNotification value,
 			int index,
 			boolean isSelected,
 			boolean cellHasFocus
@@ -43,10 +45,6 @@ public class ErrorWarningNotificationCellRenderer implements ListCellRenderer<Er
 			lblMessage.setForeground(list.getForeground());
 		}
 
-		lblMessage.setIcon(switch (value.type()) {
-			case ERROR -> Icons.FAILED_ICON.derive(20, 20);
-			case WARNING -> Icons.WARNING_ICON.derive(20, 20);
-		});
 		lblMessage.setText(value.message());
 
 		// recursive?

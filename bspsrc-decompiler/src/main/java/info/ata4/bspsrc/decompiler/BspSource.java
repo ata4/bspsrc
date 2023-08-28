@@ -29,9 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
@@ -126,8 +124,8 @@ public class BspSource {
         try (var closeable = CloseableThreadContext.put(DECOMPILE_TASK_ID_IDENTIFIER, uuid.toString())) {
             outputQueue.add(new Signal.TaskStarted(index));
             try {
-                var warnings = decompile(entry);
-                outputQueue.add(new Signal.TaskFinished(index, warnings));
+                decompile(entry);
+                outputQueue.add(new Signal.TaskFinished(index));
             } catch (Throwable e) {
                 L.error("Error occurred decompiling '%s'".formatted(entry.getBspFile()),  e);
                 outputQueue.add(new Signal.TaskFailed(index, e));
@@ -138,10 +136,7 @@ public class BspSource {
     /**
      * Starts the decompiling process
      */
-    private Set<Warning> decompile(BspFileEntry entry) throws BspSourceException, BspException {
-
-        var warnings = new HashSet<Warning>();
-
+    private void decompile(BspFileEntry entry) throws BspSourceException, BspException {
         Path bspFile = entry.getBspFile();
         Path vmfFile = entry.getVmfFile();
 
@@ -223,8 +218,6 @@ public class BspSource {
         } catch (IOException ex) {
             throw new BspSourceException("Error decompiling '%s' to '%s'".formatted(bspFile, vmfFile), ex);
         }
-
-        return warnings;
     }
 
     private VmfWriter getVmfWriter(File vmfFile) throws IOException {
@@ -242,13 +235,7 @@ public class BspSource {
 
     public sealed interface Signal {
         record TaskStarted(int index) implements Signal {}
-        record TaskFinished(int index, Set<Warning> warnings) implements Signal {}
+        record TaskFinished(int index) implements Signal {}
         record TaskFailed(int index, Throwable exception) implements Signal {}
-    }
-
-    public enum Warning {
-        ExtractEmbedded,
-        LoadNmo,
-        WriteNmos
     }
 }

@@ -10,7 +10,6 @@ public record Task(
 		PENDING,
 		RUNNING,
 		FINISHED,
-		FINISHED_WITH_WARNINGS,
 		FAILED
 	}
 }

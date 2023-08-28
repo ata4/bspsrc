@@ -19,9 +19,9 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static info.ata4.bspsrc.app.util.ErrorMessageUtil.decompileExceptionToMessage;
 import static picocli.CommandLine.*;
 
 @Command(
@@ -204,26 +204,13 @@ public class BspSourceCliCommand implements Callable<Void> {
 
 	private static void printTaskFailed(List<BspFileEntry> entries, BspSource.Signal.TaskFailed task) {
 		Path bspFile = entries.get(task.index()).getBspFile();
-		L.error("'%s': Failed with exception:".formatted(bspFile), task.exception());
+		L.error("'{}': Failed with exception: {}. For more details see the log file.",
+				bspFile, decompileExceptionToMessage(task.exception()));
 	}
 
 	private static void printTaskFinished(List<BspFileEntry> entries, BspSource.Signal.TaskFinished task) {
 		Path bspFile = entries.get(task.index()).getBspFile();
-		if (task.warnings().isEmpty()) {
-			L.info("'{}': Decompiled successfully.", bspFile);
-		} else {
-			L.warn(
-					"'{}': Decompiled with warnings: {}. For more details see the log file.",
-					bspFile,
-					task.warnings().stream()
-							.map(warning -> switch (warning) {
-								case ExtractEmbedded -> "Error occurred extracting embedded files";
-								case LoadNmo -> "Error occurred loading nmo file";
-								case WriteNmos -> "Error occurred writing nmos file";
-							})
-							.collect(Collectors.joining(". "))
-			);
-		}
+		L.info("'{}': Decompiled successfully.", bspFile);
 	}
 
 	private BspSourceConfig getConfig() {

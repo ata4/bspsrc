@@ -1,12 +1,12 @@
 package info.ata4.bspsrc.app.src.gui.components.task;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import info.ata4.bspsrc.app.src.gui.data.ErrorWarningNotification;
+import info.ata4.bspsrc.app.src.gui.data.ErrorNotification;
 import info.ata4.bspsrc.app.src.gui.data.Task;
 import info.ata4.bspsrc.app.src.gui.models.DecompileTaskModel;
 import info.ata4.bspsrc.app.util.swing.GuiUtil;
 import info.ata4.bspsrc.app.util.swing.model.ReadonlyListTableModel;
-import info.ata4.bspsrc.app.util.swing.renderer.ErrorWarningNotificationCellRenderer;
+import info.ata4.bspsrc.app.util.swing.renderer.ErrorNotificationCellRenderer;
 import info.ata4.bspsrc.app.util.swing.renderer.NoFocusProxyCellRenderer;
 import info.ata4.bspsrc.app.util.swing.renderer.PathCellRenderer;
 import info.ata4.bspsrc.app.util.swing.renderer.StateCellRender;
@@ -63,11 +63,11 @@ public class DecompileTaskDialog extends JDialog {
 		setEditable(false);
 	}};
 
-	private final DefaultListModel<ErrorWarningNotification> lstNotificationsModel = new DefaultListModel<>();
-	private final JList<ErrorWarningNotification> lstNotifications = new JList<>() {{
+	private final DefaultListModel<ErrorNotification> lstNotificationsModel = new DefaultListModel<>();
+	private final JList<ErrorNotification> lstNotifications = new JList<>() {{
 		setModel(lstNotificationsModel);
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		setCellRenderer(new ErrorWarningNotificationCellRenderer());
+		setCellRenderer(new ErrorNotificationCellRenderer());
 
 		getSelectionModel().addListSelectionListener(e -> {
 			if (e.getValueIsAdjusting())

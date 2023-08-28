@@ -1,8 +1,7 @@
 package info.ata4.bspsrc.app.src.gui.models;
 
-import info.ata4.bspsrc.app.src.gui.data.ErrorWarningNotification;
+import info.ata4.bspsrc.app.src.gui.data.ErrorNotification;
 import info.ata4.bspsrc.app.src.gui.data.Task;
-import info.ata4.bspsrc.app.util.ErrorMessageUtil;
 import info.ata4.bspsrc.app.util.log.Log4jUtil;
 import info.ata4.bspsrc.decompiler.BspFileEntry;
 import info.ata4.bspsrc.decompiler.BspSource;
@@ -20,6 +19,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static info.ata4.bspsrc.app.util.ErrorMessageUtil.decompileExceptionToMessage;
 import static java.util.Objects.requireNonNull;
 
 public class DecompileTaskModel {
@@ -28,7 +28,7 @@ public class DecompileTaskModel {
 
 	private final List<Consumer<State>> stateListeners = new ArrayList<>();
 	private final List<Consumer<Integer>> taskChangeListeners = new ArrayList<>();
-	private final List<Consumer<ErrorWarningNotification>> notificationsListeners = new ArrayList<>();
+	private final List<Consumer<ErrorNotification>> notificationsListeners = new ArrayList<>();
 
 	private State state = new State.Running();
 	private final List<Task> tasks;
@@ -57,7 +57,7 @@ public class DecompileTaskModel {
 		taskChangeListeners.add(listener);
 	}
 
-	public void addNotificationListener(Consumer<ErrorWarningNotification> listener) {
+	public void addNotificationListener(Consumer<ErrorNotification> listener) {
 		notificationsListeners.add(listener);
 	}
 
@@ -120,7 +120,7 @@ public class DecompileTaskModel {
 					state = Task.State.RUNNING;
 				} else if (signal instanceof BspSource.Signal.TaskFinished taskSig) {
 					taskIndex = taskSig.index();
-					state = taskSig.warnings().isEmpty() ? Task.State.FINISHED : Task.State.FINISHED_WITH_WARNINGS;
+					state = Task.State.FINISHED;
 				} else if (signal instanceof BspSource.Signal.TaskFailed taskSig) {
 					taskIndex = taskSig.index();
 					state = Task.State.FAILED;
@@ -129,8 +129,11 @@ public class DecompileTaskModel {
 				}
 
 				updateTask(taskIndex, task -> new Task(state, task.bspFile()));
-				for (var notification : ErrorMessageUtil.signalToNotification(signal))
-				{
+				if (signal instanceof BspSource.Signal.TaskFailed failed) {
+					var notification = new ErrorNotification(
+							decompileExceptionToMessage(failed.exception()),
+							failed.index()
+					);
 					notificationsListeners.forEach(consumer -> consumer.accept(notification));
 				}
 			}

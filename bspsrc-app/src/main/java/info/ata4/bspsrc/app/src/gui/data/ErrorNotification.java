@@ -2,17 +2,11 @@ package info.ata4.bspsrc.app.src.gui.data;
 
 import static java.util.Objects.requireNonNull;
 
-public record ErrorWarningNotification(
-		Type type,
+public record ErrorNotification(
 		String message,
 		int taskIndex
 ) {
-	public ErrorWarningNotification {
+	public ErrorNotification {
 		requireNonNull(message);
-	}
-
-	public enum Type {
-		ERROR,
-		WARNING
 	}
 }
