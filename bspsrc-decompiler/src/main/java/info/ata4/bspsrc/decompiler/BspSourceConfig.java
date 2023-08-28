@@ -65,6 +65,48 @@ public final class BspSourceConfig {
 
     public boolean debug = false;
 
+    public BspSourceConfig() {}
+
+    /**
+     * Copy constructor
+     */
+    public BspSourceConfig(BspSourceConfig config) {
+        this.defaultAppId = config.defaultAppId;
+        this.brushMode = config.brushMode;
+        this.sourceFormat = config.sourceFormat;
+        this.backfaceTexture = config.backfaceTexture;
+        this.faceTexture = config.faceTexture;
+        this.fixCubemapTextures = config.fixCubemapTextures;
+        this.fixEntityRot = config.fixEntityRot;
+        this.fixToolTextures = config.fixToolTextures;
+        this.loadLumpFiles = config.loadLumpFiles;
+        this.nullOutput = config.nullOutput;
+        this.skipProt = config.skipProt;
+        this.unpackEmbedded = config.unpackEmbedded;
+        this.smartUnpack = config.smartUnpack;
+        this.backfaceDepth = config.backfaceDepth;
+        this.maxCubemapSides = config.maxCubemapSides;
+        this.maxOverlaySides = config.maxOverlaySides;
+        this.detailMerge = config.detailMerge;
+        this.detailMergeThresh = config.detailMergeThresh;
+        this.apForceManualMapping = config.apForceManualMapping;
+        this.occForceManualMapping = config.occForceManualMapping;
+        this.writeAreaportals = config.writeAreaportals;
+        this.writeBrushEntities = config.writeBrushEntities;
+        this.writeCameras = config.writeCameras;
+        this.writeCubemaps = config.writeCubemaps;
+        this.writeDetails = config.writeDetails;
+        this.writeDisp = config.writeDisp;
+        this.writeOccluders = config.writeOccluders;
+        this.writeOverlays = config.writeOverlays;
+        this.writePointEntities = config.writePointEntities;
+        this.writeStaticProps = config.writeStaticProps;
+        this.writeVisgroups = config.writeVisgroups;
+        this.writeWorldBrushes = config.writeWorldBrushes;
+        this.writeLadders = config.writeLadders;
+        this.debug = config.debug;
+    }
+
     public void dumpToLog() {
         dumpToLog(L);
     }

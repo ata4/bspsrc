@@ -81,11 +81,22 @@
                 <artifactId>flatlaf</artifactId>
                 <version>3.1</version>
             </dependency>
+	        <dependency>
+		        <groupId>com.formdev</groupId>
+		        <artifactId>flatlaf-extras</artifactId>
+		        <version>3.1.1</version>
+	        </dependency>
 
             <dependency>
                 <groupId>com.github.Dansoftowner</groupId>
                 <artifactId>jSystemThemeDetector</artifactId>
                 <version>3.6</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.miglayout</groupId>
+                <artifactId>miglayout-swing</artifactId>
+                <version>11.1</version>
             </dependency>
 
             <!-- Dependencies from jitpack.io -->

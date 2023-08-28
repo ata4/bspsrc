@@ -158,10 +158,7 @@ public class BspSource {
         try {
             bsp.load(bspFile);
         } catch (IOException ex) {
-            // Log AND throw exception. Logging is for decompilation log and exception for task result
-            String message = "Error loading '%s'".formatted(bspFile);
-            L.error(message, ex);
-            throw new BspSourceException(message, ex);
+            throw new BspSourceException("Error loading '%s'".formatted(bspFile), ex);
         }
 
         if (config.loadLumpFiles) {
@@ -228,10 +225,7 @@ public class BspSource {
             decompiler.start();
             L.info("Finished decompiling {}", bspFile);
         } catch (IOException ex) {
-            // Log AND throw exception. Logging is for decompilation log and exception for task result
-            String message = "Error decompiling '%s' to '%s'".formatted(bspFile, vmfFile);
-            L.error(message, ex);
-            throw new BspSourceException(message, ex);
+            throw new BspSourceException("Error decompiling '%s' to '%s'".formatted(bspFile, vmfFile), ex);
         }
 
         return warnings;

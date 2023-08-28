@@ -40,8 +40,8 @@ public class EmbeddedPanel extends JPanel {
 		tblFiles.setAutoCreateRowSorter(true);
 		tblFiles.getColumnModel().getColumn(1).setCellRenderer(new ByteSizeCellRenderer());
 
-		setColumnWidth(tblFiles, 0, "-".repeat(20), false);
-		setColumnWidth(tblFiles, 1, 100_000, true);
+		setColumnWidth(tblFiles, 0, "-".repeat(20), false, false);
+		setColumnWidth(tblFiles, 1, 100_000, true, false);
 
 		tblFiles.setPreferredScrollableViewportSize(new Dimension(tblFiles.getPreferredSize().width, -1));
 

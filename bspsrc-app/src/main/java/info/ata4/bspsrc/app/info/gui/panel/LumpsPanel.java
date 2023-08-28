@@ -48,14 +48,14 @@ public class LumpsPanel extends JPanel {
 		setColumnWidth(tblLumps, 0, Arrays.stream(LumpType.values())
 				.map(LumpType::getIndex)
 				.max(Integer::compareTo)
-				.orElseThrow(), true);
+				.orElseThrow(), true, false);
 		setColumnWidth(tblLumps, 1, Arrays.stream(LumpType.values())
 				.map(Enum::name)
 				.max(Comparator.comparingInt(String::length))
-				.orElseThrow(), false);
-		setColumnWidth(tblLumps, 2, 100_100, true);
-		setColumnWidth(tblLumps, 3, 100, true);
-		setColumnWidth(tblLumps, 4, 10, true);
+				.orElseThrow(), false, false);
+		setColumnWidth(tblLumps, 2, 100_100, true, false);
+		setColumnWidth(tblLumps, 3, 100, true, false);
+		setColumnWidth(tblLumps, 4, 10, true, false);
 
 		tblLumps.setPreferredScrollableViewportSize(new Dimension(tblLumps.getPreferredSize().width, -1));
 

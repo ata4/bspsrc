@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config" strict="true">
+	<Appenders>
+		<Appender type="Console" name="Console">
+			<Layout type="PatternLayout" pattern="%d{HH:mm:ss.SSS} %-5level %msg%n"/>
+			<Filter type="IsDecompileTaskFilter" onMatch="DENY"/>
+		</Appender>
+	</Appenders>
+	<Loggers>
+		<Root level="info">
+			<AppenderRef ref="Console"/>
+		</Root>
+	</Loggers>
+</Configuration>

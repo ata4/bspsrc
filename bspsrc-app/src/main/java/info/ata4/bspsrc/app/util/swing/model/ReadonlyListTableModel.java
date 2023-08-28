@@ -18,6 +18,11 @@ public class ReadonlyListTableModel<T> extends AbstractTableModel {
 		fireTableDataChanged();
 	}
 
+	public void updateData(List<T> data) {
+		this.data = List.copyOf(data);
+		fireTableRowsUpdated(0, data.size() - 1);
+	}
+
 	@Override
 	public String getColumnName(int column) {
 		return columns.get(column).name();

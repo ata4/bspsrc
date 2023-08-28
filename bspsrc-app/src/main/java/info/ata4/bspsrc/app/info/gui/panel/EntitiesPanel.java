@@ -42,8 +42,8 @@ public class EntitiesPanel extends JPanel {
 		tblEntities.setModel(tableModel);
 		tblEntities.setAutoCreateRowSorter(true);
 
-		setColumnWidth(tblEntities, 0, "-".repeat(20), false);
-		setColumnWidth(tblEntities, 1, 100, true);
+		setColumnWidth(tblEntities, 0, "-".repeat(20), false, false);
+		setColumnWidth(tblEntities, 1, 100, true, false);
 
 		var scrlTable = new JScrollPane(tblEntities, VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_NEVER);
 		add(scrlTable, BorderLayout.CENTER);

@@ -1,6 +1,9 @@
 package info.ata4.bspsrc.app.util.log;
 
+import info.ata4.bspsrc.app.util.log.plugins.DocumentAppender;
+import info.ata4.bspsrc.decompiler.BspFileEntry;
 import info.ata4.bspsrc.decompiler.BspSource;
+import info.ata4.io.util.PathUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,12 +17,16 @@ import org.apache.logging.log4j.core.filter.ThreadContextMapFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.core.util.KeyValuePair;
 
+import javax.swing.text.Document;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import static info.ata4.bspsrc.common.util.JavaUtil.zip;
 
 /**
  * Utility class to configure Log4j2 logging
@@ -27,8 +34,11 @@ import java.util.stream.Collectors;
 public class Log4jUtil {
 	private static final Logger L = LogManager.getLogger();
 
-	public static final PatternLayout DEFAULT_PATTERN = PatternLayout.newBuilder()
+	public static final PatternLayout FILE_PATTERN = PatternLayout.newBuilder()
 			.withPattern("%d{HH:mm:ss.SSS} %-5level %msg%n")
+			.build();
+	public static final PatternLayout UI_PATTERN = PatternLayout.newBuilder()
+			.withPattern("[%level{WARN=warning, DEBUG=debug, ERROR=error, TRACE=trace, INFO=info}] %msg%n")
 			.build();
 
 	public static void configure(URL configUrl) {
@@ -48,23 +58,33 @@ public class Log4jUtil {
 		((org.apache.logging.log4j.core.Logger) LogManager.getRootLogger()).setLevel(level);
 	}
 
-	public static CloseableScope addAppender(Appender appender) {
-		var rootLogger = ((org.apache.logging.log4j.core.Logger) LogManager.getRootLogger());
+	public static CloseableScope addAppenders(Appender... appenders) {
+		var rootLogger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
 
-		rootLogger.addAppender(appender);
-		appender.start();
+		for (Appender appender : appenders)
+		{
+			rootLogger.addAppender(appender);
+			appender.start();
+		}
 
 		return () -> {
-			rootLogger.removeAppender(appender);
-			appender.stop();
+			for (Appender appender : appenders)
+			{
+				rootLogger.removeAppender(appender);
+				appender.stop();
+			}
 		};
 	}
 
-	public static CloseableScope configureDecompilationLogFileAppender(Map<UUID, Path> logFileOutputMap) {
+	public static CloseableScope configureDecompilationLogFileAppender(
+			List<UUID> entryUuids,
+			List<BspFileEntry> entries
+	) {
 		LoggerContext context = LoggerContext.getContext(false);
 		Configuration config = context.getConfiguration();
 
-		var appenders = logFileOutputMap.entrySet().stream()
+		var appenders = StreamSupport.stream(zip(entryUuids, entries).spliterator(), false)
+				.map(entry -> Map.entry(entry.getKey(), PathUtils.setExtension(entry.getValue().getVmfFile(), "log")))
 				.map(entry -> FileAppender.newBuilder()
 						.setName("Decompile task file appender %s".formatted(entry.getKey()))
 						.setFilter(ThreadContextMapFilter.createFilter(
@@ -75,24 +95,41 @@ public class Log4jUtil {
 								Filter.Result.ACCEPT,
 								Filter.Result.DENY
 						))
-						.setLayout(DEFAULT_PATTERN)
+						.setLayout(FILE_PATTERN)
 						.withAppend(false)
 						.withFileName(entry.getValue().toString())
 						.setConfiguration(config)
 						.build())
 				.collect(Collectors.toSet());
 
-		var rootLogger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
+		return addAppenders(appenders.toArray(Appender[]::new));
+	}
 
-		appenders.forEach(fileAppender -> {
-			rootLogger.addAppender(fileAppender);
-			fileAppender.start();
-		});
+	public static CloseableScope configureDecompilationDocumentAppenders(
+			List<UUID> entryUuids,
+			List<Document> taskLogs
+	) {
+		LoggerContext context = LoggerContext.getContext(false);
+		Configuration config = context.getConfiguration();
 
-		return () -> appenders.forEach(fileAppender -> {
-			rootLogger.removeAppender(fileAppender);
-			fileAppender.stop();
-		});
+		var appenders = StreamSupport.stream(zip(entryUuids, taskLogs).spliterator(), false)
+				.map(entry -> DocumentAppender.newBuilder()
+						.setName("Decompile task document appender %s".formatted(entry.getKey()))
+						.setDocument(entry.getValue())
+						.setFilter(ThreadContextMapFilter.createFilter(
+								new KeyValuePair[]{
+										new KeyValuePair(BspSource.DECOMPILE_TASK_ID_IDENTIFIER, entry.getKey().toString())
+								},
+								null,
+								Filter.Result.ACCEPT,
+								Filter.Result.DENY
+						))
+						.setLayout(UI_PATTERN)
+						.setConfiguration(config)
+						.build())
+				.collect(Collectors.toSet());
+
+		return addAppenders(appenders.toArray(Appender[]::new));
 	}
 
 	public interface CloseableScope extends AutoCloseable {

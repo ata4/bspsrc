@@ -109,7 +109,7 @@ public class BspInfoFrame extends JFrame {
 
 	private void initErrorDialog() {
 		var dialogAppender = DialogAppender.createAppender("DialogAppender" + hashCode(), null, null, false, this);
-		var appenderCloseable = Log4jUtil.addAppender(dialogAppender);
+		var appenderCloseable = Log4jUtil.addAppenders(dialogAppender);
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {

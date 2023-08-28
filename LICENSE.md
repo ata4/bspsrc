@@ -36,3 +36,7 @@ BSPSource uses the following libraries:
 * [jSystemThemeDetector](https://github.com/Dansoftowner/jSystemThemeDetector)
 
 which are licensed under the [Apache License version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+### BSD License
+
+BSPSource uses [MigLayout](https://www.miglayout.com/) under the [3-Clause BSD license](http://www.debian.org/misc/bsd.license).

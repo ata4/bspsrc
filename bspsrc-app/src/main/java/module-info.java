@@ -11,8 +11,12 @@ module info.ata4.bspsrc.app {
 	requires org.apache.commons.compress;
 	requires info.picocli;
 	requires com.formdev.flatlaf;
+	requires com.formdev.flatlaf.extras;
 	requires com.jthemedetector;
+	requires com.miglayout.core;
+	requires com.miglayout.swing;
 
 	opens info.ata4.bspsrc.app.src.cli;
 	opens info.ata4.bspsrc.app.util.log.plugins to org.apache.logging.log4j.core;
+	opens info.ata4.bspsrc.app.util.swing.ui;
 }

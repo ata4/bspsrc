@@ -43,10 +43,10 @@ public class GameLumpsPanel extends JPanel {
 		tblLumps.getColumnModel().getColumn(1).setCellRenderer(new ByteSizeCellRenderer());
 		tblLumps.getColumnModel().getColumn(2).setCellRenderer(new ProgressCellRenderer());
 
-		setColumnWidth(tblLumps, 0, "----", false);
-		setColumnWidth(tblLumps, 1, 100_100, true);
-		setColumnWidth(tblLumps, 2, 100, true);
-		setColumnWidth(tblLumps, 3, 10, true);
+		setColumnWidth(tblLumps, 0, "----", false, false);
+		setColumnWidth(tblLumps, 1, 100_100, true, false);
+		setColumnWidth(tblLumps, 2, 100, true, false);
+		setColumnWidth(tblLumps, 3, 10, true, false);
 
 		var scrlTable = new JScrollPane(tblLumps, VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_NEVER);
 		add(scrlTable, BorderLayout.CENTER);

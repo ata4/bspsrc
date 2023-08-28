@@ -1,5 +1,6 @@
 package info.ata4.bspsrc.app.src.cli;
 
+import info.ata4.bspsrc.app.util.BspPathUtil;
 import info.ata4.bspsrc.app.util.log.Log4jUtil;
 import info.ata4.bspsrc.common.util.AlphanumComparator;
 import info.ata4.bspsrc.decompiler.BspFileEntry;
@@ -20,9 +21,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-import static info.ata4.bspsrc.common.util.JavaUtil.zip;
 import static picocli.CommandLine.*;
 
 @Command(
@@ -190,10 +189,7 @@ public class BspSourceCliCommand implements Callable<Void> {
 
 		var bspsrc = new BspSource(config, entries);
 
-		var map = StreamSupport.stream(zip(bspsrc.getEntryUuids(), entries).spliterator(), false)
-				.collect(Collectors.toMap(Map.Entry::getKey, entry -> PathUtils.setExtension(entry.getValue().getVmfFile(), "log")));
-
-		try (var scope = Log4jUtil.configureDecompilationLogFileAppender(map)) {
+		try (var scope = Log4jUtil.configureDecompilationLogFileAppender(bspsrc.getEntryUuids(), entries)) {
 			bspsrc.run(signal -> {
 				if (signal instanceof BspSource.Signal.TaskFinished task) {
 					printTaskFinished(entries, task);
