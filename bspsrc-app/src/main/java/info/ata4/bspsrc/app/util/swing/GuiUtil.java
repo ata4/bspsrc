@@ -3,6 +3,7 @@ package info.ata4.bspsrc.app.util.swing;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
 import com.jthemedetecor.OsThemeDetector;
 import info.ata4.bspsrc.app.util.swing.ui.CustomFlatLabelUI;
 
@@ -34,6 +35,7 @@ public class GuiUtil {
 	public static void setupFlatlaf() {
 		System.setProperty("flatlaf.animation", "true");
 		Consumer<Boolean> changeTheme = isDark -> SwingUtilities.invokeLater(() -> {
+			FlatAnimatedLafChange.showSnapshot();
 			if (isDark)
 				FlatDarkLaf.setup();
 			else
@@ -43,6 +45,7 @@ public class GuiUtil {
 			UIManager.put("LabelUI", CustomFlatLabelUI.class.getName());
 
 			FlatLaf.updateUI();
+			FlatAnimatedLafChange.hideSnapshotWithAnimation();
 		});
 
 		var detector = OsThemeDetector.getDetector();
