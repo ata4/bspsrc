@@ -170,8 +170,12 @@ public class DecompileTaskDialog extends JDialog {
 	}
 
 	private void selectTask(int index) {
-		tblTasks.setRowSelectionInterval(index, index);
+		var viewIndex = tblTasks.convertRowIndexToView(index);
+		tblTasks.setRowSelectionInterval(viewIndex, viewIndex);
+		tblTasks.scrollRectToVisible(new Rectangle(tblTasks.getCellRect(viewIndex, 0, true)));
+
 		Document logDoc = model.getTaskLog(index);
 		txtaLog.setDocument(logDoc);
+		txtaLog.scrollRectToVisible(new Rectangle());
 	}
 }
