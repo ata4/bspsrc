@@ -1,6 +1,7 @@
 name: Application packaging
 run-name: ${{ github.ref_name }}
 on:
+  workflow_dispatch:
   push:
     tags:
       - v*
