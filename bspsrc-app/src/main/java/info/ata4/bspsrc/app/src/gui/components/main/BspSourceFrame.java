@@ -11,7 +11,6 @@ import info.ata4.bspsrc.app.util.log.plugins.IsDecompileTaskFilter;
 import info.ata4.bspsrc.app.util.swing.FileExtensionFilter;
 import info.ata4.bspsrc.decompiler.BspFileEntry;
 import info.ata4.bspsrc.decompiler.BspSource;
-import info.ata4.log.LogUtils;
 import net.miginfocom.swing.MigLayout;
 import org.apache.logging.log4j.core.Filter;
 
@@ -23,14 +22,11 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static info.ata4.bspsrc.common.util.Collectors.mode;
 import static java.util.Objects.requireNonNull;
 
 public class BspSourceFrame extends JFrame {
-
-	private static final Logger L = LogUtils.getLogger();
 
 	private final BspSourceModel model;
 	private final FilesModel filesModel = new FilesModel();
