@@ -1,6 +1,5 @@
 module info.ata4.bspsrc.app {
 	requires java.desktop;
-	requires java.sql; // TODO: We obviously don't need that
 
 	requires info.ata4.bspsrc.common;
 	requires info.ata4.bspsrc.lib;

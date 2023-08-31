@@ -1,5 +1,6 @@
 module info.ata4.bspsrc.lib {
 	requires info.ata4.bspsrc.common;
+
 	requires org.apache.logging.log4j;
 	requires ioutils.b1f26588b5;
 	requires org.apache.commons.compress;
