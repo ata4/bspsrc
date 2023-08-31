@@ -7,21 +7,7 @@ BSPSource is based on a reengineered version of [VMEX 0.98g](http://www.bagthorp
 
 ## Running BSPSource
 
-BSPSource can be installed in two ways:
-
-### Standalone Installation
-
-The standalone installation is self-contained and does not require any additional software to be installed on your computer.
-
-1. Download [bspsrc-linux.zip](https://github.com/ata4/bspsrc/releases/latest/bspsrc-linux.zip) or [bspsrc-windows.zip](https://github.com/ata4/bspsrc/releases/latest/bspsrc-windows.zip), depending on your operating system.
-2. Extract the contents of the zip file to a new folder.
-3. To launch bspsrc/bspinfo, run the corresponding file: `bspsrc.bat`/`bspinfo.bat` on Windows, or `bspsrc.sh`/`bspinfo.sh` on Linux.
-
-### Java required Installation
-
-This installation requires Java 19+ to be installed and properly configured on your computer. If you don't have Java installed, you can download it from vendors like [Adoptium](https://adoptium.net/).
-
-1. Download [bspsrc-jar-only.zip](https://github.com/ata4/bspsrc/releases/latest/bspsrc-jar-only.zip).
+1. Go to the [releases page](https://github.com/ata4/bspsrc/releases) and, depending on your operating system, download either `bspsrc-linux.zip` or `bspsrc-windows.zip`. Alternatively, `bspsrc-jar-only.zip` works on any system which has Java 19+ installed and properly configured.
 2. Extract the contents of the zip file to a new folder.
 3. To launch bspsrc/bspinfo, run the corresponding file: `bspsrc.bat`/`bspinfo.bat` on Windows, or `bspsrc.sh`/`bspinfo.sh` on Linux.
 
