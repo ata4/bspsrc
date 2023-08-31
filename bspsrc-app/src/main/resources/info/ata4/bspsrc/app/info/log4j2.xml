@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration xmlns="http://logging.apache.org/log4j/2.0/config" strict="true" >
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config" strict="true" packages="info.ata4.bspsrc.app.util.log.plugins">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %msg%n"/>
