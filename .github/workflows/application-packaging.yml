@@ -77,7 +77,7 @@ jobs:
 
       - name: Generate runtime
         if: ${{ matrix.options.include_runtime }}
-        run: jlink --add-modules java.desktop,java.logging --output packaging/runtime/ --strip-debug --no-man-pages --no-header-files --compress=2
+        run: jlink --add-modules java.desktop,java.logging,java.management --output packaging/runtime/ --strip-debug --no-man-pages --no-header-files --compress=2
 
       - name: Upload files
         uses: actions/upload-artifact@v3.1.2
