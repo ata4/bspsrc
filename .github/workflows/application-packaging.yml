@@ -85,4 +85,4 @@ jobs:
           name: bspsrc-${{ matrix.options.type }}
           path: packaging/
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
