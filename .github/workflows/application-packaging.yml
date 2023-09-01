@@ -79,10 +79,21 @@ jobs:
         if: ${{ matrix.options.include_runtime }}
         run: jlink --add-modules java.desktop,java.logging,java.management --output packaging/runtime/ --strip-debug --no-man-pages --no-header-files --compress=2
 
+      - name: Zip files on linux
+        if: runner.os == 'Linux'
+        run: |
+          cd packaging/
+          zip -r ../bspsrc-${{ matrix.options.type }}.zip *
+          cd ..
+
+      - name: Zip files on windows
+        if: runner.os == 'Windows'
+        run: Compress-Archive packaging/* bspsrc-${{ matrix.options.type }}.zip
+
       - name: Upload files
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: bspsrc-${{ matrix.options.type }}
-          path: packaging/
+          name: Artifacts
+          path: bspsrc-${{ matrix.options.type }}.zip
           if-no-files-found: error
           retention-days: 7
