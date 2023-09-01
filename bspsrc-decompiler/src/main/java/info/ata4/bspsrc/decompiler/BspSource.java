@@ -154,9 +154,9 @@ public class BspSource {
         try {
             bsp.load(bspFile);
         } catch (NoSuchFileException e) {
-            throw new BspSourceException("Could not find bsp file", e);
-        } catch (IOException ex) {
-            throw new BspSourceException("Error loading '%s'".formatted(bspFile), ex);
+            throw new BspSourceException("Could not find bsp file.", e);
+        } catch (IOException e) {
+            throw new BspSourceException("Error loading bsp file.", e);
         }
 
         if (config.loadLumpFiles) {
@@ -171,7 +171,7 @@ public class BspSource {
             try {
                 bsp.getPakFile().unpack(entry.getPakDir(), fileFilter);
             } catch (IOException e) {
-                throw new BspSourceException("Can't extract embedded files", e);
+                throw new BspSourceException("Can't extract embedded files.", e);
             }
         }
 
@@ -190,13 +190,13 @@ public class BspSource {
 	                try {
 		                nmo.writeAsNmos(nmosFile);
 	                } catch (IOException e) {
-                        throw new BspSourceException("Error while writing nmos", e);
+                        throw new BspSourceException("Error writing nmos file.", e);
 	                }
                 } catch (NmoException | IOException e) {
-                    throw new BspSourceException("Can't load " + nmoFile, e);
+                    throw new BspSourceException("Error loading nmo file.", e);
                 }
             } else {
-                L.warn("Missing .nmo file! If the bsp is for the objective game mode, its objectives will be missing");
+                L.warn("Missing .nmo file! If the bsp is for the objective game mode, its objectives will be missing.");
             }
         }
 
@@ -217,9 +217,9 @@ public class BspSource {
                 decompiler.setNmoData(nmo);
 
             decompiler.start();
-            L.info("Finished decompiling {}", bspFile);
-        } catch (IOException ex) {
-            throw new BspSourceException("Error decompiling '%s' to '%s'".formatted(bspFile, vmfFile), ex);
+            L.info("Finished decompiling {}.", bspFile);
+        } catch (IOException e) {
+            throw new BspSourceException("Error decompiling bsp.", e);
         }
     }
 

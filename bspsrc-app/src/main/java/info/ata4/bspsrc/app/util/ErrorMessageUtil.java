@@ -10,7 +10,7 @@ public class ErrorMessageUtil {
 	public static String decompileExceptionToMessage(Throwable throwable) {
 		// this would be a great candidate for pattern matching in switch...
 		if (throwable instanceof BspSourceException){
-			return throwable.getMessage();
+			return throwable.getMessage() + " See the decompilation log for more details.";
 		}
 		if (throwable instanceof GoldSrcFormatException) {
 			return "The bsp is from a goldsrc-engine game."
