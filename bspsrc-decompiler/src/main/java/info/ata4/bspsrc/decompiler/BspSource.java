@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
@@ -152,6 +153,8 @@ public class BspSource {
 
         try {
             bsp.load(bspFile);
+        } catch (NoSuchFileException e) {
+            throw new BspSourceException("Could not find bsp file", e);
         } catch (IOException ex) {
             throw new BspSourceException("Error loading '%s'".formatted(bspFile), ex);
         }
