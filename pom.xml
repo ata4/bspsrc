@@ -90,7 +90,7 @@
             <dependency>
                 <groupId>com.github.Dansoftowner</groupId>
                 <artifactId>jSystemThemeDetector</artifactId>
-                <version>3.6</version>
+                <version>3.8</version>
             </dependency>
 
             <dependency>
