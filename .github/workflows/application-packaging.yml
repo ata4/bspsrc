@@ -68,6 +68,7 @@ jobs:
         run: |
           sed 's!<java_path>!${{ matrix.options.java_path }}!g' ${{ github.workspace }}/bspsrc-app/scripts/bspinfo.sh > packaging/bspinfo.sh
           sed 's!<java_path>!${{ matrix.options.java_path }}!g' ${{ github.workspace }}/bspsrc-app/scripts/bspsrc.sh > packaging/bspsrc.sh
+          chmod +x packaging/bspinfo.sh packaging/bspsrc.sh
 
       - name: Copy Windows launcher scripts
         if: ${{ matrix.options.windows_launcher }}
