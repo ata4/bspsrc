@@ -204,13 +204,13 @@ public class BspSourceCliCommand implements Callable<Void> {
 
 	private static void printTaskFailed(List<BspFileEntry> entries, BspSource.Signal.TaskFailed task) {
 		Path bspFile = entries.get(task.index()).getBspFile();
-		L.error("'{}': Failed with exception: {}. For more details see the log file.",
+		L.error("'{}' - Failed: {}",
 				bspFile, decompileExceptionToMessage(task.exception()));
 	}
 
 	private static void printTaskFinished(List<BspFileEntry> entries, BspSource.Signal.TaskFinished task) {
 		Path bspFile = entries.get(task.index()).getBspFile();
-		L.info("'{}': Decompiled successfully.", bspFile);
+		L.info("'{}' - Decompiled successfully.", bspFile);
 	}
 
 	private BspSourceConfig getConfig() {
