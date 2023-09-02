@@ -11,6 +11,8 @@ public class BspPathUtil {
 			vmfDirPath = bspPath.getParent();
 
 		String base = PathUtil.nameWithoutExtension(bspPath).orElse("");
-		return vmfDirPath.resolve(base + "_d.vmf");
+
+		Path fileName = Path.of(base + "_d.vmf");
+		return vmfDirPath == null ? fileName : vmfDirPath.resolve(fileName);
 	}
 }
