@@ -25,7 +25,7 @@
     </licenses>
 
     <properties>
-        <revision>1.4.4</revision>
+        <revision>1.4.5-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
