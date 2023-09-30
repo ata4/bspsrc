@@ -18,8 +18,6 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * Source engine application database handler.
  * 
@@ -87,22 +85,17 @@ public class SourceAppDB {
      * @return
      */
     public int find(String bspName, int bspVersion, Set<String> classNames) {
-        class SourceAppScore {
-            public final SourceApp app;
-            public final float score;
-
-            SourceAppScore(SourceApp app, float score) {
-                this.app = requireNonNull(app);
-                this.score = score;
-            }
-        }
+        record SourceAppScore(
+                SourceApp app,
+                float score
+        ) {}
 
         return appList.stream()
                 .map(app -> new SourceAppScore(app, calculateAppScore(app, bspName, bspVersion, classNames)))
-                .peek(appScore -> L.debug(String.format("App %s has score %f", appScore.app.getName(), appScore.score)))
-                .max(Comparator.comparing(appScore -> appScore.score))
-                .filter(appScore -> appScore.score >= 0)
-                .map(appScore -> appScore.app)
+                .peek(appScore -> L.debug(String.format("App %s has score %f", appScore.app().getName(), appScore.score())))
+                .max(Comparator.comparing(SourceAppScore::score))
+                .filter(appScore -> appScore.score() >= 0)
+                .map(SourceAppScore::app)
                 .map(SourceApp::getAppId)
                 .orElse(SourceAppId.UNKNOWN);
     }
