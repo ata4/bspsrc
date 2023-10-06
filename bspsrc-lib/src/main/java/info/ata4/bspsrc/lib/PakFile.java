@@ -23,6 +23,7 @@ import org.tukaani.xz.LZMAInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.function.Predicate;
@@ -80,7 +81,17 @@ public class PakFile {
                 }
 
                 // create file path for zip entry and canonize it
-                Path entryFile = dest.resolve(entryName).normalize();
+                Path entryFile;
+                try {
+                    entryFile = dest.resolve(entryName).normalize();
+                } catch (InvalidPathException e) {
+                    L.warn("Skipped %s (contains invalid characters)".formatted(entryName));
+
+                    // we only care for the exception in debug mode.
+                    // Users don't have to see the stacktrace in normal operation
+                    L.debug(e);
+                    continue;
+                }
 
                 // don't allow file path to exit outside the extraction directory
                 if (!entryFile.startsWith(dest)) {
