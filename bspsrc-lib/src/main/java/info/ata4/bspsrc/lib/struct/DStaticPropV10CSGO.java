@@ -21,7 +21,7 @@ import java.io.IOException;
  */
 public class DStaticPropV10CSGO extends DStaticPropV9 {
 
-    protected int unknown;
+    protected int flagsEx;
 
     @Override
     public int getSize() {
@@ -31,13 +31,13 @@ public class DStaticPropV10CSGO extends DStaticPropV9 {
     @Override
     public void read(DataReader in) throws IOException {
         super.read(in);
-        unknown = in.readInt();
+        flagsEx = in.readInt();
     }
 
     @Override
     public void write(DataWriter out) throws IOException {
         super.write(out);
-        out.writeInt(unknown);
+        out.writeInt(flagsEx);
     }
 
     /**
