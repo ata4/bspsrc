@@ -181,10 +181,10 @@ public class BrushSideFaceMapper extends ModuleRead {
 
 	private static class FaceIndexKey {
 		public final int pnum;
-		public final short texinfo;
-		public final short dispInfo;
+		public final int texinfo;
+		public final int dispInfo;
 
-		private FaceIndexKey(int pnum, short texinfo, short dispInfo) {
+		private FaceIndexKey(int pnum, int texinfo, int dispInfo) {
 			this.pnum = pnum;
 			this.texinfo = texinfo;
 			this.dispInfo = dispInfo;

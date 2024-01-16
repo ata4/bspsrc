@@ -196,7 +196,7 @@ public class TextureSource extends ModuleRead {
      * @param itexinfo texinfo index
      * @return texture name string
      */
-    public String getTextureName(short itexinfo) {
+    public String getTextureName(int itexinfo) {
         try {
             int ti = bsp.texinfos.get(itexinfo).texdata;
             int td = bsp.texdatas.get(ti).texname;

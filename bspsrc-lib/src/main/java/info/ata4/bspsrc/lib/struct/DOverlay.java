@@ -28,7 +28,7 @@ public class DOverlay implements DStruct {
     public static final int OVERLAY_RENDER_ORDER_MASK = 0xC000; // top 2 bits set
 
     public int id;
-    public short texinfo;
+    public int texinfo;
     public int faceCountAndRenderOrder;
     public int[] ofaces = new int[OVERLAY_BSP_FACE_COUNT];
     public float[] u = new float[2];
@@ -76,7 +76,7 @@ public class DOverlay implements DStruct {
     @Override
     public void write(DataWriter out) throws IOException {
         out.writeInt(id);
-        out.writeShort(texinfo);
+        out.writeShort((short)texinfo);
         out.writeUnsignedShort(faceCountAndRenderOrder);
 
         for (int j = 0; j < OVERLAY_BSP_FACE_COUNT; j++) {

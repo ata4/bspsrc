@@ -10,6 +10,7 @@
 
 package info.ata4.bspsrc.lib.struct;
 
+import info.ata4.bspsrc.lib.vector.Vector3f;
 import info.ata4.io.DataReader;
 import info.ata4.io.DataWriter;
 
@@ -23,15 +24,15 @@ import java.io.IOException;
 public class DLeaf implements DStruct {
 
     public int contents;
-    public short cluster;
-    public short areaFlags;
-    public short[] mins = new short[3];
-    public short[] maxs = new short[3];
+    public int cluster;
+    public int areaFlags;
+    public Vector3f mins;
+    public Vector3f maxs;
     public int fstleafface;
     public int numleafface;
     public int fstleafbrush;
     public int numleafbrush;
-    public short leafWaterDataID;
+    public int leafWaterDataID;
 
     @Override
     public int getSize() {
@@ -43,12 +44,12 @@ public class DLeaf implements DStruct {
         contents = in.readInt();
         cluster = in.readShort();
         areaFlags = in.readShort();
-        mins[0] = in.readShort();
-        mins[1] = in.readShort();
-        mins[2] = in.readShort();
-        maxs[0] = in.readShort();
-        maxs[1] = in.readShort();
-        maxs[2] = in.readShort();
+        mins = new Vector3f(in.readShort(), in.readShort(), in.readShort());        
+        maxs = new Vector3f(in.readShort(), in.readShort(), in.readShort());
+
+
+
+
         fstleafface = in.readUnsignedShort();
         numleafface = in.readUnsignedShort();
         fstleafbrush = in.readUnsignedShort();
@@ -59,18 +60,18 @@ public class DLeaf implements DStruct {
     @Override
     public void write(DataWriter out) throws IOException {
         out.writeInt(contents);
-        out.writeShort(cluster);
-        out.writeShort(areaFlags);
-        out.writeShort(mins[0]);
-        out.writeShort(mins[1]);
-        out.writeShort(mins[2]);
-        out.writeShort(maxs[0]);
-        out.writeShort(maxs[1]);
-        out.writeShort(maxs[2]);
+        out.writeShort((short)cluster);
+        out.writeShort((short)areaFlags);
+        out.writeShort((short)mins.x);
+        out.writeShort((short)mins.y);
+        out.writeShort((short)mins.z);
+        out.writeShort((short)maxs.x);
+        out.writeShort((short)maxs.y);
+        out.writeShort((short)maxs.z);
         out.writeUnsignedShort(fstleafface);
         out.writeUnsignedShort(numleafface);
         out.writeUnsignedShort(fstleafbrush);
         out.writeUnsignedShort(numleafbrush);
-        out.writeShort(leafWaterDataID);
+        out.writeShort((short)leafWaterDataID);
     }
 }

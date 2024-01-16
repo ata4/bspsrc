@@ -39,7 +39,7 @@ public class TextureBuilder {
     private DTexData texdata;
 
     // indices
-    private short itexinfo = DTexInfo.TEXINFO_NODE;
+    private int itexinfo = DTexInfo.TEXINFO_NODE;
     private int ibrush = -1;
     private int ibrushside = -1;
 
@@ -298,7 +298,7 @@ public class TextureBuilder {
         this.ibrushside = ibrushside;
     }
 
-    public void setTexinfoIndex(short itexinfo) {
+    public void setTexinfoIndex(int itexinfo) {
         this.itexinfo = itexinfo;
     }
 

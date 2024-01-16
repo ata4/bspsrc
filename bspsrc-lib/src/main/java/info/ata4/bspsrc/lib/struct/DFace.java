@@ -28,9 +28,9 @@ public class DFace implements DStruct {
     public byte side;
     public byte onnode;
     public int fstedge;
-    public short numedge;
-    public short texinfo;
-    public short dispInfo;
+    public int numedge;
+    public int texinfo;
+    public int dispInfo;
     public int surfaceFogVolumeID;
     public byte[] styles = new byte[MAXLIGHTMAPS];
     public int lightofs;
@@ -76,9 +76,9 @@ public class DFace implements DStruct {
         out.writeByte(side);
         out.writeByte(onnode);
         out.writeInt(fstedge);
-        out.writeShort(numedge);
-        out.writeShort(texinfo);
-        out.writeShort(dispInfo);
+        out.writeShort((short)numedge);
+        out.writeShort((short)texinfo);
+        out.writeShort((short)dispInfo);
         out.writeUnsignedShort(surfaceFogVolumeID);
         out.writeBytes(styles);
         out.writeInt(lightofs);
