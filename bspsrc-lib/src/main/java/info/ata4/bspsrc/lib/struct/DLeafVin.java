@@ -10,6 +10,7 @@
 
 package info.ata4.bspsrc.lib.struct;
 
+import info.ata4.bspsrc.lib.vector.Vector3f;
 import info.ata4.io.DataReader;
 import info.ata4.io.DataWriter;
 
@@ -32,12 +33,8 @@ public class DLeafVin extends DLeaf {
         contents = in.readInt();
         cluster = (short) in.readInt();
         areaFlags = (short) in.readInt();
-        mins[0] = (short) in.readInt();
-        mins[1] = (short) in.readInt();
-        mins[2] = (short) in.readInt();
-        maxs[0] = (short) in.readInt();
-        maxs[1] = (short) in.readInt();
-        maxs[2] = (short) in.readInt();
+        mins = new Vector3f((short)in.readInt(), (short)in.readInt(), (short)in.readInt());
+        maxs = new Vector3f((short)in.readInt(), (short)in.readInt(), (short)in.readInt());
         fstleafface = in.readInt();
         numleafface = in.readInt();
         fstleafbrush = in.readInt();
@@ -50,12 +47,12 @@ public class DLeafVin extends DLeaf {
         out.writeInt(contents);
         out.writeInt(cluster);
         out.writeInt(areaFlags);
-        out.writeInt(mins[0]);
-        out.writeInt(mins[1]);
-        out.writeInt(mins[2]);
-        out.writeInt(maxs[0]);
-        out.writeInt(maxs[1]);
-        out.writeInt(maxs[2]);
+        out.writeInt((int)mins.x);
+        out.writeInt((int)mins.y);
+        out.writeInt((int)mins.z);
+        out.writeInt((int)maxs.x);
+        out.writeInt((int)maxs.y);
+        out.writeInt((int)maxs.z);
         out.writeInt(fstleafface);
         out.writeInt(numleafface);
         out.writeInt(fstleafbrush);

@@ -18,7 +18,7 @@ import java.io.IOException;
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class DBrushSideV2 extends DBrushSide {
+public class DBrushSideV0New extends DBrushSide {
 
     public boolean thin;
 
@@ -34,8 +34,8 @@ public class DBrushSideV2 extends DBrushSide {
     @Override
     public void write(DataWriter out) throws IOException {
         out.writeUnsignedShort(pnum);
-        out.writeShort(texinfo);
-        out.writeShort(dispinfo);
+        out.writeShort((short)texinfo);
+        out.writeShort((short)dispinfo);
         out.writeBoolean(bevel);
         out.writeBoolean(thin);
     }

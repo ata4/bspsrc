@@ -22,10 +22,10 @@ import java.io.IOException;
  */
 public class DAreaportal implements DStruct {
 
-    public short portalKey;
-    public short otherportal;
-    public short firstClipPortalVert;
-    public short clipPortalVerts;
+    public int portalKey;
+    public int otherportal;
+    public int firstClipPortalVert;
+    public int clipPortalVerts;
     public int planenum;
 
     @Override
@@ -44,10 +44,10 @@ public class DAreaportal implements DStruct {
 
     @Override
     public void write(DataWriter out) throws IOException {
-        out.writeShort(portalKey);
-        out.writeShort(otherportal);
-        out.writeShort(firstClipPortalVert);
-        out.writeShort(clipPortalVerts);
+        out.writeShort((short)portalKey);
+        out.writeShort((short)otherportal);
+        out.writeShort((short)firstClipPortalVert);
+        out.writeShort((short)clipPortalVerts);
         out.writeInt(planenum);
     }
 }

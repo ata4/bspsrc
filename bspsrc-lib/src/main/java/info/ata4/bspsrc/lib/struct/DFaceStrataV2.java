@@ -1,12 +1,3 @@
-/*
- ** 2011 September 25
- **
- ** The author disclaims copyright to this source code.  In place of
- ** a legal notice, here is a blessing:
- **    May you do good and not evil.
- **    May you find forgiveness for yourself and forgive others.
- **    May you share freely, never taking more than you give.
- */
 package info.ata4.bspsrc.lib.struct;
 
 import info.ata4.io.DataReader;
@@ -14,34 +5,24 @@ import info.ata4.io.DataWriter;
 
 import java.io.IOException;
 
-/**
- * DFace variant for the very old BSP v17 format.
- * 
- * @author Nico Bergemann <barracuda415 at yahoo.de>
- */
-public class DFaceBSP17 extends DFace {
-
-    public int[] avgLightColor = new int[MAXLIGHTMAPS];
-
+public class DFaceStrataV2 extends DFace {
+    
     @Override
     public int getSize() {
-        return 68;
+        return 72;
     }
 
     @Override
     public void read(DataReader in) throws IOException {
-        for (int i = 0; i < MAXLIGHTMAPS; i++) {
-            avgLightColor[i] = in.readInt();
-        }
-
-        pnum = in.readUnsignedShort();
+        pnum = (int)in.readUnsignedInt();
         side = in.readByte();
         onnode = in.readByte();
+        in.readUnsignedShort(); // padding
         fstedge = in.readInt();
-        numedge = in.readShort();
-        texinfo = in.readShort();
-        dispInfo = in.readShort();
-        surfaceFogVolumeID = in.readUnsignedShort();
+        numedge = in.readInt();
+        texinfo = in.readInt();
+        dispInfo = in.readInt();
+        surfaceFogVolumeID = (int)in.readUnsignedInt();
         in.readBytes(styles);
         lightofs = in.readInt();
         area = in.readFloat();
@@ -50,23 +31,22 @@ public class DFaceBSP17 extends DFace {
         lightmapTextureSizeInLuxels[0] = in.readInt();
         lightmapTextureSizeInLuxels[1] = in.readInt();
         origFace = in.readInt();
+        numPrims = (int)in.readUnsignedInt();
+        firstPrimID = (int)in.readUnsignedInt();
         smoothingGroups = in.readInt();
     }
 
     @Override
     public void write(DataWriter out) throws IOException {
-        for (int i = 0; i < MAXLIGHTMAPS; i++) {
-           out.writeInt(avgLightColor[i]);
-        }
-
-        out.writeUnsignedShort(pnum);
+        out.writeUnsignedInt(pnum);
         out.writeByte(side);
         out.writeByte(onnode);
+        out.writeUnsignedShort(0); // padding
         out.writeInt(fstedge);
-        out.writeShort((short)numedge);
-        out.writeShort((short)texinfo);
-        out.writeShort((short)dispInfo);
-        out.writeUnsignedShort(surfaceFogVolumeID);
+        out.writeInt(numedge);
+        out.writeInt(texinfo);
+        out.writeInt(dispInfo);
+        out.writeUnsignedInt(surfaceFogVolumeID);
         out.writeBytes(styles);
         out.writeInt(lightofs);
         out.writeFloat(area);
@@ -75,6 +55,8 @@ public class DFaceBSP17 extends DFace {
         out.writeInt(lightmapTextureSizeInLuxels[0]);
         out.writeInt(lightmapTextureSizeInLuxels[1]);
         out.writeInt(origFace);
+        out.writeUnsignedInt(numPrims);
+        out.writeUnsignedInt(firstPrimID);
         out.writeInt(smoothingGroups);
     }
 }

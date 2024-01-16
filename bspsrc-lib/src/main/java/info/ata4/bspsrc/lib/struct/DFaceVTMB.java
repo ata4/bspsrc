@@ -70,9 +70,9 @@ public class DFaceVTMB extends DFace {
         out.writeByte(side);
         out.writeByte(onnode);
         out.writeInt(fstedge);
-        out.writeShort(numedge);
-        out.writeShort(texinfo);
-        out.writeShort(dispInfo);
+        out.writeShort((short)numedge);
+        out.writeShort((short)texinfo);
+        out.writeShort((short)dispInfo);
         out.writeUnsignedShort(surfaceFogVolumeID);
         out.writeBytes(styles);
         out.writeBytes(day);

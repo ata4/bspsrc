@@ -23,8 +23,8 @@ import java.io.IOException;
 public class DBrushSide implements DStruct {
 
     public int pnum;
-    public short texinfo;
-    public short dispinfo;
+    public int texinfo;
+    public int dispinfo;
     public boolean bevel;
 
     @Override
@@ -43,8 +43,8 @@ public class DBrushSide implements DStruct {
     @Override
     public void write(DataWriter out) throws IOException {
         out.writeUnsignedShort(pnum);
-        out.writeShort(texinfo);
-        out.writeShort(dispinfo);
+        out.writeShort((short)texinfo);
+        out.writeShort((short)dispinfo);
         out.writeUnsignedShort(bevel ? 1 : 0);
     }
 }
