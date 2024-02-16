@@ -229,7 +229,7 @@ public class BrushSource extends ModuleDecompile {
                 }
 
                 // skip sides that are way too big
-                if (wind.isHuge()) {
+                if (windingFactory.isHuge(wind)) {
                     throw new BrushSideException("too big");
                 }
 

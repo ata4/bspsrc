@@ -22,7 +22,8 @@ public class VectorUtil {
 		if (occluderPolyData.planenum == brushSide.pnum) {
 			return internalMatchingAreaPercentage(
 					windingFactory.fromOccluder(bsp, occluderPolyData),
-					windingFactory.fromSide(bsp, brush, brushSide)
+					windingFactory.fromSide(bsp, brush, brushSide),
+					windingFactory
 			);
 		} else {
 			return 0;
@@ -41,7 +42,8 @@ public class VectorUtil {
 		if (planeNums.contains(brushSide.pnum)) {
 			return internalMatchingAreaPercentage(
 					apHelper.winding,
-					windingFactory.fromSide(bsp, brush, brushSide)
+					windingFactory.fromSide(bsp, brush, brushSide),
+					windingFactory
 			);
 		} else {
 			return 0;
@@ -50,18 +52,18 @@ public class VectorUtil {
 
 	/**
 	 * Returns the intersecting area of two Windings in percentage to w1 total area (0-1)
-	 * <p><b>This assumes that the 2 windings already lie in the same plane!!!
+	 * <p><b>This assumes that the 2 windings are valid and lie on the same plane!!!
 	 *
 	 * @param w1 the first winding
 	 * @param w2 the second winding
-	 * @return A probability in form of a double ranging from 0 to 1
+	 * @return A probability in the form of a double ranging from 0 to 1
 	 */
-	private static double internalMatchingAreaPercentage(Winding w1, Winding w2) {
+	private static double internalMatchingAreaPercentage(Winding w1, Winding w2, WindingFactory windingFactory) {
 		w1 = w1.removeDegenerated();
 		w2 = w2.removeDegenerated();
 
 		// In case the provided windings are invalid, return 0!
-		if (w1.size() < 3 || w2.size() < 3 || w1.isHuge() || w2.isHuge()) {
+		if (w1.size() < 3 || w2.size() < 3 || windingFactory.isHuge(w1) || windingFactory.isHuge(w2)) {
 			return 0;
 		}
 

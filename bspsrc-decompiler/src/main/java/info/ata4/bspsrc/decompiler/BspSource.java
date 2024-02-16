@@ -12,7 +12,6 @@ package info.ata4.bspsrc.decompiler;
 
 import info.ata4.bspsrc.decompiler.modules.BspDecompiler;
 import info.ata4.bspsrc.decompiler.modules.texture.TextureSource;
-import info.ata4.bspsrc.decompiler.util.Winding;
 import info.ata4.bspsrc.lib.BspFile;
 import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.bspsrc.lib.PakFile;
@@ -177,13 +176,7 @@ public class BspSource {
         }
 
         var reader = new BspFileReader(bsp);
-        reader.loadAll();        
-
-        if ( reader.getBspFile().getAppId() == SourceAppId.STRATA_SOURCE ) {
-            Winding.SetCoordSize( 131072 );
-        } else {            
-            Winding.SetCoordSize( 32768 );
-        }
+        reader.loadAll();
 
         // load NMO if game is 'No More Room in Hell'
         NmoFile nmo = null;

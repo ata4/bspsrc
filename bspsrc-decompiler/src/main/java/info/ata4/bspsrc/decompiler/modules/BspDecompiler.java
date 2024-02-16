@@ -35,9 +35,6 @@ public class BspDecompiler extends ModuleDecompile {
     // logger
     private static final Logger L = LogManager.getLogger();
 
-    private final WindingFactory windingFactory = new WindingFactory();
-    private final BrushBounds brushBounds = new BrushBounds(windingFactory);
-
     // sub-modules
     private final BspSourceConfig config;
     private final BrushSideFaceMapper brushSideFaceMapper;
@@ -53,6 +50,9 @@ public class BspDecompiler extends ModuleDecompile {
 
         this.config = config;
 
+        var windingFactory = WindingFactory.forAppId(bspFile.getAppId());
+        var brushBounds = new BrushBounds(windingFactory);
+
         texsrc = new TextureSource(reader);
         bspprot = new BspProtection(reader, brushBounds, texsrc);
         vmfmeta = new VmfMeta(reader, writer);
@@ -61,8 +61,7 @@ public class BspDecompiler extends ModuleDecompile {
                 windingFactory);
         facesrc = new FaceSource(reader, writer, config, texsrc, vmfmeta, windingFactory);
         entsrc = new EntitySource(reader, writer, config, brushsrc, facesrc, texsrc, bspprot, vmfmeta,
-                brushSideFaceMapper, windingFactory, brushBounds
-        );
+                brushSideFaceMapper, windingFactory, brushBounds);
     }
 
     /**

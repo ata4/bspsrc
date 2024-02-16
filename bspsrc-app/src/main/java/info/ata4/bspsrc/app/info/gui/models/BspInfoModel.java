@@ -31,9 +31,6 @@ public class BspInfoModel {
 
 	private final List<Runnable> listeners = new ArrayList<>();
 
-	private final WindingFactory windingFactory = new WindingFactory();
-	private final BrushBounds brushBounds = new BrushBounds(windingFactory);
-
 	private BspFile bspFile;
 	private BspData bspData;
 	private BspCompileParams cparams;
@@ -80,6 +77,9 @@ public class BspInfoModel {
 
 		var bspReader = new BspFileReader(bspFile);
 		bspReader.loadEntities();
+
+		var windingFactory = WindingFactory.forAppId(bspFile.getAppId());
+		var brushBounds = new BrushBounds(windingFactory);
 
 		bspData = bspReader.getData();
 		cparams = new BspCompileParams(bspReader);

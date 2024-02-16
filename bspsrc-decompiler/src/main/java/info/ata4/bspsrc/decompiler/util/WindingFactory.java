@@ -9,6 +9,7 @@
  */
 package info.ata4.bspsrc.decompiler.util;
 
+import info.ata4.bspsrc.lib.app.SourceAppId;
 import info.ata4.bspsrc.lib.struct.*;
 import info.ata4.bspsrc.lib.vector.Vector3f;
 
@@ -30,6 +31,22 @@ public class WindingFactory {
     private final Map<DAreaportal, Winding> areaportalCache = new HashMap<>();
     private final Map<DOccluderPolyData, Winding> occluderCache = new HashMap<>();
     private final Map<DPlane, Winding> planeCache = new HashMap<>();
+
+    public final int maxLen;
+    public final int maxCoord;
+
+    public WindingFactory(int coordSize) {
+        maxCoord = coordSize;
+        maxLen = (int)Math.ceil(Math.sqrt(3) * coordSize);
+    }
+
+    public static WindingFactory forAppId(int appId) {
+        var coordSize = switch (appId) {
+            case SourceAppId.STRATA_SOURCE: yield 131072;
+            default: yield 32768;
+        };
+        return new WindingFactory(coordSize);
+    }
 
     /**
      * Constructs a winding from face vertices
@@ -239,8 +256,8 @@ public class WindingFactory {
         // this is the "rightwards" pointing vector
         Vector3f vrt = vup.cross(pl.normal);
 
-        vup = vup.scalar(Winding.MAX_LEN);
-        vrt = vrt.scalar(Winding.MAX_LEN);
+        vup = vup.scalar(maxLen);
+        vrt = vrt.scalar(maxLen);
 
         List<Vector3f> verts = new ArrayList<>();
 
@@ -255,5 +272,29 @@ public class WindingFactory {
         planeCache.put(pl, w);
 
         return w;
+    }
+
+    /**
+     * Returns true if the winding still has one of the points
+     * from basewinding for plane.
+     * <p>
+     * Equals WindingIsHuge() from brushbsp.cpp
+     * <p>
+     * This method should probably not be in this class, but it depends on the "context"
+     * in which windings exist.
+     * ({@link #maxCoord})
+     *
+     * @return true if winding is huge
+     */
+    public boolean isHuge(Winding winding) {
+        for (Vector3f point : winding) {
+            for (float value : point) {
+                if (Math.abs(value) > maxCoord) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

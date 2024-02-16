@@ -30,8 +30,6 @@ public class Winding implements List<Vector3f> {
 
     private static final Winding EMPTY = new Winding(Collections.unmodifiableList(new ArrayList<Vector3f>()));
 
-    public static int MAX_LEN = -1;
-    public static int MAX_COORD = -1;
     public static final int SIDE_FRONT = 0;
     public static final int SIDE_BACK = 1;
     public static final int SIDE_ON = 2;
@@ -54,11 +52,6 @@ public class Winding implements List<Vector3f> {
 
     public Winding(Vector3f[] vertices) {
         this.verts = Collections.unmodifiableList(Arrays.asList(vertices));
-    }
-
-    public static void SetCoordSize(int size) {
-        MAX_COORD = size;
-        MAX_LEN = (int)Math.ceil(Math.sqrt(3) * size);
     }
 
     /**
@@ -345,26 +338,6 @@ public class Winding implements List<Vector3f> {
         }
 
         return new Winding(vertsNew);
-    }
-
-    /**
-     * Returns true if the winding still has one of the points
-     * from basewinding for plane.
-     * 
-     * Equals WindingIsHuge() from brushbsp.cpp
-     * 
-     * @return true if winding is huge
-     */
-    public boolean isHuge() {
-        for (Vector3f point : this) {
-            for (float value : point) {
-                if (Math.abs(value) > MAX_COORD) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     /**
