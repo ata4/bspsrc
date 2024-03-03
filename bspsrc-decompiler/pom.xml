@@ -32,6 +32,11 @@
 			<groupId>com.github.ata4</groupId>
 			<artifactId>ioutils</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
