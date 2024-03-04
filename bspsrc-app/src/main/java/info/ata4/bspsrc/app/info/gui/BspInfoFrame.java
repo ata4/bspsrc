@@ -1,5 +1,6 @@
 package info.ata4.bspsrc.app.info.gui;
 
+import com.formdev.flatlaf.extras.components.FlatTabbedPane;
 import info.ata4.bspsrc.app.info.gui.models.BspInfoModel;
 import info.ata4.bspsrc.app.info.gui.panel.*;
 import info.ata4.bspsrc.app.util.log.Log4jUtil;
@@ -48,7 +49,7 @@ public class BspInfoFrame extends JFrame {
 	private final JFileChooser embeddedFileDstChooser = new JFileChooser();
 	private final JFileChooser embeddedRawDstChooser = new JFileChooser();
 
-	private final JTabbedPane tabbedPane = new JTabbedPane();
+	private final FlatTabbedPane tabbedPane = new FlatTabbedPane();
 	private final GeneralPanel generalPanel = new GeneralPanel();
 	private final LumpsPanel lumpsPanel = new LumpsPanel(this::extractLumps);
 	private final GameLumpsPanel gameLumpsPanel = new GameLumpsPanel(this::extractGameLumps);
@@ -83,6 +84,7 @@ public class BspInfoFrame extends JFrame {
 		embeddedPanel.setBorder(createCompoundBorder(tabbedPanePaddingBorder, embeddedPanel.getBorder()));
 		wrappedProtectionPanel.setBorder(tabbedPanePaddingBorder);
 
+		tabbedPane.setTabInsets(new Insets(8, 8, 8, 8));
 		tabbedPane.addTab("General", wrappedGeneralPanel);
 		tabbedPane.addTab("Lumps", lumpsPanel);
 		tabbedPane.addTab("Game lumps", gameLumpsPanel);

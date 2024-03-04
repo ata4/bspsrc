@@ -1,5 +1,6 @@
 package info.ata4.bspsrc.app.src.gui.components.main;
 
+import com.formdev.flatlaf.extras.components.FlatTabbedPane;
 import info.ata4.bspsrc.app.src.gui.components.task.DecompileTaskDialog;
 import info.ata4.bspsrc.app.src.gui.models.BspSourceModel;
 import info.ata4.bspsrc.app.src.gui.models.DecompileTaskModel;
@@ -65,7 +66,7 @@ public class BspSourceFrame extends JFrame {
 		setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	}};
 
-	public final JTabbedPane tbpMain = new JTabbedPane();
+	public final FlatTabbedPane tbpMain = new FlatTabbedPane();
 
 	public final FilesPanel filesPanel;
 	public final WorldPanel worldPanel;
@@ -146,6 +147,7 @@ public class BspSourceFrame extends JFrame {
 		otherPanel = new OtherPanel(model.getConfig());
 
 		tbpMain.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		tbpMain.setTabInsets(new Insets(8, 8, 8, 8)); // Make tabs a little more compact
 		tbpMain.addTab("Files", filesPanel);
 		tbpMain.addTab("World", worldPanel);
 		tbpMain.addTab("Entities", entitiesPanel);
