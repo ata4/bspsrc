@@ -78,7 +78,7 @@ jobs:
 
       - name: Generate runtime
         if: ${{ matrix.options.include_runtime }}
-        run: jlink --add-modules java.desktop,java.logging,java.management --output packaging/runtime/ --strip-debug --no-man-pages --no-header-files --compress=2
+        run: jlink --add-modules java.desktop,java.logging,java.management,java.prefs --output packaging/runtime/ --strip-debug --no-man-pages --no-header-files --compress=2
 
       - name: Zip files on linux
         if: runner.os == 'Linux'

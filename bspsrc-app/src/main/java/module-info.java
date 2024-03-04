@@ -1,5 +1,6 @@
 module info.ata4.bspsrc.app {
 	requires java.desktop;
+	requires java.prefs;
 
 	requires info.ata4.bspsrc.common;
 	requires info.ata4.bspsrc.lib;
@@ -11,7 +12,7 @@ module info.ata4.bspsrc.app {
 	requires info.picocli;
 	requires com.formdev.flatlaf;
 	requires com.formdev.flatlaf.extras;
-	requires com.jthemedetector;
+	requires com.github.weisj.jsvg;
 	requires com.miglayout.core;
 	requires com.miglayout.swing;
 

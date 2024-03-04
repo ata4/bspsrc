@@ -9,6 +9,7 @@ import info.ata4.bspsrc.app.util.log.Log4jUtil;
 import info.ata4.bspsrc.app.util.log.plugins.DialogAppender;
 import info.ata4.bspsrc.app.util.log.plugins.IsDecompileTaskFilter;
 import info.ata4.bspsrc.app.util.swing.FileExtensionFilter;
+import info.ata4.bspsrc.app.util.swing.GuiUtil;
 import info.ata4.bspsrc.decompiler.BspFileEntry;
 import info.ata4.bspsrc.decompiler.BspSource;
 import net.miginfocom.swing.MigLayout;
@@ -76,6 +77,9 @@ public class BspSourceFrame extends JFrame {
 	private final JButton btnDefaults = new JButton("Defaults") {{
 		setToolTipText("Resets all configurations to their defaults.");
 		addActionListener(e -> BspSourceFrame.this.model.setDefaults());
+	}};
+	private final JCheckBox chkDarkTheme = new JCheckBox("Dark theme", GuiUtil.isDarkTheme()) {{
+		addActionListener(e -> GuiUtil.setDarkTheme(chkDarkTheme.isSelected()));
 	}};
 	private final JButton btnDecompile = new JButton("Decompile") {{
 		setFont(getFont().deriveFont(Font.BOLD));
@@ -151,10 +155,11 @@ public class BspSourceFrame extends JFrame {
 
 		var pnlBottom = new JPanel(new MigLayout(
 				"insets 0",
-				"[]push[]",
+				"[|]push[]",
 				""
 		));
 		pnlBottom.add(btnDefaults);
+		pnlBottom.add(chkDarkTheme);
 		pnlBottom.add(btnDecompile);
 
 		var panel = new JPanel(new MigLayout(

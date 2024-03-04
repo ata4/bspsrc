@@ -4,7 +4,6 @@ import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
-import com.jthemedetecor.OsThemeDetector;
 import info.ata4.bspsrc.app.util.swing.ui.CustomFlatLabelUI;
 
 import javax.swing.*;
@@ -13,8 +12,8 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.prefs.Preferences;
 import java.util.stream.Stream;
 
 public class GuiUtil {
@@ -34,23 +33,29 @@ public class GuiUtil {
 
 	public static void setupFlatlaf() {
 		System.setProperty("flatlaf.animation", "true");
-		Consumer<Boolean> changeTheme = isDark -> SwingUtilities.invokeLater(() -> {
-			FlatAnimatedLafChange.showSnapshot();
-			if (isDark)
-				FlatDarkLaf.setup();
-			else
-				FlatLightLaf.setup();
 
-			// register custom LabelUI implementation
-			UIManager.put("LabelUI", CustomFlatLabelUI.class.getName());
+		FlatAnimatedLafChange.showSnapshot();
+		if (isDarkTheme())
+			FlatDarkLaf.setup();
+		else
+			FlatLightLaf.setup();
 
-			FlatLaf.updateUI();
-			FlatAnimatedLafChange.hideSnapshotWithAnimation();
-		});
+		// register custom LabelUI implementation
+		UIManager.put("LabelUI", CustomFlatLabelUI.class.getName());
 
-		var detector = OsThemeDetector.getDetector();
-		detector.registerListener(changeTheme);
-		changeTheme.accept(detector.isDark());
+		FlatLaf.updateUI();
+		FlatAnimatedLafChange.hideSnapshotWithAnimation();
+	}
+
+	public static void setDarkTheme(boolean darkTheme) {
+		Preferences.userNodeForPackage(GuiUtil.class)
+				.putBoolean("darktheme", darkTheme);
+
+		setupFlatlaf();
+	}
+
+	public static boolean isDarkTheme() {
+		return Preferences.userNodeForPackage(GuiUtil.class).getBoolean("darktheme", false);
 	}
 
 	public static void setColumnWidth(
