@@ -6,7 +6,7 @@ module info.ata4.bspsrc.app {
 	requires info.ata4.bspsrc.decompiler;
 	requires org.apache.logging.log4j;
 	requires org.apache.logging.log4j.core;
-	requires ioutils.b1f26588b5;
+	requires info.ata4.ioutils;
 	requires org.apache.commons.compress;
 	requires info.picocli;
 	requires com.formdev.flatlaf;

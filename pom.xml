@@ -101,9 +101,9 @@
 
             <!-- Dependencies from jitpack.io -->
             <dependency>
-                <groupId>com.github.ata4</groupId>
+                <groupId>com.github.rihi</groupId>
                 <artifactId>ioutils</artifactId>
-                <version>b1f26588b5</version>
+                <version>c93401c7</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
