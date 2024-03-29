@@ -7,6 +7,7 @@ import info.ata4.bspsrc.lib.struct.SurfaceFlag;
 import java.util.*;
 
 import static info.ata4.bspsrc.common.util.StringUtil.equalsIgnoreCase;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Class for reversing texture names to their original tooltexture names/surface flags/brush flags.
@@ -38,49 +39,81 @@ public class ToolTextureMatcher {
     private final Map<String, ToolTextureDefinition> toolTextureDefinitions;
 
     public ToolTextureMatcher(Map<String, ToolTextureDefinition> toolTextureDefinitions) {
-        this.toolTextureDefinitions = Collections.unmodifiableMap(new HashMap<>(toolTextureDefinitions));
+        this.toolTextureDefinitions = Map.copyOf(toolTextureDefinitions);
     }
 
     /**
      * Tries to make the best guess, which texture name the specified surface property, brush/surface flags represent.
      *
-     * @param originalTextureName the original texture name
-     * @param surfFlags a set of {@link SurfaceFlag}s
+     * @param originalTextureName the original texture name or null if unknown
      * @param brushFlags a set of {@link BrushFlag}s
+     * @param surfFlags a set of {@link SurfaceFlag}s or null if unknown
      *
      * @return an empty optional if no texture name could be found or the best guess
      */
-    public Optional<String> fixToolTexture(String originalTextureName, Set<SurfaceFlag> surfFlags,
-                                           Set<BrushFlag> brushFlags) {
-
-        // Optional of optional of string -> first optional empty if we don't have a definition of originalTextureName
-        // second optional empty if we do have a definition but it doesn't have a surfaceproperty specified
-        Optional<Optional<String>> optOriginalSurfaceProperty = Optional.ofNullable(toolTextureDefinitions.get(originalTextureName))
-                .map(ToolTextureDefinition::getSurfaceProperty);
+    public Optional<String> fixToolTexture(
+            String originalTextureName,
+            Set<BrushFlag> brushFlags,
+            Set<SurfaceFlag> surfFlags
+    ) {
+        requireNonNull(brushFlags);
 
         return toolTextureDefinitions.entrySet().stream()
-                .filter(ttEntry -> optOriginalSurfaceProperty
-                        .map(surfaceProperty -> equalsIgnoreCase( // are surface properties case sensitive?
-                                surfaceProperty.orElse(null),
-                                ttEntry.getValue()
-                                        .getSurfaceProperty()
-                                        .orElse(null)
-                        ))
-                        .orElse(true))
-                .filter(ttEntry -> ttEntry.getValue().getBrushFlagsRequirements()
-                        .entrySet()
-                        .stream()
-                        .allMatch(entry -> brushFlags.contains(entry.getKey()) == entry.getValue()))
-                .filter(ttEntry -> ttEntry.getValue().getSurfaceFlagsRequirements()
-                        .entrySet()
-                        .stream()
-                        .allMatch(entry -> surfFlags.contains(entry.getKey()) == entry.getValue()))
-                .max(Comparator.comparingInt(ttEntry -> {
-                    ToolTextureDefinition definition = ttEntry.getValue();
-                    int brushFlagRequirements = definition.getBrushFlagsRequirements().size();
-                    int surfaceFlagRequirements = definition.getSurfaceFlagsRequirements().size();
-                    return brushFlagRequirements + surfaceFlagRequirements;
-                }))
+                .filter(ttEntry -> matchesSurfaceProperty(ttEntry.getValue(), originalTextureName))
+                .filter(ttEntry -> matchesRequirements(ttEntry.getValue().getBrushFlagsRequirements(), brushFlags))
+                .filter(ttEntry -> matchesRequirements(ttEntry.getValue().getSurfaceFlagsRequirements(), surfFlags))
+                .max(Comparator.comparingInt(ttEntry -> ttDefinitionScore(ttEntry, surfFlags == null)))
+                // accepting scores of 0 makes no sense, because nothing was matched
+                .filter(ttEntry -> ttDefinitionScore(ttEntry, surfFlags == null) > 0)
                 .map(Map.Entry::getKey);
+    }
+
+    /**
+     * Because the optimization process in vbsp only reassigns texture with matching surface properties,
+     * we check if the original textures surface property (incase we know it), matches the proposed
+     * tooltexture definition.
+     *
+     * @param definition the proposed {@link ToolTextureDefinition}
+     * @param originalTextureName the original texture name or {@code null} if unknown
+     * @return {@code false}, if we know the surface properties don't match, otherwise {@code true}
+     */
+    private boolean matchesSurfaceProperty(ToolTextureDefinition definition, String originalTextureName) {
+        if (originalTextureName == null)
+            return true;
+
+        var originalSurfaceDefinition = toolTextureDefinitions.get(originalTextureName);
+        if (originalSurfaceDefinition == null)
+            return true;
+
+        return equalsIgnoreCase(
+                originalSurfaceDefinition.getSurfaceProperty().orElse(null),
+                definition.getSurfaceProperty().orElse(null)
+        );
+    }
+
+    /**
+     * Helper method to check if brush/surface-flag requirements match given one.
+     */
+    private <T> boolean matchesRequirements(Map<T, Boolean> requirements, Set<T> set) {
+        if (set == null)
+            return true;
+
+        return requirements
+                .entrySet()
+                .stream()
+                .allMatch(entry -> set.contains(entry.getKey()) == entry.getValue());
+    }
+
+    /**
+     * In case we have multiple proposed tooltexture definitions, which match our requirements,
+     * we score them to select the 'best' one. We consider the tooltexture with the most requirements
+     * to be the best fit.
+     * @return score, where bigger is a better fit
+     */
+    private static int ttDefinitionScore(Map.Entry<String, ToolTextureDefinition> ttEntry, boolean ignoreSurfaceFlags) {
+        ToolTextureDefinition definition = ttEntry.getValue();
+        int brushFlagRequirements = definition.getBrushFlagsRequirements().size();
+        int surfaceFlagRequirements = definition.getSurfaceFlagsRequirements().size();
+        return brushFlagRequirements + (ignoreSurfaceFlags ? 0 : surfaceFlagRequirements);
     }
 }

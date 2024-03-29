@@ -14,7 +14,6 @@ import info.ata4.bspsrc.lib.vector.Vector3f;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 /**
@@ -60,13 +59,10 @@ public class TextureBuilder {
 
         // no texinfo
         if (itexinfo == DTexInfo.TEXINFO_NODE) {
-            // still try to fix textures even if we have no texinfo (Some tooltextures in css seem to have no texinfo)
-            // this is really just a simple fix, which might need to be revisited later if more information
-            // to cases like this is available.
-            // Also, just passing an empty string as the original texture here, is kinda a crude way of using
-            // the existing api
+            // still try to fix textures even if we have no texinfo
+            // (Some tooltextures in css/hl2:d seem to have no texinfo)
             if (texsrc.isFixToolTextures() && enableTextureFixing)
-                texture.setOverrideTexture(fixToolTexture(""));
+                texture.setOverrideTexture(fixToolTexture(null));
 
             return texture;
         }
@@ -137,21 +133,15 @@ public class TextureBuilder {
         }
 
         DBrush brush = bsp.brushes.get(ibrush);
-        DBrushSide brushSide = bsp.brushSides.get(ibrushside);
 
         // fix occluder textures
-        if (brush.isFlaggedAsOccluder() && !originalTextureName.equalsIgnoreCase(ToolTexture.NODRAW))
+        if (brush.isFlaggedAsOccluder() && !ToolTexture.NODRAW.equalsIgnoreCase(originalTextureName))
             return ToolTexture.OCCLUDER;
 
         Set<BrushFlag> brushFlags = brush.contents;
-        Set<SurfaceFlag> surfFlags;
-        if (brushSide.texinfo == DTexInfo.TEXINFO_NODE) {
-            surfFlags = EnumSet.noneOf(SurfaceFlag.class);
-        } else {
-            surfFlags = bsp.texinfos.get(brushSide.texinfo).flags;
-        }
+        Set<SurfaceFlag> surfFlags = itexinfo == DTexInfo.TEXINFO_NODE ? null : bsp.texinfos.get(itexinfo).flags;
 
-        return toolTextureMatcher.fixToolTexture(originalTextureName, surfFlags, brushFlags)
+	    return toolTextureMatcher.fixToolTexture(originalTextureName, brushFlags, surfFlags)
                 .orElse(null);
     }
 
