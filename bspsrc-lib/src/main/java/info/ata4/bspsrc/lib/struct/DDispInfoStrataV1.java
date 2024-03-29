@@ -8,6 +8,10 @@ import java.io.IOException;
 
 public class DDispInfoStrataV1 extends DDispInfo {
 
+    public DDispInfoStrataV1() {
+        neighbors = new byte[144];
+    }
+
     @Override
     public int getSize() {
         return 232;
@@ -25,7 +29,6 @@ public class DDispInfoStrataV1 extends DDispInfo {
         mapFace = (int)in.readUnsignedInt();
         lightmapAlphaStart = in.readInt();
         lightmapSamplePositionStart = in.readInt();
-        neighbors = new byte[144];
         in.readBytes(neighbors);
 
         for (int i = 0; i < allowedVerts.length; i++) {

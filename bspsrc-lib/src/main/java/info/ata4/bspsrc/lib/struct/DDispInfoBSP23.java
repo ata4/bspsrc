@@ -42,6 +42,7 @@ public class DDispInfoBSP23 extends DDispInfo {
         contents = in.readInt();
         unknown1 = in.readInt();
         mapFace = in.readUnsignedShort();
+        in.readUnsignedShort(); // padding
         lightmapAlphaStart = in.readInt();
         lightmapSamplePositionStart = in.readInt();
         unknown2 = in.readInt();
@@ -63,6 +64,7 @@ public class DDispInfoBSP23 extends DDispInfo {
         out.writeInt(contents);
         out.writeInt(unknown1);
         out.writeUnsignedShort(mapFace);
+        out.writeUnsignedShort(0); // padding
         out.writeInt(lightmapAlphaStart);
         out.writeInt(lightmapSamplePositionStart);
         out.writeInt(unknown2);

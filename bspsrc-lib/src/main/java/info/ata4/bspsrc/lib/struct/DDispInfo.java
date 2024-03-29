@@ -39,6 +39,10 @@ public class DDispInfo implements DStruct {
     protected byte[] neighbors; // TODO: use structures
     public int[] allowedVerts = new int[10]; // allowed verts
 
+    public DDispInfo() {
+        neighbors = new byte[88];
+    }
+
     public int getPowerSize() {
         return 1 << power;
     }
@@ -69,7 +73,6 @@ public class DDispInfo implements DStruct {
         in.readUnsignedShort(); // padding
         lightmapAlphaStart = in.readInt();
         lightmapSamplePositionStart = in.readInt();
-        neighbors = new byte[88];
         in.readBytes(neighbors);
 
         for (int i = 0; i < allowedVerts.length; i++) {
@@ -90,7 +93,7 @@ public class DDispInfo implements DStruct {
         out.writeUnsignedShort(0); // padding
         out.writeInt(lightmapAlphaStart);
         out.writeInt(lightmapSamplePositionStart);
-        out.writeBytes(neighbors, 0, 88);
+        out.writeBytes(neighbors);
 
         for (int i = 0; i < allowedVerts.length; i++) {
             out.writeInt(allowedVerts[i]);

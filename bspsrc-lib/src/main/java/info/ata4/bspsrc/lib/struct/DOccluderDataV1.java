@@ -35,6 +35,7 @@ public class DOccluderDataV1 extends DOccluderData {
 
     @Override
     public void write(DataWriter out) throws IOException {
+        super.write(out);
         out.writeInt(area);
     }
 }

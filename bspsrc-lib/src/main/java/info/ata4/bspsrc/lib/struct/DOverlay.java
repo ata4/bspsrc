@@ -89,7 +89,10 @@ public class DOverlay implements DStruct {
         out.writeFloat(v[1]);
 
         for (int j = 0; j < 4; j++) {
-            Vector3f.write(out, origin);
+            Vector3f.write(out, uvpoints[j]);
         }
+
+        Vector3f.write(out, origin);
+        Vector3f.write(out, basisNormal);
     }
 }

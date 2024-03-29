@@ -38,7 +38,7 @@ public class DStaticPropV9 extends DStaticPropV8 {
     @Override
     public void write(DataWriter out) throws IOException {
         super.write(out);
-        out.writeInt(disableX360 ? 1 : 0);
+        out.writeByte((byte) (disableX360 ? 1 : 0));
         out.writeBytes(unknown);
     }
 }

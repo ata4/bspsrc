@@ -84,8 +84,6 @@ public class DFaceVTMB extends DFace {
         out.writeInt(lightmapTextureSizeInLuxels[0]);
         out.writeInt(lightmapTextureSizeInLuxels[1]);
         out.writeInt(origFace);
-        out.writeUnsignedShort(firstPrimID);
-        out.writeUnsignedShort(numPrims);
         out.writeInt(smoothingGroups);
     }
 }

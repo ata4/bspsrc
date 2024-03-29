@@ -23,7 +23,7 @@ import java.io.IOException;
 public class DDispInfoVin extends DDispInfo {
 
     private int unknown;
-    private byte[] neighborsVin = new byte[146];
+    private byte[] neighborsVin = new byte[144];
 
     @Override
     public int getSize() {
@@ -40,6 +40,7 @@ public class DDispInfoVin extends DDispInfo {
         unknown = in.readInt();
         contents = in.readInt();
         mapFace = in.readUnsignedShort();
+        in.readUnsignedShort(); // padding
         lightmapAlphaStart = in.readInt();
         lightmapSamplePositionStart = in.readInt();
         in.readBytes(neighborsVin);
@@ -59,6 +60,7 @@ public class DDispInfoVin extends DDispInfo {
         out.writeInt(unknown);
         out.writeInt(contents);
         out.writeUnsignedShort(mapFace);
+        out.writeUnsignedShort(0); // padding
         out.writeInt(lightmapAlphaStart);
         out.writeInt(lightmapSamplePositionStart);
         out.writeBytes(neighborsVin);

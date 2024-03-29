@@ -40,6 +40,7 @@ public class DDispInfoBSP22 extends DDispInfo {
         smoothingAngle = in.readFloat();
         contents = in.readInt();
         mapFace = in.readUnsignedShort();
+        in.readUnsignedShort(); // padding
         lightmapAlphaStart = in.readInt();
         lightmapSamplePositionStart = in.readInt();
         unknown = in.readInt();
@@ -60,6 +61,7 @@ public class DDispInfoBSP22 extends DDispInfo {
         out.writeFloat(smoothingAngle);
         out.writeInt(contents);
         out.writeUnsignedShort(mapFace);
+        out.writeUnsignedShort(0); // padding
         out.writeInt(lightmapAlphaStart);
         out.writeInt(lightmapSamplePositionStart);
         out.writeInt(unknown);
