@@ -137,15 +137,25 @@ public class EntitySource extends ModuleDecompile {
     public void writeEntities() {
         L.info("Writing entities");
 
-        // instances are currently supported in compilers for BSP v21+ only
-        boolean instances = bspFile.getVersion() >= 21;
+        // MOTIVATION BEHIND fixEntityRot:
+        // Brush entities can have the 'angles' property, which rotates the model of the entitiy
+        // Hammer itself, however, doesn't respect this property and doesn't these entities with their rotiation.
+        // Because of this, normally brush entities don't have angles, as nobody would create brush entities
+        // with rotation if it is not displayed in the editor anyway.
+        // However, when a brush entity is part of a func_instance, the compilation process applies the rotation
+        // of the instance by simply modifying the angles property of the brush entitiy, creating these cases
+        // of brush entities with angles.
+        // This (I think) is in it of itself not a problem, as decompiling and recompiling doesn't loose
+        // the 'angles' property, meaning the rotation doesn't get lost.
+        // However, because the hammer editor doesn't properly display this rotation we have the option
+        // to directly apply the rotation of the entity when writing to the vmf, sort of 'baking' the rotation.
+        // This is theoretically less 'correct' and futher away from the original map, but also these brushes
+        // to be displayed in their correct rotation in hammer.
+        // TODO: Maybe for some entities we don't want to bake the rotation. Perhaps consider whitelist of entities
+        // we bake rotation for
+        boolean fixEntityRot = config.fixEntityRot;
 
-        // fix rotated instance brushes?
-        // this option is unnecessary for BSP files without instances, it will
-        // only cause errors
-        boolean fixRot = config.fixEntityRot && instances;
-
-        // Initialise visgroup colors
+	    // Initialise visgroup colors
         VmfMeta.Visgroup reallocatedVg = vmfmeta
                 .visgroups()
                 .getVisgroup("Reallocated")
@@ -330,7 +340,7 @@ public class EntitySource extends ModuleDecompile {
                 String value = kv.getValue();
 
                 // skip angles for models and world brushes when fixing rotation
-                if (key.equals("angles") && modelNum >= 0 && fixRot) {
+                if (key.equals("angles") && modelNum >= 0 && fixEntityRot) {
                     continue;
                 }
 
@@ -373,11 +383,7 @@ public class EntitySource extends ModuleDecompile {
 
             // use origin for brush entities
             Vector3f origin = ent.getOrigin();
-
-            // brush entities with angles values existed in an instance
-            // during compilation and need to be rotated manually so Hammer
-            // displays their correct rotation
-            Vector3f angles = fixRot ? ent.getAngles() : null;
+            Vector3f angles = fixEntityRot ? ent.getAngles() : null;
 
             // write model brushes
             if (modelNum > 0) {
@@ -419,7 +425,9 @@ public class EntitySource extends ModuleDecompile {
             }
 
             // find instance prefix and add it to a visgroup
-            if (instances && ent.getTargetName() != null) {
+            // This is check is very weak and can create a lot of false positives
+            // TODO: Perhaps design better one. Ref: (https://developer.valvesoftware.com/wiki/Func_instance)
+            if (ent.getTargetName() != null) {
                 Matcher m = INSTANCE_PREFIX.matcher(ent.getTargetName());
 
                 if (m.find()) {
