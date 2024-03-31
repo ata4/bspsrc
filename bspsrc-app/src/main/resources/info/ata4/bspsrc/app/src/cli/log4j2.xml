@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration xmlns="http://logging.apache.org/log4j/2.0/config" strict="true" packages="info.ata4.bspsrc.app.util.log.plugins">
-	<Appenders>
-		<Appender type="Console" name="Console">
-			<Layout type="PatternLayout" pattern="%d{HH:mm:ss.SSS} %-5level %msg%n"/>
-			<Filter type="IsDecompileTaskFilter" onMatch="DENY"/>
-		</Appender>
-	</Appenders>
-	<Loggers>
-		<Root level="info">
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="https://logging.apache.org/xml/ns"
+               xsi:schemaLocation="
+                       https://logging.apache.org/xml/ns
+                       https://logging.apache.org/xml/ns/log4j-config-3.xsd"
+               strict="true">
+	<appenders>
+		<Console name="Console">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %msg%n"/>
+			<filters>
+				<IsDecompileTaskFilter onMatch="DENY"/>
+			</filters>
+		</Console>
+	</appenders>
+	<loggers>
+		<root level="INFO">
 			<AppenderRef ref="Console"/>
-		</Root>
-	</Loggers>
+		</root>
+	</loggers>
 </Configuration>

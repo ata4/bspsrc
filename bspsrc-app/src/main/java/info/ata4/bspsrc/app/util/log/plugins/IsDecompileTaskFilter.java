@@ -4,18 +4,16 @@ import info.ata4.bspsrc.decompiler.BspSource;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.core.ContextDataInjector;
-import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
-import org.apache.logging.log4j.core.config.Node;
-import org.apache.logging.log4j.core.config.plugins.Plugin;
-import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
-import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.filter.AbstractFilter;
 import org.apache.logging.log4j.core.impl.ContextDataInjectorFactory;
 import org.apache.logging.log4j.message.Message;
+import org.apache.logging.log4j.plugins.Namespace;
+import org.apache.logging.log4j.plugins.Plugin;
 
-@Plugin(name = "IsDecompileTaskFilter", category = Node.CATEGORY, elementType = Filter.ELEMENT_TYPE)
+@Plugin("IsDecompileTaskFilter")
+@Namespace("info.ata4.bspsrc.app")
 public class IsDecompileTaskFilter extends AbstractFilter {
 
 	private final ContextDataInjector injector = ContextDataInjectorFactory.createInjector();
@@ -51,19 +49,5 @@ public class IsDecompileTaskFilter extends AbstractFilter {
 	@Override
 	public Result filter(Logger logger, Level level, Marker marker, String msg, Object p0) {
 		return filter();
-	}
-
-	/**
-	 * Create a IsDecompileTaskFilter.
-	 * @param onMatch The action to take on a match.
-	 * @param onMismatch The action to take on a mismatch.
-	 * @return The created IsDecompileTaskFilter.
-	 */
-	@PluginFactory
-	public static IsDecompileTaskFilter createFilter(
-			@PluginAttribute(value = "onMatch", defaultString = "NEUTRAL") Result onMatch,
-			@PluginAttribute(value = "onMismatch", defaultString = "NEUTRAL") Result onMismatch
-	) {
-		return new IsDecompileTaskFilter(onMatch, onMismatch);
 	}
 }

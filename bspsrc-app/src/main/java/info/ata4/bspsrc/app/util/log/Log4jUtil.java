@@ -35,10 +35,10 @@ public class Log4jUtil {
 	private static final Logger L = LogManager.getLogger();
 
 	public static final PatternLayout FILE_PATTERN = PatternLayout.newBuilder()
-			.withPattern("%d{HH:mm:ss.SSS} %-5level %msg%n")
+			.setPattern("%d{HH:mm:ss.SSS} %-5level %msg%n")
 			.build();
 	public static final PatternLayout UI_PATTERN = PatternLayout.newBuilder()
-			.withPattern("[%level{WARN=warning, DEBUG=debug, ERROR=error, TRACE=trace, INFO=info}] %msg%n")
+			.setPattern("[%level{WARN=warning, DEBUG=debug, ERROR=error, TRACE=trace, INFO=info}] %msg%n")
 			.build();
 
 	public static void configure(URL configUrl) {
@@ -96,8 +96,8 @@ public class Log4jUtil {
 								Filter.Result.DENY
 						))
 						.setLayout(FILE_PATTERN)
-						.withAppend(false)
-						.withFileName(entry.getValue().toString())
+						.setAppend(false)
+						.setFileName(entry.getValue().toString())
 						.setConfiguration(config)
 						.build())
 				.collect(Collectors.toSet());
@@ -113,20 +113,21 @@ public class Log4jUtil {
 		Configuration config = context.getConfiguration();
 
 		var appenders = StreamSupport.stream(zip(entryUuids, taskLogs).spliterator(), false)
-				.map(entry -> DocumentAppender.newBuilder()
-						.setName("Decompile task document appender %s".formatted(entry.getKey()))
-						.setDocument(entry.getValue())
-						.setFilter(ThreadContextMapFilter.createFilter(
+				.map(entry -> new DocumentAppender(
+						"Decompile task document appender %s".formatted(entry.getKey()),
+						ThreadContextMapFilter.createFilter(
 								new KeyValuePair[]{
 										new KeyValuePair(BspSource.DECOMPILE_TASK_ID_IDENTIFIER, entry.getKey().toString())
 								},
 								null,
 								Filter.Result.ACCEPT,
 								Filter.Result.DENY
-						))
-						.setLayout(UI_PATTERN)
-						.setConfiguration(config)
-						.build())
+						),
+						UI_PATTERN,
+						false,
+						null,
+						entry.getValue()
+				))
 				.collect(Collectors.toSet());
 
 		return addAppenders(appenders.toArray(Appender[]::new));

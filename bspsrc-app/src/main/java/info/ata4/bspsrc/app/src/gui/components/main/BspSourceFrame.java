@@ -15,6 +15,7 @@ import info.ata4.bspsrc.decompiler.BspFileEntry;
 import info.ata4.bspsrc.decompiler.BspSource;
 import net.miginfocom.swing.MigLayout;
 import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -186,11 +187,12 @@ public class BspSourceFrame extends JFrame {
 	}
 
 	private void initErrorDialog() {
-		var dialogAppender = DialogAppender.createAppender(
+		var dialogAppender = new DialogAppender(
 				"DialogAppender" + hashCode(),
 				new IsDecompileTaskFilter(Filter.Result.DENY, Filter.Result.NEUTRAL),
-				null,
+				PatternLayout.createDefaultLayout(),
 				false,
+				null,
 				this
 		);
 		var appenderCloseable = Log4jUtil.addAppenders(dialogAppender);

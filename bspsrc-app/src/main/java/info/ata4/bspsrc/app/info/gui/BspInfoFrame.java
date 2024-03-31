@@ -8,8 +8,11 @@ import info.ata4.bspsrc.app.util.log.plugins.DialogAppender;
 import info.ata4.bspsrc.app.util.swing.FileExtensionFilter;
 import info.ata4.bspsrc.decompiler.BspSource;
 import info.ata4.bspsrc.lib.exceptions.BspException;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.filter.ThresholdFilter;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,6 +37,8 @@ import static info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder.Fill.HOR
 import static info.ata4.bspsrc.app.util.swing.GridBagConstraintsBuilder.Fill.NONE;
 import static java.util.Objects.requireNonNull;
 import static javax.swing.BorderFactory.createCompoundBorder;
+import static org.apache.logging.log4j.core.Filter.Result.DENY;
+import static org.apache.logging.log4j.core.Filter.Result.NEUTRAL;
 
 public class BspInfoFrame extends JFrame {
 
@@ -111,7 +116,14 @@ public class BspInfoFrame extends JFrame {
 	}
 
 	private void initErrorDialog() {
-		var dialogAppender = DialogAppender.createAppender("DialogAppender" + hashCode(), null, null, false, this);
+		var dialogAppender = new DialogAppender(
+				"DialogAppender" + hashCode(),
+				ThresholdFilter.createFilter(Level.ERROR, DENY, NEUTRAL),
+				PatternLayout.createDefaultLayout(),
+				false,
+				null,
+				this
+		);
 		var appenderCloseable = Log4jUtil.addAppenders(dialogAppender);
 		addWindowListener(new WindowAdapter() {
 			@Override
