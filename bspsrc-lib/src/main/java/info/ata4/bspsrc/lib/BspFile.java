@@ -358,7 +358,7 @@ public class BspFile {
             }
 
             Lump l = new Lump(i, ltype);
-            l.setBuffer(ByteBufferUtils.getSlice(bb, ofs, len));
+            l.setBuffer(bb.slice(ofs, len).order(bb.order()));
             l.setOffset(ofs);
             l.setParentFile(file);
             l.setFourCC(fourCC);
@@ -600,7 +600,7 @@ public class BspFile {
                 }
 
                 GameLump gl = new GameLump();
-                gl.setBuffer(ByteBufferUtils.getSlice(lump.getBuffer(), ofs, len));
+                gl.setBuffer(lump.getBuffer().slice(ofs, len).order(lump.getBuffer().order()));
                 gl.setOffset(ofs);
                 gl.setFourCC(fourCC);
                 gl.setFlags(flags);

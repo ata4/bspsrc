@@ -78,21 +78,22 @@ public class LumpFile {
         L.trace("Lump size: {}", lumpSize);
         L.trace("Map revision: {}", mapRev);
 
-        if (lumpOffset != HEADER_SIZE) {
-            throw new LumpException("Unexpected lump offset: " + lumpOffset);
-        }
-
         if (lumpIndex < 0 || lumpIndex > BspFile.HEADER_LUMPS) {
             throw new LumpException("Invalid lump ID: " + lumpIndex);
         }
-
-        if (lumpSize < 0 || lumpOffset > bb.limit()) {
-            throw new LumpException("Invalid lump size: " + lumpOffset);
+        if (lumpOffset < 0 || lumpOffset > bb.limit()) {
+            L.warn("Invalid offset %d for lump %d, assuming %d".formatted(lumpOffset, lumpIndex, HEADER_SIZE));
+            lumpOffset = HEADER_SIZE;
+        }
+        if (lumpSize < 0 || lumpOffset + lumpSize > bb.limit()) {
+            int newLumpSize = bb.limit() - lumpOffset;
+            L.warn("Invalid size %d for lump %d, assuming %d".formatted(lumpSize, lumpIndex, newLumpSize));
+            lumpSize = newLumpSize;
         }
 
         // lump data
         lump = new Lump(lumpIndex, LumpType.get(lumpIndex, bspVersion));
-        lump.setBuffer(ByteBufferUtils.getSlice(bb, lumpOffset, lumpSize));
+        lump.setBuffer(bb.slice(lumpOffset, lumpSize).order(bb.order()));
         lump.setOffset(lumpOffset);
         lump.setParentFile(file);
     }
