@@ -184,13 +184,18 @@ public class OccluderMapper {
                         int brushIndex = iBrush - firstNonWorldIBrush;
                         int flattenedOccluderPoly = (iOccluder > 0 ? occluderPolyIndices[iOccluder - 1] : 0) + sideOfOccluder;
                         int flattenedBrushSide = (brushIndex > 0 ? brushSideIndices[brushIndex - 1] : 0) + sideOfBrush;
-                        scores[flattenedOccluderPoly][flattenedBrushSide] = VectorUtil.matchingAreaPercentage(
+                        double score = VectorUtil.matchingAreaPercentage(
                                 occluderPolyData,
                                 brush,
                                 brushSide,
                                 bsp,
                                 windingFactory
                         );
+                        if (!Double.isFinite(score)) {
+                            assert false: "VectorUtil.matchingAreaPercentage returned NaN";
+                            score = 0;
+                        }
+                        scores[flattenedOccluderPoly][flattenedBrushSide] = score;
                     }
                 }
             }

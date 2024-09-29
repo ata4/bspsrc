@@ -52,8 +52,8 @@ public class VectorUtil {
      * @return A probability in the form of a double ranging from 0 to 1
      */
     private static double internalMatchingAreaPercentage(Winding w1, Winding w2, WindingFactory windingFactory) {
-        w1 = w1.removeDegenerated();
-        w2 = w2.removeDegenerated();
+        w1 = w1.removeDegenerated().removeCollinear();
+        w2 = w2.removeDegenerated().removeCollinear();
 
         // In case the provided windings are invalid, return 0!
         if (w1.size() < 3 || w2.size() < 3 || windingFactory.isHuge(w1) || windingFactory.isHuge(w2)) {
@@ -69,6 +69,7 @@ public class VectorUtil {
         Vector3f axis2 = axis1.cross(planeNormal).normalize(); //Vector orthogonal to axis1 and planeNormal
 
         //Map 3d coordinates of windings to 2d (2d coordinates on the plane they lie on)
+        // TODO: This can create colinear/degenerated vertices
         ConvexPolygon w1Polygon = w1.stream()
                 .map(vertex -> vertex.getAsPointOnPlane(origin, axis1, axis2))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), ConvexPolygon::new));

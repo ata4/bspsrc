@@ -175,6 +175,10 @@ public class AreaportalMapper {
                         bestScore = Math.max(bestScore, newScore);
                     }
                 }
+                if (!Double.isFinite(bestScore)) {
+                    assert false: "VectorUtil.matchingAreaPercentage returned NaN";
+                    bestScore = 0;
+                }
                 scores[portal][apBrush] = bestScore;
             }
         }
