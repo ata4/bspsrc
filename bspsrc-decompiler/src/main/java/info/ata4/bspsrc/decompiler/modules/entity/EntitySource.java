@@ -768,6 +768,8 @@ public class EntitySource extends ModuleDecompile {
 
             if (pst instanceof DStaticPropV10CSGO) {
                 writer.put("drawinfastreflection", ((DStaticPropV10CSGO) pst).hasRenderInFastReflection());
+                writer.put("disableshadowdepth", ((DStaticPropV10CSGO) pst).hasDisableShadowDepth());
+                writer.put("enablelightbounce", ((DStaticPropV10CSGO) pst).hasEnableLightBounce());
             }
 
             if (pst instanceof DStaticPropV11CSGO) {
