@@ -20,6 +20,7 @@ import info.ata4.bspsrc.decompiler.modules.texture.Texture;
 import info.ata4.bspsrc.decompiler.modules.texture.TextureBuilder;
 import info.ata4.bspsrc.decompiler.modules.texture.TextureSource;
 import info.ata4.bspsrc.decompiler.util.BspTreeStats;
+import info.ata4.bspsrc.decompiler.util.OccluderMapper;
 import info.ata4.bspsrc.decompiler.util.Winding;
 import info.ata4.bspsrc.decompiler.util.WindingFactory;
 import info.ata4.bspsrc.lib.BspFileReader;
@@ -47,6 +48,7 @@ public class BrushSource extends ModuleDecompile {
     private static final Logger L = LogManager.getLogger();
 
     private final WindingFactory windingFactory;
+    private final OccluderMapper.ReallocationData occReallocationData;
 
     // sub-modules
     private final BspSourceConfig config;
@@ -72,7 +74,8 @@ public class BrushSource extends ModuleDecompile {
             BspProtection bspprot,
             VmfMeta vmfmeta,
             BrushSideFaceMapper brushSideFaceMapper,
-            WindingFactory windingFactory
+            WindingFactory windingFactory,
+            OccluderMapper.ReallocationData occReallocationData
     ) {
         super(reader, writer);
 
@@ -82,6 +85,7 @@ public class BrushSource extends ModuleDecompile {
         this.vmfmeta = requireNonNull(vmfmeta);
         this.brushSideFaceMapper = requireNonNull(brushSideFaceMapper);
         this.windingFactory = requireNonNull(windingFactory);
+        this.occReallocationData = requireNonNull(occReallocationData);
 
         assignBrushes();
     }
@@ -344,7 +348,7 @@ public class BrushSource extends ModuleDecompile {
         Vector3f normal = ev12.cross(ev13).normalize();
 
         // build texture
-        TextureBuilder tb = texsrc.getTextureBuilder();
+        var tb = new TextureBuilder(bsp, texsrc, occReallocationData);
 
         tb.setOrigin(origin);
         tb.setAngles(angles);

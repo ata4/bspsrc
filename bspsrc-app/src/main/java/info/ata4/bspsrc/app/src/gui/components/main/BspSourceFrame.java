@@ -71,7 +71,6 @@ public class BspSourceFrame extends JFrame {
 	public final FilesPanel filesPanel;
 	public final WorldPanel worldPanel;
 	public final EntitiesPanel entitiesPanel;
-	public final EntityMappingPanel entityMappingPanel;
 	public final TexturesPanel texturesPanel;
 	public final OtherPanel otherPanel;
 
@@ -142,7 +141,6 @@ public class BspSourceFrame extends JFrame {
 		filesPanel = new FilesPanel(filesModel);
 		worldPanel = new WorldPanel(model.getConfig());
 		entitiesPanel = new EntitiesPanel(model.getConfig());
-		entityMappingPanel = new EntityMappingPanel(model.getConfig());
 		texturesPanel = new TexturesPanel(model.getConfig());
 		otherPanel = new OtherPanel(model.getConfig());
 
@@ -151,7 +149,6 @@ public class BspSourceFrame extends JFrame {
 		tbpMain.addTab("Files", filesPanel);
 		tbpMain.addTab("World", worldPanel);
 		tbpMain.addTab("Entities", entitiesPanel);
-		tbpMain.addTab("Entity mapping", entityMappingPanel);
 		tbpMain.addTab("Textures", texturesPanel);
 		tbpMain.addTab("Other", otherPanel);
 

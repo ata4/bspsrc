@@ -79,8 +79,7 @@ public class TextureSource extends ModuleRead {
     // settings
     private boolean fixTextureNames;
     private boolean fixToolTextures;
-    private ToolTextureMatcher toolTextureMatcher =
-            new ToolTextureMatcher(ToolTextureSet.forGame(bspFile.getAppId()));
+    private ToolTextureMatcher toolTextureMatcher = new ToolTextureMatcher(ToolTextureSet.forGame(bspFile.getAppId()));
 
     public TextureSource(BspFileReader reader) {
         super(reader);
@@ -164,8 +163,8 @@ public class TextureSource extends ModuleRead {
         L.trace("Couldn't find cubemap for coordinates ({}, {}, {})", cx, cy, cz);
     }
 
-    public TextureBuilder getTextureBuilder() {
-        return new TextureBuilder(this, bsp, toolTextureMatcher);
+    public ToolTextureMatcher getToolTextureMatcher() {
+        return toolTextureMatcher;
     }
 
     public void addBrushSideID(int itexname, int side) {

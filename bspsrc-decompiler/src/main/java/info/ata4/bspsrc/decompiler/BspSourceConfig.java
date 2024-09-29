@@ -48,7 +48,6 @@ public final class BspSourceConfig {
     public boolean detailMerge = false;
     public float detailMergeThresh = 1;
     public boolean apForceManualMapping = false;
-    public boolean occForceManualMapping = false;
     public boolean writeAreaportals = true;
     public boolean writeBrushEntities = true;
     public boolean writeCameras = true;
@@ -90,7 +89,6 @@ public final class BspSourceConfig {
         this.detailMerge = config.detailMerge;
         this.detailMergeThresh = config.detailMergeThresh;
         this.apForceManualMapping = config.apForceManualMapping;
-        this.occForceManualMapping = config.occForceManualMapping;
         this.writeAreaportals = config.writeAreaportals;
         this.writeBrushEntities = config.writeBrushEntities;
         this.writeCameras = config.writeCameras;

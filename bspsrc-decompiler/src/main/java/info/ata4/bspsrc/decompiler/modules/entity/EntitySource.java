@@ -67,15 +67,8 @@ public class EntitySource extends ModuleDecompile {
     private final VmfMeta vmfmeta;
     private final BrushSideFaceMapper brushSideFaceMapper;
 
-    // Areaportal to brush mapping
-    private final AreaportalMapper areaportalMapper;
-    // A map mapping areaportal ids to their supposed brush id
-    private final Map<Integer, Integer> apBrushMap;
-
-    // Occluder to brushes mapping;
-    private final OccluderMapper occluderMapper;
-    // A map mapping occluder ids to their supposed brush ids
-    private final Map<Integer, Set<Integer>> occBrushesMap;
+    private final AreaportalMapper.ReallocationData areaportalReallocationData;
+    private final OccluderMapper.ReallocationData occluderReallocationData;
 
     //'No More Room in Hell' Nmo data
     private NmoFile nmo;
@@ -94,9 +87,14 @@ public class EntitySource extends ModuleDecompile {
             VmfMeta vmfmeta,
             BrushSideFaceMapper brushSideFaceMapper,
             WindingFactory windingFactory,
-            BrushBounds brushBounds
+            BrushBounds brushBounds,
+            AreaportalMapper.ReallocationData areaportalReallocationData,
+            OccluderMapper.ReallocationData occluderReallocationData
     ) {
         super(reader, writer);
+
+        this.windingFactory = requireNonNull(windingFactory);
+        this.brushBounds = requireNonNull(brushBounds);
 
         this.config = requireNonNull(config);
         this.brushsrc = requireNonNull(brushsrc);
@@ -105,19 +103,11 @@ public class EntitySource extends ModuleDecompile {
         this.bspprot = requireNonNull(bspprot);
         this.vmfmeta = requireNonNull(vmfmeta);
         this.brushSideFaceMapper = requireNonNull(brushSideFaceMapper);
-        this.windingFactory = requireNonNull(windingFactory);
-        this.brushBounds = requireNonNull(brushBounds);
+
+        this.areaportalReallocationData = requireNonNull(areaportalReallocationData);
+        this.occluderReallocationData = requireNonNull(occluderReallocationData);
 
         processEntities();
-
-        areaportalMapper = new AreaportalMapper(bsp, config, windingFactory);
-        apBrushMap = areaportalMapper.getApBrushMapping();
-
-        occluderMapper = new OccluderMapper(bsp, config, windingFactory);
-        occBrushesMap = occluderMapper.getOccBrushMapping();
-
-        // Because the Texturebuilder needs to know which brush is a occluder we flag them here. (The Texturebuilder needs to know this information, because the brushside that represents the occluder has almost always the wrong tooltexture applied, which we need to fix)
-        occBrushesMap.values().forEach(brushIndexes -> brushIndexes.forEach(index -> bsp.brushes.get(index).flagAsOccluder(true)));
     }
 
     /**
@@ -269,12 +259,19 @@ public class EntitySource extends ModuleDecompile {
                     ));
                     continue;
                 }
-
-                if (!areaportalMapper.hasValidGeometry(portalNum)) {
-                    L.warn(String.format(
-                            "%s links to non existing areaportal or has invalid geometry, skipping...",
-                            className
-                    ));
+                int finalPortalNum = portalNum;
+                var areaportalsWithPortalKey = bsp.areaportals.stream()
+                        .filter(areaportal -> areaportal.portalKey == finalPortalNum)
+                        .collect(Collectors.toSet());
+                if (areaportalsWithPortalKey.isEmpty()) {
+                    L.warn("func_areaportal entity links to a non existing areaportal, skipping...");
+                    continue;
+                }
+                
+                var areaportalsHaveInvalidGeometry = areaportalsWithPortalKey.stream()
+                        .anyMatch(areaportal -> areaportal.clipPortalVerts < 3);
+                if (areaportalsHaveInvalidGeometry) {
+                    L.warn("func_areaportal links areaportal with invalid geometry, skipping...");
                     continue;
                 }
 
@@ -393,10 +390,10 @@ public class EntitySource extends ModuleDecompile {
                     facesrc.writeModel(modelNum, origin, angles);
                 }
             } else {
-                // retrieve areaportal brush from map
-                if (isAreaportal && portalNum != -1) {
-                    if (config.brushMode == BrushMode.BRUSHPLANES && apBrushMap.containsKey(portalNum)) {
-                        brushsrc.writeBrush(apBrushMap.get(portalNum));
+                if (isAreaportal && portalNum >= 0) {
+                    var reallocatedIBrush = areaportalReallocationData.mapping().get(portalNum);
+                    if (config.brushMode == BrushMode.BRUSHPLANES && reallocatedIBrush != null) {
+                        brushsrc.writeBrush(reallocatedIBrush);
                         visgroups.add(reallocatedAreaportalVg);
                     } else {
                         facesrc.writeAreaportal(portalNum);
@@ -410,10 +407,10 @@ public class EntitySource extends ModuleDecompile {
                     }
                 }
 
-                // retrieve occluder brushes from map
-                if (isOccluder && occluderNum != -1) {
-                    if (config.brushMode == BrushMode.BRUSHPLANES && occBrushesMap.containsKey(occluderNum)) {
-                        for (int brushId: occBrushesMap.get(occluderNum)) {
+                if (isOccluder && occluderNum >= 0) {
+                    var reallocatedIBrushes = occluderReallocationData.occluderToBrushes().get(occluderNum);
+                    if (config.brushMode == BrushMode.BRUSHPLANES && reallocatedIBrushes != null) {
+                        for (int brushId: reallocatedIBrushes) {
                             brushsrc.writeBrush(brushId);
                         }
                         visgroups.add(reallocatedOccluderVg);
@@ -468,9 +465,10 @@ public class EntitySource extends ModuleDecompile {
             writer.end("entity");
         }
 
-        //If were in debug wer write some additional entities
+        //If we're in debug, we write some additional entities
         if (config.debug) {
-            areaportalMapper.writeDebugPortals(writer, vmfmeta, facesrc);
+            AreaportalMapper.writeDebugPortals(bsp, facesrc, windingFactory, writer, vmfmeta);
+            OccluderMapper.writeDebugOccluders(bsp, facesrc, windingFactory, writer, vmfmeta);
         }
     }
 

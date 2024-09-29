@@ -1,8 +1,8 @@
 versioninfo
 {
 	"editorversion" "400"
-	"editorbuild" "8075"
-	"mapversion" "10"
+	"editorbuild" "10135"
+	"mapversion" "13"
 	"formatversion" "100"
 	"prefab" "0"
 }
@@ -20,7 +20,7 @@ viewsettings
 world
 {
 	"id" "1"
-	"mapversion" "10"
+	"mapversion" "13"
 	"classname" "worldspawn"
 	"detailmaterial" "detail/detailsprites"
 	"detailvbsp" "detail.vbsp"
@@ -6052,6 +6052,7 @@ entity
 	"classname" "func_areaportal"
 	"PortalVersion" "1"
 	"StartOpen" "1"
+	"targetname" "window_right"
 	solid
 	{
 		"id" "1120"
@@ -6142,6 +6143,7 @@ entity
 	"classname" "func_areaportal"
 	"PortalVersion" "1"
 	"StartOpen" "1"
+	"targetname" "window_middle"
 	solid
 	{
 		"id" "1125"
@@ -6232,6 +6234,7 @@ entity
 	"classname" "func_areaportal"
 	"PortalVersion" "1"
 	"StartOpen" "1"
+	"targetname" "window_left"
 	solid
 	{
 		"id" "1128"

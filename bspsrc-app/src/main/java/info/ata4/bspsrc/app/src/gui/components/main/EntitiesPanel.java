@@ -24,6 +24,13 @@ public class EntitiesPanel extends JPanel {
 	private final JCheckBox chkAreaportal = new JCheckBox("Restore func_areaportal/_window") {{
 		addActionListener(e -> EntitiesPanel.this.config.updateConfig(c -> c.writeAreaportals = isSelected()));
 	}};
+	private final JCheckBox chkAreaportalManualMapping = new JCheckBox("Force manual mapping") {{
+		setToolTipText("""
+				Manually calculate areaportal reallocation.
+				This method should be more robust at the expense of
+				being less precise sometimes""");
+		addActionListener(e -> EntitiesPanel.this.config.updateConfig(c -> c.apForceManualMapping = isSelected()));
+	}};
 	private final JCheckBox chkOccluder = new JCheckBox("Restore func_occluder") {{
 		addActionListener(e -> EntitiesPanel.this.config.updateConfig(c -> c.writeOccluders = isSelected()));
 	}};
@@ -55,6 +62,7 @@ public class EntitiesPanel extends JPanel {
 		setBorder(BorderFactory.createTitledBorder("Brush entities"));
 		add(chkDetail, "wrap");
 		add(chkAreaportal, "wrap");
+		add(chkAreaportalManualMapping, "gapleft i, wrap");
 		add(chkOccluder, "wrap");
 		add(chkLadder, "wrap");
 		add(chkFixRotation, "wrap");
@@ -82,6 +90,7 @@ public class EntitiesPanel extends JPanel {
 
 		chkDetail.setSelected(config.get(c -> c.writeDetails));
 		chkAreaportal.setSelected(config.get(c -> c.writeAreaportals));
+		chkAreaportalManualMapping.setSelected(config.get(c -> c.apForceManualMapping));
 		chkOccluder.setSelected(config.get(c -> c.writeOccluders));
 		chkLadder.setSelected(config.get(c -> c.writeLadders));
 		chkFixRotation.setSelected(config.get(c -> c.fixEntityRot));

@@ -9,12 +9,15 @@
  */
 package info.ata4.bspsrc.decompiler.modules.texture;
 
+import info.ata4.bspsrc.decompiler.util.OccluderMapper;
 import info.ata4.bspsrc.lib.struct.*;
 import info.ata4.bspsrc.lib.vector.Vector3f;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A builder to create Texture objects.
@@ -28,7 +31,7 @@ public class TextureBuilder {
 
     private final BspData bsp;
     private final TextureSource texsrc;
-    private final ToolTextureMatcher toolTextureMatcher;
+    private final OccluderMapper.ReallocationData occReallocationData;
 
     private Texture texture;
     private Vector3f origin;
@@ -44,10 +47,14 @@ public class TextureBuilder {
 
     private boolean enableTextureFixing = false;
 
-    TextureBuilder(TextureSource texsrc, BspData bsp, ToolTextureMatcher toolTextureMatcher) {
-        this.texsrc = texsrc;
-        this.bsp = bsp;
-        this.toolTextureMatcher = toolTextureMatcher;
+    public TextureBuilder(
+            BspData bsp,
+            TextureSource texsrc,
+            OccluderMapper.ReallocationData occReallocationData
+    ) {
+        this.bsp = requireNonNull(bsp);
+        this.texsrc = requireNonNull(texsrc);
+        this.occReallocationData = requireNonNull(occReallocationData);
     }
 
     public Texture build() {
@@ -134,14 +141,21 @@ public class TextureBuilder {
 
         DBrush brush = bsp.brushes.get(ibrush);
 
-        // fix occluder textures
-        if (brush.isFlaggedAsOccluder() && !ToolTexture.NODRAW.equalsIgnoreCase(originalTextureName))
-            return ToolTexture.OCCLUDER;
+        // We do not explicitly fix areaportal textures here, because the toolTextureMatcher is already
+        // able to identify them. This is due to areaportal brushes having the AREAPORTAL brush flag.
+        // Occluders on the other hand do not have any indicative brush flag, which is why we do it manually.
 
+        // fix occluder textures
+        boolean isOccluderBrush = occReallocationData.isOccluderBrush(ibrush);
+        boolean isOccluderBrushSide = occReallocationData.isOccluderBrushSide(ibrush, ibrushside - brush.fstside);
+
+        if (isOccluderBrush) {
+            return isOccluderBrushSide ? ToolTexture.OCCLUDER : ToolTexture.NODRAW;
+        }
         Set<BrushFlag> brushFlags = brush.contents;
         Set<SurfaceFlag> surfFlags = itexinfo == DTexInfo.TEXINFO_NODE ? null : bsp.texinfos.get(itexinfo).flags;
 
-	    return toolTextureMatcher.fixToolTexture(originalTextureName, brushFlags, surfFlags)
+        return texsrc.getToolTextureMatcher().fixToolTexture(originalTextureName, brushFlags, surfFlags)
                 .orElse(null);
     }
 

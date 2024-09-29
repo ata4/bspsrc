@@ -1,18 +1,20 @@
 package info.ata4.bspsrc.decompiler.util;
 
 import info.ata4.bspsrc.decompiler.BspSourceConfig;
-import info.ata4.bspsrc.lib.struct.*;
+import info.ata4.bspsrc.decompiler.VmfWriter;
+import info.ata4.bspsrc.decompiler.modules.VmfMeta;
+import info.ata4.bspsrc.decompiler.modules.geom.FaceSource;
+import info.ata4.bspsrc.decompiler.modules.texture.ToolTexture;
+import info.ata4.bspsrc.lib.struct.BspData;
+import info.ata4.bspsrc.lib.struct.DOccluderData;
+import info.ata4.bspsrc.lib.struct.DOccluderPolyData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 
-import static java.util.Objects.requireNonNull;
+import static info.ata4.bspsrc.common.util.Collectors.mode;
+import static info.ata4.bspsrc.decompiler.util.HungarianAlgorithm.hungarian;
 
 /**
  * Class for mapping occluder entities to their original brushes
@@ -21,206 +23,252 @@ public class OccluderMapper {
 
     private static final Logger L = LogManager.getLogger();
 
-    private final WindingFactory windingFactory;
-
-    private BspSourceConfig config;
-    private BspData bsp;
-
-    /**
-     * Occluders aren't worldbrushes, so we can limit our 'search' by limiting the brushes to non worldbrushes.
-     * This is used for both {@link OccMappingMode#MANUAL} and  {@link OccMappingMode#ORDERED}
-     */
-    private ArrayList<DBrush> nonWorldBrushes;
-
-    /**
-     * ONLY used for {@link OccMappingMode#ORDERED}
-     */
-    private SortedMap<Integer, Integer> potentialOccluderBrushes;
-
-    /**
-     * Predicate that test if a {@link DTexInfo} matches one that would be used for occluder brush sides.
-     * ONLY used for {@link OccMappingMode#ORDERED}, because I'm not sure if other games use different SurfaceFlags!
-     */
-    private static final Predicate<DTexInfo> matchesOccluderTexInfo = dTexInfo -> dTexInfo.flags.equals(EnumSet.of(SurfaceFlag.SURF_NOLIGHT)) || dTexInfo.flags.equals(EnumSet.of(SurfaceFlag.SURF_TRIGGER, SurfaceFlag.SURF_NOLIGHT));
-
-
-    public OccluderMapper(BspData bsp, BspSourceConfig config, WindingFactory windingFactory) {
-        this.config = requireNonNull(config);
-        this.bsp = requireNonNull(bsp);
-        this.windingFactory = requireNonNull(windingFactory);
-
-        prepareNonWorldBrushes();
-        preparePotentialOccBrushes();
-    }
-
-    private void prepareNonWorldBrushes()
-    {
-        BspTreeStats tree = new BspTreeStats(bsp);
-        tree.walk(0);
-
-        nonWorldBrushes = new ArrayList<>(bsp.brushes.subList(tree.getMaxBrushLeaf() + 1, bsp.brushes.size()));
-    }
-
-    /**
-     * Because there is no direct way of determining if a brush was used as an occluder, we have to use a process of elimination to get a list of potential occluder brushes.
-     * Fills {@code potentialOccluderBrushes} with potential brushes, that could have represented occluders as keys and and the amount of brush sides, that could have represented occluder faces as values
-     */
-    private void preparePotentialOccBrushes() {
-        potentialOccluderBrushes = nonWorldBrushes.stream()
-                .filter(dBrush -> dBrush.contents.equals(EnumSet.of(BrushFlag.CONTENTS_SOLID))) // Every occluder brush only seems to have this one BrushFlag
-                .collect(Collectors.toMap(
-                        bsp.brushes::indexOf,
-                        dBrush -> (int) bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
-                                .map(dBrushSide -> bsp.texinfos.get(dBrushSide.texinfo))
-                                .filter(matchesOccluderTexInfo)
-                                .count(),
-                        (u,v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); },
-                        TreeMap::new    //Important! because we wanna preserve the index order of the original brush lump, so we can use it in the 'ORDERED MAPPING' method
-                ));
-
-        // Remove every brush, that didn't actually had a brush side which could be a potential occluder face
-        potentialOccluderBrushes.values().removeIf(faceCount -> faceCount == 0);
-    }
-
-    /**
-     * Maps all {@link DOccluderData} to their original brushes by comparing their faces to brush sides and determining if they are similar (Identical or contained in the brushside)
-     *
-     * @return A {@link Map} where the keys represent an occluder an the values a list of brush ids
-     */
-    private Map<Integer, Set<Integer>> manualMapping() {
-        // Map all occluders to a list of representing brushes
-        Map<Integer, Set<Integer>> occBrushMapping = bsp.occluderDatas.stream()
-                .collect(Collectors.toMap(
-                        dOccluderData -> bsp.occluderDatas.indexOf(dOccluderData),
-                        this::mapOccluder
-                ));
-
-        // Remove every occluder mapping that has 0 brushes assigned, because we couldn't find a mapping
-        occBrushMapping.values().removeIf(list -> list.size() == 0);
-
-        return occBrushMapping;
-    }
-
-    /**
-     * Finds all brushes that represent this occluder and return their index in {@link BspData#brushes}
-     *
-     * @param dOccluderData occluder to find brushes for
-     * @return an Integer list of brush indexes
-     */
-    private Set<Integer> mapOccluder(DOccluderData dOccluderData) {
-        return bsp.occluderPolyDatas.subList(dOccluderData.firstpoly, dOccluderData.firstpoly + dOccluderData.polycount).stream()
-                .map(dOccluderPolyData -> nonWorldBrushes.stream()
-                        .filter(dBrush -> bsp.brushSides.subList(dBrush.fstside, dBrush.fstside + dBrush.numside).stream()
-                                .anyMatch(brushSide -> occFacesContainsBrushFace(dOccluderPolyData, dBrush, brushSide))
-                        )
-                        .findAny()
-                )
-                .filter(Optional::isPresent)
-                .map(optionalDBrush -> bsp.brushes.indexOf(optionalDBrush.get()))
-                .filter(index -> {assert index != -1; return index != -1;})   //Shouldn't happen, but just in case 'indexOf' returns -1 we filter these out here
-                .collect(Collectors.toSet());
-    }
-
-    /**
-     * Test if the specified occluder face contains the specified brush side
-     *
-     * @param dOccluderPolyData the occluder face
-     * @param dBrush the brush, the brush side belongs to
-     * @param dBrushSide the brush side
-     * @return true if the specified occluder face contains the specified brush side, false otherwise
-     */
-    private boolean occFacesContainsBrushFace(DOccluderPolyData dOccluderPolyData, DBrush dBrush, DBrushSide dBrushSide) {
-        return VectorUtil.matchingAreaPercentage(dOccluderPolyData, dBrush, dBrushSide, bsp, windingFactory) > 0; // <- May need to be some epsilon instead of 0
-    }
-
-    /**
-     * Mapps all occluder entities in to their brushes in ascending brush index order
-     *
-     * @return A {@code Map} with occluder ids as keys and and a List of Integers as values
-     */
-    private Map<Integer, Set<Integer>> orderedMapping() {
-        List<Integer> reverseOccluderFaces = bsp.occluderDatas.stream()
-                .flatMap(dOccluderData -> IntStream.range(0, dOccluderData.polycount)
-                        .mapToObj(value -> bsp.occluderDatas.indexOf(dOccluderData))
-                )
-                .collect(Collectors.toList());
-
-        List<Integer> reverseBrushFaces = potentialOccluderBrushes.entrySet().stream()
-                .flatMap(entry -> LongStream.range(0, entry.getValue())
-                        .mapToObj(value -> entry.getKey())
-                )
-                .sorted()
-                .collect(Collectors.toList());
-
-        int min = Math.min(reverseOccluderFaces.size(), reverseBrushFaces.size());
-
-        return IntStream.range(0, min)
-                .boxed()
-                .collect(Collectors.groupingBy(reverseOccluderFaces::get, Collectors.collectingAndThen(
-                        Collectors.toSet(),
-                        indices -> indices.stream()
-                                .map(reverseBrushFaces::get)
-                                .collect(Collectors.toSet())
-                )));
-    }
-
     /**
      * Creates and returns an occluder to brushes mapping
-     * <p></p>
-     * If the amount of occluder faces is equal to the amount of occluder faces of all potential occluder brushes we just map the occluder faces in order to the brushes.
-     * This is possible because vBsp seems to compile the occluders in order.
-     * If this is not the case we use {@code manualMapping} to manually map the occluders to their brushes
+     * </p>
+     * In contrast to the {@link AreaportalMapper}, this method will always manually map occluders to brushes.
      *
-     * @return A {@code Map} where the keys represent occluder ids and values a set of brush ids
+     * @return Occluder reallocation data
      */
-    public Map<Integer, Set<Integer>> getOccBrushMapping() {
+    public static ReallocationData createReallocationData(
+            BspData bsp,
+            BspSourceConfig config,
+            WindingFactory windingFactory
+    ) {
         if (!config.writeOccluders)
-            return Collections.emptyMap();
+            return new ReallocationData(Map.of(), Map.of());
 
-        if (bsp.occluderDatas.size() == 0) {
+        if (bsp.occluderDatas.isEmpty()) {
             L.info("No occluders to reallocate...");
-            return Collections.emptyMap();
+            return new ReallocationData(Map.of(), Map.of());
         }
 
-        if (config.occForceManualMapping) {
-            L.info("Forced manual occluder mapping method");
-            return OccMappingMode.MANUAL.map(this);
-        }
+        L.info("Reallocating occluders...");
+        return manualMapping(bsp, windingFactory);
+    }
 
-        int occluderFacesNum = potentialOccluderBrushes.values().stream()
-                .mapToInt(i -> i)
-                .sum();
-
-        int occluderBrushFacesNum = bsp.occluderDatas.stream()
+    /**
+     * Maps all {@link DOccluderPolyData} to the likeliest brush which they originated from.
+     * 
+     * <p>This is done by calculating the amount of overlap between each occluder face with each brush side.
+     * A mapping is then created by applying the Hungarian method to assign each occluder to a brush.
+     */
+    private static ReallocationData manualMapping(
+            BspData bsp,
+            WindingFactory windingFactory
+    ) {
+        // Occluder brushes are always non-world brushes.
+        // We can't rely on texture data, and occluders don't have an equivalent flag like CONTENTS_AREAPORTAL
+        var firstNonWorldIBrush = getFirstNonWorldBrushId(bsp);
+        
+        var occluderPolyIndices = bsp.occluderDatas.stream()
                 .mapToInt(occluder -> occluder.polycount)
-                .sum();
+                .toArray();
+        Arrays.parallelPrefix(occluderPolyIndices, Integer::sum);
+        
+        var brushSideIndices = bsp.brushes.stream()
+                .skip(firstNonWorldIBrush)
+                .mapToInt(brush -> brush.numside)
+                .toArray();
+        Arrays.parallelPrefix(brushSideIndices, Integer::sum);
 
-        if (occluderFacesNum == occluderBrushFacesNum) {
-            L.info("Equal amount of occluder faces and occluder brush faces. Using '" + OccMappingMode.ORDERED + "' method");
-            return OccMappingMode.ORDERED.map(this);
-        } else {
-            L.info("Unequal amount of occluder faces and occluder brush faces. Falling back to '" + OccMappingMode.MANUAL + "' method");
-            return OccMappingMode.MANUAL.map(this);
+        var scores = createScores(bsp, windingFactory, occluderPolyIndices, brushSideIndices, firstNonWorldIBrush);
+        var mappingResult = hungarian((j, w) -> scores[j][w], scores.length, scores[0].length);
+        var collectBrushes = collectBrushes(bsp, mappingResult, scores, occluderPolyIndices, brushSideIndices,
+                firstNonWorldIBrush);
+        
+        var occluderToBrushes = new HashMap<Integer, Set<Integer>>();
+        var brushToSideMapping = new HashMap<Integer, Map<Integer, Integer>>();
+
+        collectBrushes.forEach((iBrush, sideMapping) -> {
+            var dBrush = bsp.brushes.get(iBrush);
+            
+            var mostCommonIOccluder = sideMapping.values().stream()
+                    .map(OccluderPoly::iOccluder)
+                    .collect(mode())
+                    .orElse(null);
+
+            if (mostCommonIOccluder != null) {
+                var newMapping = new HashMap<Integer, Integer>();
+                for (int sideOfBrush = 0; sideOfBrush < dBrush.numside; sideOfBrush++) {
+                    var occluderPoly = sideMapping.get(sideOfBrush);
+                    if (occluderPoly == null)
+                        continue;
+                    if (occluderPoly.iOccluder() != mostCommonIOccluder) {
+                        L.warn(
+                                "Couldn't reallocate side {} of occluder {}, because reallocated brush belongs "
+                                        + "to different occluder {}",
+                                occluderPoly.side(),
+                                occluderPoly.iOccluder(),
+                                mostCommonIOccluder
+                        );
+                        continue;
+                    }
+
+                    newMapping.put(sideOfBrush, occluderPoly.side());
+                }
+
+                occluderToBrushes.computeIfAbsent(mostCommonIOccluder, _ -> new HashSet<>()).add(iBrush);
+                brushToSideMapping.put(iBrush, newMapping);
+            }
+        });
+
+        return new ReallocationData(
+                occluderToBrushes,
+                brushToSideMapping
+        );
+    }
+
+    /**
+     * Collects all brushsides which got mapped to an occluder face.
+     * @return A map in the form of {@code Map<Brush Id, Map<BrushSide Id, OccluderPoly>>}
+     */
+    private static HashMap<Integer, Map<Integer, OccluderPoly>> collectBrushes(
+            BspData bsp,
+            HungarianAlgorithm.Result mappingResult,
+            double[][] scores,
+            int[] occluderPolyIndices,
+            int[] brushSideIndices,
+            int firstNonWorldIBrush
+    ) {
+        var brushes = new HashMap<Integer, Map<Integer, OccluderPoly>>();
+        for (int iOccluder = 0; iOccluder < bsp.occluderDatas.size(); iOccluder++) {
+            var occluder = bsp.occluderDatas.get(iOccluder);
+            for (int sideOfOccluder = 0; sideOfOccluder < occluder.polycount; sideOfOccluder++) {
+                var offset = iOccluder > 0 ? occluderPolyIndices[iOccluder - 1] : 0;
+                var index = offset + sideOfOccluder;
+                
+                var flattenedBrushSide = mappingResult.jobToWorker()[index];
+                if (flattenedBrushSide < 0 || scores[index][flattenedBrushSide] == 0) {
+                    L.warn("Couldn't reallocate side {} of occluder {}.", sideOfOccluder, iOccluder);
+                    continue;
+                }
+                
+                var apBrush = Math.abs(Arrays.binarySearch(brushSideIndices, flattenedBrushSide) + 1);
+                var sideOfBrush = flattenedBrushSide - (apBrush > 0 ? brushSideIndices[apBrush - 1] : 0);
+                var iBrush = firstNonWorldIBrush + apBrush;
+                
+                brushes
+                        .computeIfAbsent(iBrush, _ -> new HashMap<>())
+                        .put(sideOfBrush, new OccluderPoly(iOccluder, sideOfOccluder));
+            }
+        }
+        return brushes;
+    }
+
+    /**
+     * Create the score matrix for the hungarian method. The score for a occluderface/brushside combination is defined as 
+     * the amount of overlap between their surfaces. They can be retrieved using scores[occluderface][brushside].
+     */
+    private static double[][] createScores(
+            BspData bsp,
+            WindingFactory windingFactory,
+            int[] occluderPolyIndices,
+            int[] brushSideIndices,
+            int firstNonWorldIBrush
+    ) {
+        int occluderSidesCount = occluderPolyIndices.length > 0 ? occluderPolyIndices[occluderPolyIndices.length - 1] : 0;
+        int brushSideCount = brushSideIndices.length > 0 ? brushSideIndices[brushSideIndices.length - 1] : 0;
+
+        var scores = new double[occluderSidesCount][brushSideCount];
+        for (int iOccluder = 0; iOccluder < bsp.occluderDatas.size(); iOccluder++) {
+            var occluder = bsp.occluderDatas.get(iOccluder);
+            for (int sideOfOccluder = 0; sideOfOccluder < occluder.polycount; sideOfOccluder++) {
+                var occluderPolyData = bsp.occluderPolyDatas.get(occluder.firstpoly + sideOfOccluder);
+                
+                for (int iBrush = firstNonWorldIBrush; iBrush < bsp.brushes.size(); iBrush++) {
+                    var brush = bsp.brushes.get(iBrush);
+                    for (int sideOfBrush = 0; sideOfBrush < brush.numside; sideOfBrush++) {
+                        var brushSide = bsp.brushSides.get(brush.fstside + sideOfBrush);
+
+                        int brushIndex = iBrush - firstNonWorldIBrush;
+                        int flattenedOccluderPoly = (iOccluder > 0 ? occluderPolyIndices[iOccluder - 1] : 0) + sideOfOccluder;
+                        int flattenedBrushSide = (brushIndex > 0 ? brushSideIndices[brushIndex - 1] : 0) + sideOfBrush;
+                        scores[flattenedOccluderPoly][flattenedBrushSide] = VectorUtil.matchingAreaPercentage(
+                                occluderPolyData,
+                                brush,
+                                brushSide,
+                                bsp,
+                                windingFactory
+                        );
+                    }
+                }
+            }
+        }
+        return scores;
+    }
+    
+    private static int getFirstNonWorldBrushId(BspData bsp) {
+        var tree = new BspTreeStats(bsp);
+        tree.walk(0);
+        return tree.getMaxBrushLeaf() + 1;
+    }
+    
+    private record OccluderPoly(
+            int iOccluder,
+            int side
+    ) {}
+
+    /**
+     * @param occluderToBrushes A mapping where the keys represent an occluder ({@link DOccluderData}) by its id
+     * and the values the set of assigned brushes by their ids.
+     * @param brushToSideMapping A mapping where the keys reperesent a brush 
+     * ({@link info.ata4.bspsrc.lib.struct.DBrush}) by its id and the values a mapping of each side of the brush
+     * to a side of the occluder.
+     */
+    public record ReallocationData(
+            Map<Integer, Set<Integer>> occluderToBrushes,
+            Map<Integer, Map<Integer, Integer>> brushToSideMapping
+    ) {
+        public ReallocationData {
+            occluderToBrushes = Map.copyOf(occluderToBrushes);
+            brushToSideMapping = Map.copyOf(brushToSideMapping);
+        }
+
+        public boolean isOccluderBrush(int iBrush) {
+            return brushToSideMapping.containsKey(iBrush);
+        }
+
+        public boolean isOccluderBrushSide(int iBrush, int side) {
+            return brushToSideMapping.getOrDefault(iBrush, Map.of()).containsKey(side);
         }
     }
 
-    public enum OccMappingMode {
-        MANUAL(OccluderMapper::manualMapping),
-        ORDERED(OccluderMapper::orderedMapping);
+    /**
+     * Writes debug entities, that represent the original occluders from the bsp
+     */
+    public static void writeDebugOccluders(
+            BspData bsp,
+            FaceSource faceSource,
+            WindingFactory windingFactory,
+            VmfWriter writer,
+            VmfMeta vmfMeta
+    ) {
 
-        private Function<OccluderMapper, Map<Integer, Set<Integer>>> mapper;
+        for (int iOccluder = 0; iOccluder < bsp.occluderDatas.size(); iOccluder++) {
+            var occluder = bsp.occluderDatas.get(iOccluder);
+            for (int sideOfOccluder = 0; sideOfOccluder < occluder.polycount; sideOfOccluder++) {
+                var occluderPoly = bsp.occluderPolyDatas.get(occluder.firstpoly + sideOfOccluder);
 
-        OccMappingMode(Function<OccluderMapper, Map<Integer, Set<Integer>>> mapper) {
-            this.mapper = mapper;
-        }
+                writer.start("entity");
+                writer.put("id", vmfMeta.getUID());
+                writer.put("classname", "func_detail");
+                writer.put("iOccluder", iOccluder);
+                writer.put("side", sideOfOccluder);
+                writer.put("flags", occluder.flags);
+                writer.put("iOccluderPoly", occluder.firstpoly + sideOfOccluder);
+                writer.put("planenum", occluderPoly.planenum);
 
-        public Map<Integer, Set<Integer>> map(OccluderMapper occMapper) {
-            return mapper.apply(occMapper);
-        }
+                faceSource.writePolygon(windingFactory.fromOccluder(bsp, occluderPoly), ToolTexture.SKIP, false);
+                vmfMeta.writeMetaVisgroups(
+                        List.of(vmfMeta.visgroups()
+                                .getVisgroup("debug")
+                                .getVisgroup("occluder-visualization")
+                                .getVisgroup(String.valueOf(iOccluder)))
+                );
 
-        @Override
-        public String toString() {
-            return super.toString().substring(0, 1).toUpperCase() + super.toString().substring(1).toLowerCase();
+                writer.end("entity");
+            }
         }
     }
 }

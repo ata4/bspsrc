@@ -1,13 +1,9 @@
 package info.ata4.bspsrc.decompiler.util;
 
-import info.ata4.bspsrc.lib.struct.BspData;
-import info.ata4.bspsrc.lib.struct.DBrush;
-import info.ata4.bspsrc.lib.struct.DBrushSide;
-import info.ata4.bspsrc.lib.struct.DOccluderPolyData;
+import info.ata4.bspsrc.lib.struct.*;
 import info.ata4.bspsrc.lib.vector.Vector3f;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class VectorUtil {
@@ -30,25 +26,22 @@ public class VectorUtil {
 		}
 	}
 
-	public static double matchingAreaPercentage(
-			AreaportalMapper.AreaportalHelper apHelper,
-			DBrush brush,
-			DBrushSide brushSide,
-			BspData bsp,
-			WindingFactory windingFactory
-	) {
-		Set<Integer> planeNums = apHelper.getPlaneIndices();
+    public static double matchingAreaPercentage(
+            DAreaportal areaportal,
+            DBrush brush,
+            DBrushSide brushSide,
+            BspData bsp,
+            WindingFactory windingFactory
+    ) {
+        if (areaportal.planenum != brushSide.pnum)
+            return 0;
 
-		if (planeNums.contains(brushSide.pnum)) {
-			return internalMatchingAreaPercentage(
-					apHelper.winding,
-					windingFactory.fromSide(bsp, brush, brushSide),
-					windingFactory
-			);
-		} else {
-			return 0;
-		}
-	}
+        return internalMatchingAreaPercentage(
+                windingFactory.fromAreaportal(bsp, areaportal),
+                windingFactory.fromSide(bsp, brush, brushSide),
+                windingFactory
+        );
+    }
 
 	/**
 	 * Returns the intersecting area of two Windings in percentage to w1 total area (0-1)

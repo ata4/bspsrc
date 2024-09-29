@@ -16,6 +16,8 @@ import info.ata4.bspsrc.decompiler.VmfWriter;
 import info.ata4.bspsrc.decompiler.modules.entity.EntitySource;
 import info.ata4.bspsrc.decompiler.modules.geom.*;
 import info.ata4.bspsrc.decompiler.modules.texture.TextureSource;
+import info.ata4.bspsrc.decompiler.util.AreaportalMapper;
+import info.ata4.bspsrc.decompiler.util.OccluderMapper;
 import info.ata4.bspsrc.decompiler.util.WindingFactory;
 import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.bspsrc.lib.app.SourceAppId;
@@ -53,15 +55,18 @@ public class BspDecompiler extends ModuleDecompile {
         var windingFactory = WindingFactory.forAppId(bspFile.getAppId());
         var brushBounds = new BrushBounds(windingFactory);
 
+        var apReallocationData = AreaportalMapper.createReallocationData(reader.getData(), config, windingFactory);
+        var occReallocationData = OccluderMapper.createReallocationData(reader.getData(), config, windingFactory);
+
         texsrc = new TextureSource(reader);
         bspprot = new BspProtection(reader, brushBounds, texsrc);
         vmfmeta = new VmfMeta(reader, writer);
         brushSideFaceMapper = new BrushSideFaceMapper(reader, windingFactory);
         brushsrc = new BrushSource(reader, writer, config, texsrc, bspprot, vmfmeta, brushSideFaceMapper,
-                windingFactory);
-        facesrc = new FaceSource(reader, writer, config, texsrc, vmfmeta, windingFactory);
+                windingFactory, occReallocationData);
+        facesrc = new FaceSource(reader, writer, config, texsrc, vmfmeta, windingFactory, occReallocationData);
         entsrc = new EntitySource(reader, writer, config, brushsrc, facesrc, texsrc, bspprot, vmfmeta,
-                brushSideFaceMapper, windingFactory, brushBounds);
+                brushSideFaceMapper, windingFactory, brushBounds, apReallocationData, occReallocationData);
     }
 
     /**

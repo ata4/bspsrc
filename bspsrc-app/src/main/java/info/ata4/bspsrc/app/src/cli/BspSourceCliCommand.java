@@ -91,12 +91,11 @@ public class BspSourceCliCommand implements Callable<Void> {
 	}
 
 	// entity mapping
+	@ArgGroup(validate = false, heading = "%nReallocation related options%n")
 	private EntityMappingOptions entityMappingOptions = new EntityMappingOptions();
 	private static class EntityMappingOptions {
 		@Option(names = "--force_manual_areaportal", description = "Force manual entity mapping for areaportal entities.")
 		private boolean forceAreaportalManualEntMapping;
-		@Option(names = "--force_manual_occluder", description = "Force manual entitiy mapping for occluder entities.")
-		private boolean forceOccluderManualEntMapping;
 	}
 
 	// world brush options
@@ -232,7 +231,6 @@ public class BspSourceCliCommand implements Callable<Void> {
 
 		// entity mapping
 		config.apForceManualMapping = entityMappingOptions.forceAreaportalManualEntMapping;
-		config.occForceManualMapping = entityMappingOptions.forceOccluderManualEntMapping;
 
 		// world brush options
 		config.writeWorldBrushes = !brushOptions.noBrushes;

@@ -15,6 +15,7 @@ import info.ata4.bspsrc.decompiler.VmfWriter;
 import info.ata4.bspsrc.decompiler.modules.ModuleDecompile;
 import info.ata4.bspsrc.decompiler.modules.VmfMeta;
 import info.ata4.bspsrc.decompiler.modules.texture.*;
+import info.ata4.bspsrc.decompiler.util.OccluderMapper;
 import info.ata4.bspsrc.decompiler.util.Winding;
 import info.ata4.bspsrc.decompiler.util.WindingFactory;
 import info.ata4.bspsrc.lib.BspFileReader;
@@ -46,6 +47,7 @@ public class FaceSource extends ModuleDecompile {
     private static final float AREA_EPS = 1.0f;
 
     private final WindingFactory windingFactory;
+    private final OccluderMapper.ReallocationData occReallocationData;
 
     // sub-modules
     private final BspSourceConfig config;
@@ -67,7 +69,8 @@ public class FaceSource extends ModuleDecompile {
             BspSourceConfig config,
             TextureSource texsrc,
             VmfMeta vmfmeta,
-            WindingFactory windingFactory
+            WindingFactory windingFactory, 
+            OccluderMapper.ReallocationData occReallocationData
     ) {
         super(reader, writer);
 
@@ -75,6 +78,7 @@ public class FaceSource extends ModuleDecompile {
         this.texsrc = requireNonNull(texsrc);
         this.vmfmeta = requireNonNull(vmfmeta);
         this.windingFactory = requireNonNull(windingFactory);
+        this.occReallocationData = requireNonNull(occReallocationData);
 
         if (bsp.origFaces.isEmpty()) {
             // fix invalid origFace indices when no original faces are available
@@ -313,7 +317,7 @@ public class FaceSource extends ModuleDecompile {
         }
 
         // build texture
-        TextureBuilder tb = texsrc.getTextureBuilder();
+        var tb = new TextureBuilder(bsp, texsrc, occReallocationData);
 
         tb.setOrigin(origin);
         tb.setAngles(angles);
@@ -540,7 +544,7 @@ public class FaceSource extends ModuleDecompile {
         int sideID = vmfmeta.getUID();
 
         // build texture
-        TextureBuilder tb = texsrc.getTextureBuilder();
+        var tb = new TextureBuilder(bsp, texsrc, occReallocationData);
         tb.setNormal(normal);
 
         Texture texture = tb.build();
