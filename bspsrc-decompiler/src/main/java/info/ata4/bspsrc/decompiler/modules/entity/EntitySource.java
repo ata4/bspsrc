@@ -17,6 +17,7 @@ import info.ata4.bspsrc.decompiler.modules.ModuleDecompile;
 import info.ata4.bspsrc.decompiler.modules.VmfMeta;
 import info.ata4.bspsrc.decompiler.modules.geom.*;
 import info.ata4.bspsrc.decompiler.modules.texture.TextureSource;
+import info.ata4.bspsrc.decompiler.modules.texture.ToolTexture;
 import info.ata4.bspsrc.decompiler.util.*;
 import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.bspsrc.lib.app.SourceAppId;
@@ -548,6 +549,79 @@ public class EntitySource extends ModuleDecompile {
             }
 
             writer.end("entity");
+        }
+    }
+    
+    public void writeVisClusters() {
+        L.info("Writing func_viscluster");
+        
+        var leafsByCluster = bsp.leaves.stream()
+                .filter(dLeaf -> dLeaf.cluster >= 0)
+                .filter(dLeaf -> {
+                    var size = dLeaf.maxs.sub(dLeaf.mins);
+                    return size.x > 0 && size.y > 0 && size.z > 0;
+                })
+                .collect(Collectors.groupingBy(dLeaf -> dLeaf.cluster));
+
+        for (var leaves : leafsByCluster.values()) {
+            if (leaves.size() < 2)
+                continue;
+            
+            int cluster = leaves.getFirst().cluster;
+            
+            var bounds = leaves.stream()
+                    .map(dLeaf -> new AABB(dLeaf.mins, dLeaf.maxs))
+                    .reduce(AABB.ZERO, AABB::include);
+
+            writer.start("entity");
+            writer.put("id", vmfmeta.getUID());
+            writer.put("classname", "func_viscluster");
+            
+            facesrc.writePolygon(
+                    new Winding(List.of(
+                            bounds.getMin(),
+                            bounds.getMin().set(0, bounds.getMax().x),
+                            bounds.getMin().set(0, bounds.getMax().x).set(1, bounds.getMax().y),
+                            bounds.getMin().set(1, bounds.getMax().y)
+                    )),
+                    ToolTexture.TRIGGER,
+                    true,
+                    bounds.getMax().z - bounds.getMin().z
+            );
+
+            vmfmeta.writeMetaVisgroups(List.of(vmfmeta.visgroups()
+                    .getVisgroup("Rebuild")
+                    .getVisgroup("Vis Cluster")
+                    .getVisgroup(String.valueOf(cluster))));
+
+            writer.end("entity");
+            
+            if (config.debug) {
+                for (var leaf : leaves) {
+                    writer.start("entity");
+                    writer.put("id", vmfmeta.getUID());
+                    writer.put("classname", "func_detail");
+
+                    facesrc.writePolygon(
+                            new Winding(List.of(
+                                    leaf.mins,
+                                    leaf.mins.set(0, leaf.maxs.x),
+                                    leaf.mins.set(0, leaf.maxs.x).set(1, leaf.maxs.y),
+                                    leaf.mins.set(1, leaf.maxs.y)
+                            )),
+                            ToolTexture.SKIP,
+                            true,
+                            leaf.maxs.z - leaf.mins.z
+                    );
+
+                    vmfmeta.writeMetaVisgroups(List.of(vmfmeta.visgroups()
+                            .getVisgroup("debug")
+                            .getVisgroup("leafs-in-cluster")
+                            .getVisgroup(String.valueOf(cluster))));
+
+                    writer.end("entity");
+                }
+            }
         }
     }
 

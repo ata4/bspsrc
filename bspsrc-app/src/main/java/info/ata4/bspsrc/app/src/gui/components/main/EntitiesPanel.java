@@ -37,6 +37,12 @@ public class EntitiesPanel extends JPanel {
 	private final JCheckBox chkLadder = new JCheckBox("Restore func_ladder") {{
 		addActionListener(e -> EntitiesPanel.this.config.updateConfig(c -> c.writeLadders = isSelected()));
 	}};
+	private final JCheckBox chkVisCluster = new JCheckBox("Reconstruct func_viscluster") {{
+		setToolTipText("""
+				Try to reconstruct vis_cluster entities.
+				Might not always be 100% accurate.""");
+		addActionListener(e -> EntitiesPanel.this.config.updateConfig(c -> c.writeVisClusters = isSelected()));
+	}};
 	private final JCheckBox chkFixRotation = new JCheckBox("Fix rotation of instances") {{
 		addActionListener(e -> EntitiesPanel.this.config.updateConfig(c -> c.fixEntityRot = isSelected()));
 	}};
@@ -65,6 +71,7 @@ public class EntitiesPanel extends JPanel {
 		add(chkAreaportalManualMapping, "gapleft i, wrap");
 		add(chkOccluder, "wrap");
 		add(chkLadder, "wrap");
+		add(chkVisCluster, "wrap");
 		add(chkFixRotation, "wrap");
 	}};
 
@@ -93,6 +100,7 @@ public class EntitiesPanel extends JPanel {
 		chkAreaportalManualMapping.setSelected(config.get(c -> c.apForceManualMapping));
 		chkOccluder.setSelected(config.get(c -> c.writeOccluders));
 		chkLadder.setSelected(config.get(c -> c.writeLadders));
+		chkVisCluster.setSelected(config.get(c -> c.writeVisClusters));
 		chkFixRotation.setSelected(config.get(c -> c.fixEntityRot));
 
 		chkStaticProp.setSelected(config.get(c -> c.writeStaticProps));

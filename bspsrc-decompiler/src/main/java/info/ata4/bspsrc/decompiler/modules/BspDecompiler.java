@@ -166,9 +166,14 @@ public class BspDecompiler extends ModuleDecompile {
             entsrc.writeEntities();
         }
 
-        if (config.writeBrushEntities && config.writeDetails
-                && config.brushMode == BrushMode.BRUSHPLANES) {
-            entsrc.writeDetails();
+        if (config.writeBrushEntities) {
+            if (config.writeDetails && config.brushMode == BrushMode.BRUSHPLANES) {
+                entsrc.writeDetails();
+            }
+        
+            if (config.writeVisClusters) {
+                entsrc.writeVisClusters();
+            }
         }
 
         if (config.writePointEntities) {

@@ -61,6 +61,7 @@ public final class BspSourceConfig {
     public boolean writeVisgroups = true;
     public boolean writeWorldBrushes = true;
     public boolean writeLadders = true;
+    public boolean writeVisClusters = true;
 
     public boolean debug = false;
 
@@ -102,6 +103,7 @@ public final class BspSourceConfig {
         this.writeVisgroups = config.writeVisgroups;
         this.writeWorldBrushes = config.writeWorldBrushes;
         this.writeLadders = config.writeLadders;
+        this.writeVisClusters = config.writeVisClusters;
         this.debug = config.debug;
     }
 
