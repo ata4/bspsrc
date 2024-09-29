@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '22'
           distribution: 'temurin'
@@ -28,7 +28,7 @@ jobs:
         run: mv ${{github.workspace}}/bspsrc-app/target/*-shaded.jar ${{github.workspace}}/bspsrc-app/target/bspsrc.jar
 
       - name: Upload application jar
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4
         with:
           name: bspsrc.jar
           path: ${{github.workspace}}/bspsrc-app/target/bspsrc.jar
@@ -48,17 +48,17 @@ jobs:
     runs-on: ${{ matrix.options.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 22
           distribution: temurin
           cache: maven
 
       - name: Download application jar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bspsrc.jar
           path: packaging
@@ -92,7 +92,7 @@ jobs:
         run: Compress-Archive packaging/* bspsrc-${{ matrix.options.type }}.zip
 
       - name: Upload files
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4
         with:
           name: Artifacts
           path: bspsrc-${{ matrix.options.type }}.zip
