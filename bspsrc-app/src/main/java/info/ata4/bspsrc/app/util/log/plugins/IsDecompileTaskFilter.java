@@ -30,7 +30,7 @@ public class IsDecompileTaskFilter extends AbstractFilter {
 	}
 
 	private Result filter() {
-		return injector.rawContextData().containsKey(BspSource.DECOMPILE_TASK_ID_IDENTIFIER) ? onMatch : onMismatch;
+		return injector.getValue(BspSource.DECOMPILE_TASK_ID_IDENTIFIER) != null ? onMatch : onMismatch;
 	}
 
 	@Override

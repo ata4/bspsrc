@@ -48,8 +48,11 @@ public class PakFile {
     }
 
     public ZipFile getZipFile() throws IOException {
-        return new ZipFile(new ByteBufferChannel(pakLump.getBuffer()),
-                "PakLump", "Cp437", false);
+        return ZipFile.builder()
+                .setSeekableByteChannel(new ByteBufferChannel(pakLump.getBuffer()))
+                .setCharset("Cp437")
+                .setUseUnicodeExtraFields(false)
+                .get();
     }
 
     public void unpack(Path dest) throws IOException {
