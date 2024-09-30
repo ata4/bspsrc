@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,19 +21,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Maven build
-        run: mvn -B verify
-
-      - name: Rename shaded jar
-        run: mv ${{github.workspace}}/bspsrc-app/target/*-shaded.jar ${{github.workspace}}/bspsrc-app/target/bspsrc.jar
-
-      - name: Upload application jar
-        uses: actions/upload-artifact@v4
-        with:
-          name: bspsrc.jar
-          path: ${{github.workspace}}/bspsrc-app/target/bspsrc.jar
-          if-no-files-found: error
-          retention-days: 1
+      - name: Maven test
+        run: mvn -B test
 
   package-app:
     name: "Package application: ${{ matrix.options.type }}"
@@ -41,14 +30,19 @@ jobs:
     strategy:
       matrix:
         options: [
-          { type: "jar-only", os: "ubuntu-latest", include_runtime: false, linux_launcher: true, windows_launcher: true, java_path: "" },
-          { type: "linux", os: "ubuntu-latest", include_runtime: true, linux_launcher: true, windows_launcher: false, java_path: "$BASEDIR/runtime/bin/" },
-          { type: "windows", os: "windows-latest", include_runtime: true, linux_launcher: false, windows_launcher: true, java_path: "%~dp0\\\\runtime\\\\bin\\\\" }
+          { type: "jar-only", os: "ubuntu-latest", runtime-type: "local", linux_launcher: true, windows_launcher: true },
+          { type: "linux", os: "ubuntu-latest", runtime-type: "img", linux_launcher: true, windows_launcher: false },
+          { type: "windows", os: "windows-latest", runtime-type: "img", linux_launcher: false, windows_launcher: true }
         ]
     runs-on: ${{ matrix.options.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Python 
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -57,29 +51,33 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Download application jar
-        uses: actions/download-artifact@v4
-        with:
-          name: bspsrc.jar
-          path: packaging
+      - name: Maven build
+        run: mvn -B verify
+        
+      - name: Create packaging directory
+        run: mkdir packaging/
 
       - name: Copy Linux launcher scripts
         if: ${{ matrix.options.linux_launcher }}
         run: |
-          sed 's!<java_path>!${{ matrix.options.java_path }}!g' ${{ github.workspace }}/bspsrc-app/scripts/bspinfo.sh > packaging/bspinfo.sh
-          sed 's!<java_path>!${{ matrix.options.java_path }}!g' ${{ github.workspace }}/bspsrc-app/scripts/bspsrc.sh > packaging/bspsrc.sh
-          chmod +x packaging/bspinfo.sh packaging/bspsrc.sh
+          python .github/scripts/create_launcher.py linux src ${{ matrix.options.runtime-type }} packaging/bspsrc.sh
+          python .github/scripts/create_launcher.py linux info ${{ matrix.options.runtime-type }} packaging/bspinfo.sh
 
       - name: Copy Windows launcher scripts
         if: ${{ matrix.options.windows_launcher }}
         run: |
-          sed 's!<java_path>!${{ matrix.options.java_path }}!g' ${{ github.workspace }}/bspsrc-app/scripts/bspinfo.bat > packaging/bspinfo.bat
-          sed 's!<java_path>!${{ matrix.options.java_path }}!g' ${{ github.workspace }}/bspsrc-app/scripts/bspsrc.bat > packaging/bspsrc.bat
+          python .github/scripts/create_launcher.py windows src ${{ matrix.options.runtime-type }} packaging/bspsrc.bat
+          python .github/scripts/create_launcher.py windows info ${{ matrix.options.runtime-type }} packaging/bspinfo.bat
 
-      - name: Generate runtime
-        if: ${{ matrix.options.include_runtime }}
-        run: jlink --add-modules java.desktop,java.logging,java.management,java.prefs --output packaging/runtime/ --strip-debug --no-man-pages --no-header-files --compress=2
+      - name: Copy runtime
+        if: ${{ matrix.options.runtime-type == 'img' }}
+        run: cp -R bspsrc-app/target/maven-jlink/classifiers/runtime-image/* packaging/
+        
+      - name: Copy application jar
+        if: ${{ matrix.options.runtime-type == 'local' }}
+        run: cp bspsrc-app/target/*-shaded.jar packaging/bspsrc.jar
 
+        # actions/upload-artifact doesn't preserve file permissions, so we need to zip ourselves...
       - name: Zip files on linux
         if: runner.os == 'Linux'
         run: |
@@ -94,7 +92,7 @@ jobs:
       - name: Upload files
         uses: actions/upload-artifact@v4
         with:
-          name: Artifacts
+          name: ${{ matrix.options.type }}
           path: bspsrc-${{ matrix.options.type }}.zip
           if-no-files-found: error
           retention-days: 7
