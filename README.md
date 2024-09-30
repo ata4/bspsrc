@@ -7,7 +7,7 @@ BSPSource is based on a reengineered version of [VMEX 0.98g](http://www.bagthorp
 
 ## Running BSPSource
 
-1. Go to the [releases page](https://github.com/ata4/bspsrc/releases) and, depending on your operating system, download either `bspsrc-linux.zip` or `bspsrc-windows.zip`. Alternatively, `bspsrc-jar-only.zip` works on any system which has Java 21+ installed and properly configured.
+1. Go to the [releases page](https://github.com/ata4/bspsrc/releases) and, depending on your operating system, download either `bspsrc-linux.zip` or `bspsrc-windows.zip`. Alternatively, `bspsrc-jar-only.zip` works on any system which has Java 22+ installed and properly configured.
 2. Extract the contents of the zip file to a new folder.
 3. To launch bspsrc/bspinfo, run the corresponding file: `bspsrc.bat`/`bspinfo.bat` on Windows, or `bspsrc.sh`/`bspinfo.sh` on Linux.
 
@@ -16,6 +16,15 @@ BSPSource is based on a reengineered version of [VMEX 0.98g](http://www.bagthorp
 * **Can you support _\<game\>_:** Generally speaking, most Source engine games should work with BSPSource out of the box, even though they might not be explicitly "supported". If you run into any problems or errors with any particular game/map, feel free to open an [Issue](https://github.com/ata4/bspsrc/issues).\
 Games based on the older goldsrc or on the newer Source 2 engine, are not supported. Their map format wildly differs from the one the Source engine uses. 
 * **Help, all the textures are gray/models are errors:** Most of the time this is due to the materials/models not existing in the base game but rather being embedded in the bsp file. This can frequently happen with workshop maps or with maps using csgo's automcombine prop feature. To make the materials/models visible in hammer, you need to extract the embedded files by checking `Extract embedded files` in the decompiler and then move the contents of the extracted material/model folders into your games material/model folder.
+
+## Limitations and known bugs
+
+* Some internal entities that are entirely consumed by vbsp can't be perfectly restored. This includes the following entities:
+	* [func_instance](http://developer.valvesoftware.com/wiki/func_instance)
+	* [func_instance_parms](http://developer.valvesoftware.com/wiki/func_instance_parms)
+	* [func_instance_origin](http://developer.valvesoftware.com/wiki/func_instance_origin)
+	* [func_viscluster](http://developer.valvesoftware.com/wiki/func_viscluster)
+	* [info_no_dynamic_shadow](http://developer.valvesoftware.com/wiki/info_no_dynamic_shadow) 
 
 ## Improvements and changes compared to VMEX 0.98g
 
@@ -35,13 +44,3 @@ Games based on the older goldsrc or on the newer Source 2 engine, are not suppor
 * New integrated pakfile extractor.
 * Numerous bug fixes.
 * Open source.
-
-## Limitations and known bugs
-
-* Some internal entities that are entirely consumed by vbsp can't be restored. This includes following entities:
-	* [func_instance](http://developer.valvesoftware.com/wiki/func_instance)
-	* [func_instance_parms](http://developer.valvesoftware.com/wiki/func_instance_parms)
-	* [func_instance_origin](http://developer.valvesoftware.com/wiki/func_instance_origin)
-	* [func_viscluster](http://developer.valvesoftware.com/wiki/func_viscluster)
-	* [info_no_dynamic_shadow](http://developer.valvesoftware.com/wiki/info_no_dynamic_shadow)
-* [CS:GO] prop_static have `Enable Bounced Lighting` always set to default. This is due to this information being lost on compilation.
