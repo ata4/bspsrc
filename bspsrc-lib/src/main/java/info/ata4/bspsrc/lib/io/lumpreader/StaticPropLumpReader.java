@@ -214,7 +214,10 @@ public class StaticPropLumpReader implements LumpReader<StaticPropLumpReader.Sta
 			new StaticPropStructDescriptor(DStaticPropV10CSGO::new, 10, COUNTER_STRIKE_GO),
 			new StaticPropStructDescriptor(DStaticPropV11CSGO::new, 11, COUNTER_STRIKE_GO),
 			// Insurgency is based of the csgo engine branch, so we can use DStaticPropV10CSGO
-			new StaticPropStructDescriptor(DStaticPropV10CSGO::new, 10, INSURGENCY)
+			new StaticPropStructDescriptor(DStaticPropV10CSGO::new, 10, INSURGENCY),
+			// Blade Symphony is based of the csgo engine branch (I think), so we can use DStaticPropV10CSGO/DStaticPropV11CSGO
+			new StaticPropStructDescriptor(DStaticPropV10CSGO::new, 10, BLADE_SYMPHONY),
+			new StaticPropStructDescriptor(DStaticPropV11CSGO::new, 11, BLADE_SYMPHONY)
 	);
 
 
