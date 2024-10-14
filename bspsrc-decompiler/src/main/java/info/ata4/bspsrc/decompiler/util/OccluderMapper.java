@@ -73,7 +73,11 @@ public class OccluderMapper {
         Arrays.parallelPrefix(brushSideIndices, Integer::sum);
 
         var scores = createScores(bsp, windingFactory, occluderPolyIndices, brushSideIndices, firstNonWorldIBrush);
-        var mappingResult = hungarian((j, w) -> scores[j][w], scores.length, scores[0].length);
+        var mappingResult = hungarian(
+                (j, w) -> scores[j][w],
+                occluderPolyIndices.length > 0 ? occluderPolyIndices[occluderPolyIndices.length - 1] : 0,
+                brushSideIndices.length > 0 ? brushSideIndices[brushSideIndices.length - 1] : 0
+        );
         var collectBrushes = collectBrushes(bsp, mappingResult, scores, occluderPolyIndices, brushSideIndices,
                 firstNonWorldIBrush);
         
