@@ -118,7 +118,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <classifier>runtime-image</classifier>
-                    <stripDebug>true</stripDebug>
                     <noManPages>true</noManPages>
                     <noHeaderFiles>true</noHeaderFiles>
                     <compress>2</compress>
