@@ -124,6 +124,10 @@ public class BspSourceCliCommand implements Callable<Void> {
 		private String faceTex = INITIAL_CONFIG.faceTexture;
 		@Option(names = "--bfacetex", description = "Replace all back-face textures with this one. Used in face-based decompiling modes only.", paramLabel = "<texture>")
 		private String backFaceTex = INITIAL_CONFIG.backfaceTexture;
+		@Option(names = "--no_cubemaptexfix", description = "Don't fix environment-mapped materials.")
+		private boolean noCubemapTexFix;
+		@Option(names = "--no_ttfix", description = "Don't fix tool textures such as toolsnodraw or toolsblocklight")
+		private boolean noToolTexFix;
 	}
 
 	// miscellaneous options
@@ -239,6 +243,8 @@ public class BspSourceCliCommand implements Callable<Void> {
 		// texture options
 		config.faceTexture = textureOptions.faceTex;
 		config.backfaceTexture = textureOptions.backFaceTex;
+		config.fixCubemapTextures = textureOptions.noCubemapTexFix;
+		config.fixToolTextures = textureOptions.noToolTexFix;
 
 		// miscellaneous options
 		config.nullOutput = miscellaneousOptions.noVmf;
