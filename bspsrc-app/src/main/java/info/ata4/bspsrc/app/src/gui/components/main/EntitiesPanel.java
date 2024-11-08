@@ -21,6 +21,11 @@ public class EntitiesPanel extends JPanel {
 	private final JCheckBox chkDetail = new JCheckBox("Restore func_detail") {{
 		addActionListener(e -> EntitiesPanel.this.config.updateConfig(c -> c.writeDetails = isSelected()));
 	}};
+	private final JCheckBox chkDetailMerging = new JCheckBox("Merge touching func_detail's") {{
+		setToolTipText("""
+				Merge func_details brushes which touch into one entity.""");
+		addActionListener(e -> EntitiesPanel.this.config.updateConfig(c -> c.detailMerge = isSelected()));
+	}};
 	private final JCheckBox chkAreaportal = new JCheckBox("Restore func_areaportal/_window") {{
 		addActionListener(e -> EntitiesPanel.this.config.updateConfig(c -> c.writeAreaportals = isSelected()));
 	}};
@@ -67,6 +72,7 @@ public class EntitiesPanel extends JPanel {
 	private final JPanel pnlBrushEnts = new JPanel(new MigLayout()) {{
 		setBorder(BorderFactory.createTitledBorder("Brush entities"));
 		add(chkDetail, "wrap");
+		add(chkDetailMerging, "gapleft i, wrap");
 		add(chkAreaportal, "wrap");
 		add(chkAreaportalManualMapping, "gapleft i, wrap");
 		add(chkOccluder, "wrap");
@@ -96,8 +102,11 @@ public class EntitiesPanel extends JPanel {
 		getComponentsRecursive(pnlBrushEnts).forEach(c -> c.setEnabled(enabled));
 
 		chkDetail.setSelected(config.get(c -> c.writeDetails));
+		chkDetailMerging.setEnabled(enabled && config.get(c -> c.writeDetails));
+		chkDetailMerging.setSelected(config.get(c -> c.writeDetails) && config.get(c -> c.detailMerge));
 		chkAreaportal.setSelected(config.get(c -> c.writeAreaportals));
-		chkAreaportalManualMapping.setSelected(config.get(c -> c.apForceManualMapping));
+		chkAreaportalManualMapping.setEnabled(enabled && config.get(c -> c.writeAreaportals));
+		chkAreaportalManualMapping.setSelected(config.get(c -> c.writeAreaportals) && config.get(c -> c.apForceManualMapping));
 		chkOccluder.setSelected(config.get(c -> c.writeOccluders));
 		chkLadder.setSelected(config.get(c -> c.writeLadders));
 		chkVisCluster.setSelected(config.get(c -> c.writeVisClusters));
