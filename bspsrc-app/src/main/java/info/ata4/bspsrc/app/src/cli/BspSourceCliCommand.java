@@ -86,6 +86,8 @@ public class BspSourceCliCommand implements Callable<Void> {
 		private boolean noOccluderEnts;
 		@Option(names = "--no_ladders", description = "Don't write func_ladder entities.")
 		private boolean noLadderEnts;
+		@Option(names = "--no_visclusters", description = "Don't write func_viscluster entities.")
+		private boolean noVisClusterEnts;
 		@Option(names = "--no_rotfix", description = "Don't fix instance entity brush rotations for Hammer.")
 		private boolean noInstanceEntityRotationFix;
 		@Option(names = "--force_manual_areaportal", description = "Force manual entity mapping for areaportal entities.")
@@ -223,6 +225,7 @@ public class BspSourceCliCommand implements Callable<Void> {
 		config.writeAreaportals = !entityOpts.noAreaportalEnts;
 		config.writeOccluders = !entityOpts.noOccluderEnts;
 		config.writeLadders = !entityOpts.noLadderEnts;
+		config.writeVisClusters = !entityOpts.noVisClusterEnts;
 		config.fixEntityRot = !entityOpts.noInstanceEntityRotationFix;
 		config.apForceManualMapping = entityOpts.forceAreaportalManualEntMapping;
 		config.detailMerge = entityOpts.mergeFunctDetails;
