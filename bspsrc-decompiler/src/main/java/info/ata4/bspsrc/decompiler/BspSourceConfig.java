@@ -26,44 +26,50 @@ import java.lang.reflect.Modifier;
  */
 public final class BspSourceConfig {
 
-    // logger
     private static final Logger L = LogManager.getLogger();
 
     public int defaultAppId = SourceAppId.UNKNOWN;
     public BrushMode brushMode = BrushMode.BRUSHPLANES;
     public SourceFormat sourceFormat = SourceFormat.AUTO;
-    public String backfaceTexture = "";
-    public String faceTexture = "";
-    public boolean fixCubemapTextures = true;
-    public boolean fixEntityRot = true;
-    public boolean fixToolTextures = true;
-    public boolean loadLumpFiles = true;
-    public boolean nullOutput = false;
-    public boolean skipProt = false;
-    public boolean unpackEmbedded = false;
-    public boolean smartUnpack = true;
-    public float backfaceDepth = 1;
-    public int maxCubemapSides = 8;
-    public int maxOverlaySides = 64;
-    public boolean detailMerge = false;
-    public float detailMergeThresh = 1;
-    public boolean apForceManualMapping = false;
+    public boolean debug = false;
+    
+    // entity options
     public boolean writeAreaportals = true;
     public boolean writeBrushEntities = true;
-    public boolean writeCameras = true;
     public boolean writeCubemaps = true;
     public boolean writeDetails = true;
-    public boolean writeDisp = true;
     public boolean writeOccluders = true;
     public boolean writeOverlays = true;
     public boolean writePointEntities = true;
     public boolean writeStaticProps = true;
-    public boolean writeVisgroups = true;
-    public boolean writeWorldBrushes = true;
     public boolean writeLadders = true;
     public boolean writeVisClusters = true;
-
-    public boolean debug = false;
+    public boolean fixEntityRot = true;
+    public boolean apForceManualMapping = false;
+    public boolean detailMerge = false;
+    public float detailMergeThresh = 1;
+    public int maxCubemapSides = 8;
+    public int maxOverlaySides = 64;
+    
+    // brush options
+    public boolean writeWorldBrushes = true;
+    public boolean writeDisp = true;
+    public float backfaceDepth = 1;
+    
+    // texture options
+    public String backfaceTexture = "";
+    public String faceTexture = "";
+    public boolean fixCubemapTextures = true;
+    public boolean fixToolTextures = true;
+    
+    // miscellaneous options
+    public boolean nullOutput = false;
+    public boolean loadLumpFiles = true;
+    public boolean skipProt = false;
+    public boolean writeVisgroups = true;
+    public boolean writeCameras = true;
+    public boolean unpackEmbedded = false;
+    public boolean smartUnpack = true;
 
     public BspSourceConfig() {}
 
@@ -74,37 +80,41 @@ public final class BspSourceConfig {
         this.defaultAppId = config.defaultAppId;
         this.brushMode = config.brushMode;
         this.sourceFormat = config.sourceFormat;
-        this.backfaceTexture = config.backfaceTexture;
-        this.faceTexture = config.faceTexture;
-        this.fixCubemapTextures = config.fixCubemapTextures;
-        this.fixEntityRot = config.fixEntityRot;
-        this.fixToolTextures = config.fixToolTextures;
-        this.loadLumpFiles = config.loadLumpFiles;
-        this.nullOutput = config.nullOutput;
-        this.skipProt = config.skipProt;
-        this.unpackEmbedded = config.unpackEmbedded;
-        this.smartUnpack = config.smartUnpack;
-        this.backfaceDepth = config.backfaceDepth;
-        this.maxCubemapSides = config.maxCubemapSides;
-        this.maxOverlaySides = config.maxOverlaySides;
-        this.detailMerge = config.detailMerge;
-        this.detailMergeThresh = config.detailMergeThresh;
-        this.apForceManualMapping = config.apForceManualMapping;
+        this.debug = config.debug;
+        
         this.writeAreaportals = config.writeAreaportals;
         this.writeBrushEntities = config.writeBrushEntities;
-        this.writeCameras = config.writeCameras;
         this.writeCubemaps = config.writeCubemaps;
         this.writeDetails = config.writeDetails;
-        this.writeDisp = config.writeDisp;
         this.writeOccluders = config.writeOccluders;
         this.writeOverlays = config.writeOverlays;
         this.writePointEntities = config.writePointEntities;
         this.writeStaticProps = config.writeStaticProps;
-        this.writeVisgroups = config.writeVisgroups;
-        this.writeWorldBrushes = config.writeWorldBrushes;
         this.writeLadders = config.writeLadders;
         this.writeVisClusters = config.writeVisClusters;
-        this.debug = config.debug;
+        this.fixEntityRot = config.fixEntityRot;
+        this.apForceManualMapping = config.apForceManualMapping;
+        this.detailMerge = config.detailMerge;
+        this.detailMergeThresh = config.detailMergeThresh;
+        this.maxCubemapSides = config.maxCubemapSides;
+        this.maxOverlaySides = config.maxOverlaySides;
+        
+        this.writeWorldBrushes = config.writeWorldBrushes;
+        this.writeDisp = config.writeDisp;
+        this.backfaceDepth = config.backfaceDepth;
+        
+        this.backfaceTexture = config.backfaceTexture;
+        this.faceTexture = config.faceTexture;
+        this.fixCubemapTextures = config.fixCubemapTextures;
+        this.fixToolTextures = config.fixToolTextures;
+        
+        this.nullOutput = config.nullOutput;
+        this.loadLumpFiles = config.loadLumpFiles;
+        this.skipProt = config.skipProt;
+        this.writeVisgroups = config.writeVisgroups;
+        this.writeCameras = config.writeCameras;
+        this.unpackEmbedded = config.unpackEmbedded;
+        this.smartUnpack = config.smartUnpack;
     }
 
     public void dumpToLog() {
