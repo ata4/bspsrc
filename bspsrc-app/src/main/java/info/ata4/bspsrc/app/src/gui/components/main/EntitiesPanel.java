@@ -100,13 +100,13 @@ public class EntitiesPanel extends JPanel {
 
 		getComponentsRecursive(pnlPointEnts).forEach(c -> c.setEnabled(enabled));
 		getComponentsRecursive(pnlBrushEnts).forEach(c -> c.setEnabled(enabled));
+		chkDetailMerging.setEnabled(enabled && config.get(c -> c.writeDetails));
+		chkAreaportalManualMapping.setEnabled(enabled && config.get(c -> c.writeAreaportals));
 
 		chkDetail.setSelected(config.get(c -> c.writeDetails));
-		chkDetailMerging.setEnabled(enabled && config.get(c -> c.writeDetails));
-		chkDetailMerging.setSelected(config.get(c -> c.writeDetails) && config.get(c -> c.detailMerge));
+		chkDetailMerging.setSelected(config.get(c -> c.detailMerge));
 		chkAreaportal.setSelected(config.get(c -> c.writeAreaportals));
-		chkAreaportalManualMapping.setEnabled(enabled && config.get(c -> c.writeAreaportals));
-		chkAreaportalManualMapping.setSelected(config.get(c -> c.writeAreaportals) && config.get(c -> c.apForceManualMapping));
+		chkAreaportalManualMapping.setSelected(config.get(c -> c.apForceManualMapping));
 		chkOccluder.setSelected(config.get(c -> c.writeOccluders));
 		chkLadder.setSelected(config.get(c -> c.writeLadders));
 		chkVisCluster.setSelected(config.get(c -> c.writeVisClusters));
