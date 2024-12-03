@@ -10,6 +10,7 @@ windows_template = inspect.cleandoc("""
 
 linux_template = inspect.cleandoc("""
     #!/bin/sh
+    set -eu
     VM_OPTIONS=
     BASEDIR=$(dirname "$0")
     "{java_path}java" $VM_OPTIONS {launch_cmd} $*""")    
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     launch_cmd: str
     match args.runtime_type, args.platform:
         case ("local", "windows"):launch_cmd = f"-cp \"%~dp0\\bspsrc.jar\" {main_class}"
-        case ("local", "linux"): launch_cmd = f"-cp \"$DIR/bspsrc.jar\" {main_class}"
+        case ("local", "linux"): launch_cmd = f"-cp \"$BASEDIR/bspsrc.jar\" {main_class}"
         case ("img", _): launch_cmd = f"-m info.ata4.bspsrc.app/{main_class}"
     
     script: str
