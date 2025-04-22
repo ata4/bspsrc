@@ -51,9 +51,7 @@ public class BspFileReader {
             throw new IllegalArgumentException("BSP file is unloaded");
 
         // uncompress all lumps first
-        if (bspFile.isCompressed()) {
-            bspFile.uncompress();
-        }
+        bspFile.uncompress();
     }
 
     public BspFileReader(BspFile bspFile) {

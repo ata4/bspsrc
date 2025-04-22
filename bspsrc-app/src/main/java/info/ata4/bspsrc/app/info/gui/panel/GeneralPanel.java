@@ -149,7 +149,7 @@ public class GeneralPanel extends JPanel {
 		txtName.setText(model.getBspFile().map(BspFile::getName).orElse(""));
 		txtVersion.setText(model.getBspFile().map(BspFile::getVersion).map(Object::toString).orElse(""));
 		txtRevision.setText(model.getBspFile().map(BspFile::getRevision).map(Object::toString).orElse(""));
-		txtCompressed.setText(model.getBspFile().map(BspFile::isCompressed).map(bool -> bool ? "Yes" : "No").orElse(""));
+		txtCompressed.setText(model.getBspFile().map(BspFile::hasCompressedLumps).map(bool -> bool ? "Yes" : "No").orElse(""));
 		txtEndianness.setText(model.getBspFile().map(bspFile -> bspFile.getByteOrder() == ByteOrder.LITTLE_ENDIAN ? "Little endian" : "Big endian").orElse(null));
 		txtComment.setText(comment);
 	}

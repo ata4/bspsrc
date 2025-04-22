@@ -16,10 +16,7 @@ import info.ata4.bspsrc.lib.exceptions.GoldSrcFormatException;
 import info.ata4.bspsrc.lib.exceptions.ZipFileBspException;
 import info.ata4.bspsrc.lib.io.LzmaUtil;
 import info.ata4.bspsrc.lib.io.XORUtils;
-import info.ata4.bspsrc.lib.lump.GameLump;
-import info.ata4.bspsrc.lib.lump.Lump;
-import info.ata4.bspsrc.lib.lump.LumpFile;
-import info.ata4.bspsrc.lib.lump.LumpType;
+import info.ata4.bspsrc.lib.lump.*;
 import info.ata4.bspsrc.lib.util.StringMacroUtils;
 import info.ata4.io.DataReader;
 import info.ata4.io.DataReaders;
@@ -825,24 +822,15 @@ public class BspFile {
      * Uncompresses all compressed lumps.
      */
     public void uncompress() {
-        L.info("Uncompressing lumps");
+        if (hasCompressedLumps())
+            L.info("Uncompressing lumps");
 
         for (Lump l : lumps) {
-            if (l.isCompressed()) {
-                l.uncompress();
-            }
+            l.uncompress();
         }
 
         for (GameLump gl : gameLumps) {
-            if (gl.isCompressed()) {
-                gl.uncompress();
-            }
-        }
-
-        // remove dummy game lump
-        if (!gameLumps.isEmpty()
-                && gameLumps.get(gameLumps.size() - 1).getLength() == 0) {
-            gameLumps.remove(gameLumps.size() - 1);
+            gl.uncompress();
         }
     }
 
@@ -851,14 +839,9 @@ public class BspFile {
      * 
      * @return true if there's at least one compressed lump
      */
-    public boolean isCompressed() {
-        for (Lump l : lumps) {
-            if (l.isCompressed()) {
-                return true;
-            }
-        }
-
-        return false;
+    public boolean hasCompressedLumps() {
+        return lumps.stream().anyMatch(AbstractLump::isCompressed)
+                || gameLumps.stream().anyMatch(AbstractLump::isCompressed);
     }
 
     /**
