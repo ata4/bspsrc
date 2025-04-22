@@ -66,6 +66,7 @@ public class LzmaUtil {
         }
 
         try (LZMAInputStream lzmaIn = new LZMAInputStream(new ByteBufferInputStream(bbc), actualSize, probByte, dictSize)) {
+            lzmaIn.enableRelaxedEndCondition();
             return ByteBuffer.wrap(lzmaIn.readAllBytes()).order(bo);
         }
     }
