@@ -232,9 +232,7 @@ public class Winding implements List<Vector3f> {
 
     /**
      * Removes degenerated vertices from this winding. A vertex is degenerated
-     * when its distance to the previous vertex is smaller than {@link EPS_DEGEN}.
-     * 
-     * @return number of removed vertices
+     * when its distance to the previous vertex is smaller than {@link #EPS_DEGEN}.
      */
     public Winding removeDegenerated() {
         if (verts.isEmpty()) {
@@ -260,8 +258,6 @@ public class Winding implements List<Vector3f> {
 
     /**
      * Removes collinear vertices from this winding.
-     * 
-     * @return number of removed vertices
      */
     public Winding removeCollinear() {
         if (verts.isEmpty()) {

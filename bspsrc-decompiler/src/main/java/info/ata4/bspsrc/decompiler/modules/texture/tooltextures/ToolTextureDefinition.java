@@ -17,12 +17,12 @@ public interface ToolTextureDefinition {
     Optional<String> getSurfaceProperty();
 
     /**
-     * @return a set of brush flags that are either required(true) or forbidden(false) to have
+     * @return a map of brush flags that are either required(true) or forbidden(false) to have
      */
     Map<BrushFlag, Boolean> getBrushFlagsRequirements();
 
     /**
-     * @return a set of surface flags that are either required(true) or forbidden(false) to have
+     * @return a map of surface flags that are either required(true) or forbidden(false) to have
      */
     Map<SurfaceFlag, Boolean> getSurfaceFlagsRequirements();
 
