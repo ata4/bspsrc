@@ -12,8 +12,7 @@ module info.ata4.bspsrc.app {
     requires info.picocli;
     requires com.formdev.flatlaf;
     requires com.formdev.flatlaf.extras;
-    requires com.github.weisj.jsvg;
-    requires com.miglayout.core;
+    requires com.github.weisj.jsvg; // needed for flatlaf.extras to work
     requires com.miglayout.swing;
 
     opens info.ata4.bspsrc.app.src.cli;

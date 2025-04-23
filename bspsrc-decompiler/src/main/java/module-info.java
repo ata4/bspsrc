@@ -4,7 +4,6 @@ module info.ata4.bspsrc.decompiler {
     requires info.ata4.bspsrc.common;
     requires info.ata4.bspsrc.lib;
     requires org.apache.logging.log4j;
-    requires info.ata4.ioutils;
     requires org.apache.commons.compress;
 
     exports info.ata4.bspsrc.decompiler;
