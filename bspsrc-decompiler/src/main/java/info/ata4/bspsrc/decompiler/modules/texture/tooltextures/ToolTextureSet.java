@@ -6,7 +6,6 @@ import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.Sour
 import info.ata4.bspsrc.lib.app.SourceAppId;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ public enum ToolTextureSet {
 
     ToolTextureSet(int appId, Map<String, ToolTextureDefinition> toolTextureDefinitions) {
         this.appId = appId;
-        this.toolTextureDefinitions = Collections.unmodifiableMap(new HashMap<>(toolTextureDefinitions));
+        this.toolTextureDefinitions = Map.copyOf(toolTextureDefinitions);
     }
 
     private Builder builder() {

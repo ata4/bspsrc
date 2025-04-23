@@ -101,9 +101,9 @@ public interface ToolTextureDefinition {
 
                 private final String surfaceProperty = Builder.this.surfaceProperty;
                 private final Map<SurfaceFlag, Boolean> surfaceFlagsRequirements =
-                        Collections.unmodifiableMap(new HashMap<>(Builder.this.surfaceFlagsRequirements));
+                        Map.copyOf(Builder.this.surfaceFlagsRequirements);
                 private final Map<BrushFlag, Boolean> brushFlagsRequirements =
-                        Collections.unmodifiableMap(new HashMap<>(Builder.this.brushFlagsRequirements));
+                        Map.copyOf(Builder.this.brushFlagsRequirements);
 
                 @Override
                 public Optional<String> getSurfaceProperty() {
