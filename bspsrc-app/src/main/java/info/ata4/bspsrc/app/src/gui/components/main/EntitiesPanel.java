@@ -21,7 +21,7 @@ public class EntitiesPanel extends JPanel {
 	private final JCheckBox chkDetail = new JCheckBox("Restore func_detail") {{
 		addActionListener(e -> EntitiesPanel.this.config.updateConfig(c -> c.writeDetails = isSelected()));
 	}};
-	private final JCheckBox chkDetailMerging = new JCheckBox("Merge touching func_detail's") {{
+	private final JCheckBox chkDetailMerging = new JCheckBox("Merge touching func_details") {{
 		setToolTipText("""
 				Merge func_details brushes which touch into one entity.""");
 		addActionListener(e -> EntitiesPanel.this.config.updateConfig(c -> c.detailMerge = isSelected()));
