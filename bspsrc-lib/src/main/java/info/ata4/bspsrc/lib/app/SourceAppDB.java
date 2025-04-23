@@ -128,7 +128,7 @@ public class SourceAppDB {
         }
 
         try {
-            return new URI(String.format("http://store.steampowered.com/app/%d/", appId));
+            return new URI(String.format("https://store.steampowered.com/app/%d/", appId));
         } catch (URISyntaxException ex) {
             L.warn("", ex);
             // this really shouldn't happen...
