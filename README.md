@@ -7,7 +7,7 @@ BSPSource is based on a reengineered version of [VMEX 0.98g](http://www.bagthorp
 
 ## Running BSPSource
 
-1. Go to the [releases page](https://github.com/ata4/bspsrc/releases) and, depending on your operating system, download either `bspsrc-linux.zip` or `bspsrc-windows.zip`. Alternatively, `bspsrc-jar-only.zip` works on any system which has Java 22+ installed and properly configured.
+1. Go to the [releases page](https://github.com/ata4/bspsrc/releases) and, depending on your operating system, download either `bspsrc-linux.zip` or `bspsrc-windows.zip`. Alternatively, `bspsrc-jar-only.zip` works on any system that has Java 24+ installed and properly configured.
 2. Extract the contents of the zip file to a new folder.
 3. To launch bspsrc/bspinfo, run the corresponding file: `bspsrc.bat`/`bspinfo.bat` on Windows, or `bspsrc.sh`/`bspinfo.sh` on Linux.
 
