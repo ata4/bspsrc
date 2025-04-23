@@ -6,6 +6,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Objects.requireNonNull;
+
 public class ConvexPolygon extends AbstractList<Vector2f> {
 
     public final Vector2f[] vertices;
@@ -153,14 +155,13 @@ public class ConvexPolygon extends AbstractList<Vector2f> {
     /**
      * An Edge represented by a starting point and end point
      */
-    private static class Line {
-
-        public final Vector2f start;
-        public final Vector2f end;
-
-        public Line(Vector2f start, Vector2f end) {
-            this.start = Objects.requireNonNull(start);
-            this.end = Objects.requireNonNull(end);
+    private record Line(
+            Vector2f start,
+            Vector2f end
+    ) {
+        private Line {
+            requireNonNull(start);
+            requireNonNull(end);
         }
 
         /**

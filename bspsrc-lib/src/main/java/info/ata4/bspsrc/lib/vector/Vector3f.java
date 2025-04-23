@@ -322,7 +322,7 @@ public final class Vector3f extends VectorXf {
     /**
      * Private helper class for rotation
      */
-    private class Point2d {
+    private static class Point2d {
 
         private final double x;
         private final double y;

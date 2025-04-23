@@ -179,45 +179,17 @@ public class BrushSideFaceMapper extends ModuleRead {
 		return mapGetOrDefault(origFaceToBrushSide, origFaceI, Set.of());
 	}
 
-	private static class FaceIndexKey {
-		public final int pnum;
-		public final int texinfo;
-		public final int dispInfo;
-
-		private FaceIndexKey(int pnum, int texinfo, int dispInfo) {
-			this.pnum = pnum;
-			this.texinfo = texinfo;
-			this.dispInfo = dispInfo;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o)
-				return true;
-			if (o == null || getClass() != o.getClass())
-				return false;
-
-			FaceIndexKey faceIndexKey = (FaceIndexKey) o;
-
-			return pnum == faceIndexKey.pnum
-					&& texinfo == faceIndexKey.texinfo
-					&& dispInfo == faceIndexKey.dispInfo;
-
-		}
-
-		@Override
-		public int hashCode() {
-			int result = pnum;
-			result = 31 * result + (int) texinfo;
-			result = 31 * result + (int) dispInfo;
-			return result;
-		}
-
+	private record FaceIndexKey(
+			int pnum,
+			int texinfo,
+			int dispInfo
+	) {
 		public static FaceIndexKey fromFace(DFace face) {
 			return new FaceIndexKey(face.pnum, face.texinfo, face.dispInfo);
 		}
+		
 		public static FaceIndexKey fromBrushSide(DBrushSide side) {
-			return new FaceIndexKey(side.pnum, side.texinfo, (short) (side.dispinfo - 1)); // -1 ?
+				return new FaceIndexKey(side.pnum, side.texinfo, (short) (side.dispinfo - 1)); // -1 ?
 		}
 	}
 }

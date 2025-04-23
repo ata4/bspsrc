@@ -451,12 +451,12 @@ public class BrushSource extends ModuleDecompile {
         return worldbrushes;
     }
 
-    private class DBrushModel {
+    private static class DBrushModel {
         private int fstbrush;
         private int numbrush;
     }
 
-    private class BrushSideException extends Exception {
+    private static class BrushSideException extends Exception {
         BrushSideException(String message) {
             super(message);
         }
