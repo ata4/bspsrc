@@ -33,8 +33,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -771,13 +771,11 @@ public class EntitySource extends ModuleDecompile {
 
             writer.put("disableshadows", pst4.hasNoShadowing());
 
-            if (pst instanceof DStaticPropV5) {
-                DStaticPropV5 pst5 = (DStaticPropV5) pst;
+            if (pst instanceof DStaticPropV5 pst5) {
                 writer.put("fadescale", pst5.forcedFadeScale);
             }
 
-            if (pst instanceof DStaticPropV6) {
-                DStaticPropV6 pst6 = (DStaticPropV6) pst;
+            if (pst instanceof DStaticPropV6 pst6) {
                 writer.put("maxdxlevel", pst6.maxDXLevel);
                 writer.put("mindxlevel", pst6.minDXLevel);
             }
@@ -789,13 +787,11 @@ public class EntitySource extends ModuleDecompile {
             // write that later; both v7 and v8 have it, but v8 extends v5
             Color32 diffMod = null;
 
-            if (pst instanceof DStaticPropV7L4D) {
-                DStaticPropV7L4D pst7 = (DStaticPropV7L4D) pst;
+            if (pst instanceof DStaticPropV7L4D pst7) {
                 diffMod = pst7.diffuseModulation;
             }
 
-            if (pst instanceof DStaticPropV8) {
-                DStaticPropV8 pst8 = (DStaticPropV8) pst;
+            if (pst instanceof DStaticPropV8 pst8) {
                 diffMod = pst8.diffuseModulation;
                 writer.put("maxcpulevel", pst8.maxCPULevel);
                 writer.put("mincpulevel", pst8.minCPULevel);
@@ -809,8 +805,7 @@ public class EntitySource extends ModuleDecompile {
                 writer.put("renderamt", diffMod.a);
             }
 
-            if (pst instanceof DStaticPropV9) {
-                DStaticPropV9 pst9 = (DStaticPropV9) pst;
+            if (pst instanceof DStaticPropV9 pst9) {
                 writer.put("disableX360", pst9.disableX360);
             }
 
@@ -818,8 +813,7 @@ public class EntitySource extends ModuleDecompile {
                 writer.put("targetname", ((DStaticPropV5Ship) pst).targetname);
             }
 
-            if (pst instanceof DStaticPropV10) {
-                DStaticPropV10 pst10 = (DStaticPropV10) pst;
+            if (pst instanceof DStaticPropV10 pst10) {
 
                 boolean genLightmaps = !pst10.hasNoPerTexelLighting();
                 writer.put("generatelightmaps", genLightmaps);
@@ -829,8 +823,7 @@ public class EntitySource extends ModuleDecompile {
                 }
             }
 
-            if (pst instanceof DStaticPropV11lite) {
-                DStaticPropV11lite pst11 = (DStaticPropV11lite) pst;
+            if (pst instanceof DStaticPropV11lite pst11) {
                 // only write if it's set to anything other than default
                 if (pst11.diffuseModulation.rgba != -1) {
                     diffMod = pst11.diffuseModulation;
