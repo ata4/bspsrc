@@ -108,9 +108,12 @@ public class StaticPropLumpReader implements LumpReader<StaticPropLumpReader.Sta
 		final int propStaticCount = reader.readInt();
 
 		// don't try to read static props if there are none
-		if (propStaticCount == 0) {
-			return Collections.emptyList();
-		}
+		if (propStaticCount == 0)
+			return List.of();
+		
+		// Don't try reading if propStaticCount is invalid
+		if (propStaticCount < 0 || propStaticCount > reader.remaining())
+			throw new IOException("Invalid propStaticCount=" + propStaticCount);
 
 		// calculate static prop struct size
 		final int propStaticSize = (int) (reader.remaining() / propStaticCount);
