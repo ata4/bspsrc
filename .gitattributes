@@ -6,7 +6,7 @@
 *.md text
 *.vmf text
 *.form text
-*.svg
+*.svg text
 
 *.bat text eol=crlf
 *.sh text eol=lf
