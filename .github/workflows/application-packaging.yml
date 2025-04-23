@@ -17,7 +17,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '22'
+          java-version: '24'
           distribution: 'temurin'
           cache: maven
 
@@ -47,7 +47,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: 22
+          java-version: 24
           distribution: temurin
           cache: maven
 

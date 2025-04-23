@@ -145,7 +145,7 @@
                     <version>3.12.0</version>
                     <configuration>
                         <showDeprecation>true</showDeprecation>
-                        <release>22</release>
+                        <release>24</release>
                     </configuration>
                 </plugin>
                 <plugin>
