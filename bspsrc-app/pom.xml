@@ -14,12 +14,10 @@
         <dependency>
             <groupId>info.ata4.bspsrc</groupId>
             <artifactId>bspsrc-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>info.ata4.bspsrc</groupId>
             <artifactId>bspsrc-decompiler</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- Logging -->
@@ -58,7 +56,6 @@
         <dependency>
             <groupId>com.github.weisj</groupId>
             <artifactId>jsvg</artifactId>
-            <version>1.6.0</version>
         </dependency>
 
         <dependency>

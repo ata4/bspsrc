@@ -38,6 +38,22 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>info.ata4.bspsrc</groupId>
+                <artifactId>bspsrc-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>info.ata4.bspsrc</groupId>
+                <artifactId>bspsrc-lib</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>info.ata4.bspsrc</groupId>
+                <artifactId>bspsrc-decompiler</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            
             <!-- Logging -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
@@ -60,12 +76,12 @@
             <dependency>
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli</artifactId>
-                <version>4.7.6</version>
+                <version>4.7.7</version>
             </dependency>
             <dependency>
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli-codegen</artifactId>
-                <version>4.7.6</version>
+                <version>4.7.7</version>
             </dependency>
 
             <!-- 'xz for java' required for common-compress lzma -->
@@ -78,12 +94,17 @@
             <dependency>
                 <groupId>com.formdev</groupId>
                 <artifactId>flatlaf</artifactId>
-                <version>3.5.1</version>
+                <version>3.6</version>
             </dependency>
             <dependency>
                 <groupId>com.formdev</groupId>
                 <artifactId>flatlaf-extras</artifactId>
-                <version>3.5.1</version>
+                <version>3.6</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.weisj</groupId>
+                <artifactId>jsvg</artifactId>
+                <version>1.7.2</version>
             </dependency>
 
             <dependency>
@@ -102,7 +123,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.11.1</version>
+                <version>5.12.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

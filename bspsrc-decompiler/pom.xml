@@ -14,12 +14,10 @@
         <dependency>
             <groupId>info.ata4.bspsrc</groupId>
             <artifactId>bspsrc-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>info.ata4.bspsrc</groupId>
             <artifactId>bspsrc-lib</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- Logging -->
