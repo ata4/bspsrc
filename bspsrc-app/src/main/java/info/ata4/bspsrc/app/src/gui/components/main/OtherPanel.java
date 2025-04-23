@@ -101,6 +101,7 @@ public class OtherPanel extends JPanel {
 				.forEach(cmbBspFormat::addItem);
 
 		cmbBspFormat.insertItemAt(new MapFormatEntry(SourceAppId.UNKNOWN, "Automatic"), 0);
+		cmbBspFormat.insertItemAt(new MapFormatEntry(SourceAppId.DEFAULT, "Generic"), 1);
 		cmbBspFormat.setSelectedIndex(0);
 		cmbBspFormat.setRenderer(new DefaultListCellRenderer() {
 			@Override
@@ -114,8 +115,14 @@ public class OtherPanel extends JPanel {
 			{
 				if (value instanceof MapFormatEntry entry)
 					value = entry.name();
-
-				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				
+				var component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				if ("Automatic".equals(value) || "Generic".equals(value))
+					component.setFont(component.getFont().deriveFont(Font.BOLD));
+				else
+					component.setFont(component.getFont().deriveFont(Font.PLAIN));
+				
+				return component;
 			}
 		});
 	}

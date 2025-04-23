@@ -20,6 +20,7 @@ public class SourceAppId {
     }
 
     public static final int UNKNOWN = 0;
+    public static final int DEFAULT = -1;
     public static final int HALF_LIFE_2 = 220;
     public static final int COUNTER_STRIKE_SOURCE = 240;
     public static final int HALF_LIFE_SOURCE = 280;
