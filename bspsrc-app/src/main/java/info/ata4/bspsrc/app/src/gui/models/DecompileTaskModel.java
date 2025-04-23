@@ -115,24 +115,27 @@ public class DecompileTaskModel {
 				int taskIndex;
 				Task.State state;
 
-				if (signal instanceof BspSource.Signal.TaskStarted taskSig) {
-					taskIndex = taskSig.index();
-					state = Task.State.RUNNING;
-				} else if (signal instanceof BspSource.Signal.TaskFinished taskSig) {
-					taskIndex = taskSig.index();
-					state = Task.State.FINISHED;
-				} else if (signal instanceof BspSource.Signal.TaskFailed taskSig) {
-					taskIndex = taskSig.index();
-					state = Task.State.FAILED;
-				} else {
-					throw new RuntimeException("Not reachable");
-				}
+                switch (signal) {
+                    case BspSource.Signal.TaskStarted taskSig -> {
+                        taskIndex = taskSig.index();
+                        state = Task.State.RUNNING;
+                    }
+                    case BspSource.Signal.TaskFinished taskSig -> {
+                        taskIndex = taskSig.index();
+                        state = Task.State.FINISHED;
+                    }
+                    case BspSource.Signal.TaskFailed taskSig -> {
+                        taskIndex = taskSig.index();
+                        state = Task.State.FAILED;
+                    }
+                    case null, default -> throw new RuntimeException("Not reachable");
+                }
 
 				updateTask(taskIndex, task -> new Task(state, task.bspFile()));
-				if (signal instanceof BspSource.Signal.TaskFailed failed) {
+				if (signal instanceof BspSource.Signal.TaskFailed(var index, var exception)) {
 					var notification = new ErrorNotification(
-							decompileExceptionToMessage(failed.exception()),
-							failed.index()
+							decompileExceptionToMessage(exception),
+                            index
 					);
 					notificationsListeners.forEach(consumer -> consumer.accept(notification));
 				}

@@ -174,29 +174,26 @@ public class BspFileReader {
     }
 
     private Supplier<? extends DFace> faceDStructSupplier(int lumpVersion) {
-        switch (appId()) {
-            case VAMPIRE_BLOODLINES:
-                return DFaceVTMB::new;
-            case VINDICTUS:
+        return switch (appId()) {
+            case VAMPIRE_BLOODLINES -> DFaceVTMB::new;
+            case VINDICTUS -> {
                 if (lumpVersion == 2)
-                    return DFaceVinV2::new;
+                    yield DFaceVinV2::new;
                 else
-                    return DFaceVinV1::new;
-            case STRATA_SOURCE:
+                    yield DFaceVinV1::new;
+            }
+            case STRATA_SOURCE -> {
                 if (lumpVersion == 2)
-                    return DFaceStrataV2::new;
+                    yield DFaceStrataV2::new;
                 else
-                    return DFace::new;
-            default:
-                switch (bspFile.getVersion()) {
-                    case 17:
-                        return DFaceBSP17::new;
-                    case 18:
-                        return DFaceBSP18::new;
-                    default:
-                        return DFace::new;
-                }
-        }
+                    yield DFace::new;
+            }
+            default -> switch (bspFile.getVersion()) {
+                case 17 -> DFaceBSP17::new;
+                case 18 -> DFaceBSP18::new;
+                default -> DFace::new;
+            };
+        };
     }
 
     public void loadFaces() {

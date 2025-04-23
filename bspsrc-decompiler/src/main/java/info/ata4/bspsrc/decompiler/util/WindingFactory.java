@@ -42,8 +42,8 @@ public class WindingFactory {
 
     public static WindingFactory forAppId(int appId) {
         var coordSize = switch (appId) {
-            case SourceAppId.STRATA_SOURCE: yield 131072;
-            default: yield 32768;
+            case SourceAppId.STRATA_SOURCE -> 131072;
+            default -> 32768;
         };
         return new WindingFactory(coordSize);
     }
@@ -53,7 +53,6 @@ public class WindingFactory {
      *
      * @param bsp BSP data
      * @param face Face
-     * @param both if true, wind in both directions
      * @return Winding for the face
      */
     public Winding fromFace(BspData bsp, DFace face) {
