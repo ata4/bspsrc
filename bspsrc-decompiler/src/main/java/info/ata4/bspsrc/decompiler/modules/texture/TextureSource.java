@@ -174,15 +174,8 @@ public class TextureSource extends ModuleRead {
             return;
         }
 
-        Set<Integer> sides = cubemapToSideList.get(icubemap);
-
-        // create new side list if required
-        if (sides == null) {
-            sides = new HashSet<>();
-            cubemapToSideList.put(icubemap, sides);
-        }
-
-        sides.add(side);
+        cubemapToSideList.computeIfAbsent(icubemap, _ -> new HashSet<>())
+                .add(side);
     }
 
     public Set<Integer> getBrushSidesForCubemap(int icubemap) {
