@@ -12,6 +12,7 @@ package info.ata4.bspsrc.decompiler.util;
 import info.ata4.bspsrc.lib.app.SourceAppId;
 import info.ata4.bspsrc.lib.struct.*;
 import info.ata4.bspsrc.lib.vector.Vector3f;
+import info.ata4.bspsrc.lib.vector.VectorXf;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -294,6 +295,19 @@ public class WindingFactory {
             }
         }
 
+        return false;
+    }
+
+    /**
+     * Adapted from {@link #isHuge(Winding)}.
+     * @param vector
+     * @return {@code true}, if any component of the vector is greater than {@link #maxCoord}, {@code false} otherwise.
+     */
+    public boolean isHuge(VectorXf vector) {
+        for (float v : vector) {
+            if (Math.abs(v) > maxCoord)
+                return true;
+        }
         return false;
     }
 }

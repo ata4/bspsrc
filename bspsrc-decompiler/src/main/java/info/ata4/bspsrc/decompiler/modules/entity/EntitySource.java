@@ -633,6 +633,21 @@ public class EntitySource extends ModuleDecompile {
 
         for (int overlayI = 0; overlayI < bsp.overlays.size(); overlayI++) {
             DOverlay o = bsp.overlays.get(overlayI);
+            
+            // Don't try writing overlays outside map extend. Make hammer hang for some reason...
+            // See issue https://github.com/ata4/bspsrc/issues/143
+            if (windingFactory.isHuge(o.origin)) {
+                L.warn("Overlay {} has origin {} outside map extends, skipping...", overlayI, o.origin);
+                continue;
+            }
+            var uvPointHuge = Arrays.stream(o.uvpoints)
+                    .filter(windingFactory::isHuge)
+                    .findFirst();
+            if (uvPointHuge.isPresent()) {
+                L.warn("Overlay {} has uvpoint {} outside map extends, skipping...",
+                        overlayI, uvPointHuge.orElseThrow());
+                continue;
+            }
 
             // calculate u/v bases
             Vector3f ubasis = new Vector3f(o.uvpoints[0].z, o.uvpoints[1].z, o.uvpoints[2].z);
