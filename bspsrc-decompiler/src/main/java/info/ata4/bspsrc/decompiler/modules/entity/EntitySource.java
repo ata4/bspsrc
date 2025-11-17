@@ -639,10 +639,6 @@ public class EntitySource extends ModuleDecompile {
 
             boolean vflip = o.uvpoints[3].z == 1;
 
-            for (int j = 0; j < 4; j++) {
-                o.uvpoints[j] = o.uvpoints[j].set(2, 0);
-            }
-
             Vector3f vbasis = o.basisNormal.cross(ubasis).normalize();
 
             if (vflip) {
@@ -681,7 +677,7 @@ public class EntitySource extends ModuleDecompile {
             }
 
             for (int j = 0; j < 4; j++) {
-                writer.put("uv" + j, o.uvpoints[j]);
+                writer.put("uv" + j, o.uvpoints[j].set(2, 0));
             }
 
             writer.put("RenderOrder", o.getRenderOrder());
