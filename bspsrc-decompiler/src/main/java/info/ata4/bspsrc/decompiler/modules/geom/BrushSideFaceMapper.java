@@ -93,12 +93,22 @@ public class BrushSideFaceMapper extends ModuleRead {
 				.map(bsp.origFaces::get)
 				.collect(Collectors.toSet());
 
+		int extractMatchesFound = brushSideToOrigFace.size();
+		int extactMatchesPossible = bsp.brushSides.size();
+		L.info(String.format("%d (%.1f%%) exact brushside->origface matches",
+				extractMatchesFound, 100.0 * extractMatchesFound / extactMatchesPossible));
+
 		Map<Boolean, Long> partitionedRemainingOrigFacesCount = remainingOrigFaces.stream()
 				.collect(Collectors.partitioningBy(dFace -> dFace.dispInfo >= 0, Collectors.counting()));
-		L.info(String.format("%d (%.1f%%) exact brushside->origface matches",
-				brushSideToOrigFace.size(), 100.0 * brushSideToOrigFace.size() / bsp.brushSides.size()));
-		L.info(String.format("%d/%d (nondisp/disp) original faces left after exact brushside->origface matching",
-				partitionedRemainingOrigFacesCount.get(false), partitionedRemainingOrigFacesCount.get(true)));
+		Map<Boolean, Long> partitionedOrigFacesCount = bsp.origFaces.stream()
+				.collect(Collectors.partitioningBy(dFace -> dFace.dispInfo >= 0, Collectors.counting()));
+		var origFacesNonDispRemaining = partitionedRemainingOrigFacesCount.get(false);
+		var origFacesNonDispTotal = partitionedOrigFacesCount.get(false);
+		var origFacesDispRemaining = partitionedRemainingOrigFacesCount.get(true);
+		var origFacesDispTotal = partitionedOrigFacesCount.get(true);
+		L.info(String.format("%d (%.1f%%) nondisp and %d (%.1f%%) disp original faces left after exact brushside->origface matching",
+				origFacesNonDispRemaining, 100.0 * origFacesNonDispRemaining / origFacesNonDispTotal,
+				origFacesDispRemaining, 100.0 * origFacesDispRemaining / origFacesDispTotal));
 	}
 
 	/**
