@@ -631,8 +631,8 @@ public class EntitySource extends ModuleDecompile {
     public void writeOverlays() {
         L.info("Writing info_overlays");
 
-        for (int i = 0; i < bsp.overlays.size(); i++) {
-            DOverlay o = bsp.overlays.get(i);
+        for (int overlayI = 0; overlayI < bsp.overlays.size(); overlayI++) {
+            DOverlay o = bsp.overlays.get(overlayI);
 
             // calculate u/v bases
             Vector3f ubasis = new Vector3f(o.uvpoints[0].z, o.uvpoints[1].z, o.uvpoints[2].z);
@@ -666,14 +666,14 @@ public class EntitySource extends ModuleDecompile {
 
             // write fade distances
             if (bsp.overlayFades != null && !bsp.overlayFades.isEmpty()) {
-                DOverlayFade of = bsp.overlayFades.get(i);
+                DOverlayFade of = bsp.overlayFades.get(overlayI);
                 writer.put("fademindist", of.fadeDistMinSq);
                 writer.put("fademaxdist", of.fadeDistMaxSq);
             }
 
             // write system levels
             if (bsp.overlaySysLevels != null && !bsp.overlaySysLevels.isEmpty()) {
-                DOverlaySystemLevel osl = bsp.overlaySysLevels.get(i);
+                DOverlaySystemLevel osl = bsp.overlaySysLevels.get(overlayI);
                 writer.put("mincpulevel", osl.minCPULevel);
                 writer.put("maxcpulevel", osl.maxCPULevel);
                 writer.put("mingpulevel", osl.minGPULevel);
@@ -701,7 +701,12 @@ public class EntitySource extends ModuleDecompile {
                             continue;
 
                         for (int brushSideI : brushSideFaceMapper.getBrushSideIndices(origFaceI)) {
-                            sides.add(brushsrc.getBrushSideIDForIndex(brushSideI));
+                            int brushSideId = brushsrc.getBrushSideIDForIndex(brushSideI);
+                            if (brushSideId >= 0) {
+                                sides.add(brushSideId);
+                            } else {
+                                L.warn("Face {} used by overlay {} is mapped to brushside {}, which was never written.", overlayI, origFaceI, brushSideI);
+                            }
                         }
                     }
                 }
