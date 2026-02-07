@@ -19,7 +19,8 @@ import info.ata4.bspsrc.lib.vector.Vector3f;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
@@ -51,24 +52,6 @@ public class VmfWriter implements Closeable {
         this.doubleScale = doubleScale;
         this.doubleScaleTextureAxes = doubleScaleTextureAxes;
         this.doubleScaleTextureScale = doubleScaleTextureScale;
-    }
-
-    public VmfWriter(
-            File file,
-            int doubleScale,
-            int doubleScaleTextureAxes,
-            int doubleScaleTextureScale
-    ) throws FileNotFoundException, UnsupportedEncodingException {
-        this(new PrintWriter(file, "US-ASCII"), doubleScale, doubleScaleTextureAxes, doubleScaleTextureScale);
-    }
-
-    public VmfWriter(
-            OutputStream os,
-            int doubleScale,
-            int doubleScaleTextureAxes,
-            int doubleScaleTextureScale
-    ) {
-        this(new PrintWriter(os), doubleScale, doubleScaleTextureAxes, doubleScaleTextureScale);
     }
 
     private void indent() {

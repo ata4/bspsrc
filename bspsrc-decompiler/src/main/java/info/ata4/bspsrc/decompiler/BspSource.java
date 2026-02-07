@@ -27,6 +27,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -225,21 +227,14 @@ public class BspSource {
 
     private static VmfWriter getVmfWriter(File vmfFile, BspSourceConfig config) throws IOException {
         // write to file or omit output?
-        if (config.nullOutput) {
-            return new VmfWriter(
-                    OutputStream.nullOutputStream(),
-                    config.vmfDoubleScale,
-                    config.vmfDoubleScaleTextureAxes,
-                    config.vmfDoubleScaleTextureScale
-            );
-        } else {
-            return new VmfWriter(
-                    vmfFile,
-                    config.vmfDoubleScale,
-                    config.vmfDoubleScaleTextureAxes,
-                    config.vmfDoubleScaleTextureScale
-            );
-        }
+        return new VmfWriter(
+                config.nullOutput 
+                        ? new PrintWriter(OutputStream.nullOutputStream()) 
+                        : new PrintWriter(vmfFile, StandardCharsets.US_ASCII),
+                config.vmfDoubleScale,
+                config.vmfDoubleScaleTextureAxes,
+                config.vmfDoubleScaleTextureScale
+        );
     }
 
     public List<UUID> getEntryUuids() {
