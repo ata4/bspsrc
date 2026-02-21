@@ -4,36 +4,37 @@ import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.ToolTextureDefin
 import info.ata4.bspsrc.lib.struct.BrushFlag;
 import info.ata4.bspsrc.lib.struct.SurfaceFlag;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static info.ata4.bspsrc.common.util.StringUtil.equalsIgnoreCase;
 import static java.util.Objects.requireNonNull;
 
-/**
- * Class for reversing texture names to their original tooltexture names/surface flags/brush flags.
- *
- * <p> In the vbsp optimizing process, every brushside that points to a texinfo, that is <b>not</b> referenced by any
- * face, will be changed to point to an already referenced texinfo. This is probably done to save space in the
- * texinfo lump.
- *
- * <p> This has the effect that all brushsides, that don't create a visible face, have their textures messed up.
- * Especially tooltextures are affected by this, as they are invisible and consequently don't generate any faces.
- *
- * <p> This class uses the surface property and surface/brush flags to reverse the original texture names. This is
- * achieved, by having a set of all possible textures mapped to what brush/surface flags they're required/forbidden to
- * have + which surface flag the require.
- *
- * <p> While surface/brush flags can be directly retrieved, the surface property is not directly saved in the bsp, but
- * rather has to be looked up through its texture/material. Remembering that the texture name changes makes this seem
- * useless. However, the algorithm for optimizing texinfos can only choose different textures with the <b>same surface
- * property</b>, enabling us to directly lookup the surface property by the texture name, even if the texture name
- * isn't the one originally used on the brush side.
- *
- * @see <a href="https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/utils/vbsp/writebsp.cpp#L768">
- *     https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/utils/vbsp/writebsp.cpp#L768</a>
- * @see <a href="https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/utils/vbsp/writebsp.cpp#L676">
- *     https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/utils/vbsp/writebsp.cpp#L676</a>
- */
+/// Class for reversing texture names to their original tooltexture names/surface flags/brush flags.
+///
+/// In the vbsp optimizing process, every brushside that points to a texinfo, that is **not** referenced by any
+/// face, will be changed to point to an already referenced texinfo. This is probably done to save space in the
+/// texinfo lump.
+///
+/// This has the effect that all brushsides, that don't create a visible face, have their textures messed up.
+/// Especially tooltextures are affected by this, as they are invisible and consequently don't generate any faces.
+///
+/// This class uses the surface property and surface/brush flags to reverse the original texture names. This is
+/// achieved, by having a set of all possible textures mapped to what brush/surface flags they're required/forbidden to
+/// have + which surface flag the require.
+///
+/// While surface/brush flags can be directly retrieved, the surface property is not directly saved in the bsp, but
+/// rather has to be looked up through its texture/material. Remembering that the texture name changes makes this seem
+/// useless. However, the algorithm for optimizing texinfos can only choose different textures with the **same surface
+/// property**, enabling us to directly lookup the surface property by the texture name, even if the texture name
+/// isn't the one originally used on the brush side.
+///
+/// @see <a href="https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/utils/vbsp/writebsp.cpp#L768">
+///     https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/utils/vbsp/writebsp.cpp#L768</a>
+/// @see <a href="https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/utils/vbsp/writebsp.cpp#L676">
+///     https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/utils/vbsp/writebsp.cpp#L676</a>
 public class ToolTextureMatcher {
 
     private final Map<String, ToolTextureDefinition> toolTextureDefinitions;
@@ -55,15 +56,13 @@ public class ToolTextureMatcher {
         this.clipOptimization = clipOptimization;
     }
 
-    /**
-     * Tries to make the best guess, which texture name the specified surface property, brush/surface flags represent.
-     *
-     * @param originalTextureName the original texture name or null if unknown
-     * @param brushFlags a set of {@link BrushFlag}s
-     * @param surfFlags a set of {@link SurfaceFlag}s or null if unknown
-     *
-     * @return an empty optional if no texture name could be found or the best guess
-     */
+    /// Tries to make the best guess, which texture name the specified surface property, brush/surface flags represent.
+    ///
+    /// @param originalTextureName the original texture name or null if unknown
+    /// @param brushFlags a set of [BrushFlag]s
+    /// @param surfFlags a set of [SurfaceFlag]s or null if unknown
+    ///
+    /// @return an empty optional if no texture name could be found or the best guess
     public Optional<String> fixToolTexture(
             String originalTextureName,
             Set<BrushFlag> brushFlags,
@@ -83,15 +82,13 @@ public class ToolTextureMatcher {
                 .map(Map.Entry::getKey);
     }
 
-    /**
-     * Because the optimization process in vbsp only reassigns texture with matching surface properties,
-     * we check if the original textures surface property (incase we know it), matches the proposed
-     * tooltexture definition.
-     *
-     * @param definition the proposed {@link ToolTextureDefinition}
-     * @param originalTextureName the original texture name or {@code null} if unknown
-     * @return {@code false}, if we know the surface properties don't match, otherwise {@code true}
-     */
+    /// Because the optimization process in vbsp only reassigns texture with matching surface properties,
+    /// we check if the original textures surface property (incase we know it), matches the proposed
+    /// tooltexture definition.
+    ///
+    /// @param definition the proposed [ToolTextureDefinition]
+    /// @param originalTextureName the original texture name or `null` if unknown
+    /// @return `false`, if we know the surface properties don't match, otherwise `true`
     private boolean matchesSurfaceProperty(ToolTextureDefinition definition, String originalTextureName) {
         if (originalTextureName == null)
             return true;
@@ -106,9 +103,7 @@ public class ToolTextureMatcher {
         );
     }
 
-    /**
-     * Helper method to check if brush/surface-flag requirements match given one.
-     */
+    /// Helper method to check if brush/surface-flag requirements match given one.
     private <T> boolean matchesRequirements(Map<T, Boolean> requirements, Set<T> set) {
         if (set == null)
             return true;
@@ -119,12 +114,11 @@ public class ToolTextureMatcher {
                 .allMatch(entry -> set.contains(entry.getKey()) == entry.getValue());
     }
 
-    /**
-     * In case we have multiple proposed tooltexture definitions, which match our requirements,
-     * we score them to select the 'best' one. We consider the tooltexture with the most requirements
-     * to be the best fit.
-     * @return score, where bigger is a better fit
-     */
+    /// In case we have multiple proposed tooltexture definitions, which match our requirements,
+    /// we score them to select the 'best' one. We consider the tooltexture with the most requirements
+    /// to be the best fit.
+    /// 
+    /// @return score, where bigger is a better fit
     private static int ttDefinitionScore(Map.Entry<String, ToolTextureDefinition> ttEntry, boolean ignoreSurfaceFlags) {
         ToolTextureDefinition definition = ttEntry.getValue();
         int brushFlagRequirements = definition.getBrushFlagsRequirements().size();
