@@ -3,7 +3,10 @@ package info.ata4.bspsrc.decompiler.modules.texture.tooltextures;
 import info.ata4.bspsrc.lib.struct.BrushFlag;
 import info.ata4.bspsrc.lib.struct.SurfaceFlag;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public interface ToolTextureDefinition {
 
@@ -52,7 +55,7 @@ public interface ToolTextureDefinition {
 
 
         public Builder setSurfaceProperty(String surfaceProperty) {
-            this.surfaceProperty = Objects.requireNonNull(surfaceProperty);
+            this.surfaceProperty = surfaceProperty;
             return this;
         }
 

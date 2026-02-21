@@ -1,8 +1,8 @@
 package info.ata4.bspsrc.decompiler.modules.texture.tooltextures;
 
-import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.CsgoToolTextureDefinitions;
-import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.CssToolTextureDefinition;
-import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.SourceToolTextureDefinition;
+import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.CsgoToolTextures;
+import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.CssToolTextures;
+import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.SourceToolTextures;
 import info.ata4.bspsrc.lib.app.SourceAppId;
 
 import java.util.Arrays;
@@ -14,24 +14,30 @@ import java.util.Map;
  */
 public enum ToolTextureSet {
 
-    SOURCE_2013(SourceAppId.UNKNOWN, SourceToolTextureDefinition.getAll()),
+    SOURCE_2013(
+            SourceAppId.UNKNOWN,
+            SourceToolTextures.getAll()
+    ),
     COUNTER_STRIKE_SOURCE(
             SourceAppId.COUNTER_STRIKE_SOURCE,
             SOURCE_2013.builder()
-                    .putToolTextureDefinitions(CssToolTextureDefinition.getAll())
+                    .putToolTextureDefinitions(CssToolTextures.getAll())
                     .build()
     ),
     COUNTER_STRIKE_GO(
             SourceAppId.COUNTER_STRIKE_GO,
             SOURCE_2013.builder()
-                    .putToolTextureDefinitions(CsgoToolTextureDefinitions.getAll())
+                    .putToolTextureDefinitions(CsgoToolTextures.getAll())
                     .build()
     );
 
-    private final int appId;
-    private final Map<String, ToolTextureDefinition> toolTextureDefinitions;
-
-    ToolTextureSet(int appId, Map<String, ToolTextureDefinition> toolTextureDefinitions) {
+    public final int appId;
+    public final Map<String, ToolTextureDefinition> toolTextureDefinitions;
+    
+    ToolTextureSet(
+            int appId,
+            Map<String, ToolTextureDefinition> toolTextureDefinitions
+    ) {
         this.appId = appId;
         this.toolTextureDefinitions = Map.copyOf(toolTextureDefinitions);
     }

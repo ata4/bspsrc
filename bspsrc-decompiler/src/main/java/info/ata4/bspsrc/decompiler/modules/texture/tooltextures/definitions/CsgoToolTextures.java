@@ -7,22 +7,22 @@ import info.ata4.bspsrc.lib.struct.SurfaceFlag;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-public enum CsgoToolTextureDefinitions implements ToolTextureDefinition {
+import static java.util.Objects.requireNonNull;
+
+public enum CsgoToolTextures {
 
     GRENADE_CLIP(
             ToolTexture.CSGO_GRENADECLIP,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(BrushFlag.CONTENTS_CURRENT_90, BrushFlag.CONTENTS_DETAIL)
                     .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
                     .build()
     ),
     DRONE_CLIP(
             ToolTexture.CSGO_DRONECLIP,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(BrushFlag.CONTENTS_CURRENT_180, BrushFlag.CONTENTS_DETAIL)
                     .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
                     .build()
@@ -31,142 +31,126 @@ public enum CsgoToolTextureDefinitions implements ToolTextureDefinition {
     //Material specific clip textures
     CLIP_CONCRETE(
             ToolTexture.CSGO_CLIP_CONCRETE,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("concrete")
                     .build()
     ),
     CLIP_DIRT(
             ToolTexture.CSGO_CLIP_DIRT,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("dirt")
                     .build()
     ),
     CLIP_GLASS(
             ToolTexture.CSGO_CLIP_GLASS,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("glassfloor")
                     .build()
     ),
     CLIP_GRASS(
             ToolTexture.CSGO_CLIP_GRASS,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("grass")
                     .build()
     ),
     CLIP_GRAVEL(
             ToolTexture.CSGO_CLIP_GRAVEL,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("gravel")
                     .build()
     ),
     CLIP_METAL(
             ToolTexture.CSGO_CLIP_METAL,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("metal")
                     .build()
     ),
     CLIP_METAL_SAND_BARREL(
             ToolTexture.CSGO_CLIP_METAL_SAND_BARREL,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("metal_sand_barrel")
                     .build()
     ),
     CLIP_METALGRATE(
             ToolTexture.CSGO_CLIP_METALGRATE,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("metalgrate")
                     .build()
     ),
     CLIP_METALVEHICLE(
             ToolTexture.CSGO_CLIP_METALVEHICEL,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("metalvehicle")
                     .build()
     ),
     CLIP_PLASTIC(
             ToolTexture.CSGO_CLIP_PLASTIC,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("plastic")
                     .build()
     ),
     CLIP_RUBBER(
             ToolTexture.CSGO_CLIP_RUBBER,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("rubber")
                     .build()
     ),
     CLIP_RUBBERTIRE(
             ToolTexture.CSGO_CLIP_RUBBERTIRE,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("rubbertire")
                     .build()
     ),
     CLIP_SAND(
             ToolTexture.CSGO_CLIP_SAND,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("sand")
                     .build()
     ),
     CLIP_SNOW(
             ToolTexture.CSGO_CLIP_SNOW,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("snow")
                     .build()
     ),
     CLIP_TILE(
             ToolTexture.CSGO_CLIP_TILE,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("tile")
                     .build()
     ),
     CLIP_WOOD(
             ToolTexture.CSGO_CLIP_WOOD,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("wood")
                     .build()
     ),
     CLIP_WOOD_BASKET(
             ToolTexture.CSGO_CLIP_WOOD_BASKET,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("Wood_Basket")
                     .build()
     ),
     CLIP_WOOD_CRATE(
             ToolTexture.CSGO_CLIP_WOOD_CRATE,
-            new Builder(SourceToolTextureDefinition.CLIP)
+            new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("Wood_Crate")
                     .build()
     );
 
-    private final String materialName;
-    private final ToolTextureDefinition toolTextureDefinition;
+    public final String materialName;
+    public final ToolTextureDefinition definition;
 
-    CsgoToolTextureDefinitions(String materialName, ToolTextureDefinition toolTextureDefinition) {
-        this.materialName = Objects.requireNonNull(materialName);
-        this.toolTextureDefinition = Objects.requireNonNull(toolTextureDefinition);
-    }
-
-    public String getMaterialName() {
-        return materialName;
-    }
-
-    @Override
-    public Optional<String> getSurfaceProperty() {
-        return toolTextureDefinition.getSurfaceProperty();
-    }
-
-    @Override
-    public Map<BrushFlag, Boolean> getBrushFlagsRequirements() {
-        return toolTextureDefinition.getBrushFlagsRequirements();
-    }
-
-    @Override
-    public Map<SurfaceFlag, Boolean> getSurfaceFlagsRequirements() {
-        return toolTextureDefinition.getSurfaceFlagsRequirements();
+    CsgoToolTextures(
+            String materialName,
+            ToolTextureDefinition definition
+    ) {
+        this.materialName = requireNonNull(materialName);
+        this.definition = requireNonNull(definition);
     }
 
     public static Map<String, ToolTextureDefinition> getAll() {
         return Arrays.stream(values())
-                .collect(Collectors.toMap(CsgoToolTextureDefinitions::getMaterialName, definition -> definition));
+                .collect(Collectors.toMap(texture -> texture.materialName, texture -> texture.definition));
     }
 }

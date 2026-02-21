@@ -7,9 +7,9 @@ import info.ata4.bspsrc.lib.struct.SurfaceFlag;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Standard tooltexture definitions. By default we use these for every game.
@@ -27,39 +27,39 @@ import java.util.stream.Collectors;
  *         https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/utils/vbsp/textures.cpp#L85-L293</a></li>
  * </ul>
  */
-public enum SourceToolTextureDefinition implements ToolTextureDefinition {
+public enum SourceToolTextures {
     // General
     AREAPORTAL(
             ToolTexture.AREAPORTAL,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(BrushFlag.CONTENTS_AREAPORTAL)
                     .setRequiredFlags(SurfaceFlag.SURF_NOLIGHT)
                     .build()
     ),
     BLOCK_BULLETS(
             ToolTexture.BLOCKBULLETS,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(BrushFlag.CONTENTS_WINDOW, BrushFlag.CONTENTS_TRANSLUCENT)
                     .setRequiredFlags(SurfaceFlag.SURF_TRANS, SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
                     .build()
     ),
     BLOCK_LIGHT(
             ToolTexture.BLOCKLIGHT,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(BrushFlag.CONTENTS_OPAQUE, BrushFlag.CONTENTS_DETAIL)
                     .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
                     .build()
     ),
     BLOCK_LOS(
             ToolTexture.BLOCKLOS,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(BrushFlag.CONTENTS_BLOCKLOS, BrushFlag.CONTENTS_DETAIL)
                     .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
                     .build()
     ),
     INVISIBLE(
             ToolTexture.INVIS,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(BrushFlag.CONTENTS_GRATE, BrushFlag.CONTENTS_TRANSLUCENT)
                     .setForbiddenFlags(BrushFlag.CONTENTS_SOLID)
                     .setRequiredFlags(SurfaceFlag.SURF_TRANS, SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
@@ -67,7 +67,7 @@ public enum SourceToolTextureDefinition implements ToolTextureDefinition {
     ),
     INVISIBLE_LADDER(
             ToolTexture.INVISLADDER,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(BrushFlag.CONTENTS_GRATE, BrushFlag.CONTENTS_TRANSLUCENT, BrushFlag.CONTENTS_LADDER)
                     .setForbiddenFlags(BrushFlag.CONTENTS_SOLID)
                     .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
@@ -75,13 +75,13 @@ public enum SourceToolTextureDefinition implements ToolTextureDefinition {
     ),
     NODRAW(
             ToolTexture.NODRAW,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
                     .build()
     ),
     TRIGGER(
             ToolTexture.TRIGGER,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(SurfaceFlag.SURF_NOLIGHT, SurfaceFlag.SURF_TRIGGER)
                     .build()
     ),
@@ -89,13 +89,13 @@ public enum SourceToolTextureDefinition implements ToolTextureDefinition {
     // Optimisation
     HINT(
             ToolTexture.HINT,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_HINT, SurfaceFlag.SURF_NOLIGHT)
                     .build()
     ),
     SKIP(
             ToolTexture.SKIP,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_SKIP, SurfaceFlag.SURF_NOLIGHT)
                     .build()
     ),
@@ -105,7 +105,7 @@ public enum SourceToolTextureDefinition implements ToolTextureDefinition {
     // surface property default_silent in all games?
     CLIP(
             ToolTexture.CLIP,
-            new Builder("default_silent")
+            new ToolTextureDefinition.Builder("default_silent")
                     .setRequiredFlags(BrushFlag.CONTENTS_PLAYERCLIP, BrushFlag.CONTENTS_MONSTERCLIP, BrushFlag.CONTENTS_DETAIL)
                     .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
                     .build()
@@ -114,7 +114,7 @@ public enum SourceToolTextureDefinition implements ToolTextureDefinition {
     // surface property default_silent in all games?
     NPC_CLIP(
             ToolTexture.NPCCLIP,
-            new Builder("default_silent")
+            new ToolTextureDefinition.Builder("default_silent")
                     .setRequiredFlags(BrushFlag.CONTENTS_MONSTERCLIP, BrushFlag.CONTENTS_DETAIL)
                     .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
                     .build()
@@ -122,7 +122,7 @@ public enum SourceToolTextureDefinition implements ToolTextureDefinition {
     // CONTENTS_DETAIL in all games?
     PLAYER_CLIP(
             ToolTexture.PLAYERCLIP,
-            new Builder()
+            new ToolTextureDefinition.Builder()
                     .setRequiredFlags(BrushFlag.CONTENTS_PLAYERCLIP, BrushFlag.CONTENTS_DETAIL)
                     .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
                     .build()
@@ -132,7 +132,7 @@ public enum SourceToolTextureDefinition implements ToolTextureDefinition {
     // surface property default_silent in all games?
     SKYBOX(
             ToolTexture.SKYBOX,
-            new Builder("default_silent")
+            new ToolTextureDefinition.Builder("default_silent")
                     .setRequiredFlags(BrushFlag.CONTENTS_SOLID)
                     .setRequiredFlags(SurfaceFlag.SURF_SKY, SurfaceFlag.SURF_NOLIGHT)
                     .build()
@@ -140,41 +140,25 @@ public enum SourceToolTextureDefinition implements ToolTextureDefinition {
     // surface property default_silent in all games?
     SKYBOX_2D(
             ToolTexture.SKYBOX2D,
-            new Builder("default_silent")
+            new ToolTextureDefinition.Builder("default_silent")
                     .setRequiredFlags(BrushFlag.CONTENTS_SOLID)
                     .setRequiredFlags(SurfaceFlag.SURF_SKY, SurfaceFlag.SURF_SKY2D, SurfaceFlag.SURF_NOLIGHT)
                     .build()
     );
 
-    private final String materialName;
-    private final ToolTextureDefinition toolTextureDefinition;
+    public final String materialName;
+    public final ToolTextureDefinition definition;
 
-    SourceToolTextureDefinition(String materialName, ToolTextureDefinition toolTextureDefinition) {
-        this.materialName = Objects.requireNonNull(materialName);
-        this.toolTextureDefinition = Objects.requireNonNull(toolTextureDefinition);
+    SourceToolTextures(
+            String materialName,
+            ToolTextureDefinition definition
+    ) {
+        this.materialName = requireNonNull(materialName);
+        this.definition = requireNonNull(definition);
     }
-
-    public String getMaterialName() {
-        return materialName;
-    }
-
-    @Override
-    public Optional<String> getSurfaceProperty() {
-        return toolTextureDefinition.getSurfaceProperty();
-    }
-
-    @Override
-    public Map<BrushFlag, Boolean> getBrushFlagsRequirements() {
-        return toolTextureDefinition.getBrushFlagsRequirements();
-    }
-
-    @Override
-    public Map<SurfaceFlag, Boolean> getSurfaceFlagsRequirements() {
-        return toolTextureDefinition.getSurfaceFlagsRequirements();
-    }
-
+    
     public static Map<String, ToolTextureDefinition> getAll() {
         return Arrays.stream(values())
-                .collect(Collectors.toMap(SourceToolTextureDefinition::getMaterialName, definition -> definition));
+                .collect(Collectors.toMap(texture -> texture.materialName, texture -> texture.definition));
     }
 }
