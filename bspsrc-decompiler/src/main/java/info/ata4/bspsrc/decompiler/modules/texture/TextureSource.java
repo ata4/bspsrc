@@ -13,6 +13,7 @@ package info.ata4.bspsrc.decompiler.modules.texture;
 import info.ata4.bspsrc.decompiler.modules.ModuleRead;
 import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.ToolTextureSet;
 import info.ata4.bspsrc.lib.BspFileReader;
+import info.ata4.bspsrc.lib.app.SourceAppId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -79,7 +80,13 @@ public class TextureSource extends ModuleRead {
     // settings
     private boolean fixTextureNames;
     private boolean fixToolTextures;
-    private ToolTextureMatcher toolTextureMatcher = new ToolTextureMatcher(ToolTextureSet.forGame(bspFile.getAppId()));
+    private final ToolTextureMatcher toolTextureMatcher = new ToolTextureMatcher(
+            ToolTextureSet.forGame(bspFile.getAppId()),
+            switch (bspFile.getAppId()) {
+                case SourceAppId.COUNTER_STRIKE_GO, SourceAppId.GARRYS_MOD -> false;
+                default -> true;
+            }
+    );
 
     public TextureSource(BspFileReader reader) {
         super(reader);

@@ -37,9 +37,22 @@ import static java.util.Objects.requireNonNull;
 public class ToolTextureMatcher {
 
     private final Map<String, ToolTextureDefinition> toolTextureDefinitions;
+    
+    /// Most games special case sides with [BrushFlag#CONTENTS_MONSTERCLIP] or [BrushFlag#CONTENTS_PLAYERCLIP] to all
+    /// share the same texinfo, disregarding if they actually share surface flags or surface property. In games like
+    /// these we therefore can't rely on the surface flags and surface property for brushes with 
+    /// [BrushFlag#CONTENTS_MONSTERCLIP] or [BrushFlag#CONTENTS_PLAYERCLIP].
+    /// This boolean should be set to true if these restrictions should apply when fixing textures.
+    /// 
+    /// [Relevant source engine code.](https://github.com/ValveSoftware/source-sdk-2013/blob/11a677c349b149b2f77184dc903e6bb17f8df69b/src/utils/vbsp/map.cpp#L3041-L3061)
+    private final boolean clipOptimization;
 
-    public ToolTextureMatcher(Map<String, ToolTextureDefinition> toolTextureDefinitions) {
+    public ToolTextureMatcher(
+            Map<String, ToolTextureDefinition> toolTextureDefinitions,
+            boolean clipOptimization
+    ) {
         this.toolTextureDefinitions = Map.copyOf(toolTextureDefinitions);
+        this.clipOptimization = clipOptimization;
     }
 
     /**
@@ -57,11 +70,13 @@ public class ToolTextureMatcher {
             Set<SurfaceFlag> surfFlags
     ) {
         requireNonNull(brushFlags);
+        
+        var isClip = brushFlags.contains(BrushFlag.CONTENTS_PLAYERCLIP) || brushFlags.contains(BrushFlag.CONTENTS_MONSTERCLIP);
 
         return toolTextureDefinitions.entrySet().stream()
-                .filter(ttEntry -> matchesSurfaceProperty(ttEntry.getValue(), originalTextureName))
+                .filter(ttEntry -> (isClip && clipOptimization) || matchesSurfaceProperty(ttEntry.getValue(), originalTextureName))
                 .filter(ttEntry -> matchesRequirements(ttEntry.getValue().getBrushFlagsRequirements(), brushFlags))
-                .filter(ttEntry -> matchesRequirements(ttEntry.getValue().getSurfaceFlagsRequirements(), surfFlags))
+                .filter(ttEntry -> (isClip && clipOptimization) || matchesRequirements(ttEntry.getValue().getSurfaceFlagsRequirements(), surfFlags))
                 .max(Comparator.comparingInt(ttEntry -> ttDefinitionScore(ttEntry, surfFlags == null)))
                 // accepting scores of 0 makes no sense, because nothing was matched
                 .filter(ttEntry -> ttDefinitionScore(ttEntry, surfFlags == null) > 0)
