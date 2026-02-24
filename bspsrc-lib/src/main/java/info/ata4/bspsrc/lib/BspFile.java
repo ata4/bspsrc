@@ -84,22 +84,6 @@ public class BspFile {
     public BspFile() {
     }
 
-    public BspFile(Path file, boolean memMapping) throws BspException, IOException {
-        loadImpl(file, memMapping);
-    }
-
-    public BspFile(Path file) throws BspException, IOException {
-        loadImpl(file);
-    }
-
-    private void loadImpl(Path file) throws BspException, IOException {
-        load(file);
-    }
-
-    private void loadImpl(Path file, boolean memMapping) throws BspException, IOException {
-        load(file, memMapping);
-    }
-
     /**
      * Opens the BSP file and loads its headers and lumps.
      *
