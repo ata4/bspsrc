@@ -1,6 +1,8 @@
 package info.ata4.bspsrc.decompiler.modules.texture;
 
 import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.ToolTextureDefinition;
+import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.ToolTextureSet;
+import info.ata4.bspsrc.lib.app.SourceAppId;
 import info.ata4.bspsrc.lib.struct.BrushFlag;
 import info.ata4.bspsrc.lib.struct.SurfaceFlag;
 
@@ -54,6 +56,16 @@ public class ToolTextureMatcher {
     ) {
         this.toolTextureDefinitions = Map.copyOf(toolTextureDefinitions);
         this.clipOptimization = clipOptimization;
+    }
+
+    public static ToolTextureMatcher forAppId(int appId) {
+        return new ToolTextureMatcher(
+                ToolTextureSet.forGame(appId),
+                switch (appId) {
+                    case SourceAppId.COUNTER_STRIKE_GO, SourceAppId.GARRYS_MOD -> false;
+                    default -> true;
+                }
+        );
     }
 
     /// Tries to make the best guess, which texture name the specified surface property, brush/surface flags represent.
