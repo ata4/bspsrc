@@ -41,6 +41,9 @@ public class BrushSideFaceMapper extends ModuleRead {
 		reader.loadOriginalFaces();
 		reader.loadFaces();
 		reader.loadBrushSides();
+		reader.loadSurfaceEdges();
+		reader.loadEdges();
+		reader.loadVertices();
 
 		identifyExactMatches();
 		identifyMergedMatches();
