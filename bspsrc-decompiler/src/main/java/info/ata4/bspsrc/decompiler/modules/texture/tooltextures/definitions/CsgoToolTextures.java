@@ -2,13 +2,14 @@ package info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions;
 
 import info.ata4.bspsrc.decompiler.modules.texture.ToolTexture;
 import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.ToolTextureDefinition;
-import info.ata4.bspsrc.lib.struct.BrushFlag;
-import info.ata4.bspsrc.lib.struct.SurfaceFlag;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static info.ata4.bspsrc.lib.struct.BrushFlag.*;
+import static info.ata4.bspsrc.lib.struct.SurfaceFlag.SURF_NODRAW;
+import static info.ata4.bspsrc.lib.struct.SurfaceFlag.SURF_NOLIGHT;
 import static java.util.Objects.requireNonNull;
 
 public enum CsgoToolTextures {
@@ -16,15 +17,15 @@ public enum CsgoToolTextures {
     GRENADE_CLIP(
             ToolTexture.CSGO_GRENADECLIP,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(BrushFlag.CONTENTS_CURRENT_90, BrushFlag.CONTENTS_DETAIL)
-                    .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_CURRENT_90, CONTENTS_DETAIL)
+                    .setRequiredFlags(SURF_NODRAW, SURF_NOLIGHT)
                     .build()
     ),
     DRONE_CLIP(
             ToolTexture.CSGO_DRONECLIP,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(BrushFlag.CONTENTS_CURRENT_180, BrushFlag.CONTENTS_DETAIL)
-                    .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_CURRENT_180, CONTENTS_DETAIL)
+                    .setRequiredFlags(SURF_NODRAW, SURF_NOLIGHT)
                     .build()
     ),
 

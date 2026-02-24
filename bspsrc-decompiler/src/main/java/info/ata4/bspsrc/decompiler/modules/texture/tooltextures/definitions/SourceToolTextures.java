@@ -2,13 +2,13 @@ package info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions;
 
 import info.ata4.bspsrc.decompiler.modules.texture.ToolTexture;
 import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.ToolTextureDefinition;
-import info.ata4.bspsrc.lib.struct.BrushFlag;
-import info.ata4.bspsrc.lib.struct.SurfaceFlag;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static info.ata4.bspsrc.lib.struct.BrushFlag.*;
+import static info.ata4.bspsrc.lib.struct.SurfaceFlag.*;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -32,57 +32,57 @@ public enum SourceToolTextures {
     AREAPORTAL(
             ToolTexture.AREAPORTAL,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(BrushFlag.CONTENTS_AREAPORTAL)
-                    .setRequiredFlags(SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_AREAPORTAL)
+                    .setRequiredFlags(SURF_NOLIGHT)
                     .build()
     ),
     BLOCK_BULLETS(
             ToolTexture.BLOCKBULLETS,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(BrushFlag.CONTENTS_WINDOW, BrushFlag.CONTENTS_TRANSLUCENT)
-                    .setRequiredFlags(SurfaceFlag.SURF_TRANS, SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_WINDOW, CONTENTS_TRANSLUCENT)
+                    .setRequiredFlags(SURF_TRANS, SURF_NODRAW, SURF_NOLIGHT)
                     .build()
     ),
     BLOCK_LIGHT(
             ToolTexture.BLOCKLIGHT,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(BrushFlag.CONTENTS_OPAQUE, BrushFlag.CONTENTS_DETAIL)
-                    .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_OPAQUE, CONTENTS_DETAIL)
+                    .setRequiredFlags(SURF_NODRAW, SURF_NOLIGHT)
                     .build()
     ),
     BLOCK_LOS(
             ToolTexture.BLOCKLOS,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(BrushFlag.CONTENTS_BLOCKLOS, BrushFlag.CONTENTS_DETAIL)
-                    .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_BLOCKLOS, CONTENTS_DETAIL)
+                    .setRequiredFlags(SURF_NODRAW, SURF_NOLIGHT)
                     .build()
     ),
     INVISIBLE(
             ToolTexture.INVIS,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(BrushFlag.CONTENTS_GRATE, BrushFlag.CONTENTS_TRANSLUCENT)
-                    .setForbiddenFlags(BrushFlag.CONTENTS_SOLID)
-                    .setRequiredFlags(SurfaceFlag.SURF_TRANS, SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_GRATE, CONTENTS_TRANSLUCENT)
+                    .setForbiddenFlags(CONTENTS_SOLID)
+                    .setRequiredFlags(SURF_TRANS, SURF_NODRAW, SURF_NOLIGHT)
                     .build()
     ),
     INVISIBLE_LADDER(
             ToolTexture.INVISLADDER,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(BrushFlag.CONTENTS_GRATE, BrushFlag.CONTENTS_TRANSLUCENT, BrushFlag.CONTENTS_LADDER)
-                    .setForbiddenFlags(BrushFlag.CONTENTS_SOLID)
-                    .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_GRATE, CONTENTS_TRANSLUCENT, CONTENTS_LADDER)
+                    .setForbiddenFlags(CONTENTS_SOLID)
+                    .setRequiredFlags(SURF_NODRAW, SURF_NOLIGHT)
                     .build()
     ),
     NODRAW(
             ToolTexture.NODRAW,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(SURF_NODRAW, SURF_NOLIGHT)
                     .build()
     ),
     TRIGGER(
             ToolTexture.TRIGGER,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(SurfaceFlag.SURF_NOLIGHT, SurfaceFlag.SURF_TRIGGER)
+                    .setRequiredFlags(SURF_NOLIGHT, SURF_TRIGGER)
                     .build()
     ),
 
@@ -90,13 +90,13 @@ public enum SourceToolTextures {
     HINT(
             ToolTexture.HINT,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_HINT, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(SURF_NODRAW, SURF_HINT, SURF_NOLIGHT)
                     .build()
     ),
     SKIP(
             ToolTexture.SKIP,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_SKIP, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(SURF_NODRAW, SURF_SKIP, SURF_NOLIGHT)
                     .build()
     ),
 
@@ -106,8 +106,8 @@ public enum SourceToolTextures {
     CLIP(
             ToolTexture.CLIP,
             new ToolTextureDefinition.Builder("default_silent")
-                    .setRequiredFlags(BrushFlag.CONTENTS_PLAYERCLIP, BrushFlag.CONTENTS_MONSTERCLIP, BrushFlag.CONTENTS_DETAIL)
-                    .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_PLAYERCLIP, CONTENTS_MONSTERCLIP, CONTENTS_DETAIL)
+                    .setRequiredFlags(SURF_NODRAW, SURF_NOLIGHT)
                     .build()
     ),
     // CONTENTS_DETAIL in all games?
@@ -115,16 +115,16 @@ public enum SourceToolTextures {
     NPC_CLIP(
             ToolTexture.NPCCLIP,
             new ToolTextureDefinition.Builder("default_silent")
-                    .setRequiredFlags(BrushFlag.CONTENTS_MONSTERCLIP, BrushFlag.CONTENTS_DETAIL)
-                    .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_MONSTERCLIP, CONTENTS_DETAIL)
+                    .setRequiredFlags(SURF_NODRAW, SURF_NOLIGHT)
                     .build()
     ),
     // CONTENTS_DETAIL in all games?
     PLAYER_CLIP(
             ToolTexture.PLAYERCLIP,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(BrushFlag.CONTENTS_PLAYERCLIP, BrushFlag.CONTENTS_DETAIL)
-                    .setRequiredFlags(SurfaceFlag.SURF_NODRAW, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_PLAYERCLIP, CONTENTS_DETAIL)
+                    .setRequiredFlags(SURF_NODRAW, SURF_NOLIGHT)
                     .build()
     ),
 
@@ -133,16 +133,16 @@ public enum SourceToolTextures {
     SKYBOX(
             ToolTexture.SKYBOX,
             new ToolTextureDefinition.Builder("default_silent")
-                    .setRequiredFlags(BrushFlag.CONTENTS_SOLID)
-                    .setRequiredFlags(SurfaceFlag.SURF_SKY, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_SOLID)
+                    .setRequiredFlags(SURF_SKY, SURF_NOLIGHT)
                     .build()
     ),
     // surface property default_silent in all games?
     SKYBOX_2D(
             ToolTexture.SKYBOX2D,
             new ToolTextureDefinition.Builder("default_silent")
-                    .setRequiredFlags(BrushFlag.CONTENTS_SOLID)
-                    .setRequiredFlags(SurfaceFlag.SURF_SKY, SurfaceFlag.SURF_SKY2D, SurfaceFlag.SURF_NOLIGHT)
+                    .setRequiredFlags(CONTENTS_SOLID)
+                    .setRequiredFlags(SURF_SKY, SURF_SKY2D, SURF_NOLIGHT)
                     .build()
     );
 
