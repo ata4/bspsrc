@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("vector")
 @DisplayName("Vector3f Test")
-@Nested
 class Vector3fTest extends VectorXfTest<Vector3f> {
 
     @Override

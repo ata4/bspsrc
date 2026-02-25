@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 @Tag("vector")
 @DisplayName("Vector2f Test")
-@Nested
 class Vector2fTest extends VectorXfTest<Vector2f> {
 
     @Override

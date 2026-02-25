@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 
 @Tag("vector")
 @DisplayName("Vector4f Test")
-@Nested
 class Vector4fTest extends VectorXfTest<Vector4f> {
 
     @Override
