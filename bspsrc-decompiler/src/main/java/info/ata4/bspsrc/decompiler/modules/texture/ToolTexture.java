@@ -65,4 +65,9 @@ public final class ToolTexture {
     public static final String CSGO_CLIP_WOOD = "tools/toolsclip_wood";
     public static final String CSGO_CLIP_WOOD_BASKET = "tools/toolsclip_wood_basket";
     public static final String CSGO_CLIP_WOOD_CRATE = "tools/toolsclip_wood_crate";
+    
+    // L4D2 only
+    public static final String L4D2_NODRAW_METAL = "tools/toolsnodraw_metal";
+    public static final String L4D2_CLIMB = "tools/climb";
+    public static final String L4D2_INVISMETAL = "tools/invismetal";
 }

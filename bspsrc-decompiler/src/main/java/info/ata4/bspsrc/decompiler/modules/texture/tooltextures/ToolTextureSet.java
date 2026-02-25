@@ -2,6 +2,7 @@ package info.ata4.bspsrc.decompiler.modules.texture.tooltextures;
 
 import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.CsgoToolTextures;
 import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.CssToolTextures;
+import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.L4d2ToolTextures;
 import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.SourceToolTextures;
 import info.ata4.bspsrc.lib.app.SourceAppId;
 
@@ -28,6 +29,12 @@ public enum ToolTextureSet {
             SourceAppId.COUNTER_STRIKE_GO,
             SOURCE_2013.builder()
                     .putToolTextureDefinitions(CsgoToolTextures.getAll())
+                    .build()
+    ),
+    LEFT4DEAD2(
+            SourceAppId.LEFT_4_DEAD_2,
+            SOURCE_2013.builder()
+                    .putToolTextureDefinitions(L4d2ToolTextures.getAll())
                     .build()
     );
 
