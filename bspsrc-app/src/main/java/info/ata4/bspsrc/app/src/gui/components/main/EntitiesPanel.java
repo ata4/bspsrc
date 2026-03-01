@@ -45,7 +45,7 @@ public class EntitiesPanel extends JPanel {
 	private final JCheckBox chkVisCluster = new JCheckBox("Reconstruct func_viscluster") {{
 		setToolTipText("""
 				Try to reconstruct vis_cluster entities.
-				Might not always be 100% accurate.""");
+				Note that this option is quite inaccurate most of the time and needs manual cleanup to be useful.""");
 		addActionListener(e -> EntitiesPanel.this.config.updateConfig(c -> c.writeVisClusters = isSelected()));
 	}};
 	private final JCheckBox chkFixRotation = new JCheckBox("Fix rotation of instances") {{

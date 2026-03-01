@@ -43,7 +43,7 @@ public final class BspSourceConfig {
     public boolean writePointEntities = true;
     public boolean writeStaticProps = true;
     public boolean writeLadders = true;
-    public boolean writeVisClusters = true;
+    public boolean writeVisClusters = false;
     public boolean fixEntityRot = true;
     public boolean apForceManualMapping = false;
     public boolean detailMerge = false;
