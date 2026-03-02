@@ -123,11 +123,8 @@ public class WindingFactory {
 
             // remove everything behind the plane
             int iplane2 = bside2.pnum;
-            DPlane plane = bsp.planes.get(iplane2);
-            DPlane flipPlane = new DPlane();
-            flipPlane.normal = plane.normal.scalar(-1);
-            flipPlane.dist = -plane.dist;
-            w = w.clipPlane(flipPlane, false);
+            var plane = bsp.planes.get(iplane2);
+            w = w.clipPlane(plane, true);
         }
 
         if (!hasSide) {
