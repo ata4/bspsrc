@@ -31,109 +31,109 @@ public enum CsgoToolTextures {
 
     //Material specific clip textures
     CLIP_CONCRETE(
-            ToolTexture.CSGO_CLIP_CONCRETE,
+            ToolTexture.CLIP_CONCRETE,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("concrete")
                     .build()
     ),
     CLIP_DIRT(
-            ToolTexture.CSGO_CLIP_DIRT,
+            ToolTexture.CLIP_DIRT,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("dirt")
                     .build()
     ),
     CLIP_GLASS(
-            ToolTexture.CSGO_CLIP_GLASS,
+            ToolTexture.CLIP_GLASS,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("glassfloor")
                     .build()
     ),
     CLIP_GRASS(
-            ToolTexture.CSGO_CLIP_GRASS,
+            ToolTexture.CLIP_GRASS,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("grass")
                     .build()
     ),
     CLIP_GRAVEL(
-            ToolTexture.CSGO_CLIP_GRAVEL,
+            ToolTexture.CLIP_GRAVEL,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("gravel")
                     .build()
     ),
     CLIP_METAL(
-            ToolTexture.CSGO_CLIP_METAL,
+            ToolTexture.CLIP_METAL,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("metal")
                     .build()
     ),
     CLIP_METAL_SAND_BARREL(
-            ToolTexture.CSGO_CLIP_METAL_SAND_BARREL,
+            ToolTexture.CLIP_METAL_SAND_BARREL,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("metal_sand_barrel")
                     .build()
     ),
     CLIP_METALGRATE(
-            ToolTexture.CSGO_CLIP_METALGRATE,
+            ToolTexture.CLIP_METALGRATE,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("metalgrate")
                     .build()
     ),
     CLIP_METALVEHICLE(
-            ToolTexture.CSGO_CLIP_METALVEHICEL,
+            ToolTexture.CLIP_METALVEHICEL,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("metalvehicle")
                     .build()
     ),
     CLIP_PLASTIC(
-            ToolTexture.CSGO_CLIP_PLASTIC,
+            ToolTexture.CLIP_PLASTIC,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("plastic")
                     .build()
     ),
     CLIP_RUBBER(
-            ToolTexture.CSGO_CLIP_RUBBER,
+            ToolTexture.CLIP_RUBBER,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("rubber")
                     .build()
     ),
     CLIP_RUBBERTIRE(
-            ToolTexture.CSGO_CLIP_RUBBERTIRE,
+            ToolTexture.CLIP_RUBBERTIRE,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("rubbertire")
                     .build()
     ),
     CLIP_SAND(
-            ToolTexture.CSGO_CLIP_SAND,
+            ToolTexture.CLIP_SAND,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("sand")
                     .build()
     ),
     CLIP_SNOW(
-            ToolTexture.CSGO_CLIP_SNOW,
+            ToolTexture.CLIP_SNOW,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("snow")
                     .build()
     ),
     CLIP_TILE(
-            ToolTexture.CSGO_CLIP_TILE,
+            ToolTexture.CLIP_TILE,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("tile")
                     .build()
     ),
     CLIP_WOOD(
-            ToolTexture.CSGO_CLIP_WOOD,
+            ToolTexture.CLIP_WOOD,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("wood")
                     .build()
     ),
     CLIP_WOOD_BASKET(
-            ToolTexture.CSGO_CLIP_WOOD_BASKET,
+            ToolTexture.CLIP_WOOD_BASKET,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("Wood_Basket")
                     .build()
     ),
     CLIP_WOOD_CRATE(
-            ToolTexture.CSGO_CLIP_WOOD_CRATE,
+            ToolTexture.CLIP_WOOD_CRATE,
             new ToolTextureDefinition.Builder(SourceToolTextures.CLIP.definition)
                     .setSurfaceProperty("Wood_Crate")
                     .build()

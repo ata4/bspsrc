@@ -1,9 +1,6 @@
 package info.ata4.bspsrc.decompiler.modules.texture.tooltextures;
 
-import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.CsgoToolTextures;
-import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.CssToolTextures;
-import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.L4d2ToolTextures;
-import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.SourceToolTextures;
+import info.ata4.bspsrc.decompiler.modules.texture.tooltextures.definitions.*;
 import info.ata4.bspsrc.lib.app.SourceAppId;
 
 import java.util.Arrays;
@@ -35,6 +32,12 @@ public enum ToolTextureSet {
             SourceAppId.LEFT_4_DEAD_2,
             SOURCE_2013.builder()
                     .putToolTextureDefinitions(L4d2ToolTextures.getAll())
+                    .build()
+    ),
+    GARRYS_MOD(
+            SourceAppId.GARRYS_MOD,
+            SOURCE_2013.builder()
+                    .putToolTextureDefinitions(GModToolTextures.getAll())
                     .build()
     );
 

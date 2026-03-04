@@ -41,6 +41,7 @@ public class ToolTextureMatcherTests {
     Path tempDir;
     
     private static final List<String> bspsResources = List.of(
+            "gmod_tooltextures.bsp",
             "csgo_tooltextures.bsp",
             "l4d2_tooltextures.bsp"
     );

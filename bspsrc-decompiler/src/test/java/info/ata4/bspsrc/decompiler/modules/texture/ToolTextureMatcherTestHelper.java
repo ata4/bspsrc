@@ -23,6 +23,76 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ToolTextureMatcherTestHelper {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        var dir = Path.of("bspsrc-decompiler\\src\\test\\resources\\info\\ata4\\bspsrc\\decompiler\\modules\\texture");
+
+        var gameDirCsgo = Path.of("D:\\SteamLibrary\\steamapps\\common\\Counter-Strike Global Offensive\\csgo");
+        var gameDirL4d2 = Path.of("D:\\SteamLibrary\\steamapps\\common\\Left 4 Dead 2\\left4dead2");
+        var gameDirGmod = Path.of("D:\\SteamLibrary\\steamapps\\common\\GarrysMod\\garrysmod");
+
+        writeGmodBsp(dir, gameDirGmod, gameDirGmod.getParent().resolve("bin", "vbsp.exe"));
+        writeCsgoBsp(dir, gameDirCsgo, gameDirCsgo.getParent().resolve("bin", "vbsp.exe"));
+        writeL4d2Bsp(dir, gameDirL4d2, gameDirL4d2.getParent().resolve("bin", "vbsp.exe"));
+    }
+
+    private static void writeGmodBsp(
+            Path dir,
+            Path gameDir,
+            Path vbspFile
+    ) throws IOException, InterruptedException {
+        var vmfFile = dir.resolve("gmod_tooltextures.vmf");
+        var textures = List.of(
+                List.of(
+                        ToolTexture.BLOCKBULLETS,
+                        ToolTexture.INVIS,
+                        ToolTexture.INVISLADDER,
+                        ToolTexture.NODRAW,
+                        ToolTexture.BLOCKLOS,
+                        ToolTexture.BLOCKLIGHT,
+                        ToolTexture.TRIGGER
+                ),
+                List.of(
+                        ToolTexture.HINT,
+                        ToolTexture.SKIP
+                ),
+                List.of(
+                        ToolTexture.CLIP,
+                        ToolTexture.NPCCLIP,
+                        ToolTexture.PLAYERCLIP
+                ),
+                List.of(
+                        ToolTexture.CLIP_CONCRETE,
+                        ToolTexture.CLIP_DIRT,
+                        ToolTexture.CLIP_GLASS,
+                        ToolTexture.CLIP_GRASS,
+                        ToolTexture.CLIP_GRAVEL,
+                        ToolTexture.CLIP_METAL,
+//                        ToolTexture.CLIP_METAL_SAND_BARREL, // is replaced by tools/toolsclip_glass by vbsp??
+                        ToolTexture.CLIP_METALGRATE,
+                        ToolTexture.CLIP_METALVEHICEL
+                ),
+                List.of(
+                        ToolTexture.CLIP_PLASTIC,
+                        ToolTexture.CLIP_RUBBER,
+                        ToolTexture.CLIP_RUBBERTIRE,
+                        ToolTexture.CLIP_SAND,
+//                        ToolTexture.CLIP_SNOW, // gmod doesn't have this one
+                        ToolTexture.CLIP_TILE,
+                        ToolTexture.CLIP_WOOD,
+//                        ToolTexture.CLIP_WOOD_BASKET, // is replaced by tools/toolsclip_glass by vbsp??
+                        ToolTexture.CLIP_WOOD_CRATE
+                ),
+                List.of(
+                        ToolTexture.SKYBOX,
+                        ToolTexture.SKYBOX2D,
+                        "tools/toolsskyfog"
+                )
+        );
+
+        writeVmf(vmfFile, textures, SourceAppId.GARRYS_MOD);
+        compile(dir, vmfFile, vbspFile, gameDir, List.of());
+    }
+    
     private static void writeCsgoBsp(
             Path dir,
             Path gameDir,
@@ -49,26 +119,26 @@ public class ToolTextureMatcherTestHelper {
                         ToolTexture.PLAYERCLIP
                 ),
                 List.of(
-                        ToolTexture.CSGO_CLIP_CONCRETE,
-                        ToolTexture.CSGO_CLIP_DIRT,
-                        ToolTexture.CSGO_CLIP_GLASS,
-                        ToolTexture.CSGO_CLIP_GRASS,
-                        ToolTexture.CSGO_CLIP_GRAVEL,
-                        ToolTexture.CSGO_CLIP_METAL,
-                        ToolTexture.CSGO_CLIP_METAL_SAND_BARREL,
-                        ToolTexture.CSGO_CLIP_METALGRATE,
-                        ToolTexture.CSGO_CLIP_METALVEHICEL
+                        ToolTexture.CLIP_CONCRETE,
+                        ToolTexture.CLIP_DIRT,
+                        ToolTexture.CLIP_GLASS,
+                        ToolTexture.CLIP_GRASS,
+                        ToolTexture.CLIP_GRAVEL,
+                        ToolTexture.CLIP_METAL,
+                        ToolTexture.CLIP_METAL_SAND_BARREL,
+                        ToolTexture.CLIP_METALGRATE,
+                        ToolTexture.CLIP_METALVEHICEL
                 ),
                 List.of(
-                        ToolTexture.CSGO_CLIP_PLASTIC,
-                        ToolTexture.CSGO_CLIP_RUBBER,
-                        ToolTexture.CSGO_CLIP_RUBBERTIRE,
-                        ToolTexture.CSGO_CLIP_SAND,
-                        ToolTexture.CSGO_CLIP_SNOW,
-                        ToolTexture.CSGO_CLIP_TILE,
-                        ToolTexture.CSGO_CLIP_WOOD,
-                        ToolTexture.CSGO_CLIP_WOOD_BASKET,
-                        ToolTexture.CSGO_CLIP_WOOD_CRATE
+                        ToolTexture.CLIP_PLASTIC,
+                        ToolTexture.CLIP_RUBBER,
+                        ToolTexture.CLIP_RUBBERTIRE,
+                        ToolTexture.CLIP_SAND,
+                        ToolTexture.CLIP_SNOW,
+                        ToolTexture.CLIP_TILE,
+                        ToolTexture.CLIP_WOOD,
+                        ToolTexture.CLIP_WOOD_BASKET,
+                        ToolTexture.CLIP_WOOD_CRATE
                 ),
                 List.of(
                         ToolTexture.SKYBOX,
@@ -98,7 +168,7 @@ public class ToolTextureMatcherTestHelper {
                         ToolTexture.INVIS,
                         ToolTexture.INVISLADDER,
                         ToolTexture.NODRAW,
-                        "tools/toolsnodraw_metal",
+                        ToolTexture.NODRAW_METAL,
                         ToolTexture.BLOCKLOS,
                         ToolTexture.BLOCKLIGHT,
                         ToolTexture.TRIGGER
@@ -118,13 +188,13 @@ public class ToolTextureMatcherTestHelper {
                         "tools/toolsskyfog"
                 ),
                 List.of(
-                        "tools/climb",
+                        ToolTexture.CLIMB,
                         "tools/climb_alpha",
                         "tools/climb_versus",
                         "tools/hulkwall",
                         "tools/hulkwallglow",
                         "effects/tankwall",
-                        "tools/invismetal"
+                        ToolTexture.INVISMETAL
                 )
         );
 

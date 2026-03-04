@@ -14,20 +14,20 @@ import static java.util.Objects.requireNonNull;
 public enum L4d2ToolTextures {
     
     NODRAW_METAL(
-            ToolTexture.L4D2_NODRAW_METAL,
+            ToolTexture.NODRAW_METAL,
             new ToolTextureDefinition.Builder(SourceToolTextures.NODRAW.definition)
                     .setSurfaceProperty("metal")
                     .build()
     ),
     CLIMB(
-            ToolTexture.L4D2_CLIMB,
+            ToolTexture.CLIMB,
             new ToolTextureDefinition.Builder()
                     .setRequiredFlags(CONTENTS_TEAM2, CONTENTS_GRATE, CONTENTS_TRANSLUCENT, CONTENTS_LADDER)
                     .setRequiredFlags(SURF_TRANS, SURF_NODRAW, SURF_NOLIGHT)
                     .build()
     ),
     INVISMETAL(
-            ToolTexture.L4D2_INVISMETAL,
+            ToolTexture.INVISMETAL,
             new ToolTextureDefinition.Builder("metal")
                     .setRequiredFlags(CONTENTS_WINDOW, CONTENTS_TRANSLUCENT)
                     .setRequiredFlags(SURF_TRANS, SURF_NODRAW, SURF_NOLIGHT)
