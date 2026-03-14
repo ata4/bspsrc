@@ -41,7 +41,7 @@ public class AlphanumComparator implements Comparator<String> {
             }
         }
 
-        return s1Iterator.hasNext() ? 1 : 0;
+        return Boolean.compare(s1Iterator.hasNext(), s2Iterator.hasNext());
     }
 
     // Could be improved. Doesn't account for negative numbers for example
