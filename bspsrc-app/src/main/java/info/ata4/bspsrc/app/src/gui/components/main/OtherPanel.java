@@ -2,6 +2,7 @@ package info.ata4.bspsrc.app.src.gui.components.main;
 
 import info.ata4.bspsrc.app.src.ObservableBspSourceConfig;
 import info.ata4.bspsrc.app.util.swing.GuiUtil;
+import info.ata4.bspsrc.common.util.AlphanumComparator;
 import info.ata4.bspsrc.decompiler.BspSourceConfig;
 import info.ata4.bspsrc.decompiler.util.SourceFormat;
 import info.ata4.bspsrc.lib.app.SourceAppDB;
@@ -97,7 +98,7 @@ public class OtherPanel extends JPanel {
 		Map<Integer, String> apps = SourceAppDB.getInstance().getAppList();
 		apps.entrySet().stream()
 				.map(entry -> new MapFormatEntry(entry.getKey(), entry.getValue()))
-				.sorted(Comparator.comparing(MapFormatEntry::toString))
+				.sorted(Comparator.comparing(MapFormatEntry::name, AlphanumComparator.COMPARATOR))
 				.forEach(cmbBspFormat::addItem);
 
 		cmbBspFormat.insertItemAt(new MapFormatEntry(SourceAppId.UNKNOWN, "Automatic"), 0);
