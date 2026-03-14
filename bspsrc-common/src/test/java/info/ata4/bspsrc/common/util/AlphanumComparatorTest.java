@@ -83,11 +83,4 @@ class AlphanumComparatorTest {
         int result = comparator.compare(s1, s2);
         assertThat(Integer.signum(result)).isEqualTo(Integer.signum(Integer.compare(n1, n2)));
     }
-
-    @Example
-    void testNullHandling() {
-        // The implementation uses Comparator.nullsFirst
-        assertThat(comparator.compare(null, "a")).isNegative();
-        assertThat(comparator.compare(null, null)).isZero();
-    }
 }

@@ -14,14 +14,10 @@ public class AlphanumComparator implements Comparator<String> {
     private static final Pattern CHUNK_PATTERN = Pattern.compile("\\D+|\\d+");
     private static final Pattern LEADING_ZERO_PATTERN = Pattern.compile("^0*");
 
-    public static final Comparator<String> COMPARATOR = Comparator.nullsFirst(AlphanumComparator::compareInternal);
+    public static final AlphanumComparator COMPARATOR = new AlphanumComparator();
 
     @Override
     public int compare(String s1, String s2) {
-        return COMPARATOR.compare(s1, s2);
-    }
-
-    private static int compareInternal(String s1, String s2) {
         ChunkIterator s1Iterator = new ChunkIterator(s1);
         ChunkIterator s2Iterator = new ChunkIterator(s2);
 
