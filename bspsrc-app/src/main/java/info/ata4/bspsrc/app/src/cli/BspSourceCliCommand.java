@@ -243,8 +243,8 @@ public class BspSourceCliCommand implements Callable<Void> {
 		// texture options
 		config.faceTexture = textureOptions.faceTex;
 		config.backfaceTexture = textureOptions.backFaceTex;
-		config.fixCubemapTextures = textureOptions.noCubemapTexFix;
-		config.fixToolTextures = textureOptions.noToolTexFix;
+		config.fixCubemapTextures = !textureOptions.noCubemapTexFix;
+		config.fixToolTextures = !textureOptions.noToolTexFix;
 
 		// miscellaneous options
 		config.nullOutput = miscellaneousOptions.noVmf;
