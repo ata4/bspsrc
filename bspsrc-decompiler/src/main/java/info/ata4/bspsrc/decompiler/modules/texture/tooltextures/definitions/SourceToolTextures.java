@@ -82,7 +82,7 @@ public enum SourceToolTextures {
     TRIGGER(
             ToolTexture.TRIGGER,
             new ToolTextureDefinition.Builder()
-                    .setRequiredFlags(SURF_NOLIGHT, SURF_TRIGGER)
+                    .setRequiredFlags(SURF_NODRAW, SURF_NOLIGHT, SURF_TRIGGER)
                     .build()
     ),
 

@@ -88,6 +88,7 @@ public class ToolTextureMatcher {
                 .filter(ttEntry -> (isClip && clipOptimization) || matchesSurfaceProperty(ttEntry.getValue(), originalTextureName))
                 .filter(ttEntry -> matchesRequirements(ttEntry.getValue().getBrushFlagsRequirements(), brushFlags))
                 .filter(ttEntry -> (isClip && clipOptimization) || matchesRequirements(ttEntry.getValue().getSurfaceFlagsRequirements(), surfFlags))
+                // we should probably check if there are multiple definitions with the same max -> ambiguous...
                 .max(Comparator.comparingInt(ttEntry -> ttDefinitionScore(ttEntry, surfFlags == null)))
                 // accepting scores of 0 makes no sense, because nothing was matched
                 .filter(ttEntry -> ttDefinitionScore(ttEntry, surfFlags == null) > 0)
