@@ -12,7 +12,6 @@ package info.ata4.bspsrc.decompiler.modules;
 
 import info.ata4.bspsrc.decompiler.modules.geom.BrushBounds;
 import info.ata4.bspsrc.decompiler.modules.texture.TextureSource;
-import info.ata4.bspsrc.decompiler.modules.texture.ToolTexture;
 import info.ata4.bspsrc.lib.BspFileReader;
 import info.ata4.bspsrc.lib.entity.Entity;
 import info.ata4.bspsrc.lib.struct.DBrush;
@@ -64,6 +63,8 @@ public class BspProtection extends ModuleRead {
     // sub-modules
     private final TextureSource texsrc;
 
+    private final boolean isFixTextureNames;
+
     // flags
     private boolean flaggedEnt;
     private boolean flaggedTex;
@@ -76,11 +77,17 @@ public class BspProtection extends ModuleRead {
     private List<DBrush> protBrushes = new ArrayList<>();
     private List<Entity> protEntities = new ArrayList<>();
 
-    public BspProtection(BspFileReader reader, BrushBounds brushBounds, TextureSource texsrc) {
+    public BspProtection(
+            BspFileReader reader,
+            BrushBounds brushBounds,
+            TextureSource texsrc,
+            boolean isFixTextureNames
+    ) {
         super(reader);
 
         this.brushBounds = requireNonNull(brushBounds);
         this.texsrc = texsrc;
+        this.isFixTextureNames = isFixTextureNames;
 
         reader.loadEntities();
         reader.loadPlanes();
@@ -391,17 +398,19 @@ public class BspProtection extends ModuleRead {
      * @return true if all brush sides share the same texture
      */
     private boolean isSameTexBrush(DBrush brush) {
+        var texnames = isFixTextureNames ? texsrc.getFixedTextureNames() : bsp.texnames;
+        
         DBrushSide bs = bsp.brushSides.get(brush.fstside);
-        String texname = texsrc.getTextureName(bs.texinfo);
+        String texname = TextureSource.getTextureName(bs.texinfo, bsp.texinfos, bsp.texdatas, texnames);
 
-        if (texname.equals(ToolTexture.SKIP)) {
+        if (texname == null) {
             // this side has no valid texture
             return false;
         }
 
         for (int i = 1; i < brush.numside; i++) {
             bs = bsp.brushSides.get(brush.fstside + i);
-            String nexttexname = texsrc.getTextureName(bs.texinfo);
+            String nexttexname = TextureSource.getTextureName(bs.texinfo, bsp.texinfos, bsp.texdatas, texnames);
 
             if (!texname.equalsIgnoreCase(nexttexname)) {
                 return false;

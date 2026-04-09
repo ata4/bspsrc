@@ -9,12 +9,15 @@
  */
 package info.ata4.bspsrc.decompiler.modules.texture;
 
-import info.ata4.bspsrc.decompiler.util.OccluderMapper;
-import info.ata4.bspsrc.lib.struct.*;
+import info.ata4.bspsrc.lib.struct.BrushFlag;
+import info.ata4.bspsrc.lib.struct.DTexData;
+import info.ata4.bspsrc.lib.struct.DTexInfo;
+import info.ata4.bspsrc.lib.struct.SurfaceFlag;
 import info.ata4.bspsrc.lib.vector.Vector3d;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
 import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
@@ -29,146 +32,90 @@ public class TextureBuilder {
     private static final Logger L = LogManager.getLogger();
     private static final float EPS_PERP = 0.02f;
 
-    private final BspData bsp;
-    private final TextureSource texsrc;
-    private final OccluderMapper.ReallocationData occReallocationData;
-
-    private Texture texture;
-    private Vector3d origin;
-    private Vector3d angles;
-    private Vector3d normal;
-    private DTexInfo texinfo;
-    private DTexData texdata;
-
-    // indices
-    private int itexinfo = DTexInfo.TEXINFO_NODE;
-    private int ibrush = -1;
-    private int ibrushside = -1;
-
-    private boolean enableTextureFixing = false;
-
-    public TextureBuilder(
-            BspData bsp,
-            TextureSource texsrc,
-            OccluderMapper.ReallocationData occReallocationData
+    public static DTexInfo lookupTexinfo(
+            int texinfoId,
+            List<? extends DTexInfo> texinfos
     ) {
-        this.bsp = requireNonNull(bsp);
-        this.texsrc = requireNonNull(texsrc);
-        this.occReallocationData = requireNonNull(occReallocationData);
-    }
-
-    public Texture build() {
-        texture = new Texture();
-        texture.setOriginalTexture(ToolTexture.SKIP);
-
-        // align to face
-        fixTextureAxes();
-
-        // no texinfo
-        if (itexinfo == DTexInfo.TEXINFO_NODE) {
-            // still try to fix textures even if we have no texinfo
-            // (Some tooltextures in css/hl2:d seem to have no texinfo)
-            if (texsrc.isFixToolTextures() && enableTextureFixing)
-                texture.setOverrideTexture(fixToolTexture(null));
-
-            return texture;
-        }
+        if (texinfoId == DTexInfo.TEXINFO_NODE)
+            return null;
 
         try {
-            texinfo = bsp.texinfos.get(itexinfo);
+            return texinfos.get(texinfoId);
         } catch (IndexOutOfBoundsException ex) {
-            L.warn("Invalid texinfo index: {}", itexinfo);
-            return texture;
-        }
-
-        try {
-            texdata = bsp.texdatas.get(texinfo.texdata);
-            texture.setData(texdata);
-        } catch (IndexOutOfBoundsException ex) {
-            L.warn("Invalid texdata index: {}", texinfo.texdata);
-            return texture;
-        }
-
-        // get texture paths
-        String textureOriginal = ToolTexture.SKIP;
-
-        try {
-            textureOriginal = bsp.texnames.get(texdata.texname);
-        } catch (IndexOutOfBoundsException ex) {
-            L.warn("Invalid texname index: {}", texdata.texname);
-        }
-
-        String textureOverride = texsrc.getFixedTextureNames().get(texdata.texname);
-
-        boolean usesFixedTexture = false;
-        if (texsrc.isFixToolTextures() && enableTextureFixing) {
-            String textureFix = fixToolTexture(textureOverride);
-
-            if (textureFix != null) {
-                textureOverride = textureFix;
-                usesFixedTexture = true;
-            }
-        }
-
-        // assign texture paths
-        texture.setOriginalTexture(textureOriginal);
-        texture.setOverrideTexture(textureOverride);
-
-        // some calculations
-        buildLightmapScale();
-
-        boolean needsTextureRealignment = usesFixedTexture
-                || texinfo.flags.contains(SurfaceFlag.SURF_SKY)
-                || texinfo.flags.contains(SurfaceFlag.SURF_SKY2D);
-
-        // fix texture axes for tool texture if necessary
-        if (needsTextureRealignment) {
-            fixTextureAxes();
-        } else {
-            // otherwise build UV from texture vectors and fix perpendicular
-            // texture axes if necessary
-            buildUV();
-            fixPerpendicular();
-        }
-
-        return texture;
-    }
-
-    private String fixToolTexture(String originalTextureName) {
-        if (ibrush == -1 || ibrushside == -1) {
+            L.warn("Invalid texinfo index: {}", texinfoId);
             return null;
         }
-
-        DBrush brush = bsp.brushes.get(ibrush);
-
-        // We do not explicitly fix areaportal textures here, because the toolTextureMatcher is already
-        // able to identify them. This is due to areaportal brushes having the AREAPORTAL brush flag.
-        // Occluders on the other hand do not have any indicative brush flag, which is why we do it manually.
-
-        // fix occluder textures
-        boolean isOccluderBrush = occReallocationData.isOccluderBrush(ibrush);
-        boolean isOccluderBrushSide = occReallocationData.isOccluderBrushSide(ibrush, ibrushside - brush.fstside);
-
-        if (isOccluderBrush) {
-            return isOccluderBrushSide ? ToolTexture.OCCLUDER : ToolTexture.NODRAW;
-        }
-        Set<BrushFlag> brushFlags = brush.contents;
-        Set<SurfaceFlag> surfFlags = itexinfo == DTexInfo.TEXINFO_NODE ? null : bsp.texinfos.get(itexinfo).flags;
-
-        return texsrc.getToolTextureMatcher().fixToolTexture(originalTextureName, brushFlags, surfFlags)
-                .orElse(null);
     }
 
-    /**
-     * Calculates new UV axes based on the normal vector of the face.
-     * 
-     * It should produce the same result as face alignment in Hammer.
-     */
-    private void fixTextureAxes() {
-        if (normal == null) {
-            return;
+    public static DTexData lookupTexdata(
+            int texdataId,
+            List<? extends DTexData> texdatas
+    ) {
+        try {
+            return texdatas.get(texdataId);
+        } catch (IndexOutOfBoundsException ex) {
+            L.warn("Invalid texdata index: {}", texdataId);
+            return null;
         }
+    }
 
+    public static String lookupTexname(
+            int texnameId,
+            List<? extends String> texnames
+    ) {
+        try {
+            return texnames.get(texnameId);
+        } catch (IndexOutOfBoundsException ex) {
+            L.warn("Invalid texname index: {}", texnameId);
+            return null;
+        }
+    }
+    
+    public static Texture buildFromTexinfo(
+            DTexInfo texinfo,
+            DTexData texdata,
+            String material,
+            Vector3d origin,
+            Vector3d angles,
+            Vector3d normal
+    ) {
+        var lightmapscale = buildLightmapScale(texinfo);
+        var uv = buildUV(texinfo, texdata, origin, angles);
+        if (isPerpendicular(uv.u().axis, uv.v().axis, normal))
+            uv = defaultUV(normal);
+
+        var texture = new Texture();
+        texture.setTexture(material);
+        texture.setUAxis(uv.u());
+        texture.setVAxis(uv.v());
+        texture.setLightmapScale(lightmapscale);
+        return texture;
+    }
+    
+    public static Texture buildFromNormal(
+            Vector3d normal,
+            String material
+    ) {
+        var uv = defaultUV(normal);
+        
+        var texture = new Texture();
+        texture.setTexture(material);
+        texture.setUAxis(uv.u());
+        texture.setVAxis(uv.v());
+        return texture;
+    }
+    
+    public record Axes(
+            TextureAxis u,
+            TextureAxis v
+    ) {
+        public Axes {
+            requireNonNull(u);
+            requireNonNull(v);
+        }
+    }
+
+    public static Axes defaultUV(Vector3d normal) {
         // calculate the projections of the surface normal onto the world axes
         var dotX = Math.abs(Vector3d.BASE_VECTOR_X.dot(normal));
         var dotY = Math.abs(Vector3d.BASE_VECTOR_Y.dot(normal));
@@ -188,41 +135,18 @@ public class TextureBuilder {
         var tv1 = normal.cross(vdir).normalize(); // 1st tex vector
         var tv2 = normal.cross(tv1).normalize();  // 2nd tex vector
 
-        texture.setUAxis(new TextureAxis(tv1));
-        texture.setVAxis(new TextureAxis(tv2));
+        return new Axes(
+                new TextureAxis(tv1, 0, 0.25),
+                new TextureAxis(tv2, 0, 0.25)
+        );
     }
-
-    /**
-     * Checks for texture axes that are perpendicular to the normal and fixes them.
-     */
-    private void fixPerpendicular() {
-        if (normal == null) {
-            return;
-        }
-
-        var texNorm = texture.getUAxis().axis.cross(texture.getVAxis().axis);
-        if (Math.abs(normal.dot(texNorm)) >= EPS_PERP) {
-            return;
-        }
-
-        fixTextureAxes();
-    }
-
-    private void buildLightmapScale() {
-        // extract lightmap vectors
-        float[][] lvec = texinfo.lightmapVecsLuxels;
-        var uaxis = new Vector3d(lvec[0][0], lvec[0][1], lvec[0][2]);
-        var vaxis = new Vector3d(lvec[1][0], lvec[1][1], lvec[1][2]);
-
-        var ls = (uaxis.length() + vaxis.length()) / 2.0;
-
-        if (ls > 0.001) {
-            texture.setLightmapScale((int) Math.round(1.0 / ls));
-        }
-    }
-
-    private void buildUV() {        
-        // extract texture vectors
+    
+    public static Axes buildUV(
+            DTexInfo texinfo,
+            DTexData texdata,
+            Vector3d origin,
+            Vector3d angles
+    ) {
         var tvec = texinfo.textureVecsTexels;
         var uaxis = new Vector3d(tvec[0][0], tvec[0][1], tvec[0][2]);
         var vaxis = new Vector3d(tvec[1][0], tvec[1][1], tvec[1][2]);
@@ -272,36 +196,46 @@ public class TextureBuilder {
             vshift %= texdata.height;
         }
 
-        // create texture axes
-        texture.setUAxis(new TextureAxis(uaxis, (int) Math.round(ushift), utw));
-        texture.setVAxis(new TextureAxis(vaxis, (int) Math.round(vshift), vtw));
+        return new Axes(
+                new TextureAxis(uaxis, (int) Math.round(ushift), utw),
+                new TextureAxis(vaxis, (int) Math.round(vshift), vtw)
+        );
     }
 
-    public void setOrigin(Vector3d origin) {
-        this.origin = origin;
+    public static int buildLightmapScale(DTexInfo texinfo) {
+        float[][] lvec = texinfo.lightmapVecsLuxels;
+        var uaxis = new Vector3d(lvec[0][0], lvec[0][1], lvec[0][2]);
+        var vaxis = new Vector3d(lvec[1][0], lvec[1][1], lvec[1][2]);
+
+        var ls = (uaxis.length() + vaxis.length()) / 2.0;
+        return ls > 0.001 ? (int) Math.round(1.0 / ls) : 16;
+    }
+    
+    public static boolean isPerpendicular(
+            Vector3d uAxis,
+            Vector3d vAxis,
+            Vector3d normal
+    ) {
+        var texNorm = uAxis.cross(vAxis);
+        return Math.abs(normal.dot(texNorm)) < EPS_PERP;
     }
 
-    public void setAngles(Vector3d angles) {
-        this.angles = angles;
-    }
+    public static String fixToolTexture(
+            String originalTextureName,
+            boolean isOccluderBrush,
+            boolean isOccluderBrushSide,
+            Set<BrushFlag> brushFlags,
+            Set<SurfaceFlag> surfaceFlags,
+            ToolTextureMatcher toolTextureMatcher
+    ) {
+        // We do not explicitly fix areaportal textures here, because the toolTextureMatcher is already
+        // able to identify them. This is due to areaportal brushes having the AREAPORTAL brush flag.
+        // Occluders on the other hand do not have any indicative brush flag, which is why we do it manually.
 
-    public void setNormal(Vector3d normal) {
-        this.normal = normal;
-    }
-
-    public void setBrushIndex(int ibrush) {
-        this.ibrush = ibrush;
-    }
-
-    public void setBrushSideIndex(int ibrushside) {
-        this.ibrushside = ibrushside;
-    }
-
-    public void setTexinfoIndex(int itexinfo) {
-        this.itexinfo = itexinfo;
-    }
-
-    public void setEnableTextureFixing(boolean shouldTextureFix) {
-        this.enableTextureFixing = shouldTextureFix;
+        if (isOccluderBrush) {
+            return isOccluderBrushSide ? ToolTexture.OCCLUDER : ToolTexture.NODRAW;
+        }
+        return toolTextureMatcher.fixToolTexture(originalTextureName, brushFlags, surfaceFlags)
+                .orElse(null);
     }
 }

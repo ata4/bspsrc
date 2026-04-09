@@ -85,7 +85,7 @@ public class BspInfoModel {
 		cparams = new BspCompileParams(bspReader);
 
 		var texsrc = new TextureSource(bspReader);
-		prot = new BspProtection(bspReader, brushBounds, texsrc);
+		prot = new BspProtection(bspReader, brushBounds, texsrc, false);
 		prot.check();
 
 		bspres = new BspDependencies(bspReader);

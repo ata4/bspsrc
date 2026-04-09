@@ -12,6 +12,8 @@ package info.ata4.bspsrc.decompiler.modules.texture;
 
 import info.ata4.bspsrc.decompiler.modules.ModuleRead;
 import info.ata4.bspsrc.lib.BspFileReader;
+import info.ata4.bspsrc.lib.struct.DTexData;
+import info.ata4.bspsrc.lib.struct.DTexInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -71,13 +73,10 @@ public class TextureSource extends ModuleRead {
     ));
 
     // ID mappings
-    private Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<>();
-    private Map<Integer, Integer> texnameToCubemap = new HashMap<>();
-    private List<String> texnamesFixed = new ArrayList<>();
+    private final Map<Integer, Set<Integer>> cubemapToSideList = new HashMap<>();
+    private final Map<Integer, Integer> texnameToCubemap = new HashMap<>();
+    private final List<String> texnamesFixed = new ArrayList<>();
 
-    // settings
-    private boolean fixTextureNames;
-    private boolean fixToolTextures;
     private final ToolTextureMatcher toolTextureMatcher = ToolTextureMatcher.forAppId(bspFile.getAppId());
 
     public TextureSource(BspFileReader reader) {
@@ -181,26 +180,6 @@ public class TextureSource extends ModuleRead {
         return cubemapToSideList.get(icubemap);
     }
 
-    /**
-     * Returns the texture name string for a texinfo index.
-     *
-     * @param itexinfo texinfo index
-     * @return texture name string
-     */
-    public String getTextureName(int itexinfo) {
-        try {
-            int ti = bsp.texinfos.get(itexinfo).texdata;
-            int td = bsp.texdatas.get(ti).texname;
-            if (fixTextureNames) {
-                return texnamesFixed.get(td);
-            } else {
-                return bsp.texnames.get(td);
-            }
-        } catch (IndexOutOfBoundsException ex) {
-            return ToolTexture.SKIP;
-        }
-    }
-
     public static String canonizeTextureName(String textureNew) {
         // convert to lower case
         textureNew = textureNew.toLowerCase(Locale.ROOT);
@@ -215,20 +194,24 @@ public class TextureSource extends ModuleRead {
         return Collections.unmodifiableList(texnamesFixed);
     }
 
-    public boolean isFixTextureNames() {
-        return fixTextureNames;
-    }
-
-    public void setFixTextureNames(boolean fixTextureNames) {
-        this.fixTextureNames = fixTextureNames;
-    }
-
-    public boolean isFixToolTextures() {
-        return fixToolTextures;
-    }
-
-    public void setFixToolTextures(boolean fixToolTextures) {
-        this.fixToolTextures = fixToolTextures;
+    /// Retrieves the texture name associated with the given texture information index.
+    /// Falls back to [ToolTexture#SKIP] if an invalid index is encountered.
+    ///
+    /// @param itexinfo The index of the texture information to process.
+    /// @return The resolved texture name string, or [ToolTexture#SKIP] on invalid data.
+    public static String getTextureName(
+            int itexinfo,
+            List<? extends DTexInfo> texinfos,
+            List<? extends DTexData> texdatas,
+            List<? extends String> texnames
+    ) {
+        try {
+            int ti = texinfos.get(itexinfo).texdata;
+            int td = texdatas.get(ti).texname;
+            return texnames.get(td);
+        } catch (IndexOutOfBoundsException ex) {
+            return null;
+        }
     }
 
     public static boolean isPatchedMaterial(String fileName) {

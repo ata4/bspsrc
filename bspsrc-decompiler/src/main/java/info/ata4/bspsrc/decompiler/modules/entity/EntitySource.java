@@ -665,7 +665,13 @@ public class EntitySource extends ModuleDecompile {
             writer.start("entity");
             writer.put("id", vmfmeta.getUID());
             writer.put("classname", "info_overlay");
-            writer.put("material", texsrc.getTextureName(o.texinfo));
+            var material = TextureSource.getTextureName(
+                    o.texinfo,
+                    bsp.texinfos,
+                    bsp.texdatas,
+                    config.fixCubemapTextures ? texsrc.getFixedTextureNames() : bsp.texnames
+            );
+            writer.put("material", material != null ? material : ToolTexture.HINT);
             writer.put("StartU", o.u[0]);
             writer.put("EndU", o.u[1]);
             writer.put("StartV", o.v[0]);

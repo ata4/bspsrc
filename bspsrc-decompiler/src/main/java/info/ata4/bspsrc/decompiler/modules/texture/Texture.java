@@ -10,8 +10,6 @@
 
 package info.ata4.bspsrc.decompiler.modules.texture;
 
-import info.ata4.bspsrc.lib.struct.DTexData;
-
 /**
  * A simple texture data structure.
  * 
@@ -19,9 +17,7 @@ import info.ata4.bspsrc.lib.struct.DTexData;
  */
 public class Texture {
 
-    private DTexData data;
     private String texture;
-    private String textureOverride;
     private TextureAxis u = new TextureAxis(1, 0, 0);
     private TextureAxis v = new TextureAxis(0, 1, 0);
     private int lmscale = 16;
@@ -43,38 +39,22 @@ public class Texture {
     }
 
     public String getTexture() {
-        return textureOverride != null ? textureOverride : texture;
+        return texture;
     }
 
     public String getOriginalTexture() {
         return texture;
     }
 
-    public void setOriginalTexture(String texture) {
+    public void setTexture(String texture) {
         this.texture = texture;
     }
-
-    public String getOverrideTexture() {
-        return textureOverride;
-    }
-
-    public void setOverrideTexture(String texture) {
-        this.textureOverride = texture;
-    }
-
+    
     public int getLightmapScale() {
         return lmscale;
     }
 
     public void setLightmapScale(int lmscale) {
         this.lmscale = lmscale;
-    }
-
-    public DTexData getData() {
-        return data;
-    }
-
-    public void setData(DTexData texdata) {
-        this.data = texdata;
     }
 }

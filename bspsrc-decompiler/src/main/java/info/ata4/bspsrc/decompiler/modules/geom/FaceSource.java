@@ -316,25 +316,28 @@ public class FaceSource extends ModuleDecompile {
             vmfmeta.setFaceUID(iface, sideID);
         }
 
+        var texinfo = TextureBuilder.lookupTexinfo(face.texinfo, bsp.texinfos);
+        var texdata = texinfo == null ? null : TextureBuilder.lookupTexdata(texinfo.texdata, bsp.texdatas);
+        var texname = texdata == null ? null : TextureBuilder.lookupTexname(
+                texdata.texname,
+                config.fixCubemapTextures ? texsrc.getFixedTextureNames() : bsp.texnames
+        );
+
         // build texture
-        var tb = new TextureBuilder(bsp, texsrc, occReallocationData);
-
-        tb.setOrigin(origin);
-        tb.setAngles(angles);
-        tb.setNormal(normal);
-
-        tb.setTexinfoIndex(face.texinfo);
-
-        Texture texture = tb.build();
+        Texture texture = null;
+        if (texname != null)
+            texture = TextureBuilder.buildFromTexinfo(texinfo, texdata, texname, origin, angles, normal);
+        if (texture == null)
+            texture = TextureBuilder.buildFromNormal(normal, ToolTexture.SKIP);
 
         // set face texture string
         if (!config.faceTexture.isEmpty()) {
-            texture.setOverrideTexture(config.faceTexture);
+            texture.setTexture(config.faceTexture);
         }
 
         // add side id to cubemap side list
-        if (texture.getData() != null) {
-            texsrc.addBrushSideID(texture.getData().texname, sideID);
+        if (texdata != null) {
+            texsrc.addBrushSideID(texdata.texname, sideID);
         }
 
         writer.start("side");
@@ -357,7 +360,7 @@ public class FaceSource extends ModuleDecompile {
 
         // set back face texture string
         if (!config.backfaceTexture.isEmpty()) {
-            texture.setOverrideTexture(config.backfaceTexture);
+            texture.setTexture(config.backfaceTexture);
         }
 
         // write prismatic back faces for displacements, pyramidal otherwise
@@ -543,12 +546,7 @@ public class FaceSource extends ModuleDecompile {
 
         int sideID = vmfmeta.getUID();
 
-        // build texture
-        var tb = new TextureBuilder(bsp, texsrc, occReallocationData);
-        tb.setNormal(normal);
-
-        Texture texture = tb.build();
-        texture.setOriginalTexture(frontMaterial);
+        var texture = TextureBuilder.buildFromNormal(normal, frontMaterial);
 
         writer.start("side");
         writer.put("id", sideID);
@@ -556,7 +554,7 @@ public class FaceSource extends ModuleDecompile {
         writer.put(texture);
         writer.end("side");
 
-        texture.setOriginalTexture(backMaterial);
+        texture.setTexture(backMaterial);
 
         if (prism) {
             writePrismBack(wind, texture, depth);

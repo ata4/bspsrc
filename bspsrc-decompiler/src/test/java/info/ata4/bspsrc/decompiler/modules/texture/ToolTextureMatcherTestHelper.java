@@ -334,7 +334,7 @@ public class ToolTextureMatcherTestHelper {
             var plane = face.winding().buildPlane();
 
             var texture = new Texture();
-            texture.setOriginalTexture(textureName);
+            texture.setTexture(textureName);
 
             var ev12 = plane[1].sub(plane[0]);
             var ev13 = plane[2].sub(plane[0]);

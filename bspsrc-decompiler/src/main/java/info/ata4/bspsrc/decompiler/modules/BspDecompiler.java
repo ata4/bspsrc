@@ -59,7 +59,7 @@ public class BspDecompiler extends ModuleDecompile {
         var occReallocationData = OccluderMapper.createReallocationData(reader.getData(), config, windingFactory);
 
         texsrc = new TextureSource(reader);
-        bspprot = new BspProtection(reader, brushBounds, texsrc);
+        bspprot = new BspProtection(reader, brushBounds, texsrc, config.fixCubemapTextures);
         vmfmeta = new VmfMeta(reader, writer);
         brushSideFaceMapper = new BrushSideFaceMapper(reader, windingFactory);
         brushsrc = new BrushSource(reader, writer, config, texsrc, bspprot, vmfmeta, brushSideFaceMapper,
@@ -73,10 +73,6 @@ public class BspDecompiler extends ModuleDecompile {
      * Starts the decompiling process
      */
     public void start() {
-        // fix texture names
-        texsrc.setFixTextureNames(config.fixCubemapTextures);
-        texsrc.setFixToolTextures(config.fixToolTextures);
-
         // check for protection and warn if the map has been protected
         if (!config.skipProt) {
             checkProtection();

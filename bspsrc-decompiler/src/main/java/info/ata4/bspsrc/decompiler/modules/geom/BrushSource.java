@@ -19,6 +19,7 @@ import info.ata4.bspsrc.decompiler.modules.VmfMeta;
 import info.ata4.bspsrc.decompiler.modules.texture.Texture;
 import info.ata4.bspsrc.decompiler.modules.texture.TextureBuilder;
 import info.ata4.bspsrc.decompiler.modules.texture.TextureSource;
+import info.ata4.bspsrc.decompiler.modules.texture.ToolTexture;
 import info.ata4.bspsrc.decompiler.util.BspTreeStats;
 import info.ata4.bspsrc.decompiler.util.OccluderMapper;
 import info.ata4.bspsrc.decompiler.util.Winding;
@@ -331,7 +332,8 @@ public class BrushSource extends ModuleDecompile {
     }
 
     private boolean writeSide(int ibrushside, int ibrush, Winding wind, Vector3d origin, Vector3d angles) {
-        DBrushSide brushSide = bsp.brushSides.get(ibrushside);
+        var brush = bsp.brushes.get(ibrush);
+        var brushSide = bsp.brushSides.get(ibrushside);
 
         // calculate plane vectors
         var plane = wind.buildPlane();
@@ -346,33 +348,49 @@ public class BrushSource extends ModuleDecompile {
         var ev12 = e2.sub(e1);
         var ev13 = e3.sub(e1);
         var normal = ev12.cross(ev13).normalize();
-
+        
+        var texinfo = TextureBuilder.lookupTexinfo(brushSide.texinfo, bsp.texinfos);
+        var texdata = texinfo == null ? null : TextureBuilder.lookupTexdata(texinfo.texdata, bsp.texdatas);
+        var texname = texdata == null ? null : TextureBuilder.lookupTexname(texdata.texname, bsp.texnames);
+        
         // build texture
-        var tb = new TextureBuilder(bsp, texsrc, occReallocationData);
-
-        tb.setOrigin(origin);
-        tb.setAngles(angles);
-        tb.setNormal(normal);
-
-        tb.setTexinfoIndex(brushSide.texinfo);
-        tb.setBrushIndex(ibrush);
-        tb.setBrushSideIndex(ibrushside);
-
-        boolean potentialCompactedTexinf = !brushSideFaceMapper.getOrigFaceIndex(ibrushside).isPresent();
-        tb.setEnableTextureFixing(potentialCompactedTexinf);
-
-        Texture texture = tb.build();
+        Texture texture = null;
+        if (texname != null) {
+            var usedTexname = config.fixCubemapTextures
+                    ? texsrc.getFixedTextureNames().get(texdata.texname)
+                    : texname;
+            texture = TextureBuilder.buildFromTexinfo(texinfo, texdata, usedTexname, origin, angles, normal);
+        }
+        if (texture == null)
+            texture = TextureBuilder.buildFromNormal(normal, ToolTexture.SKIP);
+        
+        boolean potentialCompactedTexinf = brushSideFaceMapper.getOrigFaceIndex(ibrushside).isEmpty();
+        if (config.fixToolTextures && potentialCompactedTexinf) {
+            boolean isOccluderBrush = occReallocationData.isOccluderBrush(ibrush);
+            boolean isOccluderBrushSide = occReallocationData.isOccluderBrushSide(ibrush, ibrushside - brush.fstside);
+            
+            var fixedToolTexture = TextureBuilder.fixToolTexture(
+                    texture.getTexture(),
+                    isOccluderBrush,
+                    isOccluderBrushSide,
+                    brush.contents,
+                    texinfo == null ? null : texinfo.flags,
+                    texsrc.getToolTextureMatcher()
+            );
+            if (fixedToolTexture != null)
+                texture.setTexture(fixedToolTexture);
+        }
 
         // set custom face texture string
         if (!config.faceTexture.isEmpty()) {
-            texture.setOverrideTexture(config.faceTexture);
+            texture.setTexture(config.faceTexture);
         }
 
         int sideID = vmfmeta.getUID();
 
         // add side id to cubemap side list
-        if (texture.getData() != null) {
-            texsrc.addBrushSideID(texture.getData().texname, sideID);
+        if (texdata != null) {
+            texsrc.addBrushSideID(texdata.texname, sideID);
         }
 
         // map brush side index to brush side ID
@@ -393,7 +411,7 @@ public class BrushSource extends ModuleDecompile {
             writer.put("normal", normal);
             writer.put("winding", wind.toString());
 
-            if (texture.getOverrideTexture() != null) {
+            if (!texture.getTexture().equals(texname)) {
                 writer.put("original_material", texture.getOriginalTexture());
             }
 
