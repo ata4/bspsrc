@@ -334,7 +334,7 @@ public class ToolTextureMatcherTestHelper {
             var plane = face.winding().buildPlane();
 
             var texture = new Texture();
-            texture.setTexture(textureName);
+            texture.texture = textureName;
 
             var ev12 = plane[1].sub(plane[0]);
             var ev13 = plane[2].sub(plane[0]);
@@ -359,8 +359,8 @@ public class ToolTextureMatcherTestHelper {
             var tv1 = normal.cross(vdir).normalize(); // 1st tex vector
             var tv2 = normal.cross(tv1).normalize();  // 2nd tex vector
 
-            texture.setUAxis(new TextureAxis(tv1));
-            texture.setVAxis(new TextureAxis(tv2));
+            texture.u = new TextureAxis(tv1);
+            texture.v = new TextureAxis(tv2);
 
             writer.start("side");
             writer.put("id", uidCounter.getAndIncrement());

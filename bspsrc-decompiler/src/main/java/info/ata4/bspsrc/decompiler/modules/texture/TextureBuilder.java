@@ -85,10 +85,10 @@ public class TextureBuilder {
             uv = defaultUV(normal);
 
         var texture = new Texture();
-        texture.setTexture(material);
-        texture.setUAxis(uv.u());
-        texture.setVAxis(uv.v());
-        texture.setLightmapScale(lightmapscale);
+        texture.texture = material;
+        texture.u = uv.u();
+        texture.v = uv.v();
+        texture.lmscale = lightmapscale;
         return texture;
     }
     
@@ -99,9 +99,9 @@ public class TextureBuilder {
         var uv = defaultUV(normal);
         
         var texture = new Texture();
-        texture.setTexture(material);
-        texture.setUAxis(uv.u());
-        texture.setVAxis(uv.v());
+        texture.texture = material;
+        texture.u = uv.u();
+        texture.v = uv.v();
         return texture;
     }
     

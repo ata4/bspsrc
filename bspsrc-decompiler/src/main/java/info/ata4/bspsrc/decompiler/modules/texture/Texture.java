@@ -16,45 +16,8 @@ package info.ata4.bspsrc.decompiler.modules.texture;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class Texture {
-
-    private String texture;
-    private TextureAxis u = new TextureAxis(1, 0, 0);
-    private TextureAxis v = new TextureAxis(0, 1, 0);
-    private int lmscale = 16;
-
-    public TextureAxis getUAxis() {
-        return u;
-    }
-
-    public void setUAxis(TextureAxis u) {
-        this.u = u;
-    }
-
-    public TextureAxis getVAxis() {
-        return v;
-    }
-
-    public void setVAxis(TextureAxis v) {
-        this.v = v;
-    }
-
-    public String getTexture() {
-        return texture;
-    }
-
-    public String getOriginalTexture() {
-        return texture;
-    }
-
-    public void setTexture(String texture) {
-        this.texture = texture;
-    }
-    
-    public int getLightmapScale() {
-        return lmscale;
-    }
-
-    public void setLightmapScale(int lmscale) {
-        this.lmscale = lmscale;
-    }
+    public String texture;
+    public TextureAxis u = new TextureAxis(1, 0, 0);
+    public TextureAxis v = new TextureAxis(0, 1, 0);
+    public int lmscale = 16;
 }

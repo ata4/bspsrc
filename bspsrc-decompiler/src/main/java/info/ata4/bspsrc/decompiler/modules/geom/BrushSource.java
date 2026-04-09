@@ -368,9 +368,9 @@ public class BrushSource extends ModuleDecompile {
         if (config.fixToolTextures && potentialCompactedTexinf) {
             boolean isOccluderBrush = occReallocationData.isOccluderBrush(ibrush);
             boolean isOccluderBrushSide = occReallocationData.isOccluderBrushSide(ibrush, ibrushside - brush.fstside);
-            
+
             var fixedToolTexture = TextureBuilder.fixToolTexture(
-                    texture.getTexture(),
+                    texture.texture,
                     isOccluderBrush,
                     isOccluderBrushSide,
                     brush.contents,
@@ -378,12 +378,12 @@ public class BrushSource extends ModuleDecompile {
                     texsrc.getToolTextureMatcher()
             );
             if (fixedToolTexture != null)
-                texture.setTexture(fixedToolTexture);
+                texture.texture = fixedToolTexture;
         }
 
         // set custom face texture string
         if (!config.faceTexture.isEmpty()) {
-            texture.setTexture(config.faceTexture);
+            texture.texture = config.faceTexture;
         }
 
         int sideID = vmfmeta.getUID();
@@ -411,8 +411,8 @@ public class BrushSource extends ModuleDecompile {
             writer.put("normal", normal);
             writer.put("winding", wind.toString());
 
-            if (!texture.getTexture().equals(texname)) {
-                writer.put("original_material", texture.getOriginalTexture());
+            if (!texture.texture.equals(texname)) {
+                writer.put("original_material", texture.texture);
             }
 
             if (brushSide.texinfo != -1) {
@@ -427,7 +427,7 @@ public class BrushSource extends ModuleDecompile {
                 double angle = Math.toDegrees(Math.acos(normal.dot(texNorm) / texNorm.length()));
                 writer.put("input_uv_normal", texNorm);
                 writer.put("input_uv_angle", Double.isNaN(angle) ? 0 : angle);
-                texNorm = texture.getUAxis().axis.cross(texture.getVAxis().axis);
+                texNorm = texture.u.axis.cross(texture.v.axis);
                 angle = Math.toDegrees(Math.acos(normal.dot(texNorm)));
                 writer.put("output_uv_normal", texNorm);
                 writer.put("output_uv_angle", Double.isNaN(angle) ? 0 : angle);

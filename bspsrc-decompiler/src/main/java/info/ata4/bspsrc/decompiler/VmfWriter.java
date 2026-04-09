@@ -155,10 +155,10 @@ public class VmfWriter implements Closeable {
     }
 
     public void put(Texture tex) {
-        put("material", tex.getTexture());
-        put("uaxis", tex.getUAxis());
-        put("vaxis", tex.getVAxis());
-        put("lightmapscale", tex.getLightmapScale());
+        put("material", tex.texture);
+        put("uaxis", tex.u);
+        put("vaxis", tex.v);
+        put("lightmapscale", tex.lmscale);
     }
 
     public void put(KeyValue keyValue) {

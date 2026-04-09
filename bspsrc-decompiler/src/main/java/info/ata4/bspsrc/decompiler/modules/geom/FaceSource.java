@@ -332,7 +332,7 @@ public class FaceSource extends ModuleDecompile {
 
         // set face texture string
         if (!config.faceTexture.isEmpty()) {
-            texture.setTexture(config.faceTexture);
+            texture.texture = config.faceTexture;
         }
 
         // add side id to cubemap side list
@@ -360,7 +360,7 @@ public class FaceSource extends ModuleDecompile {
 
         // set back face texture string
         if (!config.backfaceTexture.isEmpty()) {
-            texture.setTexture(config.backfaceTexture);
+            texture.texture = config.backfaceTexture;
         }
 
         // write prismatic back faces for displacements, pyramidal otherwise
@@ -400,7 +400,7 @@ public class FaceSource extends ModuleDecompile {
         e3 = e3.add(bedge);
 
         // flip UAxis for back side
-        texture.setUAxis(new TextureAxis(texture.getUAxis().axis.scalar(-1)));
+        texture.u = new TextureAxis(texture.u.axis.scalar(-1));
 
         writeBackSide(texture, e1, e2, e3);
 
@@ -422,8 +422,8 @@ public class FaceSource extends ModuleDecompile {
                 tv1 = Vector3d.NULL;
             }
 
-            texture.setUAxis(new TextureAxis(tv1));
-            texture.setVAxis(new TextureAxis(tv2));
+            texture.u = new TextureAxis(tv1);
+            texture.v = new TextureAxis(tv2);
 
             writeBackSide(texture, e1, e2, e3);
         }
@@ -554,7 +554,7 @@ public class FaceSource extends ModuleDecompile {
         writer.put(texture);
         writer.end("side");
 
-        texture.setTexture(backMaterial);
+        texture.texture = backMaterial;
 
         if (prism) {
             writePrismBack(wind, texture, depth);
