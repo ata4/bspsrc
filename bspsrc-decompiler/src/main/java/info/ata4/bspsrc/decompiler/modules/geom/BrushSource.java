@@ -381,7 +381,7 @@ public class BrushSource extends ModuleDecompile {
             if (fixedToolTexture != null)
                 texture.texture = fixedToolTexture;
         }
-        if (config.nodrawVoidSurfaces && noFaceForSide && fixedToolTexture == null) {
+        if (config.nodrawInvisibleSides && noFaceForSide && fixedToolTexture == null) {
             texture = TextureBuilder.buildFromNormal(normal, ToolTexture.NODRAW);
         }
 

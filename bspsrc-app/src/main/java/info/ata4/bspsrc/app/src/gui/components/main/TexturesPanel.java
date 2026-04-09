@@ -42,9 +42,9 @@ public class TexturesPanel extends JPanel {
 		setToolTipText("Fix tool textures such as toolsnodraw or toolsblocklight.");
 		addActionListener(e -> TexturesPanel.this.config.updateConfig(c -> c.fixToolTextures = isSelected()));
 	}};
-	private final JCheckBox chkNodrawVoidSides = new JCheckBox("Nodraw void touching sides") {{
-		setToolTipText("Apply toolsnodraw texture to brushsides which are facing the void.");
-		addActionListener(e -> TexturesPanel.this.config.updateConfig(c -> c.nodrawVoidSurfaces = isSelected()));
+	private final JCheckBox chkNodrawInvisibleSides = new JCheckBox("Nodraw invisible sides") {{
+		setToolTipText("Apply toolsnodraw texture to brushsides which are not rendered in game. This applied mainly to brushsides facing the void. Tool Texture fixed brushsides are not affected by this.");
+		addActionListener(e -> TexturesPanel.this.config.updateConfig(c -> c.nodrawInvisibleSides = isSelected()));
 	}};
 
 	public TexturesPanel(ObservableBspSourceConfig config) {
@@ -68,7 +68,7 @@ public class TexturesPanel extends JPanel {
 
 		add(chkFixCubemapTextures, "wrap");
 		add(chkFixToolTextures, "wrap");
-		add(chkNodrawVoidSides, "wrap");
+		add(chkNodrawInvisibleSides, "wrap");
 		add(pnlOverride, "wrap");
 	}
 
@@ -78,7 +78,7 @@ public class TexturesPanel extends JPanel {
 
 		chkFixCubemapTextures.setSelected(config.get(c -> c.fixCubemapTextures));
 		chkFixToolTextures.setSelected(config.get(c -> c.fixToolTextures));
-		chkNodrawVoidSides.setSelected(config.get(c -> c.nodrawVoidSurfaces));
+		chkNodrawInvisibleSides.setSelected(config.get(c -> c.nodrawInvisibleSides));
 	}
 
 	public static void main(String[] args) {
