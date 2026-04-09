@@ -126,7 +126,7 @@ public class BspSourceCliCommand implements Callable<Void> {
 		private String backFaceTex = INITIAL_CONFIG.backfaceTexture;
 		@Option(names = "--no_cubemaptexfix", description = "Don't fix environment-mapped materials.")
 		private boolean noCubemapTexFix;
-		@Option(names = "--no_ttfix", description = "Don't fix tool textures such as toolsnodraw or toolsblocklight")
+		@Option(names = "--no_ttfix", description = "Don't fix tool textures such as toolsnodraw or toolsblocklight.")
 		private boolean noToolTexFix;
 		@Option(names = "--nodraw_void_sides", description = "Apply toolsnodraw texture to brushsides which are facing the void.")
 		private boolean nodrawVoidSurfaces;
