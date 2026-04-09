@@ -128,6 +128,8 @@ public class BspSourceCliCommand implements Callable<Void> {
 		private boolean noCubemapTexFix;
 		@Option(names = "--no_ttfix", description = "Don't fix tool textures such as toolsnodraw or toolsblocklight")
 		private boolean noToolTexFix;
+		@Option(names = "--nodraw_void_sides", description = "Apply toolsnodraw texture to brushsides which are facing the void.")
+		private boolean nodrawVoidSurfaces;
 	}
 
 	// miscellaneous options
@@ -245,6 +247,7 @@ public class BspSourceCliCommand implements Callable<Void> {
 		config.backfaceTexture = textureOptions.backFaceTex;
 		config.fixCubemapTextures = !textureOptions.noCubemapTexFix;
 		config.fixToolTextures = !textureOptions.noToolTexFix;
+		config.nodrawVoidSurfaces = textureOptions.nodrawVoidSurfaces;
 
 		// miscellaneous options
 		config.nullOutput = miscellaneousOptions.noVmf;

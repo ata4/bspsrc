@@ -42,6 +42,10 @@ public class TexturesPanel extends JPanel {
 		setToolTipText("Fix tool textures such as toolsnodraw or toolsblocklight.");
 		addActionListener(e -> TexturesPanel.this.config.updateConfig(c -> c.fixToolTextures = isSelected()));
 	}};
+	private final JCheckBox chkNodrawVoidSides = new JCheckBox("Nodraw void touching sides") {{
+		setToolTipText("Apply toolsnodraw texture to brushsides which are facing the void.");
+		addActionListener(e -> TexturesPanel.this.config.updateConfig(c -> c.nodrawVoidSurfaces = isSelected()));
+	}};
 
 	public TexturesPanel(ObservableBspSourceConfig config) {
 		this.config = requireNonNull(config);
@@ -64,6 +68,7 @@ public class TexturesPanel extends JPanel {
 
 		add(chkFixCubemapTextures, "wrap");
 		add(chkFixToolTextures, "wrap");
+		add(chkNodrawVoidSides, "wrap");
 		add(pnlOverride, "wrap");
 	}
 
@@ -73,6 +78,7 @@ public class TexturesPanel extends JPanel {
 
 		chkFixCubemapTextures.setSelected(config.get(c -> c.fixCubemapTextures));
 		chkFixToolTextures.setSelected(config.get(c -> c.fixToolTextures));
+		chkNodrawVoidSides.setSelected(config.get(c -> c.nodrawVoidSurfaces));
 	}
 
 	public static void main(String[] args) {

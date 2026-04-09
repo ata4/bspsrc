@@ -364,12 +364,13 @@ public class BrushSource extends ModuleDecompile {
         if (texture == null)
             texture = TextureBuilder.buildFromNormal(normal, ToolTexture.SKIP);
         
-        boolean potentialCompactedTexinf = brushSideFaceMapper.getOrigFaceIndex(ibrushside).isEmpty();
-        if (config.fixToolTextures && potentialCompactedTexinf) {
+        boolean noFaceForSide = brushSideFaceMapper.getOrigFaceIndex(ibrushside).isEmpty();
+        String fixedToolTexture = null;
+        if (config.fixToolTextures && noFaceForSide) {
             boolean isOccluderBrush = occReallocationData.isOccluderBrush(ibrush);
             boolean isOccluderBrushSide = occReallocationData.isOccluderBrushSide(ibrush, ibrushside - brush.fstside);
 
-            var fixedToolTexture = TextureBuilder.fixToolTexture(
+            fixedToolTexture = TextureBuilder.fixToolTexture(
                     texture.texture,
                     isOccluderBrush,
                     isOccluderBrushSide,
@@ -379,6 +380,9 @@ public class BrushSource extends ModuleDecompile {
             );
             if (fixedToolTexture != null)
                 texture.texture = fixedToolTexture;
+        }
+        if (config.nodrawVoidSurfaces && noFaceForSide && fixedToolTexture == null) {
+            texture = TextureBuilder.buildFromNormal(normal, ToolTexture.NODRAW);
         }
 
         // set custom face texture string

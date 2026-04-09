@@ -61,6 +61,7 @@ public final class BspSourceConfig {
     public String faceTexture = "";
     public boolean fixCubemapTextures = true;
     public boolean fixToolTextures = true;
+    public boolean nodrawVoidSurfaces = false;
     
     // miscellaneous options
     public boolean nullOutput = false;
@@ -111,6 +112,7 @@ public final class BspSourceConfig {
         this.faceTexture = config.faceTexture;
         this.fixCubemapTextures = config.fixCubemapTextures;
         this.fixToolTextures = config.fixToolTextures;
+        this.nodrawVoidSurfaces = config.nodrawVoidSurfaces;
         
         this.nullOutput = config.nullOutput;
         this.loadLumpFiles = config.loadLumpFiles;
