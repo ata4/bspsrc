@@ -257,14 +257,14 @@ public class FaceSource extends ModuleDecompile {
 
         Winding wind = windingFactory.fromFace(bsp, face);
 
+        // rotate in model space before translating to the entity origin
+        if (angles != null) {
+            wind = wind.rotate(angles);
+        }
+
         // translate to origin
         if (origin != null) {
             wind = wind.translate(origin);
-        }
-
-        // rotate
-        if (angles != null) {
-            wind = wind.rotate(angles);
         }
 
         // calculate plane vectors
