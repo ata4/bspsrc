@@ -167,7 +167,7 @@ public class BrushSideFaceMapper extends ModuleRead {
 						.entrySet()
 						.stream()
 						.filter(entry -> entry.getValue() > AREA_EPS)
-						.max(Map.Entry.comparingByKey())
+						.max(Map.Entry.comparingByValue())
 						.map(Map.Entry::getKey)
 						.ifPresent(origFaceI -> {
 							brushSideToOrigFace.put(brushSideIndex, origFaceI);
