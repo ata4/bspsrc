@@ -736,7 +736,7 @@ public class FaceSource extends ModuleDecompile {
             triangleTagSb.append(TRICONV[dt]);
 
             // check for new row
-            if (i % 2 * psize == 2 * psize - 1) {
+            if (i % (2 * psize) == 2 * psize - 1) {
                 triangleTagMap.put("row" + triangleTagMap.size(), triangleTagSb.toString());
                 triangleTagSb.setLength(0);
             } else {
