@@ -85,6 +85,7 @@ public class LzmaUtil {
                 LZMAOutputStream lzmaOut = new LZMAOutputStream(arrayOut, options, false)
         ) {
             bufferIn.transferTo(lzmaOut);
+            lzmaOut.finish();
             lzma = arrayOut.toByteArray();
             props = lzmaOut.getProps();
         }
