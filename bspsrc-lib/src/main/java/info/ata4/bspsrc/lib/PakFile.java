@@ -108,6 +108,12 @@ public class PakFile {
                     continue;
                 }
 
+                if (ze.isDirectory()) {
+                    L.info("Extracting {}", entryName);
+                    Files.createDirectories(entryFile);
+                    continue;
+                }
+
                 if (zipFile.canReadEntryData(ze)) {
                     try (InputStream stream = zipFile.getInputStream(ze)) {
                         extract(stream, entryFile, entryName);
