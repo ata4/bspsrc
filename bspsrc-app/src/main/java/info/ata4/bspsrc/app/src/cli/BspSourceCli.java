@@ -34,6 +34,6 @@ public class BspSourceCli {
         if (args.length == 0)
             cmdLine.usage(cmdLine.getOut());
         else
-            cmdLine.execute(args);
+            System.exit(cmdLine.execute(args));
     }
 }

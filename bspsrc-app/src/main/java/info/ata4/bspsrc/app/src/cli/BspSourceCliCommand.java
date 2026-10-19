@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static info.ata4.bspsrc.app.util.ErrorMessageUtil.decompileExceptionToMessage;
@@ -40,7 +41,7 @@ import static picocli.CommandLine.*;
 		sortSynopsis = false,
 		showDefaultValues = true
 )
-public class BspSourceCliCommand implements Callable<Void> {
+public class BspSourceCliCommand implements Callable<Integer> {
 
 	private static final Logger L = LogManager.getLogger();
 	private static final BspSourceConfig INITIAL_CONFIG = new BspSourceConfig();
@@ -168,7 +169,7 @@ public class BspSourceCliCommand implements Callable<Void> {
 	}
 
 	@Override
-	public Void call() throws IOException, InterruptedException {
+	public Integer call() throws IOException, InterruptedException {
 		if (debug) {
 			Log4jUtil.setRootLevel(Level.DEBUG);
 			L.debug("Debug mode on, verbosity set to maximum");
@@ -180,29 +181,31 @@ public class BspSourceCliCommand implements Callable<Void> {
 					.sorted(Map.Entry.comparingByValue(AlphanumComparator.COMPARATOR))
 					.forEachOrdered(entry -> System.out.printf("%8d  %s\n", entry.getKey(), entry.getValue()));
 
-			return null;
+			return ExitCode.OK;
 		}
 
 		BspSourceConfig config = getConfig();
 		List<BspFileEntry> entries = new ArrayList<>(getEntries());
 		if (entries.isEmpty()) {
 			L.error("No BSP file(s) specified");
-			return null;
+			return ExitCode.USAGE;
 		}
 
 		var bspsrc = new BspSource(config, entries);
+		var taskFailed = new AtomicBoolean();
 
 		try (var scope = Log4jUtil.configureDecompilationLogFileAppender(bspsrc.getEntryUuids(), entries)) {
 			bspsrc.run(signal -> {
 				if (signal instanceof BspSource.Signal.TaskFinished task) {
 					printTaskFinished(entries, task);
 				} else if (signal instanceof BspSource.Signal.TaskFailed task) {
+					taskFailed.set(true);
 					printTaskFailed(entries, task);
 				}
 			});
 		}
 
-		return null;
+		return taskFailed.get() ? ExitCode.SOFTWARE : ExitCode.OK;
 	}
 
 	private static void printTaskFailed(List<BspFileEntry> entries, BspSource.Signal.TaskFailed task) {
@@ -289,7 +292,7 @@ public class BspSourceCliCommand implements Callable<Void> {
 		for (Path path : bspPaths) {
 			if (Files.isDirectory(path)) {
 				PathMatcher bspPathMatcher = path.getFileSystem().getPathMatcher("glob:**.bsp");
-				try (Stream<Path> pathStream = Files.walk(path, recursive ? Integer.MAX_VALUE : 0)) {
+				try (Stream<Path> pathStream = Files.walk(path, recursive ? Integer.MAX_VALUE : 1)) {
 					pathStream
 							.filter(Files::isRegularFile)
 							.filter(bspPathMatcher::matches)
