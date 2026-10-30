@@ -211,6 +211,7 @@ public class StaticPropLumpReader implements LumpReader<StaticPropLumpReader.Sta
 			// Consequently, their v7 seems to be a standard DStaticPropV6 with an additional scaling array
 			new StaticPropStructDescriptor(DStaticPropV6VIN::new, 6, VINDICTUS),
 			new StaticPropStructDescriptor(DStaticPropV7VIN::new, 7, VINDICTUS),
+			new StaticPropStructDescriptor(DStaticPropV8VIN::new, 8, VINDICTUS),
 			new StaticPropStructDescriptor(DStaticPropV7L4D::new, 7, LEFT_4_DEAD),
 			// there's been a short period where TF2 used v7, which later became v10 in all Source 2013 game
 			new StaticPropStructDescriptor(DStaticPropV10::new, 7, TEAM_FORTRESS_2),
