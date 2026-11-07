@@ -52,9 +52,16 @@
         <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf-extras</artifactId>
+            <exclusions>
+                <!-- Use the JSVG core artifact below instead of the old coordinates. -->
+                <exclusion>
+                    <groupId>com.github.weisj</groupId>
+                    <artifactId>jsvg</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.github.weisj</groupId>
+            <groupId>com.github.weisj.jsvg</groupId>
             <artifactId>jsvg</artifactId>
         </dependency>
 

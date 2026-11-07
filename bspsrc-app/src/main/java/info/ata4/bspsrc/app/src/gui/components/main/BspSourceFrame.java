@@ -1,6 +1,8 @@
 package info.ata4.bspsrc.app.src.gui.components.main;
 
 import com.formdev.flatlaf.extras.components.FlatTabbedPane;
+import com.formdev.flatlaf.util.SystemFileChooser;
+import com.formdev.flatlaf.util.SystemFileChooser.FileNameExtensionFilter;
 import info.ata4.bspsrc.app.src.gui.components.task.DecompileTaskDialog;
 import info.ata4.bspsrc.app.src.gui.models.BspSourceModel;
 import info.ata4.bspsrc.app.src.gui.models.DecompileTaskModel;
@@ -9,7 +11,6 @@ import info.ata4.bspsrc.app.util.BspPathUtil;
 import info.ata4.bspsrc.app.util.log.Log4jUtil;
 import info.ata4.bspsrc.app.util.log.plugins.DialogAppender;
 import info.ata4.bspsrc.app.util.log.plugins.IsDecompileTaskFilter;
-import info.ata4.bspsrc.app.util.swing.FileExtensionFilter;
 import info.ata4.bspsrc.app.util.swing.GuiUtil;
 import info.ata4.bspsrc.decompiler.BspFileEntry;
 import info.ata4.bspsrc.decompiler.BspSource;
@@ -20,7 +21,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
@@ -33,37 +33,13 @@ public class BspSourceFrame extends JFrame {
 	private final BspSourceModel model;
 	private final FilesModel filesModel = new FilesModel();
 
-	private final JFileChooser vmfFileChooser = new JFileChooser() {
-		{
-			setFileFilter(new FileExtensionFilter("Hammer map file", "vmf"));
-		}
-
-		@Override
-		public void approveSelection() {
-			File file = getSelectedFile();
-			if (file != null && file.exists() && !askOverwrite(file))
-				return;
-
-			super.approveSelection();
-		}
-
-		private boolean askOverwrite(File file) {
-			String title = "Overwriting " + file.getPath();
-			String message = "File %s already exists.\nDo you like to replace it?".formatted(file.getName());
-
-			int choice = JOptionPane.showConfirmDialog(
-					this,
-					message,
-					title,
-					JOptionPane.YES_NO_OPTION,
-					JOptionPane.WARNING_MESSAGE
-			);
-
-			return choice == JOptionPane.OK_OPTION;
-		}
-	};
-	private final JFileChooser vmfDirFileChooser = new JFileChooser() {{
-		setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	// SystemFileChooser handles overwrite confirmation, including in its Swing fallback.
+	private final SystemFileChooser vmfFileChooser = new SystemFileChooser() {{
+		setFileFilter(new FileNameExtensionFilter("Hammer map file (*.vmf)", "vmf"));
+		putPlatformProperty(SystemFileChooser.WINDOWS_DEFAULT_EXTENSION, "vmf");
+	}};
+	private final SystemFileChooser vmfDirFileChooser = new SystemFileChooser() {{
+		setFileSelectionMode(SystemFileChooser.DIRECTORIES_ONLY);
 	}};
 
 	public final FlatTabbedPane tbpMain = new FlatTabbedPane();
@@ -204,9 +180,9 @@ public class BspSourceFrame extends JFrame {
 		decompileTaskDialog.setVisible(true);
 	}
 
-	private Path showSaveDialog(JFileChooser fileChooser) {
+	private Path showSaveDialog(SystemFileChooser fileChooser) {
 		int result = fileChooser.showSaveDialog(this);
-		if (result == JFileChooser.APPROVE_OPTION)
+		if (result == SystemFileChooser.APPROVE_OPTION)
 			return fileChooser.getSelectedFile().toPath();
 		else
 			return null;

@@ -102,7 +102,7 @@
                 <version>3.7.2</version>
             </dependency>
             <dependency>
-                <groupId>com.github.weisj</groupId>
+                <groupId>com.github.weisj.jsvg</groupId>
                 <artifactId>jsvg</artifactId>
                 <version>2.2.0</version>
             </dependency>

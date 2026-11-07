@@ -1,11 +1,12 @@
 package info.ata4.bspsrc.app.info.gui;
 
 import com.formdev.flatlaf.extras.components.FlatTabbedPane;
+import com.formdev.flatlaf.util.SystemFileChooser;
+import com.formdev.flatlaf.util.SystemFileChooser.FileNameExtensionFilter;
 import info.ata4.bspsrc.app.info.gui.models.BspInfoModel;
 import info.ata4.bspsrc.app.info.gui.panel.*;
 import info.ata4.bspsrc.app.util.log.Log4jUtil;
 import info.ata4.bspsrc.app.util.log.plugins.DialogAppender;
-import info.ata4.bspsrc.app.util.swing.FileExtensionFilter;
 import info.ata4.bspsrc.decompiler.BspSource;
 import info.ata4.bspsrc.lib.exceptions.BspException;
 import org.apache.logging.log4j.LogManager;
@@ -44,10 +45,10 @@ public class BspInfoFrame extends JFrame {
 
 	private final BspInfoModel model;
 
-	private final JFileChooser fileChooser = new JFileChooser();
-	private final JFileChooser lumpDstChooser = new JFileChooser();
-	private final JFileChooser embeddedFileDstChooser = new JFileChooser();
-	private final JFileChooser embeddedRawDstChooser = new JFileChooser();
+	private final SystemFileChooser fileChooser = new SystemFileChooser();
+	private final SystemFileChooser lumpDstChooser = new SystemFileChooser();
+	private final SystemFileChooser embeddedFileDstChooser = new SystemFileChooser();
+	private final SystemFileChooser embeddedRawDstChooser = new SystemFileChooser();
 
 	private final FlatTabbedPane tabbedPane = new FlatTabbedPane();
 	private final GeneralPanel generalPanel = new GeneralPanel();
@@ -65,11 +66,12 @@ public class BspInfoFrame extends JFrame {
 
 		initErrorDialog();
 
-		fileChooser.setFileFilter(new FileExtensionFilter("Source engine map file", "bsp"));
-		lumpDstChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		embeddedFileDstChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fileChooser.setFileFilter(new FileNameExtensionFilter("Source engine map file (*.bsp)", "bsp"));
+		lumpDstChooser.setFileSelectionMode(SystemFileChooser.DIRECTORIES_ONLY);
+		embeddedFileDstChooser.setFileSelectionMode(SystemFileChooser.DIRECTORIES_ONLY);
 		embeddedRawDstChooser.setAcceptAllFileFilterUsed(false);
-		embeddedRawDstChooser.setFileFilter(new FileExtensionFilter("Zip file", "zip"));
+		embeddedRawDstChooser.setFileFilter(new FileNameExtensionFilter("Zip file (*.zip)", "zip"));
+		embeddedRawDstChooser.putPlatformProperty(SystemFileChooser.WINDOWS_DEFAULT_EXTENSION, "zip");
 
 		var tabbedPanePaddingBorder = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 
@@ -126,7 +128,7 @@ public class BspInfoFrame extends JFrame {
 		menuItemOpenFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
 		menuItemOpenFile.addActionListener(e -> {
 			int result = fileChooser.showOpenDialog(this);
-			if (result != JFileChooser.APPROVE_OPTION)
+			if (result != SystemFileChooser.APPROVE_OPTION)
 				return;
 
 			lumpDstChooser.setCurrentDirectory(fileChooser.getCurrentDirectory());
@@ -261,9 +263,9 @@ public class BspInfoFrame extends JFrame {
 		JOptionPane.showMessageDialog(this, "Successfully extracted embedded files.");
 	}
 
-	private Path chooseDstDialog(JFileChooser fileChooser) {
+	private Path chooseDstDialog(SystemFileChooser fileChooser) {
 		int result = fileChooser.showSaveDialog(this);
-		if (result == JFileChooser.APPROVE_OPTION)
+		if (result == SystemFileChooser.APPROVE_OPTION)
 			return fileChooser.getSelectedFile().toPath();
 		else
 			return null;

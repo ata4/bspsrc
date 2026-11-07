@@ -1,7 +1,8 @@
 package info.ata4.bspsrc.app.src.gui.components.main;
 
+import com.formdev.flatlaf.util.SystemFileChooser;
+import com.formdev.flatlaf.util.SystemFileChooser.FileNameExtensionFilter;
 import info.ata4.bspsrc.app.src.gui.models.FilesModel;
-import info.ata4.bspsrc.app.util.swing.FileExtensionFilter;
 import info.ata4.bspsrc.app.util.swing.GuiUtil;
 import net.miginfocom.swing.MigLayout;
 import org.apache.logging.log4j.LogManager;
@@ -29,9 +30,9 @@ public class FilesPanel extends JPanel {
 
 	private final FilesModel model;
 
-	private final JFileChooser bspFileChooser = new JFileChooser() {{
+	private final SystemFileChooser bspFileChooser = new SystemFileChooser() {{
 		setMultiSelectionEnabled(true);
-		setFileFilter(new FileExtensionFilter("Source engine map file", "bsp"));
+		setFileFilter(new FileNameExtensionFilter("Source engine map file (*.bsp)", "bsp"));
 	}};
 
 	private final JList<Path> lstFiles = new JList<>();
@@ -178,7 +179,7 @@ public class FilesPanel extends JPanel {
 
 	private Set<Path> chooseBsps() {
 		int result = bspFileChooser.showOpenDialog(this);
-		if (result != JFileChooser.APPROVE_OPTION)
+		if (result != SystemFileChooser.APPROVE_OPTION)
 			return Set.of();
 
 		return Arrays.stream(bspFileChooser.getSelectedFiles())
